@@ -1,0 +1,35 @@
+{
+  "name": "availability.put.invalid",
+  "operation_id": "putAvailability",
+  "method": "PUT",
+  "path": "/v2/employees/{employee_id}/availability",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd"
+    }
+  },
+  "response": {
+    "status": 422,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "validation_failed",
+        "message": "Some fields need attention.",
+        "retryable": false,
+        "details": {
+          "fields": [
+            {
+              "path": [
+                "windows",
+                0,
+                "end_minute"
+              ],
+              "message": "end_minute must be after start_minute"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

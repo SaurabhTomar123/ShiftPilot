@@ -1,0 +1,36 @@
+{
+  "name": "run.queued",
+  "operation_id": "getOptimizationRun",
+  "method": "GET",
+  "path": "/v2/optimization-runs/{run_id}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "run_id": "1bc0f4df-a456-5c62-8fdf-c099d4b5a68b"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "OptimizationRun",
+    "body": {
+      "id": "1bc0f4df-a456-5c62-8fdf-c099d4b5a68b",
+      "kind": "generate",
+      "outlet_ids": [
+        "69e0477e-4a09-55c5-b467-8c673e7245b5"
+      ],
+      "base_version_ids": [],
+      "strategy": "balanced",
+      "job_state": "queued",
+      "solver_status": null,
+      "input_hash": "sha256:a9aefe1885535e62920a74d53098d5af",
+      "queued_at": "2026-10-18T19:40:00+05:30",
+      "started_at": null,
+      "finished_at": null,
+      "solver_wall_ms": null,
+      "poll_after_ms": 500,
+      "candidates": [],
+      "infeasibility": null,
+      "error": null
+    }
+  }
+}

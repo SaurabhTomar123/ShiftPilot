@@ -1,0 +1,35 @@
+{
+  "name": "generate.stale_base",
+  "operation_id": "generateSchedule",
+  "method": "POST",
+  "path": "/v2/outlets/{outlet_id}/schedules/{week_start}/generate",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-19"
+    },
+    "headers": {
+      "Idempotency-Key": "gen-5b0e8c31"
+    },
+    "body": {
+      "strategy": "balanced",
+      "base_version_id": "547861e6-b2e0-5750-8217-130b4fca2820",
+      "time_limit_seconds": 10
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "stale_version",
+        "message": "The schedule changed since you opened it. Reload and try again.",
+        "retryable": false,
+        "details": {
+          "current_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef"
+        }
+      }
+    }
+  }
+}

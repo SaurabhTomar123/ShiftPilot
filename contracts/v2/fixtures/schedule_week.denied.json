@@ -1,0 +1,25 @@
+{
+  "name": "schedule_week.denied",
+  "operation_id": "getScheduleWeek",
+  "method": "GET",
+  "path": "/v2/outlets/{outlet_id}/schedules/{week_start}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "59d8d06e-6680-5ee8-92d0-69212ccaac8f",
+      "week_start": "2026-10-19"
+    }
+  },
+  "response": {
+    "status": 403,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "permission_denied",
+        "message": "You can only access your own outlet.",
+        "retryable": false,
+        "details": {}
+      }
+    }
+  }
+}

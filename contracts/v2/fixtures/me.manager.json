@@ -1,0 +1,22 @@
+{
+  "name": "me.manager",
+  "operation_id": "getMe",
+  "method": "GET",
+  "path": "/v2/me",
+  "persona": "manager_indiranagar",
+  "request": {},
+  "response": {
+    "status": 200,
+    "schema": "Me",
+    "body": {
+      "user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+      "org_id": "08b61824-d17a-5028-91b1-d498945700e0",
+      "org_name": "Spice Route Kitchens",
+      "display_name": "Vikram Das",
+      "role": "manager",
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "employee_id": null,
+      "timezone": "Asia/Kolkata"
+    }
+  }
+}

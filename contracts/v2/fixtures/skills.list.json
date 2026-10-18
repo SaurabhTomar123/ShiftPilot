@@ -1,0 +1,36 @@
+{
+  "name": "skills.list",
+  "operation_id": "listSkills",
+  "method": "GET",
+  "path": "/v2/skills",
+  "persona": "manager_indiranagar",
+  "request": {},
+  "response": {
+    "status": 200,
+    "schema": "SkillList",
+    "body": {
+      "items": [
+        {
+          "id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "name": "Grill"
+        },
+        {
+          "id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "name": "Prep"
+        },
+        {
+          "id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "name": "Server"
+        },
+        {
+          "id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "name": "Cashier"
+        },
+        {
+          "id": "b712ed56-af3c-5221-bd78-87676295e21c",
+          "name": "Barista"
+        }
+      ]
+    }
+  }
+}

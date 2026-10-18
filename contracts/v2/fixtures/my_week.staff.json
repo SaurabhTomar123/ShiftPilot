@@ -1,0 +1,81 @@
+{
+  "name": "my_week.staff",
+  "operation_id": "getMyWeek",
+  "method": "GET",
+  "path": "/v2/me/shifts",
+  "persona": "staff_ravi",
+  "request": {
+    "query": {
+      "week_start": "2026-10-19"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "MyWeek",
+    "body": {
+      "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+      "week_start": "2026-10-19",
+      "shifts": [
+        {
+          "id": "bc3a4357-615c-5a17-a72c-c058500ef67c",
+          "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "start_at": "2026-10-21T10:00:00+05:30",
+          "end_at": "2026-10-21T18:00:00+05:30",
+          "break_start_at": "2026-10-21T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "78e16c50-bce7-512e-ac6c-608fcf720f19",
+          "logical_shift_id": "3d772ad4-45bd-5b6d-b144-5237f8705c50",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-22T10:00:00+05:30",
+          "end_at": "2026-10-22T18:00:00+05:30",
+          "break_start_at": "2026-10-22T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "b7346470-dc77-5a6f-b032-d86ebc21e8df",
+          "logical_shift_id": "7f4fe921-15d7-53bf-bf68-15643474bf25",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-23T15:00:00+05:30",
+          "end_at": "2026-10-23T23:00:00+05:30",
+          "break_start_at": "2026-10-23T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "08cd22d5-516d-593d-9487-dcbccc31bb2b",
+          "logical_shift_id": "634f150a-7d49-58fb-93df-51a6c3fc51b2",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-24T18:00:00+05:30",
+          "end_at": "2026-10-24T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": true,
+          "lock_reason": "Locked by manager"
+        }
+      ],
+      "outlets": [
+        {
+          "id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "name": "Indiranagar",
+          "timezone": "Asia/Kolkata"
+        }
+      ]
+    }
+  }
+}

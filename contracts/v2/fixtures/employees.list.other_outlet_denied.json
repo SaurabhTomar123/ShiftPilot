@@ -1,0 +1,24 @@
+{
+  "name": "employees.list.other_outlet_denied",
+  "operation_id": "listEmployees",
+  "method": "GET",
+  "path": "/v2/employees",
+  "persona": "manager_indiranagar",
+  "request": {
+    "query": {
+      "outlet_id": "59d8d06e-6680-5ee8-92d0-69212ccaac8f"
+    }
+  },
+  "response": {
+    "status": 403,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "permission_denied",
+        "message": "You can only access your own outlet.",
+        "retryable": false,
+        "details": {}
+      }
+    }
+  }
+}

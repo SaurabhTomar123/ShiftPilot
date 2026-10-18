@@ -1,0 +1,22 @@
+{
+  "name": "me.staff",
+  "operation_id": "getMe",
+  "method": "GET",
+  "path": "/v2/me",
+  "persona": "staff_ravi",
+  "request": {},
+  "response": {
+    "status": 200,
+    "schema": "Me",
+    "body": {
+      "user_id": "e4947268-0d92-5d7f-a21e-b8836aeada78",
+      "org_id": "08b61824-d17a-5028-91b1-d498945700e0",
+      "org_name": "Spice Route Kitchens",
+      "display_name": "Ravi Kumar",
+      "role": "staff",
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+      "timezone": "Asia/Kolkata"
+    }
+  }
+}

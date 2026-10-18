@@ -56,5 +56,5 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 [tool.mypy]
 python_version = "3.14"
 strict = true
-files = ["core", "mcp_server"]
+files = ["core", "mcp_server", "api/v2"]
 ignore_missing_imports = true
