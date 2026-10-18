@@ -39,4 +39,5 @@ def tenant_session(caller: Caller) -> Iterator[Session]:
     with sessionmaker(app_engine())() as s, s.begin():
         s.execute(text("select set_config('app.org_id', :org, true)"), {"org": caller.org_id})
         s.execute(text("select set_config('app.user_id', :uid, true)"), {"uid": caller.user_id})
+        s.execute(text("select set_config('app.role', :role, true)"), {"role": str(caller.role)})
         yield s

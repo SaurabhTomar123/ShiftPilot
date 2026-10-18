@@ -146,9 +146,8 @@ Alembic lives in `db/migrations/`, with `alembic.ini` at the repo root using the
 |---|---|
 | `0001_v1_baseline` | The exact current schema: tables, indexes, extensions, app role, grants, RLS and the audit revoke, as produced today by `db.init`. It is verified by comparing a fresh `upgrade 0001` database with a fresh `db.init` database (reflected schema and `pg_policies`) in a test. |
 | `0002_tenant_hardening` | Adds `UNIQUE(org_id, id)` on outlets, employees and users; makes `outlets.slug` per-org; adds the org timezone; extends audit columns and revokes `DELETE`; sets default privileges. |
-| `0003_scheduling_core` | §3.1–3.4 tables, triggers and RLS, plus backfilling `employee_skills` from `employees.job_role`. |
-| `0004_runs_and_proposals` | §3.5. |
-| `0005+` | Rules, employee requests, imports, demo sessions, as each phase needs them. |
+| `0003_scheduling_core` | §3.1–3.5 tables (runs, candidates and proposals included, merged from the planned 0004), the immutability triggers, RLS and grants, plus backfilling `skills` and `employee_skills` from `employees.job_role`. |
+| `0004+` | Rules, employee requests, imports, demo sessions, as each phase needs them. |
 
 **Existing databases.** `python -m db.migrate adopt` handles a database that has v1 tables but no `alembic_version`:
 
@@ -182,3 +181,15 @@ Then `alembic upgrade head` runs as usual. A database is never stamped blind.
 - Grid: shift start and end must fall on the policy grid (default 30 minutes) in outlet local time.
 - IDs are UUID strings.
 - Every mutating request carries an `Idempotency-Key` header. Every proposal or publish carries `base_version_id(s)` and `input_hash`.
+
+## 7. Implemented in B1.1 — commands
+
+```sh
+python -m db.init                      # upgrade to head; adopts a matching pre-Alembic DB first
+python -m db.migrate upgrade           # same, without the adopt step
+python -m db.migrate adopt             # verify-then-stamp a db.init-era database as 0001
+python -m alembic check                # models and migrations must agree (also tested)
+python -m db.init --drop               # DEVELOPMENT ONLY: drop the public schema, then upgrade
+```
+
+Acceptance evidence is `tests/integration/test_migrations.py` (fresh upgrade, downgrade/re-upgrade, adopt accepts identical and refuses different schemas, populated v1 upgrade with skill backfill, RLS on v2 tables with the runtime role, composite-key cross-tenant rejection, per-org slugs, version and shift immutability, app-role privileges), plus the unchanged v1 integration suite running on a database adopted from the old `db.init`.

@@ -53,8 +53,11 @@ target-version = "py314"
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+"db/migrations/versions/*" = ["E501"]  # generated table definitions
+
 [tool.mypy]
 python_version = "3.14"
 strict = true
-files = ["core", "mcp_server", "api/v2"]
+files = ["core", "mcp_server", "api/v2", "db/migrate.py", "db/models_v2.py", "db/init.py", "db/session.py"]
 ignore_missing_imports = true
