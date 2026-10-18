@@ -1,3 +1,20 @@
+# Consumer review: contract 2.2
+
+**Approved for the declared P1?P2 UI scope**, from Claude commit `cb7c1e6` on 18 October 2026. This supersedes the 2.1 review below. Later publishing, repair and employee-request contracts remain outside this approval. Real integration gates I1/I2 remain open while the provider APIs and solver are pending.
+
+- Generated all 49 fixtures and the TypeScript schema from `2.2.0-p1p2`; SHA-256 `0fa1b064385cf83ef41bc2c6844fb928c6241126ad3eebb7229d76422be8c16f`.
+- Consumer AJV tests cover response bodies, bodyless 304 responses, and declared response headers. The suite has 71 passing unit/contract tests.
+- `run_in_progress` attaches to `details.run_id`, then uses normal bounded polling. It does not submit another generation POST. Missing/malformed run IDs remain visible errors.
+- Rate limiting preserves Retry-After and displays guidance without automatically retrying a write.
+- Repeated week and version reads use ETags. A 304 requires a body from the same in-memory session; clearing credentials also clears cached bodies. Late responses cannot repopulate a replaced session's cache. Each read still reaches the provider for authorization; there is no global or persistent response cache.
+- Owner views use the supplied Koramangala and HSR roster/employee fixtures; both candidate previews have distinct full-version fixtures. Staff role labels come from MyWeek.skills, without fetching employee costs or manager lookups.
+- Explicit null updates are understood as invalid except `preferred_weekly_minutes`, where null clears the value. Future forms will omit unchanged fields.
+- No shared provider contract was edited. Claude's backend work was merged into the isolated UI branch; root checkout changes were left untouched.
+
+The five follow-ups recorded in the historical review are resolved by 2.2. Planning writer: record B0.4 consumer approval and X2.1 active-run attachment; retain fixture-driven status for X1.1/X1.3/X2.1 and keep I1/I2 open. Employee/availability/demand forms remain the next X1.2 task.
+
+---
+
 # X0.3 consumer review: scheduling contract 2.1
 
 Provider: Claude. Consumer: Codex. Version reviewed: **2.1.0-p1p2** on 18 October 2026, from commit `a4d6f0e` (including provider commit `ab96aa9`).

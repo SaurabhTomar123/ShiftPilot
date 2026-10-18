@@ -1,7 +1,7 @@
 import type { ApiErrorBody, Persona, Scenario, Schema } from './types';
 
 export class ApiError extends Error {
-  constructor(public readonly status: number, public readonly detail: ApiErrorBody) {
+  constructor(public readonly status: number, public readonly detail: ApiErrorBody, public readonly retryAfter: string | null = null) {
     super(detail.message); this.name = 'ApiError';
   }
 }
@@ -17,14 +17,19 @@ export type ClientOptions = {
 export class SchedulingClient {
   private token: string | null = null;
   private generation = 0;
+  private readonly reads = new Map<string, { etag: string; payload: unknown }>();
   private fetcher: typeof fetch;
   constructor(private readonly options: ClientOptions) { this.fetcher = options.fetcher ?? ((input, init) => fetch(input, init)); }
 
-  clearSession() { this.token = null; this.generation += 1; }
+  clearSession() { this.token = null; this.generation += 1; this.reads.clear(); }
   setFixtureScenario(scenario: Scenario) { this.options.fixtureScenario = scenario; }
 
   private async request<T>(path: string, init: RequestInit = {}, idempotencyKey?: string): Promise<T> {
+    const generation = this.generation;
+    const cacheable = (init.method ?? 'GET') === 'GET' && (/^\/v2\/outlets\/[^/]+\/schedules\/[^/]+$/.test(path) || path.startsWith('/v2/schedule-versions/'));
+    const cached = cacheable ? this.reads.get(path) : undefined;
     const headers = new Headers(init.headers);
+    if (cached) headers.set('If-None-Match', cached.etag);
     headers.set('Accept', 'application/json');
     if (init.body) headers.set('Content-Type', 'application/json');
     if (this.token) headers.set('Authorization', `Bearer ${this.token}`);
@@ -32,13 +37,18 @@ export class SchedulingClient {
     // Scenario headers are strictly confined to the same-origin fixture gateway.
     if (this.options.baseUrl === '/api/fixture' && this.options.fixtureScenario) headers.set('X-ShiftPilot-Scenario', this.options.fixtureScenario);
     const response = await this.fetcher(`${this.options.baseUrl.replace(/\/$/, '')}${path}`, { ...init, headers, cache: 'no-store', credentials: 'omit' });
+    if (generation !== this.generation || init.signal?.aborted) throw new DOMException('Session was replaced', 'AbortError');
+    if (response.status === 304 && cached) return structuredClone(cached.payload) as T;
     const payload: unknown = await response.json().catch(() => null);
+    if (generation !== this.generation || init.signal?.aborted) throw new DOMException('Session was replaced', 'AbortError');
     if (!response.ok) {
       const detail = isErrorEnvelope(payload) ? payload.error : { code: 'internal' as const, message: 'The scheduling service returned an unreadable response.', retryable: false, details: {} };
       if (response.status === 401) { this.clearSession(); this.options.onUnauthorized?.(); }
-      throw new ApiError(response.status, detail);
+      throw new ApiError(response.status, detail, response.headers.get('Retry-After'));
     }
     if (payload === null) throw new ApiError(response.status, { code: 'internal', message: 'The scheduling service returned an empty response.', retryable: false, details: {} });
+    const etag = response.headers.get('ETag');
+    if (cacheable && etag && generation === this.generation) this.reads.set(path, { etag, payload: structuredClone(payload) });
     return payload as T;
   }
 
@@ -100,4 +110,13 @@ export function abortableDelay(ms: number, signal: AbortSignal): Promise<void> {
     const timer = setTimeout(() => { signal.removeEventListener('abort', abort); resolve(); }, ms);
     signal.addEventListener('abort', abort, { once: true });
   });
+}
+
+/** Attach to an admitted run without resubmitting a write. */
+export async function generateOrAttach(client: SchedulingClient, outletId: string, week: string, input: Schema['GenerateRequest'], key: string, signal: AbortSignal) {
+  try { return await client.generate(outletId, week, input, key, signal); }
+  catch (error) {
+    if (error instanceof ApiError && error.detail.code === 'run_in_progress' && typeof error.detail.details?.run_id === 'string') return client.run(error.detail.details.run_id, signal);
+    throw error;
+  }
 }

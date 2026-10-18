@@ -65,8 +65,11 @@ test('persona changes clear old data and employee controls contain no costs', as
   await page.getByLabel('Demo persona', { exact: true }).selectOption('owner');
   await expect(page.getByLabel('Outlet', { exact: true }).locator('option')).toHaveCount(3);
   await page.getByLabel('Outlet', { exact: true }).selectOption({ label: 'Koramangala' });
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('No provider fixture');
-  await expect(page.getByRole('table')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Published roster' })).toBeVisible();
+  await expect(page.getByRole('table').locator('tbody tr')).toHaveCount(13);
+  await expect(page.getByRole('table').getByText('Ravi Kumar', { exact: true })).toHaveCount(0);
+  await page.getByLabel('Outlet', { exact: true }).selectOption({ label: 'HSR Layout' });
+  await expect(page.getByRole('heading', { name: 'Published roster' })).toBeVisible();
 });
 
 test('denied context clears the previous roster', async ({ page }) => {
@@ -87,4 +90,28 @@ test('contract roster is accessible and fits desktop/mobile', async ({ page }, i
   await page.screenshot({ path: path.join(process.cwd(), '.impeccable/review', `${info.project.name}.png`), fullPage: true, animations: 'disabled' });
   const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([]);
+});
+
+test('joins an existing run with one write and previews the second candidate', async ({ page }) => {
+  let writes = 0;
+  page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/generate')) writes += 1; });
+  await page.getByRole('button', { name: 'Next week' }).click();
+  await page.getByLabel('Demo outcome', { exact: true }).selectOption('active');
+  await page.getByRole('button', { name: 'Generate draft' }).click();
+  await expect(page.getByRole('heading', { name: 'Drafts ready for a closer look.' })).toBeVisible();
+  expect(writes).toBe(1);
+  await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Preview draft' }).last().click();
+  await expect(page.getByRole('heading', { name: 'Proposed roster' })).toBeVisible();
+  expect(writes).toBe(1);
+});
+
+test('shows rate-limit guidance without retrying the generation write', async ({ page }) => {
+  let writes = 0;
+  page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/generate')) writes += 1; });
+  await page.getByRole('button', { name: 'Next week' }).click();
+  await page.getByLabel('Demo outcome', { exact: true }).selectOption('rate_limited');
+  await page.getByRole('button', { name: 'Generate draft' }).click();
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('in 3 seconds');
+  expect(writes).toBe(1);
 });

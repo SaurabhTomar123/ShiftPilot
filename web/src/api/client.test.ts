@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ApiError, SchedulingClient, watchRun } from './client';
+import { ApiError, SchedulingClient, generateOrAttach, watchRun } from './client';
 import { fixture, fixtureResponse } from './fixture-gateway';
 import { formatMoney, localDate, localTime, percent, runMessage } from './presentation';
 import type { Scenario } from './types';
@@ -136,5 +136,47 @@ describe('solver status and presentation', () => {
     expect(percent(null)).toBe('Not applicable'); expect(percent(0)).toBe('0%');
     expect(localDate('2026-10-19T20:00:00Z', 'Asia/Kolkata')).toBe('2026-10-20');
     expect(localTime('2026-10-19T20:00:00Z', 'Asia/Kolkata')).toBe('01:30');
+  });
+});
+
+describe('contract 2.2 admission and private caching', () => {
+  it('attaches to the active run with exactly one POST', async () => {
+    const { client, requests } = setup('active');
+    const me = await client.signIn('manager');
+    const run = await generateOrAttach(client, me.outlet_id!, '2026-10-26', { base_version_id: null, strategy: 'balanced', time_limit_seconds: 10 }, 'one-write', new AbortController().signal);
+    expect(run.solver_status).toBe('OPTIMAL');
+    expect(requests.filter(r => r.method === 'POST' && r.url.endsWith('/generate'))).toHaveLength(1);
+    expect(requests.at(-1)?.url).toContain(`/optimization-runs/${run.id}`);
+  });
+
+  it('exposes Retry-After without retrying a rate-limited write', async () => {
+    const { client, requests } = setup('rate_limited');
+    const me = await client.signIn('manager');
+    await expect(generateOrAttach(client, me.outlet_id!, '2026-10-26', { base_version_id: null, strategy: 'balanced', time_limit_seconds: 10 }, 'one-write', new AbortController().signal)).rejects.toMatchObject({ status: 429, retryAfter: '3' });
+    expect(requests).toHaveLength(2);
+  });
+
+  it('revalidates a week and published version with ETag, reusing the body on 304', async () => {
+    const { client, requests } = setup();
+    const me = await client.signIn('manager');
+    const week = await client.schedule(me.outlet_id!, '2026-10-19');
+    expect(await client.schedule(me.outlet_id!, '2026-10-19')).toEqual(week);
+    expect(requests.at(-1)?.headers.get('If-None-Match')).toBeTruthy();
+    const version = await client.version(week.current_version!.id);
+    expect(await client.version(version.id)).toEqual(version);
+    expect(requests.at(-1)?.headers.get('If-None-Match')).toBe(`"${version.id}"`);
+    await client.signIn('staff');
+    await expect(client.schedule(me.outlet_id!, '2026-10-19')).rejects.toMatchObject({ status: 403 });
+    expect(requests.at(-1)?.headers.has('If-None-Match')).toBe(false);
+  });
+
+  it('cannot repopulate a cache with a late response from a replaced session', async () => {
+    let release!: (response: Response) => void;
+    const deferred = new Promise<Response>(resolve => { release = resolve; });
+    const client = new SchedulingClient({ baseUrl: '/api/fixture', fetcher: async () => deferred });
+    const stale = client.schedule('old-outlet', '2026-10-19').catch(error => error);
+    client.clearSession();
+    release(Response.json(fixture('schedule_week.published'), { headers: { ETag: 'old' } }));
+    expect((await stale).name).toBe('AbortError');
   });
 });

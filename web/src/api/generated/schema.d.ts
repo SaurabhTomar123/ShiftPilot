@@ -305,7 +305,7 @@ export interface components {
         AvailabilityWindow: {
             /**
              * Weekday
-             * @description 0 = Monday … 6 = Sunday
+             * @description 0 = Monday ... 6 = Sunday
              */
             weekday: number;
             /**
@@ -515,7 +515,12 @@ export interface components {
             /** Level */
             level: number;
         };
-        /** EmployeeUpdate */
+        /**
+         * EmployeeUpdate
+         * @description Partial update. Omit a field to leave it unchanged. Sending null for a field that cannot be
+         *     null is rejected (422 validation_failed); only preferred_weekly_minutes accepts null, which
+         *     clears it.
+         */
         EmployeeUpdate: {
             /** Base Revision */
             base_revision: number;
@@ -547,7 +552,7 @@ export interface components {
              * Code
              * @enum {string}
              */
-            code: "unauthenticated" | "permission_denied" | "not_found" | "validation_failed" | "stale_version" | "conflict" | "idempotency_conflict" | "rate_limited" | "not_implemented" | "internal";
+            code: "unauthenticated" | "permission_denied" | "not_found" | "validation_failed" | "stale_version" | "conflict" | "idempotency_conflict" | "run_in_progress" | "rate_limited" | "not_implemented" | "internal";
             /**
              * Message
              * @description Safe to show to the user.
@@ -582,7 +587,7 @@ export interface components {
             strategy: "balanced" | "lowest_cost" | "staff_friendly" | "max_coverage";
             /**
              * Base Version Id
-             * @description Current published version the draft replaces; null for an empty week. Stale → 409.
+             * @description Current published version the draft replaces; null for an empty week. Stale -> 409.
              */
             base_version_id?: string | null;
             /**
@@ -644,7 +649,7 @@ export interface components {
         Metrics: {
             /**
              * Coverage Ratio
-             * @description sum(min(assigned, preferred) × minutes) / sum(preferred × minutes). null when there is no demand. Overstaffing never raises it.
+             * @description sum(min(assigned, preferred) x minutes) / sum(preferred x minutes). null when there is no demand. Overstaffing never raises it.
              */
             coverage_ratio: number | null;
             /**
@@ -702,12 +707,17 @@ export interface components {
              * @description Outlets referenced by the shifts.
              */
             outlets: components["schemas"]["OutletRef"][];
+            /**
+             * Skills
+             * @description Skills referenced by the shifts, for role labels.
+             */
+            skills: components["schemas"]["Skill"][];
         };
         /** OperatingWindow */
         OperatingWindow: {
             /**
              * Weekday
-             * @description 0 = Monday … 6 = Sunday
+             * @description 0 = Monday ... 6 = Sunday
              */
             weekday: number;
             /**
@@ -1992,7 +2002,10 @@ export interface operations {
     getScheduleWeek: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description ETag from a previous response. */
+                "If-None-Match"?: string | null;
+            };
             path: {
                 outlet_id: string;
                 week_start: string;
@@ -2004,11 +2017,22 @@ export interface operations {
             /** @description Successful Response */
             200: {
                 headers: {
+                    /** @description Derived from current_version_id; changes on every publication. */
+                    ETag?: string;
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["ScheduleWeek"];
                 };
+            };
+            /** @description Not modified: the If-None-Match value is still current. No body. */
+            304: {
+                headers: {
+                    /** @description Opaque validator. Send it back as If-None-Match to get 304 when nothing changed. */
+                    ETag?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unauthorized */
             401: {
@@ -2060,7 +2084,10 @@ export interface operations {
     getScheduleVersion: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description ETag from a previous response. */
+                "If-None-Match"?: string | null;
+            };
             path: {
                 version_id: string;
             };
@@ -2071,11 +2098,24 @@ export interface operations {
             /** @description Successful Response */
             200: {
                 headers: {
+                    /** @description Opaque validator. Send it back as If-None-Match to get 304 when nothing changed. */
+                    ETag?: string;
+                    /** @description `private, max-age=31536000, immutable` for published and superseded versions (they never change); `private, no-cache` for drafts. */
+                    "Cache-Control"?: string;
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["ScheduleVersion"];
                 };
+            };
+            /** @description Not modified: the If-None-Match value is still current. No body. */
+            304: {
+                headers: {
+                    /** @description Opaque validator. Send it back as If-None-Match to get 304 when nothing changed. */
+                    ETag?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Unauthorized */
             401: {
@@ -2179,7 +2219,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Conflict */
+            /** @description stale_version (base changed), idempotency_conflict (key reused with other input) or run_in_progress (another run is active for this schedule; details.run_id is that run: attach to it and poll instead of showing an error). */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2197,9 +2237,11 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
-            /** @description Too Many Requests */
+            /** @description rate_limited: the organization's run cap is reached. */
             429: {
                 headers: {
+                    /** @description Seconds to wait before retrying. */
+                    "Retry-After"?: string;
                     [name: string]: unknown;
                 };
                 content: {

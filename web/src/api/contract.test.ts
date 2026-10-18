@@ -17,6 +17,14 @@ describe(`consumer fixtures ${manifest.version}`, () => {
     it(`parses ${name} against its provider response schema`, () => {
       const operation = openapi.paths[value.path]?.[value.method.toLowerCase()];
       expect(operation?.operationId).toBe(value.operation_id);
+      if (value.response.status === 304) {
+        expect(operation?.responses['304']).toBeDefined();
+        expect(value.response.schema).toBeNull();
+        expect(value.response.body).toBeNull();
+        expect(value.response.headers?.ETag).toBeTruthy();
+        return;
+      }
+      for (const header of Object.keys(value.response.headers ?? {})) expect(operation?.responses[String(value.response.status)]?.headers?.[header]).toBeDefined();
       expect(operation?.responses[String(value.response.status)]?.content?.['application/json']?.schema?.$ref).toBe(`#/components/schemas/${value.response.schema}`);
       const validate = ajv.compile({ $ref: `#/components/schemas/${value.response.schema}`, components: openapi.components });
       expect(validate(value.response.body), JSON.stringify(validate.errors)).toBe(true);

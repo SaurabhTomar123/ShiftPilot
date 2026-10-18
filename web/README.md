@@ -1,6 +1,6 @@
 # ShiftPilot scheduling UI
 
-Codex owns this frontend; Claude owns database/backend delivery. The main UI now consumes contract **2.1.0-p1p2** rather than the original local prototype shapes.
+Codex owns this frontend; Claude owns database/backend delivery. The main UI now consumes contract **2.2.0-p1p2** rather than the original local prototype shapes.
 
 ## Run
 
@@ -14,10 +14,10 @@ Open http://127.0.0.1:3001. This port isolates UI work from the main checkout. N
 
 ## Two explicit environments
 
-- `/`: synthetic provider-contract preview. Uses the supplied 39 fixtures, UUIDs, skills, breaks, locks, exact money, published metrics and asynchronous run statuses. Manager, owner and employee personas have separate session/view state. Try generation on 26 October; use the demo outcome selector for feasible, infeasible, timeout, worker failure, stale and denied states. Draft preview is read-only; there is no publication endpoint in this slice.
+- `/`: synthetic provider-contract preview. Uses the supplied 49 fixtures, UUIDs, skills, breaks, locks, exact money, published metrics and asynchronous run statuses. Manager, owner and employee personas have separate session/view state. Try generation on 26 October; use the demo outcome selector for feasible, infeasible, timeout, worker failure, stale, denied, existing-run and rate-limit states. Draft preview is read-only; there is no publication endpoint in this slice.
 - `/sandbox`: the earlier browser-local editing prototype, with 60 synthetic employees across three outlets, shift editing, dnd-kit drag to empty same-role cells, locks, sample generation, simple absence replacement and local publish/history snapshots. It remains separate from the contract dataset and retains its localStorage key.
 
-The provider fixture roster has 13 Indiranagar employees, not the final ~60-person seed. Other listed owner outlets and the second candidate's full draft do not yet have fixtures. Missing fixtures return an explicit error rather than substituting data.
+The provider fixtures now include 13 employees per outlet across all three owner outlets, plus both candidate drafts. This is still synthetic data, not the final ~60-person database seed. Unsupported weeks and requests return an explicit missing-fixture error.
 
 **No live backend or solver is claimed.** The default same-origin gateway serves synthetic fixtures only. Real provider routes currently return 501 until their implementation lands. Editing/repair/publication in the sandbox are local simulations, not validated operational writes.
 
@@ -57,3 +57,5 @@ No fallback to fixtures occurs after a real API error. Live mode surfaces 401/40
 Detailed employee/skill/availability and demand forms, employee requests, import, rule parsing, repair and durable publication remain subsequent slices. Review the current task board; the earlier workflow note records the first prototype, not current completion of every UI task.
 
 Design references: [Taste Skill minimalist UI](https://github.com/Leonxlnx/taste-skill/blob/main/skills/minimalist-skill/SKILL.md), adapted to an operational roster, and [Superdesign reference](https://p.superdesign.dev/draft/60a3db55-605b-483b-b5c6-a5ebb9c9d902).
+
+Read caching is scoped to an in-memory client session and only covers schedule weeks and versions. Repeated reads send `If-None-Match`; a 304 reuses that session's previous body. Requests still reach the provider for authorization. Persona replacement and 401 clear cached bodies as well as credentials. For a cross-origin API, the provider must expose ETag and Retry-After through CORS for these headers to be readable.

@@ -10,7 +10,7 @@ The contract shell uses a 70px header, a 210px sidebar and content capped at 170
 
 ## Routes and evidence boundary
 
-`/` renders the contract workspace. The default `/api/fixture` mode displays **Synthetic contract preview**, provider fixture context and explanations near generation and roster actions. Current imported Claude provider contract2.1 fixtures identify themselves as `2.1.0-p1p2` in the generated manifest. Fixture outcomes demonstrate presentation states; they do not establish live solver behavior, production publication or release readiness. The optional API base URL changes the header wording to **Connected scheduling API**; the wording alone is not connection evidence.
+`/` renders the contract workspace. The default `/api/fixture` mode displays **Synthetic contract preview**, provider fixture context and explanations near generation and roster actions. Current imported Claude provider contract 2.2 fixtures identify themselves as `2.2.0-p1p2` in the generated manifest. Fixture outcomes demonstrate presentation states; they do not establish live solver behavior, production publication or release readiness. The optional API base URL changes the header wording to **Connected scheduling API**; the wording alone is not connection evidence.
 
 `/sandbox` retains the local editing workspace and its **Synthetic browser demo** boundary. Its editing, drag, repair and local publication demonstrations are separate from the root contract preview. The root provides a direct sandbox link and explicitly says editing, repair and publication contracts remain to be connected.
 
