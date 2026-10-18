@@ -1,6 +1,6 @@
 # ShiftPilot scheduling UI
 
-Next.js 16 / React 19 / strict TypeScript. This replaces the retired chat UI plan. Codex owns the whole UI; Claude owns backend/database delivery.
+Codex owns this frontend; Claude owns database/backend delivery. The main UI now consumes contract **2.1.0-p1p2** rather than the original local prototype shapes.
 
 ## Run
 
@@ -10,34 +10,50 @@ npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:3000. Node 24 was used during setup. Dependencies are locked; fonts are self-hosted.
+Open http://127.0.0.1:3001. This port isolates UI work from the main checkout. Node 24 is supported; dependencies are locked and the Geist font is self-hosted.
 
-## Current slice
+## Two explicit environments
 
-- Weekly roster, three outlets and 60 synthetic employees; search, role filters, week selection and CSV export.
-- Shift add/edit/remove, locks and desktop drag to an empty same-role employee/day cell.
-- Sample-week generation preserving existing locks, using fixtures rather than a solver.
-- Absence/replacement preview using simple role/day fixture filtering.
-- Local publication, reload recovery, version history and restore-as-draft.
-- Team list/add form, editable kitchen dinner preferences, request acknowledgement and rule configuration previews.
-- Responsive navigation, sticky employee names, accessible native dialogs and reduced-motion styles.
+- `/`: synthetic provider-contract preview. Uses the supplied 39 fixtures, UUIDs, skills, breaks, locks, exact money, published metrics and asynchronous run statuses. Manager, owner and employee personas have separate session/view state. Try generation on 26 October; use the demo outcome selector for feasible, infeasible, timeout, worker failure, stale and denied states. Draft preview is read-only; there is no publication endpoint in this slice.
+- `/sandbox`: the earlier browser-local editing prototype, with 60 synthetic employees across three outlets, shift editing, dnd-kit drag to empty same-role cells, locks, sample generation, simple absence replacement and local publish/history snapshots. It remains separate from the contract dataset and retains its localStorage key.
 
-**Backend is not connected.** State lives under `shiftpilot-ui-demo-v1` in browser localStorage. Synthetic data and decision limits are labelled in the interface. No retired chat/payroll APIs are called. No real notifications, authentication, optimization, constraint certification, parser or transactional publication is provided.
+The provider fixture roster has 13 Indiranagar employees, not the final ~60-person seed. Other listed owner outlets and the second candidate's full draft do not yet have fixtures. Missing fixtures return an explicit error rather than substituting data.
 
-Hours/base cost exclude breaks and overtime. Dinner coverage counts kitchen shifts spanning 18:00-22:00 against preferred targets; it is not a complete schedule metric.
+**No live backend or solver is claimed.** The default same-origin gateway serves synthetic fixtures only. Real provider routes currently return 501 until their implementation lands. Editing/repair/publication in the sandbox are local simulations, not validated operational writes.
 
-## Verify
+## Frontend foundation
+
+Next.js 16, React 19, strict TypeScript, Tailwind 4 (utilities/theme without a reset of the established CSS), a shadcn-compatible Radix Slot/Button primitive, Phosphor icons and dnd-kit. ESLint covers TypeScript, React hooks and JSX accessibility; Vitest covers the client and provider schemas. Native dialogs support focus management and Escape. Keyboard Enter opens the sandbox shift editor; Space starts a drag, Escape cancels. Full reassignment/resize and server validation belong to X3.1.
+
+## Contracts and checks
 
 ```powershell
+npm run contracts:generate
+npm run contracts:check
+npm run lint
 npm run typecheck
+npm test
 npm run build
 npm run test:e2e
 ```
 
-Tests use installed Chrome without downloading browsers. Desktop/mobile checks cover navigation, locks/generation, publishing/reload/history, repair, team/request/demand interaction, dialog keyboard handling, overflow and automated WCAG A/AA checks on the roster. Automated accessibility checks do not replace assistive-technology testing. Screenshots go to `.impeccable/review/` (gitignored).
+The generator reads `../contracts/v2` and writes only `src/api/generated`. Its manifest includes the schema/index/fixture hash. Drift checks fail when provider files change. The JavaScript/AJV suite independently validates every response fixture. Browser tests use installed Chrome at desktop/mobile sizes and include automated WCAG A/AA scans; they do not replace manual assistive-technology testing. Captures are gitignored under `.impeccable/review/`.
 
-## Backend handoff and remaining work
+For production-browser checks, build first and set `PLAYWRIGHT_SERVER_MODE=production`. The runner launches Next directly. If a restricted Windows shell blocks child-process cleanup, run the server in a separate terminal first; Playwright reuses it and leaves its lifecycle with that terminal.
 
-See [BACKEND_HANDOFF.md](docs/BACKEND_HANDOFF.md). Local TypeScript shapes are presentation models, not frozen server contracts. Detailed availability/skills editing, employee self-service, CSV import wizard, command interpretation, rule compilation and live API integration remain follow-up slices.
+## Live API connection, when ready
 
-Design references: [Taste Skill minimalist UI](https://github.com/Leonxlnx/taste-skill/blob/main/skills/minimalist-skill/SKILL.md), adapted for a dense operational roster; [Superdesign draft](https://p.superdesign.dev/draft/60a3db55-605b-483b-b5c6-a5ebb9c9d902). No external skill was installed globally.
+Set `NEXT_PUBLIC_API_BASE_URL` to the API origin in an untracked `.env.local`, then restart Next.js. Only a public origin belongs there: never database URLs or admin/provider secrets. The same SDK sends bearer headers and keeps credentials in memory; fixture scenario headers are confined to `/api/fixture`. Demo sign-in is supported by this contract; private deployments need their future real sign-in flow.
+
+No fallback to fixtures occurs after a real API error. Live mode surfaces 401/403/409/501 honestly. Publication and other future writes cannot be enabled until their contracts exist.
+
+## Handoffs
+
+- [Consumer approval and provider follow-ups](docs/CONTRACT_REVIEW.md)
+- [Initial backend handoff](docs/BACKEND_HANDOFF.md)
+- [Initial workflows and wireframes](docs/WORKFLOWS.md)
+- [Design system](DESIGN.md)
+
+Detailed employee/skill/availability and demand forms, employee requests, import, rule parsing, repair and durable publication remain subsequent slices. Review the current task board; the earlier workflow note records the first prototype, not current completion of every UI task.
+
+Design references: [Taste Skill minimalist UI](https://github.com/Leonxlnx/taste-skill/blob/main/skills/minimalist-skill/SKILL.md), adapted to an operational roster, and [Superdesign reference](https://p.superdesign.dev/draft/60a3db55-605b-483b-b5c6-a5ebb9c9d902).

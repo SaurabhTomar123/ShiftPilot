@@ -1,5 +1,5 @@
-import { Workspace } from '@/components/workspace';
+import { ContractWorkspace } from '@/components/contract-workspace';
 
 export default function Home() {
-  return <Workspace />;
+  return <ContractWorkspace />;
 }

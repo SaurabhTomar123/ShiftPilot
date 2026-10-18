@@ -1,0 +1,90 @@
+import { expect, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import path from 'node:path';
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Published roster' })).toBeVisible();
+});
+
+test('renders provider employees, exact money, preferences and locks', async ({ page }) => {
+  await expect(page.getByRole('table').locator('tbody tr')).toHaveCount(13);
+  await expect(page.getByRole('table').getByText('Ravi Kumar', { exact: true })).toBeVisible();
+  await expect(page.getByText('₹74,700.00', { exact: true })).toBeVisible();
+  await expect(page.getByText('77.1%', { exact: true })).toBeVisible();
+  await expect(page.getByText('Published version 3', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Generate draft' })).toBeDisabled();
+});
+
+test('generation preview stays unpublished', async ({ page }) => {
+  await page.getByRole('button', { name: 'Next week' }).click();
+  await expect(page.getByRole('heading', { name: 'A fresh week, ready to plan.' })).toBeVisible();
+  await page.getByRole('button', { name: 'Generate draft' }).click();
+  await expect(page.getByRole('heading', { name: 'Drafts ready for a closer look.' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Preview draft' })).toHaveCount(2);
+  await page.getByRole('button', { name: 'Preview draft' }).first().click();
+  await expect(page.getByText('Draft preview · not published', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Proposed roster' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Publish/ })).toHaveCount(0);
+});
+
+test('keeps feasible, timeout and infeasible results distinct', async ({ page }) => {
+  await page.getByRole('button', { name: 'Next week' }).click();
+  for (const [scenario, title] of [['feasible', 'A valid draft, with room to improve.'], ['timeout', 'No solution found within the time limit.'], ['infeasible', 'These requirements cannot all be met.']]) {
+    await page.getByLabel('Demo outcome', { exact: true }).selectOption(scenario);
+    await page.getByRole('button', { name: 'Generate draft' }).click();
+    await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
+    if (scenario === 'timeout') {
+      await expect(page.getByText('This does not mean the schedule is impossible.', { exact: false })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Preview draft' })).toHaveCount(0);
+    }
+  }
+});
+
+test('stale writes request review instead of silently retrying', async ({ page }) => {
+  let writes = 0;
+  page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/generate')) writes += 1; });
+  await page.getByRole('button', { name: 'Next week' }).click();
+  await page.getByLabel('Demo outcome', { exact: true }).selectOption('stale');
+  await page.getByRole('button', { name: 'Generate draft' }).click();
+  await expect(page.getByRole('heading', { name: 'This schedule has changed.' })).toBeVisible();
+  expect(writes).toBe(1);
+  await page.getByRole('button', { name: 'Reload latest schedule' }).click();
+  await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
+  expect(writes).toBe(1);
+});
+
+test('persona changes clear old data and employee controls contain no costs', async ({ page }) => {
+  await page.getByLabel('Demo persona', { exact: true }).selectOption('staff');
+  await expect(page.getByRole('heading', { name: 'Your week', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /^Saturday,? 24 October$/ })).toBeVisible();
+  await expect(page.getByRole('table')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Generate draft' })).toHaveCount(0);
+  await expect(page.getByText('Estimated labour cost', { exact: true })).toHaveCount(0);
+  expect(await page.evaluate(() => Object.keys(localStorage).some(key => /token|session/i.test(key)))).toBe(false);
+  await page.getByLabel('Demo persona', { exact: true }).selectOption('owner');
+  await expect(page.getByLabel('Outlet', { exact: true }).locator('option')).toHaveCount(3);
+  await page.getByLabel('Outlet', { exact: true }).selectOption({ label: 'Koramangala' });
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('No provider fixture');
+  await expect(page.getByRole('table')).toHaveCount(0);
+});
+
+test('denied context clears the previous roster', async ({ page }) => {
+  await page.getByLabel('Demo outcome', { exact: true }).selectOption('denied');
+  await expect(page.getByRole('heading', { name: 'This schedule is outside your access.' })).toBeVisible();
+  await expect(page.getByRole('table')).toHaveCount(0);
+});
+
+test('expired sessions leave no old roster on screen', async ({ page }) => {
+  await page.route('**/api/fixture/v2/outlets/*/schedules/**', route => route.fulfill({ status: 401, contentType: 'application/json', body: JSON.stringify({ error: { code: 'unauthenticated', message: 'Session expired', retryable: false, details: {} } }) }));
+  await page.getByRole('button', { name: 'Next week' }).click();
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Your session expired');
+  await expect(page.getByRole('table')).toHaveCount(0);
+});
+
+test('contract roster is accessible and fits desktop/mobile', async ({ page }, info) => {
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: path.join(process.cwd(), '.impeccable/review', `${info.project.name}.png`), fullPage: true, animations: 'disabled' });
+  const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([]);
+});

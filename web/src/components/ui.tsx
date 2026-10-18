@@ -5,15 +5,13 @@ import { XIcon } from '@phosphor-icons/react';
 
 export function Dialog({ title, children, onClose, wide = false }: { title: string; children: React.ReactNode; onClose: () => void; wide?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
-  const close = useRef(onClose);
-  close.current = onClose;
   useEffect(() => {
     const dialog = ref.current;
     const previous = document.activeElement as HTMLElement | null;
     dialog?.showModal();
     return () => { dialog?.close(); previous?.focus(); };
   }, []);
-  return <dialog ref={ref} className={`dialog ${wide ? 'wide' : ''}`} onCancel={event => { event.preventDefault(); close.current(); }} onClick={event => { if (event.target === event.currentTarget) close.current(); }} aria-labelledby="dialog-title">
+  return <dialog ref={ref} className={`dialog ${wide ? 'wide' : ''}`} onCancel={event => { event.preventDefault(); onClose(); }} aria-labelledby="dialog-title">
     <div className="dialog-heading"><h2 id="dialog-title">{title}</h2><button className="icon-button" aria-label="Close dialog" onClick={onClose}><XIcon size={20} /></button></div>
     {children}
   </dialog>;

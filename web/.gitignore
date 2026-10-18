@@ -6,3 +6,6 @@ playwright-report/
 .impeccable/review/
 .superdesign/weekly-roster.html
 .superdesign/tmp/
+.vitest/
+.env*
+!.env.example
