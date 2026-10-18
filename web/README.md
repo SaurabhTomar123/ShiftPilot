@@ -59,3 +59,6 @@ Detailed employee/skill/availability and demand forms, employee requests, import
 Design references: [Taste Skill minimalist UI](https://github.com/Leonxlnx/taste-skill/blob/main/skills/minimalist-skill/SKILL.md), adapted to an operational roster, and [Superdesign reference](https://p.superdesign.dev/draft/60a3db55-605b-483b-b5c6-a5ebb9c9d902).
 
 Read caching is scoped to an in-memory client session and only covers schedule weeks and versions. Repeated reads send `If-None-Match`; a 304 reuses that session's previous body. Requests still reach the provider for authorization. Persona replacement and 401 clear cached bodies as well as credentials. For a cross-origin API, the provider must expose ETag and Retry-After through CORS for these headers to be readable.
+
+
+The current UI applies the installed taste-skill package's existing-project redesign guidance: stronger skill colors, visible breaks/locks, explanatory metrics, team skill filters, and a staffing gap review. See `docs/CONTRACT_UI_DESIGN.md` and `DESIGN.md`. The complete package is installed locally in Codex; it is not a frontend runtime dependency.

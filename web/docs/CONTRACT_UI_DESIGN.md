@@ -1,42 +1,31 @@
-# Contract UI design extension
+# Contract workspace design
 
-Source scan dated 2026-10-18. This records an extension of the established Operate system in `DESIGN.md` and `.impeccable/design.json`; those files remain normative and unchanged. Sources: `PRODUCT.md`, both design files, `src/app/globals.css`, `src/components/contract-workspace.tsx`, `src/components/roster-drag.tsx`, route entry points and the shared button primitive. No browser or accessibility audit was performed.
+Updated 18 October 2026 in response to the user's request for the full taste-skill package, more vibrancy and more useful detail. Canonical tokens and layout are in `web/DESIGN.md`; the preview sidecar and Superdesign notes reflect this direction. Earlier minimal UI measurements in prior handoffs are historical.
 
-## Observed reuse
+## Package and scope
 
-The weekly table remains the primary working surface. The extension retains local Geist typography, warm canvas and sidebar, white surfaces, fine divider borders, forest primary actions and the four pastel role/text pairs. Written skill names accompany color. Shared avatars, empty states, neutral badges, search fields, week controls and the existing `.button` variants preserve the incumbent hierarchy. Containers remain flat with 8px corners; shifts use 5px corners and controls 6px. No new root color or typography tokens were introduced.
+All 14 skill directories in Leonxlnx/taste-skill were installed to the user's Codex skills directory using the skill-installer helper. The installed package will be auto-discoverable next turn; the relevant SKILL.md files were read directly for this implementation. Applied `redesign-existing-projects` guidance: scan, diagnose, then improve the existing stack and preserve working behavior. The default v2 skill explicitly excludes dashboards/app screens, so marketing photography, randomized heroes and cinematic scrolling were not added. Installing the package does not mean simultaneously applying its contradictory minimalist, brutalist and marketing directions.
 
-The contract shell uses a 70px header, a 210px sidebar and content capped at 1700px with 30px padding. This is a surface-specific arrangement within Operate, distinct from the sandbox's fixed sidebar and insights column.
+Source: https://github.com/Leonxlnx/taste-skill, especially skills/redesign-skill/SKILL.md and the default skill's documented scope.
 
-## Routes and evidence boundary
+## Implemented
 
-`/` renders the contract workspace. The default `/api/fixture` mode displays **Synthetic contract preview**, provider fixture context and explanations near generation and roster actions. Current imported Claude provider contract 2.2 fixtures identify themselves as `2.2.0-p1p2` in the generated manifest. Fixture outcomes demonstrate presentation states; they do not establish live solver behavior, production publication or release readiness. The optional API base URL changes the header wording to **Connected scheduling API**; the wording alone is not connection evidence.
+- Deep green identity/navigation frame, teal actions, light blue-gray canvas and five distinct skill colors with written labels.
+- Larger shift times and role labels. Break duration and locked status are visible before expanding; native details retain break start, lock reason and confirmed absence explanations.
+- Published, draft and empty-week status ribbons with explanatory copy. Published demo has a direct Plan upcoming week action.
+- Week facts: employees, shifts, locked assignments and timezone. These describe the full version, independent of row filters.
+- Explanatory preferred coverage, assigned time, estimated cost and minimum staffing metrics. Native coverage meter retains a written value. Costs remain capability-gated.
+- Skill filters with aria-pressed state, combined name search and a written no-results state. They filter teammates by their skills, preserving each displayed shift's actual role.
+- Staffing review uses provider coverage cells, reports preferred staff-minute deficits and preference match, and shows four gaps with minimum deficits prioritized. Staff-minutes and minimum versus preferred targets are explained.
+- Draft employee hours come from displayed assignments minus their unpaid breaks and are labelled as hours in that draft. Published row hours remain the provider's total across all outlets; these scopes are not interchangeable.
+- Employee view retains own assignments, skill, break and lock information without fetching colleague costs or showing manager planning instructions.
 
-`/sandbox` retains the local editing workspace and its **Synthetic browser demo** boundary. Its editing, drag, repair and local publication demonstrations are separate from the root contract preview. The root provides a direct sandbox link and explicitly says editing, repair and publication contracts remain to be connected.
+## Boundaries
 
-## Components and states
+The root remains a synthetic contract 2.2 preview, not a real solve or publication workflow. All permission, stale, timeout, active-run attachment, cache/session and idempotency behavior is preserved. `/sandbox` retains its earlier local editing prototype and neutral palette. The user's dirty root worktree and Claude's backend files were not edited.
 
-- **Metrics:** bordered white grid with auto-fitting columns of at least 150px, 18px cell padding and 22px tabular values. Coverage, assigned time and hard minimum shortfall remain distinct labels; cost appears only with the relevant capability.
-- **Roster:** real table with scoped headers, a descriptive hidden caption and horizontal scrolling. Native `details`/`summary` shift tiles reveal breaks, lock reasons and overlapping confirmed absence text. Day off is explicit text; unfilled assignments have a separate written list. Root tiles are disclosures rather than editing or drag controls.
-- **Versions and generation:** neutral labels distinguish published versions, no published schedule and unpublished draft previews. Busy actions are disabled. The fixture's published week points to next week for generation. Draft previews offer a return to the published roster.
-- **Results:** pale green run panels (`#eef3e9`) and amber warning panels (`#f5eedf`) carry written state explanations. Candidates use a divider, compact metrics and a preview action. Optimality wording follows supplied candidate fields. Run identifiers wrap anywhere; updates use a polite live status region.
-- **Errors and loading:** static pale skeleton blocks use status semantics. Warm error panels (`#f7eee4`, text `#795a30`) use alert semantics, written permission/stale/general messages and optional support traces. Reload, retry and expired-session recovery are explicit actions. Constraint details retain written severities.
-- **Employee assignments:** flat divided rows show date, local time, outlet, breaks and written lock status. Request workflows are described as forthcoming.
+## Verification
 
-## Role privacy
+Type check, lint, 71 unit/contract tests and production build passed. The complete desktop/mobile browser suite passed all 36 cases, including axe contrast checks, metric explanations, skill/name filtering, plan-week navigation, generation/preview, role privacy, errors and the sandbox regression suite. Captured and inspected 1600px, 768px and 390px layouts with no page overflow. The final draft-hour correction received a focused generation-preview rerun after rebuilding.
 
-The returned session role selects the employee or management view. Staff session setup skips management outlet and skill collections and uses the personal-week resource. Management generation and monetary metrics/candidate costs are gated by `generate` and `view_costs` capabilities. Changing personas remounts the session workspace. These are observed UI boundaries; authoritative authorization and response filtering belong to the service contract, and this scan does not certify them.
-
-## Focus, motion and responsive behavior
-
-The skip link targets main content. Native controls and summaries retain global 2px forest focus outlines; buttons, links and form controls have a 4px outline offset. The existing reduced-motion rule applies to elements and pseudo-elements, reducing animation/transition duration to `.01ms` and restoring automatic scrolling. Loading blocks have no animation.
-
-Sandbox dragging adds a 6px pointer activation threshold and keyboard Space start/end with Escape cancellation. Locked shifts disable dragging while retaining their editor button. Dragged tiles use a transform, elevated stacking and 0.7 opacity; empty-cell drop targets use sage fill and an inset forest outline. Reduced-motion CSS does not remove the directly applied drag transform. The shift editor remains the non-drag alternative.
-
-At 900px and below the contract sidebar becomes a wrapping horizontal identity row; header, candidate and roster-heading controls wrap and content padding becomes 24px 16px. Sidebar explanatory small print is hidden, while the header fixture badge and main-content fixture notes remain. The contract roster keeps a 1000px minimum width. At 760px and below inherited roster rules pin the 146px employee column and preserve horizontal scrolling.
-
-## Recorded drift and review limits
-
-The incumbent design files describe the original sandbox, so their route-wide demo wording, mint-without-consumer observation, layout measurements and listed breakpoints do not describe every contract surface. This extension now consumes `--mint` in its sidebar and adds a 900px breakpoint; neither changes the normative primitives.
-
-Skill colors currently follow the position of skills in the supplied collection, with a kitchen fallback; labels preserve meaning if ordering changes. Hard-violation counts always receive forest text, including nonzero values, so the written count must remain visible and this treatment warrants semantic review. Warning candidate metadata retains its green-gray text. Compact 10px disclosure text, clipped tile containers, focus visibility, long translated content and narrow layouts require rendered verification before making accessibility or visual-fidelity claims.
+The first pass caught an ambiguous Next week shortcut name and low avatar-initial contrast; both were fixed in the batch. Design checks establish only the tested fixture states and viewports, not user design approval or universal accessibility conformance.

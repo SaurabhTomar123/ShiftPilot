@@ -25,6 +25,7 @@ test('generation preview stays unpublished', async ({ page }) => {
   await page.getByRole('button', { name: 'Preview draft' }).first().click();
   await expect(page.getByText('Draft preview · not published', { exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Proposed roster' })).toBeVisible();
+  await expect(page.getByRole('row').filter({ hasText: 'Ravi Kumar' })).toContainText('27.5h in this draft');
   await expect(page.getByRole('button', { name: /Publish/ })).toHaveCount(0);
 });
 
@@ -114,4 +115,29 @@ test('shows rate-limit guidance without retrying the generation write', async ({
   await page.getByRole('button', { name: 'Generate draft' }).click();
   await expect(page.getByRole('main').getByRole('alert')).toContainText('in 3 seconds');
   expect(writes).toBe(1);
+});
+
+test('explains staffing metrics and filters the team by skill', async ({ page }) => {
+  await expect(page.getByLabel('Week at a glance')).toContainText('13 team members');
+  await expect(page.getByLabel('Week at a glance')).toContainText('60 shifts');
+  await expect(page.getByRole('meter', { name: 'Preferred staffing coverage' })).toHaveAttribute('value', '0.7714');
+  await expect(page.getByText('Required minimum staffing is covered.', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'What needs a closer look?' })).toBeVisible();
+  const filter = page.getByRole('button', { name: 'Cashier', exact: true });
+  await filter.click();
+  await expect(filter).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('table').getByText('Ravi Kumar', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('table').getByText('Priya Sharma', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'All skills', exact: true }).click();
+  await expect(page.getByRole('table').locator('tbody tr')).toHaveCount(13);
+  await page.getByLabel('Find a teammate', { exact: true }).fill('no-such-person');
+  await expect(page.getByRole('status')).toContainText('No teammates match these filters');
+  await page.getByLabel('Find a teammate', { exact: true }).clear();
+  await expect(page.getByRole('table').locator('tbody tr')).toHaveCount(13);
+});
+
+test('published week provides a direct route to planning next week', async ({ page }) => {
+  await page.getByRole('button', { name: 'Plan upcoming week', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'A fresh week, ready to plan.' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Generate draft' })).toBeEnabled();
 });
