@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "2.1.0-p1p2"
+    "version": "2.2.0-p1p2"
   },
   "paths": {
     "/v2/session/demo": {
@@ -1126,6 +1126,24 @@
               "format": "date",
               "title": "Week Start"
             }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ETag from a previous response.",
+              "title": "If-None-Match"
+            },
+            "description": "ETag from a previous response."
           }
         ],
         "responses": {
@@ -1135,6 +1153,14 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ScheduleWeek"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Derived from current_version_id; changes on every publication.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -1188,6 +1214,17 @@
               }
             },
             "description": "Unprocessable Content"
+          },
+          "304": {
+            "description": "Not modified: the If-None-Match value is still current. No body.",
+            "headers": {
+              "ETag": {
+                "description": "Opaque validator. Send it back as If-None-Match to get 304 when nothing changed.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -1211,6 +1248,24 @@
               "format": "uuid",
               "title": "Version Id"
             }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ETag from a previous response.",
+              "title": "If-None-Match"
+            },
+            "description": "ETag from a previous response."
           }
         ],
         "responses": {
@@ -1220,6 +1275,20 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ScheduleVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque validator. Send it back as If-None-Match to get 304 when nothing changed.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Cache-Control": {
+                "description": "`private, max-age=31536000, immutable` for published and superseded versions (they never change); `private, no-cache` for drafts.",
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -1273,6 +1342,17 @@
               }
             },
             "description": "Unprocessable Content"
+          },
+          "304": {
+            "description": "Not modified: the If-None-Match value is still current. No body.",
+            "headers": {
+              "ETag": {
+                "description": "Opaque validator. Send it back as If-None-Match to get 304 when nothing changed.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -1384,14 +1464,14 @@
             "description": "Not Found"
           },
           "409": {
+            "description": "stale_version (base changed), idempotency_conflict (key reused with other input) or run_in_progress (another run is active for this schedule; details.run_id is that run: attach to it and poll instead of showing an error).",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Conflict"
+            }
           },
           "422": {
             "content": {
@@ -1404,14 +1484,22 @@
             "description": "Unprocessable Content"
           },
           "429": {
+            "description": "rate_limited: the organization's run cap is reached.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            },
-            "description": "Too Many Requests"
+            }
           }
         }
       }
@@ -1616,7 +1704,7 @@
             "maximum": 6.0,
             "minimum": 0.0,
             "title": "Weekday",
-            "description": "0 = Monday … 6 = Sunday"
+            "description": "0 = Monday ... 6 = Sunday"
           },
           "start_minute": {
             "type": "integer",
@@ -2199,7 +2287,8 @@
         "required": [
           "base_revision"
         ],
-        "title": "EmployeeUpdate"
+        "title": "EmployeeUpdate",
+        "description": "Partial update. Omit a field to leave it unchanged. Sending null for a field that cannot be\nnull is rejected (422 validation_failed); only preferred_weekly_minutes accepts null, which\nclears it."
       },
       "ErrorBody": {
         "properties": {
@@ -2213,6 +2302,7 @@
               "stale_version",
               "conflict",
               "idempotency_conflict",
+              "run_in_progress",
               "rate_limited",
               "not_implemented",
               "internal"
@@ -2293,7 +2383,7 @@
               }
             ],
             "title": "Base Version Id",
-            "description": "Current published version the draft replaces; null for an empty week. Stale → 409."
+            "description": "Current published version the draft replaces; null for an empty week. Stale -> 409."
           },
           "time_limit_seconds": {
             "type": "integer",
@@ -2438,7 +2528,7 @@
               }
             ],
             "title": "Coverage Ratio",
-            "description": "sum(min(assigned, preferred) × minutes) / sum(preferred × minutes). null when there is no demand. Overstaffing never raises it."
+            "description": "sum(min(assigned, preferred) x minutes) / sum(preferred x minutes). null when there is no demand. Overstaffing never raises it."
           },
           "minimum_deficit_minutes": {
             "type": "integer",
@@ -2549,6 +2639,14 @@
             "type": "array",
             "title": "Outlets",
             "description": "Outlets referenced by the shifts."
+          },
+          "skills": {
+            "items": {
+              "$ref": "#/components/schemas/Skill"
+            },
+            "type": "array",
+            "title": "Skills",
+            "description": "Skills referenced by the shifts, for role labels."
           }
         },
         "additionalProperties": false,
@@ -2557,7 +2655,8 @@
           "employee_id",
           "week_start",
           "shifts",
-          "outlets"
+          "outlets",
+          "skills"
         ],
         "title": "MyWeek",
         "description": "An employee's own published shifts across all outlets for one week."
@@ -2569,7 +2668,7 @@
             "maximum": 6.0,
             "minimum": 0.0,
             "title": "Weekday",
-            "description": "0 = Monday … 6 = Sunday"
+            "description": "0 = Monday ... 6 = Sunday"
           },
           "open_minute": {
             "type": "integer",

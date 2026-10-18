@@ -1,4 +1,4 @@
-"""Scheduling v2 route declarations (contract surface for P1–P2).
+"""Scheduling v2 route declarations (contract surface for P1-P2).
 
 Handlers are stubs that answer 501 `not_implemented` until B1.2/B2.3 implement them; the
 signatures, status codes and error responses here are what contracts/v2/openapi.json exports.
@@ -34,6 +34,26 @@ WeekStart = Annotated[date, Query(description="Monday of the week, outlet-local.
 
 def _errors(*codes: int) -> dict[int | str, dict[str, Any]]:
     return {code: {"model": s.ErrorResponse} for code in (401, 501, *codes)}
+
+
+def _header(description: str) -> dict[str, Any]:
+    return {"description": description, "schema": {"type": "string"}}
+
+
+ETAG = _header("Opaque validator. Send it back as If-None-Match to get 304 when nothing changed.")
+IMMUTABLE = _header(
+    "`private, max-age=31536000, immutable` for published and superseded versions (they never "
+    "change); `private, no-cache` for drafts."
+)
+NOT_MODIFIED: dict[int | str, dict[str, Any]] = {
+    304: {
+        "description": "Not modified: the If-None-Match value is still current. No body.",
+        "headers": {"ETag": ETAG},
+    }
+}
+IfNoneMatch = Annotated[
+    str | None, Header(alias="If-None-Match", description="ETag from a previous response.")
+]
 
 
 class NotImplementedYet(Exception):
@@ -191,9 +211,15 @@ def put_staffing_requirements(
     "/outlets/{outlet_id}/schedules/{week_start}",
     operation_id="getScheduleWeek",
     response_model=s.ScheduleWeek,
-    responses=_errors(403, 404, 422),
+    responses={
+        **_errors(403, 404, 422),
+        **NOT_MODIFIED,
+        200: {"headers": {"ETag": _header("Derived from current_version_id; changes on every publication.")}},
+    },
 )
-def get_schedule_week(auth: Auth, outlet_id: UUID, week_start: date) -> s.ScheduleWeek:
+def get_schedule_week(
+    auth: Auth, outlet_id: UUID, week_start: date, if_none_match: IfNoneMatch = None
+) -> s.ScheduleWeek:
     """200 with schedule_id null when the week has no schedule yet; 404 only for unknown outlets."""
     _stub()
 
@@ -202,9 +228,15 @@ def get_schedule_week(auth: Auth, outlet_id: UUID, week_start: date) -> s.Schedu
     "/schedule-versions/{version_id}",
     operation_id="getScheduleVersion",
     response_model=s.ScheduleVersion,
-    responses=_errors(403, 404, 422),
+    responses={
+        **_errors(403, 404, 422),
+        **NOT_MODIFIED,
+        200: {"headers": {"ETag": ETAG, "Cache-Control": IMMUTABLE}},
+    },
 )
-def get_schedule_version(auth: Auth, version_id: UUID) -> s.ScheduleVersion:
+def get_schedule_version(
+    auth: Auth, version_id: UUID, if_none_match: IfNoneMatch = None
+) -> s.ScheduleVersion:
     _stub()
 
 
@@ -213,7 +245,20 @@ def get_schedule_version(auth: Auth, version_id: UUID) -> s.ScheduleVersion:
     operation_id="generateSchedule",
     response_model=s.OptimizationRun,
     status_code=status.HTTP_202_ACCEPTED,
-    responses=_errors(403, 404, 409, 422, 429),
+    responses={
+        **_errors(403, 404, 409, 422),
+        409: {
+            "model": s.ErrorResponse,
+            "description": "stale_version (base changed), idempotency_conflict (key reused with other input) "
+            "or run_in_progress (another run is active for this schedule; details.run_id is that run: "
+            "attach to it and poll instead of showing an error).",
+        },
+        429: {
+            "model": s.ErrorResponse,
+            "description": "rate_limited: the organization's run cap is reached.",
+            "headers": {"Retry-After": _header("Seconds to wait before retrying.")},
+        },
+    },
 )
 def generate_schedule(
     auth: Auth, outlet_id: UUID, week_start: date, idempotency_key: IdempotencyKey, body: s.GenerateRequest

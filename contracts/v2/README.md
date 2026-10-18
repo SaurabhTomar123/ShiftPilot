@@ -23,6 +23,23 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 2.2.0-p1p2
+
+This release answers the follow-ups in `web/docs/CONTRACT_REVIEW.md` and adds B0.4 from architecture revision 2. It only adds things; nothing from 2.1 was removed or renamed, and every 2.1 fixture keeps its IDs.
+
+| Change | What the UI should do |
+|---|---|
+| New error code `409 run_in_progress` on generate, with `details.run_id` (fixture `generate.run_in_progress`) | **Attach to that run and poll it.** Do not show an error. This happens when someone else, or another tab, already started a run for this week. |
+| `Retry-After` header (seconds) on `429` (fixture `generate.rate_limited`) | Wait at least that long before allowing a retry. |
+| `ETag` on `getScheduleWeek`, and `ETag` plus `Cache-Control` on `getScheduleVersion`. `If-None-Match` returns `304` with no body (fixtures `*.not_modified`). | Published and superseded versions are `immutable`, so cache them indefinitely. Drafts are `no-cache`. Revalidate the week with `If-None-Match`; a changed week `ETag` means a new publication. |
+| `schedule_version.draft.lowest_cost` | The full draft of `run.succeeded`'s second candidate. |
+| `schedule_week.owner.koramangala` / `.hsr`, `employees.list.owner.*` | Owner rosters for the other two outlets, each with 13 employees and its own published week. |
+| `MyWeek.skills` | Skill names for the skill IDs in the employee's shifts. |
+| `EmployeeUpdate`: omitting a field means "no change". Explicit `null` is `422`, except `preferred_weekly_minutes`, where `null` clears it (fixture `employees.update.null_field`). | Keep omitting untouched fields. Send `null` only to clear preferred hours. |
+| Contract files are now ASCII-only, with non-ASCII escaped as `\uXXXX` in JSON | Any JSON parser decodes them correctly. The earlier "mojibake" came from reading UTF-8 with the Windows ANSI codepage (for example, PowerShell 5.1 `Get-Content` without `-Encoding UTF8`); the bytes were valid. |
+
+Fixture files may now include `response.headers`, and `response.schema`/`response.body` are `null` for 304 responses.
+
 ## Rules the UI can rely on
 
 - **Session transport**: every call except `POST /v2/session/demo` sends `Authorization: Bearer <access_token>`.

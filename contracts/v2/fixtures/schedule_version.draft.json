@@ -12,6 +12,10 @@
   "response": {
     "status": 200,
     "schema": "ScheduleVersion",
+    "headers": {
+      "ETag": "\"89d25c7e-d0ac-5664-a7ac-7981d26fd847\"",
+      "Cache-Control": "private, no-cache"
+    },
     "body": {
       "id": "89d25c7e-d0ac-5664-a7ac-7981d26fd847",
       "schedule_id": "0b5a4305-0a3c-556f-b825-81ec5a112e3a",

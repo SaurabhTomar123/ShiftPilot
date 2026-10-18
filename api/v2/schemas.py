@@ -3,7 +3,7 @@
 Exported to contracts/v2/openapi.json by `python -m api.v2.contract_build`. Changing a model is a
 contract change: bump CONTRACT_VERSION, rebuild, and hand off to the web consumer.
 
-Conventions (docs/runbooks/v2-schema-plan.md §6): instants are RFC 3339 with offset, recurring
+Conventions (docs/runbooks/v2-schema-plan.md section 6): instants are RFC 3339 with offset, recurring
 times are minutes from outlet-local midnight, durations are integer minutes, money is integer
 paise. Weekday 0 is Monday.
 """
@@ -16,14 +16,14 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "2.1.0-p1p2"
+CONTRACT_VERSION = "2.2.0-p1p2"
 
 
 class Model(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
-Weekday = Annotated[int, Field(ge=0, le=6, description="0 = Monday … 6 = Sunday")]
+Weekday = Annotated[int, Field(ge=0, le=6, description="0 = Monday ... 6 = Sunday")]
 MinuteOfDay = Annotated[
     int,
     Field(
@@ -47,6 +47,7 @@ ErrorCode = Literal[
     "stale_version",
     "conflict",
     "idempotency_conflict",
+    "run_in_progress",
     "rate_limited",
     "not_implemented",
     "internal",
@@ -188,6 +189,10 @@ class EmployeeCreate(EmployeeFields):
 
 
 class EmployeeUpdate(Model):
+    """Partial update. Omit a field to leave it unchanged. Sending null for a field that cannot be
+    null is rejected (422 validation_failed); only preferred_weekly_minutes accepts null, which
+    clears it."""
+
     base_revision: int = Field(ge=1)
     name: str | None = Field(default=None, min_length=1, max_length=120)
     home_outlet_id: UUID | None = None
@@ -200,6 +205,17 @@ class EmployeeUpdate(Model):
     preferred_weekly_minutes: Minutes | None = None
     overtime_allowed: bool | None = None
     cross_outlet_eligible: bool | None = None
+
+    @model_validator(mode="after")
+    def _no_null_for_required_fields(self) -> EmployeeUpdate:
+        nulls = sorted(
+            f for f in self.model_fields_set if getattr(self, f) is None and f != "preferred_weekly_minutes"
+        )
+        if nulls:
+            raise ValueError(
+                f"null is not allowed for {', '.join(nulls)}; omit a field to leave it unchanged"
+            )
+        return self
 
 
 class AvailabilityWindow(Model):
@@ -313,8 +329,8 @@ class ValidationResult(Model):
 
 class Metrics(Model):
     coverage_ratio: Ratio | None = Field(
-        description="sum(min(assigned, preferred) × minutes) / "
-        "sum(preferred × minutes). null when there is no demand. "
+        description="sum(min(assigned, preferred) x minutes) / "
+        "sum(preferred x minutes). null when there is no demand. "
         "Overstaffing never raises it."
     )
     minimum_deficit_minutes: Minutes = Field(description="Staff-minutes below the hard minimum.")
@@ -413,6 +429,7 @@ class MyWeek(Model):
     week_start: date
     shifts: list[Shift] = Field(description="Only shifts from current published versions.")
     outlets: list[OutletRef] = Field(description="Outlets referenced by the shifts.")
+    skills: list[Skill] = Field(description="Skills referenced by the shifts, for role labels.")
 
 
 # ---------------------------------------------------------------- optimization
@@ -426,7 +443,7 @@ class GenerateRequest(Model):
     strategy: Strategy = "balanced"
     base_version_id: UUID | None = Field(
         default=None,
-        description="Current published version the draft replaces; null for an empty week. Stale → 409.",
+        description="Current published version the draft replaces; null for an empty week. Stale -> 409.",
     )
     time_limit_seconds: int = Field(default=10, ge=1, le=30)
 

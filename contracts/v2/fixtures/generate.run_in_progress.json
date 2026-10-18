@@ -1,0 +1,36 @@
+{
+  "name": "generate.run_in_progress",
+  "operation_id": "generateSchedule",
+  "method": "POST",
+  "path": "/v2/outlets/{outlet_id}/schedules/{week_start}/generate",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-26"
+    },
+    "headers": {
+      "Idempotency-Key": "gen-a91f30c2"
+    },
+    "body": {
+      "strategy": "balanced",
+      "base_version_id": null,
+      "time_limit_seconds": 10
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "run_in_progress",
+        "message": "An optimization is already running for this week. Showing its progress.",
+        "retryable": false,
+        "details": {
+          "run_id": "1bc0f4df-a456-5c62-8fdf-c099d4b5a68b"
+        },
+        "trace_id": null
+      }
+    }
+  }
+}
