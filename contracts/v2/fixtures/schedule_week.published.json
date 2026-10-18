@@ -13,6 +13,9 @@
   "response": {
     "status": 200,
     "schema": "ScheduleWeek",
+    "headers": {
+      "ETag": "\"week-59ddec56-dd6f-5ac4-871a-01119338a0ef\""
+    },
     "body": {
       "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
       "week_start": "2026-10-19",

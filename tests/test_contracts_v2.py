@@ -39,6 +39,9 @@ def test_index_version_matches_schemas() -> None:
 @pytest.mark.parametrize("entry", INDEX["fixtures"], ids=lambda e: e["name"])
 def test_fixture_body_validates(entry: dict[str, Any]) -> None:
     fx = load(entry["name"])
+    if fx["response"]["schema"] is None:
+        assert fx["response"]["status"] == 304 and fx["response"]["body"] is None
+        return
     model = getattr(schemas, fx["response"]["schema"])
     model.model_validate(fx["response"]["body"])
 
@@ -49,8 +52,25 @@ def test_fixture_matches_openapi_operation(entry: dict[str, Any]) -> None:
     op = OPENAPI["paths"][fx["path"]][fx["method"].lower()]
     assert op["operationId"] == fx["operation_id"]
     response = op["responses"][str(fx["response"]["status"])]
-    ref = response["content"]["application/json"]["schema"]["$ref"]
-    assert ref.endswith("/" + fx["response"]["schema"])
+    if fx["response"]["schema"] is None:
+        assert "content" not in response
+    else:
+        ref = response["content"]["application/json"]["schema"]["$ref"]
+        assert ref.endswith("/" + fx["response"]["schema"])
+    for header in fx["response"].get("headers", {}):
+        assert header in response.get("headers", {}), f"{header} not declared for {fx['name']}"
+
+
+def test_contract_files_are_ascii_so_any_decoder_reads_them() -> None:
+    for path in [CONTRACTS / "openapi.json", *sorted((CONTRACTS / "fixtures").glob("*.json"))]:
+        path.read_bytes().decode("ascii")
+
+
+def test_employee_update_rejects_explicit_null_but_allows_clearing_preferred_hours() -> None:
+    with pytest.raises(ValidationError):
+        schemas.EmployeeUpdate.model_validate({"base_revision": 1, "name": None})
+    cleared = schemas.EmployeeUpdate.model_validate({"base_revision": 1, "preferred_weekly_minutes": None})
+    assert "preferred_weekly_minutes" in cleared.model_fields_set
 
 
 def test_every_operation_has_a_success_fixture() -> None:

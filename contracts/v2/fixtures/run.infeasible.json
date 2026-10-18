@@ -30,7 +30,7 @@
       "poll_after_ms": null,
       "candidates": [],
       "infeasibility": {
-        "summary": "Friday 19:00–22:00 needs 5 grill cooks; only 3 qualified employees are available.",
+        "summary": "Friday 19:00-22:00 needs 5 grill cooks; only 3 qualified employees are available.",
         "shortages": [
           {
             "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",

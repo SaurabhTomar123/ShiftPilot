@@ -21,6 +21,9 @@
   "response": {
     "status": 429,
     "schema": "ErrorResponse",
+    "headers": {
+      "Retry-After": "3"
+    },
     "body": {
       "error": {
         "code": "rate_limited",

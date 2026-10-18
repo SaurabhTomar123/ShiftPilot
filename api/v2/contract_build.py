@@ -56,7 +56,7 @@ OUTLETS = [("indiranagar", "Indiranagar"), ("koramangala", "Koramangala"), ("hsr
 SKILLS = ["Grill", "Prep", "Server", "Cashier", "Barista"]
 SKILL = {name: uid("skill", name) for name in SKILLS}
 HOME = uid("outlet", "indiranagar")
-OPEN, CLOSE = 600, 1380  # 10:00–23:00 every day at Indiranagar
+OPEN, CLOSE = 600, 1380  # 10:00-23:00 every day at Indiranagar
 
 
 @dataclass(frozen=True)
@@ -86,7 +86,38 @@ EMPLOYEES = [
     Emp("anjali", "Anjali Rao", ("Cashier",), 162),
     Emp("rohit", "Rohit Verma", ("Server",), 150, latest_end=1260, tags=("student",)),
 ]
-EMP = {e.key: e for e in EMPLOYEES}
+KORAMANGALA_STAFF = [
+    Emp("suresh", "Suresh Pillai", ("Grill", "Prep"), 207),
+    Emp("lakshmi", "Lakshmi Menon", ("Grill",), 198, unavailable_days=(0,)),
+    Emp("imran", "Imran Khan", ("Grill", "Prep"), 201),
+    Emp("pooja", "Pooja Desai", ("Prep", "Grill"), 183, unavailable_days=(6,)),
+    Emp("vivek", "Vivek Joshi", ("Grill", "Prep"), 192),
+    Emp("ananya", "Ananya Bose", ("Server", "Cashier"), 177, preferred=(600, 1080)),
+    Emp("rahul", "Rahul Sinha", ("Server",), 168),
+    Emp("sneha", "Sneha Kulkarni", ("Server", "Cashier"), 174),
+    Emp("tarun", "Tarun Bhat", ("Server",), 165, unavailable_days=(2,)),
+    Emp("fatima", "Fatima Shaikh", ("Cashier", "Server"), 171),
+    Emp("nikhil", "Nikhil Rao", ("Server", "Barista"), 168),
+    Emp("deepa", "Deepa Hegde", ("Cashier",), 159),
+    Emp("kabir", "Kabir Malhotra", ("Server",), 150, latest_end=1260, tags=("student",)),
+]
+HSR_STAFF = [
+    Emp("mohan", "Mohan Reddy", ("Grill", "Prep"), 204),
+    Emp("gayatri", "Gayatri Iyer", ("Grill",), 195),
+    Emp("joseph", "Joseph Mathew", ("Grill", "Prep"), 198, unavailable_days=(3,)),
+    Emp("swati", "Swati Nair", ("Prep", "Grill"), 180),
+    Emp("harish", "Harish Gowda", ("Grill", "Prep"), 189, preferred=(600, 1080)),
+    Emp("ishita", "Ishita Sen", ("Server", "Cashier"), 174),
+    Emp("manoj", "Manoj Patil", ("Server",), 162),
+    Emp("ritu", "Ritu Agarwal", ("Server", "Cashier"), 171, unavailable_days=(5,)),
+    Emp("sameer", "Sameer Qureshi", ("Server",), 165),
+    Emp("zoya", "Zoya Mirza", ("Cashier", "Server"), 168),
+    Emp("ajay", "Ajay Kumar", ("Server", "Barista"), 171),
+    Emp("bhavna", "Bhavna Shah", ("Cashier",), 162),
+    Emp("yash", "Yash Chawla", ("Server",), 150, latest_end=1260, tags=("student",)),
+]
+STAFF = {"indiranagar": EMPLOYEES, "koramangala": KORAMANGALA_STAFF, "hsr": HSR_STAFF}
+EMP = {e.key: e for staff in STAFF.values() for e in staff}
 
 
 @dataclass(frozen=True)
@@ -98,9 +129,9 @@ class Template:
 
 
 TEMPLATES = {
-    "open": Template("open", 600, 1080, 930),  # 10:00–18:00, break 15:30
-    "close": Template("close", 900, 1380, 1020),  # 15:00–23:00, break 17:00
-    "dinner": Template("dinner", 1080, 1380, None),  # 18:00–23:00
+    "open": Template("open", 600, 1080, 930),  # 10:00-18:00, break 15:30
+    "close": Template("close", 900, 1380, 1020),  # 15:00-23:00, break 17:00
+    "dinner": Template("dinner", 1080, 1380, None),  # 18:00-23:00
 }
 
 
@@ -157,7 +188,9 @@ def available(e: Emp, day: date, t: Template) -> bool:
     return not (e.latest_end is not None and day.weekday() < 5 and t.end > e.latest_end)
 
 
-def build_roster(week: date, *, with_preferred_extras: bool) -> list[PlannedShift]:
+def build_roster(
+    week: date, *, with_preferred_extras: bool, staff: list[Emp] = EMPLOYEES
+) -> list[PlannedShift]:
     shifts: list[PlannedShift] = []
     count: dict[str, int] = defaultdict(int)
     last_end: dict[str, datetime] = {}
@@ -167,13 +200,13 @@ def build_roster(week: date, *, with_preferred_extras: bool) -> list[PlannedShif
         # Fill the most constrained skills first so specialists are not used up elsewhere.
         slots = sorted(
             slots_for(day, with_preferred_extras=with_preferred_extras),
-            key=lambda st: sum(st[0] in e.skills for e in EMPLOYEES),
+            key=lambda st: sum(st[0] in e.skills for e in staff),
         )
         for i, (skill, tkey) in enumerate(slots):
             t = TEMPLATES[tkey]
             ok = [
                 e
-                for e in EMPLOYEES
+                for e in staff
                 if skill in e.skills
                 and e.key not in busy
                 and count[e.key] < 5
@@ -281,15 +314,17 @@ def evaluate(
     return metrics, cells, s.ValidationResult(hard_violations=0, soft_violations=len(soft), violations=soft)
 
 
-def to_shifts(version_key: str, roster: list[PlannedShift]) -> list[s.Shift]:
+def to_shifts(version_key: str, roster: list[PlannedShift], outlet_id: uuid.UUID = HOME) -> list[s.Shift]:
     out = []
     for sh in roster:
         t = sh.template
         out.append(
             s.Shift(
                 id=uid("version_shift", f"{version_key}:{sh.key}"),
-                logical_shift_id=uid("logical_shift", sh.key),
-                outlet_id=HOME,
+                logical_shift_id=uid(
+                    "logical_shift", sh.key if outlet_id == HOME else f"{outlet_id}:{sh.key}"
+                ),
+                outlet_id=outlet_id,
                 employee_id=uid("employee", sh.employee) if sh.employee else None,
                 skill_id=SKILL[sh.skill],
                 start_at=at(sh.day, t.start),
@@ -305,13 +340,15 @@ def to_shifts(version_key: str, roster: list[PlannedShift]) -> list[s.Shift]:
     return out
 
 
-def version(key: str, week: date, roster: list[PlannedShift], **summary: Any) -> s.ScheduleVersion:
+def version(
+    key: str, week: date, roster: list[PlannedShift], *, outlet_key: str = "indiranagar", **summary: Any
+) -> s.ScheduleVersion:
     metrics, cells, validation = evaluate(week, roster)
     return s.ScheduleVersion(
         id=uid("version", key),
-        schedule_id=uid("schedule", f"indiranagar:{week}"),
+        schedule_id=uid("schedule", f"{outlet_key}:{week}"),
         input_hash="sha256:" + uuid.uuid5(NS, f"input:{key}").hex,
-        shifts=to_shifts(key, roster),
+        shifts=to_shifts(key, roster, uid("outlet", outlet_key)),
         metrics=metrics,
         coverage=cells,
         validation=validation,
@@ -358,7 +395,9 @@ CAPABILITIES: dict[str, list[s.Capability]] = {
 }
 
 
-def roster_employees(v: s.ScheduleVersion | None) -> list[s.RosterEmployee]:
+def roster_employees(
+    v: s.ScheduleVersion | None, staff: list[Emp] = EMPLOYEES, home: uuid.UUID = HOME
+) -> list[s.RosterEmployee]:
     def paid(sh: s.Shift) -> int:
         return int((sh.end_at - sh.start_at).total_seconds() // 60) - sh.break_minutes
 
@@ -367,14 +406,14 @@ def roster_employees(v: s.ScheduleVersion | None) -> list[s.RosterEmployee]:
         s.RosterEmployee(
             id=uid("employee", e.key),
             name=e.name,
-            home_outlet_id=HOME,
+            home_outlet_id=home,
             skill_ids=[SKILL[k] for k in e.skills],
             status="active",
             scheduled_minutes=sum(paid(sh) for sh in shifts if sh.employee_id == uid("employee", e.key)),
             regular_weekly_minutes=2880,
             max_weekly_minutes=2880,
         )
-        for e in EMPLOYEES
+        for e in staff
     ]
 
 
@@ -399,11 +438,11 @@ def outlet(key: str, name: str) -> s.Outlet:
     return s.Outlet(id=uid("outlet", key), name=name, slug=key, timezone=TZ, operating_hours=hours)
 
 
-def employee(e: Emp) -> s.Employee:
+def employee(e: Emp, home: uuid.UUID = HOME) -> s.Employee:
     return s.Employee(
         id=uid("employee", e.key),
         name=e.name,
-        home_outlet_id=HOME,
+        home_outlet_id=home,
         status="active",
         hourly_rate=s.Money(amount_paise=e.rate_rupees * 100),
         skills=[s.EmployeeSkill(skill_id=SKILL[k], level=2 if i == 0 else 1) for i, k in enumerate(e.skills)],
@@ -501,10 +540,19 @@ class Fixture:
     path: str
     persona: str | None
     status: int
-    body: BaseModel
+    body: BaseModel | None  # None only for bodiless responses such as 304
     request: dict[str, Any] | None = None
+    headers: dict[str, str] | None = None  # response headers the consumer relies on
+
+    @property
+    def schema(self) -> str | None:
+        return type(self.body).__name__ if self.body is not None else None
 
     def to_json(self) -> dict[str, Any]:
+        response: dict[str, Any] = {"status": self.status, "schema": self.schema}
+        if self.headers:
+            response["headers"] = self.headers
+        response["body"] = self.body.model_dump(mode="json") if self.body is not None else None
         return {
             "name": self.name,
             "operation_id": self.operation_id,
@@ -512,11 +560,7 @@ class Fixture:
             "path": self.path,
             "persona": self.persona,
             "request": self.request or {},
-            "response": {
-                "status": self.status,
-                "schema": type(self.body).__name__,
-                "body": self.body.model_dump(mode="json"),
-            },
+            "response": response,
         }
 
 
@@ -596,6 +640,29 @@ def fixtures() -> list[Fixture]:
     week_req = {"path_params": {"outlet_id": ind, "week_start": WEEK.isoformat()}}
     run_req = {"path_params": {"run_id": str(run_id)}}
     stale_emp = employee(EMP["ravi"]).model_copy(update={"revision": 2})
+    week_etag = {"ETag": f'"week-{published.id}"'}
+    immutable = {"Cache-Control": "private, max-age=31536000, immutable"}
+    ravi_skill_ids = {sh.skill_id for sh in published.shifts if sh.employee_id == uid("employee", "ravi")}
+
+    def other_outlet_week(key: str) -> s.ScheduleVersion:
+        return version(
+            f"{key}:{WEEK}:v1",
+            WEEK,
+            build_roster(WEEK, with_preferred_extras=True, staff=STAFF[key]),
+            outlet_key=key,
+            version_number=1,
+            status="published",
+            source="seed",
+            reason="Initial roster",
+            base_version_id=None,
+            optimization_run_id=None,
+            created_by_user_id=uid("user", "owner"),
+            approved_by_user_id=uid("user", "owner"),
+            created_at=stamp("2026-10-16T18:00:00"),
+            published_at=stamp("2026-10-16T18:05:00"),
+        )
+
+    owner_weeks = {key: other_outlet_week(key) for key in ("koramangala", "hsr")}
 
     return [
         Fixture(
@@ -856,6 +923,7 @@ def fixtures() -> list[Fixture]:
                 absences=requested_leave(published, WEEK + timedelta(days=3)),
             ),
             week_req,
+            week_etag,
         ),
         Fixture(
             "schedule_week.empty",
@@ -898,6 +966,7 @@ def fixtures() -> list[Fixture]:
                 week_start=WEEK,
                 shifts=[sh for sh in published.shifts if sh.employee_id == uid("employee", "ravi")],
                 outlets=[s.OutletRef(id=HOME, name="Indiranagar", timezone=TZ)],
+                skills=[s.Skill(id=SKILL[n], name=n) for n in SKILLS if SKILL[n] in ravi_skill_ids],
             ),
             {"query": {"week_start": WEEK.isoformat()}},
         ),
@@ -959,6 +1028,7 @@ def fixtures() -> list[Fixture]:
                 retry_after_ms=3000,
             ),
             gen_req,
+            {"Retry-After": "3"},
         ),
         Fixture(
             "run.queued",
@@ -1021,7 +1091,7 @@ def fixtures() -> list[Fixture]:
                 "succeeded",
                 solver_status="INFEASIBLE",
                 infeasibility=s.Infeasibility(
-                    summary="Friday 19:00–22:00 needs 5 grill cooks; only 3 qualified employees are "
+                    summary="Friday 19:00-22:00 needs 5 grill cooks; only 3 qualified employees are "
                     "available.",
                     shortages=[
                         s.Shortage(
@@ -1076,7 +1146,122 @@ def fixtures() -> list[Fixture]:
             200,
             d1,
             {"path_params": {"version_id": str(d1.id)}},
+            {"ETag": f'"{d1.id}"', "Cache-Control": "private, no-cache"},
         ),
+        Fixture(
+            "schedule_version.draft.lowest_cost",
+            "getScheduleVersion",
+            "GET",
+            "/v2/schedule-versions/{version_id}",
+            "manager_indiranagar",
+            200,
+            d2,
+            {"path_params": {"version_id": str(d2.id)}},
+            {"ETag": f'"{d2.id}"', "Cache-Control": "private, no-cache"},
+        ),
+        Fixture(
+            "schedule_version.published",
+            "getScheduleVersion",
+            "GET",
+            "/v2/schedule-versions/{version_id}",
+            "manager_indiranagar",
+            200,
+            published,
+            {"path_params": {"version_id": str(published.id)}},
+            {"ETag": f'"{published.id}"', **immutable},
+        ),
+        Fixture(
+            "schedule_version.not_modified",
+            "getScheduleVersion",
+            "GET",
+            "/v2/schedule-versions/{version_id}",
+            "manager_indiranagar",
+            304,
+            None,
+            {
+                "path_params": {"version_id": str(published.id)},
+                "headers": {"If-None-Match": f'"{published.id}"'},
+            },
+            {"ETag": f'"{published.id}"'},
+        ),
+        Fixture(
+            "schedule_week.not_modified",
+            "getScheduleWeek",
+            "GET",
+            "/v2/outlets/{outlet_id}/schedules/{week_start}",
+            "manager_indiranagar",
+            304,
+            None,
+            {**week_req, "headers": {"If-None-Match": week_etag["ETag"]}},
+            week_etag,
+        ),
+        Fixture(
+            "generate.run_in_progress",
+            "generateSchedule",
+            "POST",
+            gen_path,
+            "manager_indiranagar",
+            409,
+            error(
+                "run_in_progress",
+                "An optimization is already running for this week. Showing its progress.",
+                retryable=False,
+                run_id=str(run_id),
+            ),
+            {**gen_req, "headers": {"Idempotency-Key": "gen-a91f30c2"}},
+        ),
+        Fixture(
+            "employees.update.null_field",
+            "updateEmployee",
+            "PATCH",
+            "/v2/employees/{employee_id}",
+            "manager_indiranagar",
+            422,
+            error(
+                "validation_failed",
+                "Some fields need attention.",
+                fields=[
+                    {"path": ["name"], "message": "null is not allowed; omit a field to leave it unchanged"}
+                ],
+            ),
+            {"path_params": {"employee_id": ravi}, "body": {"base_revision": 1, "name": None}},
+        ),
+        *[
+            Fixture(
+                f"schedule_week.owner.{key}",
+                "getScheduleWeek",
+                "GET",
+                "/v2/outlets/{outlet_id}/schedules/{week_start}",
+                "owner",
+                200,
+                s.ScheduleWeek(
+                    outlet_id=uid("outlet", key),
+                    week_start=WEEK,
+                    timezone=TZ,
+                    schedule_id=uid("schedule", f"{key}:{WEEK}"),
+                    current_version=v,
+                    drafts=[],
+                    employees=roster_employees(v, STAFF[key], uid("outlet", key)),
+                    absences=[],
+                ),
+                {"path_params": {"outlet_id": str(uid("outlet", key)), "week_start": WEEK.isoformat()}},
+                {"ETag": f'"week-{v.id}"'},
+            )
+            for key, v in owner_weeks.items()
+        ],
+        *[
+            Fixture(
+                f"employees.list.owner.{key}",
+                "listEmployees",
+                "GET",
+                "/v2/employees",
+                "owner",
+                200,
+                s.EmployeeList(items=[employee(e, uid("outlet", key)) for e in STAFF[key]], next_cursor=None),
+                {"query": {"outlet_id": str(uid("outlet", key)), "status": "active"}},
+            )
+            for key in owner_weeks
+        ],
     ]
 
 
@@ -1090,7 +1275,7 @@ def openapi() -> dict[str, Any]:
 
 
 def render(obj: Any) -> str:
-    return json.dumps(obj, indent=2, ensure_ascii=False) + "\n"
+    return json.dumps(obj, indent=2, ensure_ascii=True) + "\n"
 
 
 def outputs() -> dict[Path, str]:
@@ -1109,7 +1294,7 @@ def outputs() -> dict[Path, str]:
                     "name": f.name,
                     "operation_id": f.operation_id,
                     "status": f.status,
-                    "schema": type(f.body).__name__,
+                    "schema": f.schema,
                 }
                 for f in fx
             ],

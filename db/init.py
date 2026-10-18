@@ -1,68 +1,51 @@
-"""Create schema, the app role and row-level security policies.
+"""Bring the database schema to the latest migration (Alembic), creating it if empty.
 
-    python -m db.init            # create tables + RLS (idempotent)
-    python -m db.init --drop     # drop everything first
+    python -m db.init            # upgrade to head; adopts a pre-Alembic database if it matches 0001
+    python -m db.init --drop     # DEVELOPMENT ONLY: drop the public schema first, then upgrade
 
-Alembic can replace create_all once the schema settles (`alembic init db/migrations`).
+The schema, app role, grants and RLS policies all live in db/migrations. A database created by the
+old create_all-based db.init is adopted only after `db.migrate.adopt` proves it is identical to
+revision 0001; otherwise nothing is changed.
 """
 
 from __future__ import annotations
 
 import argparse
+import sys
 
 from sqlalchemy import text
 
 from core.config import settings
-from db.models import TENANT_TABLES, Base
+from db import migrate
 from db.session import admin_engine
 
-APP_ROLE = "shiftpilot_app"
 
-
-def rls_statements(password: str) -> list[str]:
-    stmts = [
-        "CREATE EXTENSION IF NOT EXISTS vector",
-        f"""DO $$ BEGIN
-              IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '{APP_ROLE}') THEN
-                CREATE ROLE {APP_ROLE} LOGIN PASSWORD '{password}' NOSUPERUSER NOBYPASSRLS;
-              END IF;
-            END $$""",
-        f"GRANT USAGE ON SCHEMA public TO {APP_ROLE}",
-        f"GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO {APP_ROLE}",
-        # Audit log is append-only for the app.
-        f"REVOKE UPDATE ON audit_log FROM {APP_ROLE}",
-        "ALTER TABLE organizations ENABLE ROW LEVEL SECURITY",
-        "DROP POLICY IF EXISTS tenant_isolation ON organizations",
-        "CREATE POLICY tenant_isolation ON organizations "
-        "USING (id = nullif(current_setting('app.org_id', true), '')::uuid)",
-    ]
-    for table in TENANT_TABLES:
-        stmts += [
-            f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY",
-            f"DROP POLICY IF EXISTS tenant_isolation ON {table}",
-            f"CREATE POLICY tenant_isolation ON {table} "
-            "USING (org_id = nullif(current_setting('app.org_id', true), '')::uuid) "
-            "WITH CHECK (org_id = nullif(current_setting('app.org_id', true), '')::uuid)",
-        ]
-    return stmts
-
-
-def main() -> None:
+def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--drop", action="store_true")
+    parser.add_argument("--drop", action="store_true", help="drop the public schema first (dev only)")
     args = parser.parse_args()
-
+    url = settings().database_url
     engine = admin_engine()
-    with engine.begin() as conn:
-        conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
     if args.drop:
-        Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
-    with engine.begin() as conn:
-        for stmt in rls_statements(settings().app_db_password):
-            conn.execute(text(stmt))
-    print(f"Schema ready: {len(Base.metadata.tables)} tables, RLS on {len(TENANT_TABLES) + 1}.")
+        with engine.begin() as conn:
+            conn.execute(text("DROP SCHEMA public CASCADE"))
+            conn.execute(text("CREATE SCHEMA public"))
+    with engine.connect() as conn:
+        tables = set(
+            conn.execute(text("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")).scalars()
+        )
+    if tables and "alembic_version" not in tables:
+        ok, problems = migrate.adopt(url)
+        if not ok:
+            print("Existing schema does not match migration 0001; nothing was changed:")
+            for p in problems:
+                print(f"  - {p}")
+            return 1
+        print("Adopted existing schema as revision 0001.")
+    migrate.upgrade(url)
+    print("Schema at head.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -11,9 +11,11 @@ from typing import Any
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     Boolean,
+    CheckConstraint,
     Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     Numeric,
     String,
@@ -35,7 +37,9 @@ class Base(DeclarativeBase):
 
 
 def pk() -> Mapped[uuid.UUID]:
-    return mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # UUIDv7: time-ordered, so inserts append to the right edge of B-tree indexes (architecture §17).
+    # Never use its embedded time as business ordering.
+    return mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid7)
 
 
 def org_fk() -> Mapped[uuid.UUID]:
@@ -47,6 +51,7 @@ class Organization(Base):
     id: Mapped[uuid.UUID] = pk()
     name: Mapped[str] = mapped_column(String(200))
     plan: Mapped[str] = mapped_column(String(40), default="demo")
+    timezone: Mapped[str] = mapped_column(String(64), default="Asia/Kolkata", server_default="Asia/Kolkata")
 
 
 class OtRuleRow(Base):
@@ -60,17 +65,26 @@ class OtRuleRow(Base):
 
 class Outlet(Base):
     __tablename__ = "outlets"
+    __table_args__ = (UniqueConstraint("org_id", "slug"), UniqueConstraint("org_id", "id"))
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org_fk()
     name: Mapped[str] = mapped_column(String(200))
-    slug: Mapped[str] = mapped_column(String(80), unique=True)
+    slug: Mapped[str] = mapped_column(String(80))
     city: Mapped[str] = mapped_column(String(80))
     timezone: Mapped[str] = mapped_column(String(64), default="Asia/Kolkata")
     ot_rule_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("ot_rules.id"))
+    # v2: per weekday, list of [open_minute, close_minute] from local midnight (close may exceed 1440).
+    operating_hours: Mapped[dict[str, Any] | None] = mapped_column(nullable=True)
 
 
 class Employee(Base):
     __tablename__ = "employees"
+    __table_args__ = (
+        UniqueConstraint("org_id", "id"),
+        CheckConstraint("max_weekly_minutes >= regular_weekly_minutes", name="employee_weekly_caps"),
+        Index("ix_employees_org_outlet_status", "org_id", "outlet_id", "status"),
+        Index("ix_employees_tags", "tags", postgresql_using="gin"),
+    )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org_fk()
     outlet_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("outlets.id"), index=True)
@@ -83,6 +97,14 @@ class Employee(Base):
     phone: Mapped[str] = mapped_column(String(20))
     joined_on: Mapped[date] = mapped_column(Date)
     status: Mapped[str] = mapped_column(String(20), default="active")
+    # v2 scheduling fields. outlet_id is the home outlet.
+    regular_weekly_minutes: Mapped[int] = mapped_column(Integer, default=2880, server_default="2880")
+    max_weekly_minutes: Mapped[int] = mapped_column(Integer, default=2880, server_default="2880")
+    preferred_weekly_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    tags: Mapped[list[str]] = mapped_column(ARRAY(String), default=list, server_default="{}")
+    overtime_allowed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    cross_outlet_eligible: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
 
 
 class RateHistory(Base):
@@ -96,6 +118,7 @@ class RateHistory(Base):
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = (UniqueConstraint("org_id", "id"),)
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org_fk()
     outlet_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("outlets.id"), nullable=True)
@@ -236,6 +259,7 @@ class PolicyChunk(Base):
 
 class PendingAction(Base):
     __tablename__ = "pending_actions"
+    __table_args__ = (UniqueConstraint("org_id", "idempotency_key"),)
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org_fk()
     outlet_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("outlets.id"))
@@ -245,7 +269,7 @@ class PendingAction(Base):
     summary_text: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(20), default="pending")
     required_approver_role: Mapped[str] = mapped_column(String(20))
-    idempotency_key: Mapped[str] = mapped_column(String(80), unique=True)
+    idempotency_key: Mapped[str] = mapped_column(String(80))
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     decided_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -255,6 +279,7 @@ class PendingAction(Base):
 
 class AuditLog(Base):
     __tablename__ = "audit_log"
+    __table_args__ = (Index("ix_audit_log_target", "org_id", "target_type", "target_id", "ts"),)
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org_fk()
     ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -264,6 +289,12 @@ class AuditLog(Base):
     args_redacted: Mapped[dict[str, Any]] = mapped_column()
     outcome: Mapped[str] = mapped_column(String(20))  # ok | denied | error
     trace_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    # v2: what changed. Append-only for the app role (no UPDATE/DELETE).
+    action: Mapped[str | None] = mapped_column(String(60), nullable=True)
+    target_type: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    target_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    before: Mapped[dict[str, Any] | None] = mapped_column(nullable=True)
+    after: Mapped[dict[str, Any] | None] = mapped_column(nullable=True)
 
 
 class Conversation(Base):

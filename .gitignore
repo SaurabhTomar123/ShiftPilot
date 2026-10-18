@@ -11,3 +11,15 @@ evals/reports/*.json
 web/node_modules/
 web/.next/
 .DS_Store
+
+# Local-only planning, agent-instruction and architecture files (kept out of the repo by request).
+# Canonical copies live in the main checkout only.
+/docs/SCHEDULING_V2_ROADMAP.md
+/docs/SCHEDULING_V2_TASKS.md
+/docs/DEV_PLAN.md
+/docs/PARALLEL_WORK.md
+/docs/IMPLEMENTATION_CONTRACTS.md
+/docs/handoffs/
+CLAUDE.md
+AGENTS.md
+/ShiftPilot System Architecture*.docx

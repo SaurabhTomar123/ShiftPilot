@@ -1,0 +1,38 @@
+{
+  "name": "employees.update.null_field",
+  "operation_id": "updateEmployee",
+  "method": "PATCH",
+  "path": "/v2/employees/{employee_id}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd"
+    },
+    "body": {
+      "base_revision": 1,
+      "name": null
+    }
+  },
+  "response": {
+    "status": 422,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "validation_failed",
+        "message": "Some fields need attention.",
+        "retryable": false,
+        "details": {
+          "fields": [
+            {
+              "path": [
+                "name"
+              ],
+              "message": "null is not allowed; omit a field to leave it unchanged"
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

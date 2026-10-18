@@ -1,0 +1,24 @@
+{
+  "name": "schedule_week.not_modified",
+  "operation_id": "getScheduleWeek",
+  "method": "GET",
+  "path": "/v2/outlets/{outlet_id}/schedules/{week_start}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-19"
+    },
+    "headers": {
+      "If-None-Match": "\"week-59ddec56-dd6f-5ac4-871a-01119338a0ef\""
+    }
+  },
+  "response": {
+    "status": 304,
+    "schema": null,
+    "headers": {
+      "ETag": "\"week-59ddec56-dd6f-5ac4-871a-01119338a0ef\""
+    },
+    "body": null
+  }
+}

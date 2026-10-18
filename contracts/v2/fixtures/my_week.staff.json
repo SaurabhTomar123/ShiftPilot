@@ -75,6 +75,16 @@
           "name": "Indiranagar",
           "timezone": "Asia/Kolkata"
         }
+      ],
+      "skills": [
+        {
+          "id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "name": "Grill"
+        },
+        {
+          "id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "name": "Prep"
+        }
       ]
     }
   }
