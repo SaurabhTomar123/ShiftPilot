@@ -25,6 +25,14 @@ The roster in the fixtures is built by a simple rule-respecting script, not the 
 
 ## Rules the UI can rely on
 
+- **Session transport**: every call except `POST /v2/session/demo` sends `Authorization: Bearer <access_token>`.
+  - In the public synthetic demo, the UI gets the token from `POST /v2/session/demo {persona}`. That call returns the token, its expiry and `me`.
+  - Private deployments return 403 there and use real sign-in, which is not in this contract yet.
+  - Keep the token in memory. On a 401, return to persona selection.
+  - Never put admin credentials or database URLs in frontend environment variables.
+- **Capabilities**: `me.capabilities` says which controls to show, for example `publish` or `view_costs`. Hiding a control is not authorization; the server re-checks every action.
+- **Roster rows**: `ScheduleWeek.employees` lists the rows to draw. A row with no shift on a day means the employee is off that day. An open shift (`employee_id: null`) is an unfilled requirement. `absences` marks leave and sickness, and only `confirmed` absences invalidate an overlapping shift.
+- **Trace IDs**: `error.trace_id`, when present, should be shown in "report a problem" details.
 - **Errors**: always `{"error": {code, message, retryable, details}}`, including 422. `message` is safe to display. Branch on `code`, never on the message text.
 - **Concurrency**:
   - Writes carry `base_revision`, `base_demand_revision` or `base_version_id`. A stale value returns `409 stale_version`, with the current value in `details`.

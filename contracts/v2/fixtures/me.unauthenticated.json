@@ -13,7 +13,8 @@
         "code": "unauthenticated",
         "message": "Sign in to continue.",
         "retryable": false,
-        "details": {}
+        "details": {},
+        "trace_id": null
       }
     }
   }

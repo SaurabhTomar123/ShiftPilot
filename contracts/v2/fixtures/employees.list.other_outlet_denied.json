@@ -17,7 +17,8 @@
         "code": "permission_denied",
         "message": "You can only access your own outlet.",
         "retryable": false,
-        "details": {}
+        "details": {},
+        "trace_id": null
       }
     }
   }

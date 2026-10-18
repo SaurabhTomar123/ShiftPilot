@@ -16,7 +16,16 @@
       "role": "owner",
       "outlet_id": null,
       "employee_id": null,
-      "timezone": "Asia/Kolkata"
+      "timezone": "Asia/Kolkata",
+      "capabilities": [
+        "view_all_outlets",
+        "manage_employees",
+        "edit_demand",
+        "generate",
+        "publish",
+        "view_costs",
+        "approve_cross_outlet"
+      ]
     }
   }
 }

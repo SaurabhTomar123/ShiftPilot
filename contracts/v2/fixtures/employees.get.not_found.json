@@ -17,7 +17,8 @@
         "code": "not_found",
         "message": "Employee not found.",
         "retryable": false,
-        "details": {}
+        "details": {},
+        "trace_id": null
       }
     }
   }

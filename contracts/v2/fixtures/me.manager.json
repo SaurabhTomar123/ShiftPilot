@@ -16,7 +16,14 @@
       "role": "manager",
       "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
       "employee_id": null,
-      "timezone": "Asia/Kolkata"
+      "timezone": "Asia/Kolkata",
+      "capabilities": [
+        "manage_employees",
+        "edit_demand",
+        "generate",
+        "publish",
+        "view_costs"
+      ]
     }
   }
 }

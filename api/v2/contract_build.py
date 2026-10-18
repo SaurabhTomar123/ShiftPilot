@@ -339,7 +339,59 @@ def me(persona: str) -> s.Me:
         outlet_id=outlet,
         employee_id=employee,
         timezone=TZ,
+        capabilities=CAPABILITIES[role],
     )
+
+
+CAPABILITIES: dict[str, list[s.Capability]] = {
+    "owner": [
+        "view_all_outlets",
+        "manage_employees",
+        "edit_demand",
+        "generate",
+        "publish",
+        "view_costs",
+        "approve_cross_outlet",
+    ],
+    "manager": ["manage_employees", "edit_demand", "generate", "publish", "view_costs"],
+    "staff": ["view_own_schedule", "report_own_absence"],
+}
+
+
+def roster_employees(v: s.ScheduleVersion | None) -> list[s.RosterEmployee]:
+    def paid(sh: s.Shift) -> int:
+        return int((sh.end_at - sh.start_at).total_seconds() // 60) - sh.break_minutes
+
+    shifts = v.shifts if v else []
+    return [
+        s.RosterEmployee(
+            id=uid("employee", e.key),
+            name=e.name,
+            home_outlet_id=HOME,
+            skill_ids=[SKILL[k] for k in e.skills],
+            status="active",
+            scheduled_minutes=sum(paid(sh) for sh in shifts if sh.employee_id == uid("employee", e.key)),
+            regular_weekly_minutes=2880,
+            max_weekly_minutes=2880,
+        )
+        for e in EMPLOYEES
+    ]
+
+
+def requested_leave(v: s.ScheduleVersion, day: date) -> list[s.AbsenceMark]:
+    """A pending leave request on a day the employee is off, so it creates no conflict."""
+    working = {sh.employee_id for sh in v.shifts if sh.start_at.date() == day}
+    off = next(e for e in EMPLOYEES if uid("employee", e.key) not in working)
+    return [
+        s.AbsenceMark(
+            id=uid("absence", f"{off.key}:{day}"),
+            employee_id=uid("employee", off.key),
+            start_at=at(day, 0),
+            end_at=at(day, 1440),
+            kind="leave",
+            status="requested",
+        )
+    ]
 
 
 def outlet(key: str, name: str) -> s.Outlet:
@@ -546,6 +598,30 @@ def fixtures() -> list[Fixture]:
     stale_emp = employee(EMP["ravi"]).model_copy(update={"revision": 2})
 
     return [
+        Fixture(
+            "session.demo.manager",
+            "createDemoSession",
+            "POST",
+            "/v2/session/demo",
+            None,
+            201,
+            s.DemoSession(
+                access_token="demo.synthetic.token.not-a-real-jwt",
+                expires_at=stamp("2026-10-18T21:40:00"),
+                me=me("manager_indiranagar"),
+            ),
+            {"body": {"persona": "manager"}},
+        ),
+        Fixture(
+            "session.demo.disabled",
+            "createDemoSession",
+            "POST",
+            "/v2/session/demo",
+            None,
+            403,
+            error("permission_denied", "Demo sessions are not available on this deployment."),
+            {"body": {"persona": "owner"}},
+        ),
         Fixture("me.owner", "getMe", "GET", "/v2/me", "owner", 200, me("owner")),
         Fixture(
             "me.manager", "getMe", "GET", "/v2/me", "manager_indiranagar", 200, me("manager_indiranagar")
@@ -776,6 +852,8 @@ def fixtures() -> list[Fixture]:
                 schedule_id=uid("schedule", f"indiranagar:{WEEK}"),
                 current_version=published,
                 drafts=[],
+                employees=roster_employees(published),
+                absences=requested_leave(published, WEEK + timedelta(days=3)),
             ),
             week_req,
         ),
@@ -793,6 +871,8 @@ def fixtures() -> list[Fixture]:
                 schedule_id=None,
                 current_version=None,
                 drafts=[],
+                employees=roster_employees(None),
+                absences=[],
             ),
             {"path_params": {"outlet_id": ind, "week_start": NEXT_WEEK.isoformat()}},
         ),
@@ -978,7 +1058,10 @@ def fixtures() -> list[Fixture]:
             run(
                 "failed",
                 error=s.ErrorBody(
-                    code="internal", retryable=True, message="The optimizer stopped unexpectedly. Try again."
+                    code="internal",
+                    retryable=True,
+                    message="The optimizer stopped unexpectedly. Try again.",
+                    trace_id="trc_9f2c41d07ab3",
                 ),
                 **done,
             ),

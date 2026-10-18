@@ -34,7 +34,8 @@
         "code": "internal",
         "message": "The optimizer stopped unexpectedly. Try again.",
         "retryable": true,
-        "details": {}
+        "details": {},
+        "trace_id": "trc_9f2c41d07ab3"
       }
     }
   }

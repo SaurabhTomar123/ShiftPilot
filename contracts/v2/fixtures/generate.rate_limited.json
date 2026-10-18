@@ -28,7 +28,8 @@
         "retryable": true,
         "details": {
           "retry_after_ms": 3000
-        }
+        },
+        "trace_id": null
       }
     }
   }

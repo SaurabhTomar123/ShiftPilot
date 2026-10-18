@@ -32,7 +32,8 @@
               "message": "Must be at least regular_weekly_minutes."
             }
           ]
-        }
+        },
+        "trace_id": null
       }
     }
   }

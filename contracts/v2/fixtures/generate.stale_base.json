@@ -28,7 +28,8 @@
         "retryable": false,
         "details": {
           "current_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef"
-        }
+        },
+        "trace_id": null
       }
     }
   }

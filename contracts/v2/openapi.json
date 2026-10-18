@@ -2,9 +2,78 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "2.0.0-p1p2"
+    "version": "2.1.0-p1p2"
   },
   "paths": {
+    "/v2/session/demo": {
+      "post": {
+        "summary": "Create Demo Session",
+        "description": "Public synthetic demo only: issues a short-lived token for an isolated demo org (B6.2).\n403 permission_denied when the deployment is private.",
+        "operationId": "createDemoSession",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoSessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoSession"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not Implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/me": {
       "get": {
         "summary": "Get Me",
@@ -1435,6 +1504,59 @@
   },
   "components": {
     "schemas": {
+      "AbsenceMark": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "employee_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Employee Id"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start At"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End At"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "leave",
+              "sick",
+              "other"
+            ],
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "requested",
+              "confirmed"
+            ],
+            "title": "Status",
+            "description": "Only confirmed absences make an overlapping shift invalid."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "employee_id",
+          "start_at",
+          "end_at",
+          "kind",
+          "status"
+        ],
+        "title": "AbsenceMark"
+      },
       "Availability": {
         "properties": {
           "employee_id": {
@@ -1636,6 +1758,57 @@
           "scheduled"
         ],
         "title": "CoverageCell"
+      },
+      "DemoSession": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token",
+            "description": "Send as `Authorization: Bearer <token>`."
+          },
+          "token_type": {
+            "type": "string",
+            "const": "bearer",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "me": {
+            "$ref": "#/components/schemas/Me"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "access_token",
+          "expires_at",
+          "me"
+        ],
+        "title": "DemoSession",
+        "description": "Synthetic public demo only; private deployments never expose this endpoint."
+      },
+      "DemoSessionRequest": {
+        "properties": {
+          "persona": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "manager",
+              "staff"
+            ],
+            "title": "Persona"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "persona"
+        ],
+        "title": "DemoSessionRequest"
       },
       "Employee": {
         "properties": {
@@ -2060,6 +2233,18 @@
             "type": "object",
             "title": "Details",
             "description": "Code-specific structured facts, e.g. field errors or the current revision for stale_version."
+          },
+          "trace_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trace Id",
+            "description": "Quote this when reporting a problem."
           }
         },
         "additionalProperties": false,
@@ -2203,6 +2388,25 @@
             "type": "string",
             "title": "Timezone",
             "description": "Organization default IANA timezone."
+          },
+          "capabilities": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "view_all_outlets",
+                "manage_employees",
+                "edit_demand",
+                "generate",
+                "publish",
+                "view_costs",
+                "approve_cross_outlet",
+                "view_own_schedule",
+                "report_own_absence"
+              ]
+            },
+            "type": "array",
+            "title": "Capabilities",
+            "description": "What this caller may do. Use it to show or hide controls; the server still enforces every action."
           }
         },
         "additionalProperties": false,
@@ -2215,7 +2419,8 @@
           "role",
           "outlet_id",
           "employee_id",
-          "timezone"
+          "timezone",
+          "capabilities"
         ],
         "title": "Me"
       },
@@ -2649,6 +2854,69 @@
         ],
         "title": "OutletRef"
       },
+      "RosterEmployee": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "home_outlet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Home Outlet Id"
+          },
+          "skill_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Skill Ids"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "title": "Status"
+          },
+          "scheduled_minutes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Scheduled Minutes",
+            "description": "Paid minutes this week across all outlets' published versions."
+          },
+          "regular_weekly_minutes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Regular Weekly Minutes"
+          },
+          "max_weekly_minutes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Max Weekly Minutes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "home_outlet_id",
+          "skill_ids",
+          "status",
+          "scheduled_minutes",
+          "regular_weekly_minutes",
+          "max_weekly_minutes"
+        ],
+        "title": "RosterEmployee"
+      },
       "ScheduleVersion": {
         "properties": {
           "id": {
@@ -2983,6 +3251,22 @@
             },
             "type": "array",
             "title": "Drafts"
+          },
+          "employees": {
+            "items": {
+              "$ref": "#/components/schemas/RosterEmployee"
+            },
+            "type": "array",
+            "title": "Employees",
+            "description": "Rows for the roster: active home-outlet employees plus anyone with a shift in current_version. An employee with no shift on a day is off that day."
+          },
+          "absences": {
+            "items": {
+              "$ref": "#/components/schemas/AbsenceMark"
+            },
+            "type": "array",
+            "title": "Absences",
+            "description": "Absences overlapping this week for listed employees."
           }
         },
         "additionalProperties": false,
@@ -2993,7 +3277,9 @@
           "timezone",
           "schedule_id",
           "current_version",
-          "drafts"
+          "drafts",
+          "employees",
+          "absences"
         ],
         "title": "ScheduleWeek"
       },

@@ -19,7 +19,174 @@
       "timezone": "Asia/Kolkata",
       "schedule_id": null,
       "current_version": null,
-      "drafts": []
+      "drafts": [],
+      "employees": [
+        {
+          "id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "name": "Ravi Kumar",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+            "78cf829b-deb0-5ce0-863c-fef7722f4b21"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "88deef49-a989-573d-ad65-603223d0c3fc",
+          "name": "Arjun Rao",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "a7a79981-4178-5259-9793-dca3c3fc2ea8"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "39ecd01e-c984-50d7-a64c-9a350c67e8f6",
+          "name": "Neha Iyer",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+            "78cf829b-deb0-5ce0-863c-fef7722f4b21"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+          "name": "Aman Shah",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+            "a7a79981-4178-5259-9793-dca3c3fc2ea8"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "7df5532e-f630-5999-90fe-0b04f004bf92",
+          "name": "Kavya Reddy",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+            "78cf829b-deb0-5ce0-863c-fef7722f4b21"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "9aee8acb-8a87-50ea-bef7-bddd4ac69029",
+          "name": "Priya Sharma",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+            "0aa5c0ea-62bf-5c38-993b-a02803969f34"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "5aebaf91-c927-5c4c-ae19-dfdeb80e5444",
+          "name": "Karan Mehta",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "d6ccb7a6-69ef-5be0-9556-6f559444c0c8"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "e573980d-9c59-56be-b8f6-baae8f7fd341",
+          "name": "Divya Nair",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+            "0aa5c0ea-62bf-5c38-993b-a02803969f34"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "310c8d9d-2f10-5082-bb7a-a5abfcebdaf6",
+          "name": "Farhan Ali",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "d6ccb7a6-69ef-5be0-9556-6f559444c0c8"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "bc9a2f5a-6538-5782-80e2-77071f255661",
+          "name": "Meera Pillai",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+            "d6ccb7a6-69ef-5be0-9556-6f559444c0c8"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "4284aaec-0470-5d65-b4ae-770a789ed16f",
+          "name": "Sanjay Gowda",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+            "b712ed56-af3c-5221-bd78-87676295e21c"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "523b1ffa-4e39-59f7-9cf7-d82801e97d4f",
+          "name": "Anjali Rao",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "0aa5c0ea-62bf-5c38-993b-a02803969f34"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        },
+        {
+          "id": "47502e23-7b33-5895-a60b-b405cfa9b710",
+          "name": "Rohit Verma",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_ids": [
+            "d6ccb7a6-69ef-5be0-9556-6f559444c0c8"
+          ],
+          "status": "active",
+          "scheduled_minutes": 0,
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880
+        }
+      ],
+      "absences": []
     }
   }
 }

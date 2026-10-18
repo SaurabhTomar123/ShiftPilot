@@ -25,7 +25,8 @@
         "retryable": false,
         "details": {
           "current_revision": 2
-        }
+        },
+        "trace_id": null
       }
     }
   }

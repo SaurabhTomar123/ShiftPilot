@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "2.0.0-p1p2"
+CONTRACT_VERSION = "2.1.0-p1p2"
 
 
 class Model(BaseModel):
@@ -62,6 +62,7 @@ class ErrorBody(Model):
         description="Code-specific structured facts, "
         "e.g. field errors or the current revision for stale_version.",
     )
+    trace_id: str | None = Field(default=None, description="Quote this when reporting a problem.")
 
 
 class ErrorResponse(Model):
@@ -76,6 +77,19 @@ class Money(Model):
 # ---------------------------------------------------------------- identity and org
 
 
+Capability = Literal[
+    "view_all_outlets",
+    "manage_employees",
+    "edit_demand",
+    "generate",
+    "publish",
+    "view_costs",
+    "approve_cross_outlet",
+    "view_own_schedule",
+    "report_own_absence",
+]
+
+
 class Me(Model):
     user_id: UUID
     org_id: UUID
@@ -85,6 +99,23 @@ class Me(Model):
     outlet_id: UUID | None = Field(description="Set for managers and staff; null for owners.")
     employee_id: UUID | None = Field(description="Set for staff.")
     timezone: str = Field(description="Organization default IANA timezone.")
+    capabilities: list[Capability] = Field(
+        description="What this caller may do. Use it to show or hide controls; the server still "
+        "enforces every action."
+    )
+
+
+class DemoSessionRequest(Model):
+    persona: Literal["owner", "manager", "staff"]
+
+
+class DemoSession(Model):
+    """Synthetic public demo only; private deployments never expose this endpoint."""
+
+    access_token: str = Field(description="Send as `Authorization: Bearer <token>`.")
+    token_type: Literal["bearer"] = "bearer"
+    expires_at: AwareDatetime
+    me: Me
 
 
 class OperatingWindow(Model):
@@ -338,6 +369,35 @@ class ScheduleWeek(Model):
     schedule_id: UUID | None = Field(description="null when nothing exists for this week yet.")
     current_version: ScheduleVersion | None = Field(description="Live published version, if any.")
     drafts: list[ScheduleVersionSummary]
+    employees: list[RosterEmployee] = Field(
+        description="Rows for the roster: active home-outlet employees plus anyone with a shift in "
+        "current_version. An employee with no shift on a day is off that day."
+    )
+    absences: list[AbsenceMark] = Field(description="Absences overlapping this week for listed employees.")
+
+
+class RosterEmployee(Model):
+    id: UUID
+    name: str
+    home_outlet_id: UUID
+    skill_ids: list[UUID]
+    status: Literal["active", "inactive"]
+    scheduled_minutes: Minutes = Field(
+        description="Paid minutes this week across all outlets' published versions."
+    )
+    regular_weekly_minutes: Minutes
+    max_weekly_minutes: Minutes
+
+
+class AbsenceMark(Model):
+    id: UUID
+    employee_id: UUID
+    start_at: AwareDatetime
+    end_at: AwareDatetime
+    kind: Literal["leave", "sick", "other"]
+    status: Literal["requested", "confirmed"] = Field(
+        description="Only confirmed absences make an overlapping shift invalid."
+    )
 
 
 class OutletRef(Model):

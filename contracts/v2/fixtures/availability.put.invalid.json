@@ -28,7 +28,8 @@
               "message": "end_minute must be after start_minute"
             }
           ]
-        }
+        },
+        "trace_id": null
       }
     }
   }

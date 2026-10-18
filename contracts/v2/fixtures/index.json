@@ -1,6 +1,18 @@
 {
-  "contract_version": "2.0.0-p1p2",
+  "contract_version": "2.1.0-p1p2",
   "fixtures": [
+    {
+      "name": "session.demo.manager",
+      "operation_id": "createDemoSession",
+      "status": 201,
+      "schema": "DemoSession"
+    },
+    {
+      "name": "session.demo.disabled",
+      "operation_id": "createDemoSession",
+      "status": 403,
+      "schema": "ErrorResponse"
+    },
     {
       "name": "me.owner",
       "operation_id": "getMe",

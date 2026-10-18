@@ -63,6 +63,19 @@ def install(app: FastAPI) -> None:
     app.add_exception_handler(NotImplementedYet, lambda _req, _exc: not_implemented_response())
 
 
+@router.post(
+    "/session/demo",
+    operation_id="createDemoSession",
+    response_model=s.DemoSession,
+    status_code=status.HTTP_201_CREATED,
+    responses={code: {"model": s.ErrorResponse} for code in (403, 422, 429, 501)},
+)
+def create_demo_session(body: s.DemoSessionRequest) -> s.DemoSession:
+    """Public synthetic demo only: issues a short-lived token for an isolated demo org (B6.2).
+    403 permission_denied when the deployment is private."""
+    _stub()
+
+
 @router.get("/me", operation_id="getMe", response_model=s.Me, responses=_errors())
 def get_me(auth: Auth) -> s.Me:
     _stub()

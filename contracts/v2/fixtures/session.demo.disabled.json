@@ -1,0 +1,25 @@
+{
+  "name": "session.demo.disabled",
+  "operation_id": "createDemoSession",
+  "method": "POST",
+  "path": "/v2/session/demo",
+  "persona": null,
+  "request": {
+    "body": {
+      "persona": "owner"
+    }
+  },
+  "response": {
+    "status": 403,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "permission_denied",
+        "message": "Demo sessions are not available on this deployment.",
+        "retryable": false,
+        "details": {},
+        "trace_id": null
+      }
+    }
+  }
+}

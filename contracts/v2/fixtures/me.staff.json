@@ -16,7 +16,11 @@
       "role": "staff",
       "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
       "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
-      "timezone": "Asia/Kolkata"
+      "timezone": "Asia/Kolkata",
+      "capabilities": [
+        "view_own_schedule",
+        "report_own_absence"
+      ]
     }
   }
 }

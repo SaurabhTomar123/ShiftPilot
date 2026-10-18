@@ -28,7 +28,8 @@
         "retryable": false,
         "details": {
           "run_id": "1bc0f4df-a456-5c62-8fdf-c099d4b5a68b"
-        }
+        },
+        "trace_id": null
       }
     }
   }
