@@ -1,0 +1,3 @@
+# ShiftPilot UI direction
+
+An operational scheduling workspace for restaurant managers. Schedule is the homepage. Use warm white, charcoal, fine neutral separators, forest-green primary controls and muted role colors. A narrow sidebar frames a dense, legible weekly roster. Typography is a compact sans with tabular time values; no marketing hero or decorative imagery. Changes open an inline/contextual preview before publication. Mobile keeps primary tasks usable with horizontal roster scrolling, a day view and accessible dialogs. Example data must be explicitly marked synthetic. No solver or authorization claims may be fabricated.

@@ -1,0 +1,436 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-18T16:36:01.269038+00:00",
+  "title": "Design System: ShiftPilot",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Warm canvas",
+        "canonical": "#f8f9f6",
+        "tonalRamp": [
+          "oklch(0.15 0.00409 121.56)",
+          "oklch(0.26 0.00409 121.56)",
+          "oklch(0.38 0.00409 121.56)",
+          "oklch(0.49 0.00409 121.56)",
+          "oklch(0.61 0.00409 121.56)",
+          "oklch(0.72 0.00409 121.56)",
+          "oklch(0.84 0.00409 121.56)",
+          "oklch(0.95 0.00409 121.56)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "White surface",
+        "canonical": "#fff",
+        "tonalRamp": [
+          "oklch(0.15 0.00000 89.88)",
+          "oklch(0.26 0.00000 89.88)",
+          "oklch(0.38 0.00000 89.88)",
+          "oklch(0.49 0.00000 89.88)",
+          "oklch(0.61 0.00000 89.88)",
+          "oklch(0.72 0.00000 89.88)",
+          "oklch(0.84 0.00000 89.88)",
+          "oklch(0.95 0.00000 89.88)"
+        ]
+      },
+      "sidebar": {
+        "role": "neutral",
+        "displayName": "Soft sidebar",
+        "canonical": "#f6f7f3",
+        "tonalRamp": [
+          "oklch(0.15 0.00538 117.92)",
+          "oklch(0.26 0.00538 117.92)",
+          "oklch(0.38 0.00538 117.92)",
+          "oklch(0.49 0.00538 117.92)",
+          "oklch(0.61 0.00538 117.92)",
+          "oklch(0.72 0.00538 117.92)",
+          "oklch(0.84 0.00538 117.92)",
+          "oklch(0.95 0.00538 117.92)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Dark green-gray",
+        "canonical": "#252e29",
+        "tonalRamp": [
+          "oklch(0.15 0.01539 160.98)",
+          "oklch(0.26 0.01539 160.98)",
+          "oklch(0.38 0.01539 160.98)",
+          "oklch(0.49 0.01539 160.98)",
+          "oklch(0.61 0.01539 160.98)",
+          "oklch(0.72 0.01539 160.98)",
+          "oklch(0.84 0.01539 160.98)",
+          "oklch(0.95 0.01539 160.98)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted gray-green",
+        "canonical": "#69716b",
+        "tonalRamp": [
+          "oklch(0.15 0.01337 153.45)",
+          "oklch(0.26 0.01337 153.45)",
+          "oklch(0.38 0.01337 153.45)",
+          "oklch(0.49 0.01337 153.45)",
+          "oklch(0.61 0.01337 153.45)",
+          "oklch(0.72 0.01337 153.45)",
+          "oklch(0.84 0.01337 153.45)",
+          "oklch(0.95 0.01337 153.45)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Fine divider",
+        "canonical": "#e5e8e1",
+        "tonalRamp": [
+          "oklch(0.15 0.00987 125.69)",
+          "oklch(0.26 0.00987 125.69)",
+          "oklch(0.38 0.00987 125.69)",
+          "oklch(0.49 0.00987 125.69)",
+          "oklch(0.61 0.00987 125.69)",
+          "oklch(0.72 0.00987 125.69)",
+          "oklch(0.84 0.00987 125.69)",
+          "oklch(0.95 0.00987 125.69)"
+        ]
+      },
+      "green": {
+        "role": "primary",
+        "displayName": "Forest action",
+        "canonical": "#285640",
+        "tonalRamp": [
+          "oklch(0.15 0.06337 161.02)",
+          "oklch(0.26 0.06337 161.02)",
+          "oklch(0.38 0.06337 161.02)",
+          "oklch(0.49 0.06337 161.02)",
+          "oklch(0.61 0.06337 161.02)",
+          "oklch(0.72 0.06337 161.02)",
+          "oklch(0.84 0.06337 161.02)",
+          "oklch(0.95 0.06337 161.02)"
+        ]
+      },
+      "green-hover": {
+        "role": "primary",
+        "displayName": "Deep forest hover",
+        "canonical": "#1b422f",
+        "tonalRamp": [
+          "oklch(0.15 0.05604 160.16)",
+          "oklch(0.26 0.05604 160.16)",
+          "oklch(0.38 0.05604 160.16)",
+          "oklch(0.49 0.05604 160.16)",
+          "oklch(0.61 0.05604 160.16)",
+          "oklch(0.72 0.05604 160.16)",
+          "oklch(0.84 0.05604 160.16)",
+          "oklch(0.95 0.05604 160.16)"
+        ]
+      },
+      "mint": {
+        "role": "neutral",
+        "displayName": "Quiet mint",
+        "canonical": "#e9f1e8",
+        "tonalRamp": [
+          "oklch(0.15 0.01464 142.23)",
+          "oklch(0.26 0.01464 142.23)",
+          "oklch(0.38 0.01464 142.23)",
+          "oklch(0.49 0.01464 142.23)",
+          "oklch(0.61 0.01464 142.23)",
+          "oklch(0.72 0.01464 142.23)",
+          "oklch(0.84 0.01464 142.23)",
+          "oklch(0.95 0.01464 142.23)"
+        ]
+      },
+      "kitchen": {
+        "role": "secondary",
+        "displayName": "Kitchen sage",
+        "canonical": "#e7eee2",
+        "tonalRamp": [
+          "oklch(0.15 0.01759 131.88)",
+          "oklch(0.26 0.01759 131.88)",
+          "oklch(0.38 0.01759 131.88)",
+          "oklch(0.49 0.01759 131.88)",
+          "oklch(0.61 0.01759 131.88)",
+          "oklch(0.72 0.01759 131.88)",
+          "oklch(0.84 0.01759 131.88)",
+          "oklch(0.95 0.01759 131.88)"
+        ]
+      },
+      "kitchen-ink": {
+        "role": "secondary",
+        "displayName": "Kitchen label",
+        "canonical": "#3b5336",
+        "tonalRamp": [
+          "oklch(0.15 0.05544 140.20)",
+          "oklch(0.26 0.05544 140.20)",
+          "oklch(0.38 0.05544 140.20)",
+          "oklch(0.49 0.05544 140.20)",
+          "oklch(0.61 0.05544 140.20)",
+          "oklch(0.72 0.05544 140.20)",
+          "oklch(0.84 0.05544 140.20)",
+          "oklch(0.95 0.05544 140.20)"
+        ]
+      },
+      "service": {
+        "role": "secondary",
+        "displayName": "Service lilac",
+        "canonical": "#ede8f3",
+        "tonalRamp": [
+          "oklch(0.15 0.01560 306.41)",
+          "oklch(0.26 0.01560 306.41)",
+          "oklch(0.38 0.01560 306.41)",
+          "oklch(0.49 0.01560 306.41)",
+          "oklch(0.61 0.01560 306.41)",
+          "oklch(0.72 0.01560 306.41)",
+          "oklch(0.84 0.01560 306.41)",
+          "oklch(0.95 0.01560 306.41)"
+        ]
+      },
+      "service-ink": {
+        "role": "secondary",
+        "displayName": "Service label",
+        "canonical": "#655278",
+        "tonalRamp": [
+          "oklch(0.15 0.06407 306.94)",
+          "oklch(0.26 0.06407 306.94)",
+          "oklch(0.38 0.06407 306.94)",
+          "oklch(0.49 0.06407 306.94)",
+          "oklch(0.61 0.06407 306.94)",
+          "oklch(0.72 0.06407 306.94)",
+          "oklch(0.84 0.06407 306.94)",
+          "oklch(0.95 0.06407 306.94)"
+        ]
+      },
+      "cashier": {
+        "role": "secondary",
+        "displayName": "Cashier apricot",
+        "canonical": "#faecdf",
+        "tonalRamp": [
+          "oklch(0.15 0.02306 65.46)",
+          "oklch(0.26 0.02306 65.46)",
+          "oklch(0.38 0.02306 65.46)",
+          "oklch(0.49 0.02306 65.46)",
+          "oklch(0.61 0.02306 65.46)",
+          "oklch(0.72 0.02306 65.46)",
+          "oklch(0.84 0.02306 65.46)",
+          "oklch(0.95 0.02306 65.46)"
+        ]
+      },
+      "cashier-ink": {
+        "role": "secondary",
+        "displayName": "Cashier label",
+        "canonical": "#875a32",
+        "tonalRamp": [
+          "oklch(0.15 0.08111 60.99)",
+          "oklch(0.26 0.08111 60.99)",
+          "oklch(0.38 0.08111 60.99)",
+          "oklch(0.49 0.08111 60.99)",
+          "oklch(0.61 0.08111 60.99)",
+          "oklch(0.72 0.08111 60.99)",
+          "oklch(0.84 0.08111 60.99)",
+          "oklch(0.95 0.08111 60.99)"
+        ]
+      },
+      "barista": {
+        "role": "secondary",
+        "displayName": "Barista mist",
+        "canonical": "#e5edf3",
+        "tonalRamp": [
+          "oklch(0.15 0.01180 239.91)",
+          "oklch(0.26 0.01180 239.91)",
+          "oklch(0.38 0.01180 239.91)",
+          "oklch(0.49 0.01180 239.91)",
+          "oklch(0.61 0.01180 239.91)",
+          "oklch(0.72 0.01180 239.91)",
+          "oklch(0.84 0.01180 239.91)",
+          "oklch(0.95 0.01180 239.91)"
+        ]
+      },
+      "barista-ink": {
+        "role": "secondary",
+        "displayName": "Barista label",
+        "canonical": "#3d5d72",
+        "tonalRamp": [
+          "oklch(0.15 0.05078 238.10)",
+          "oklch(0.26 0.05078 238.10)",
+          "oklch(0.38 0.05078 238.10)",
+          "oklch(0.49 0.05078 238.10)",
+          "oklch(0.61 0.05078 238.10)",
+          "oklch(0.72 0.05078 238.10)",
+          "oklch(0.84 0.05078 238.10)",
+          "oklch(0.95 0.05078 238.10)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Page headline",
+        "purpose": "Main workspace page titles."
+      },
+      "title": {
+        "displayName": "Dialog title",
+        "purpose": "Native modal headings."
+      },
+      "body": {
+        "displayName": "Application body",
+        "purpose": "Base text and form input type."
+      },
+      "label": {
+        "displayName": "Action label",
+        "purpose": "Standard compact button labels."
+      }
+    },
+    "shadows": [
+      {
+        "name": "dialog",
+        "value": "0 24px 90px #1926192b",
+        "purpose": "Modal elevation."
+      },
+      {
+        "name": "toast",
+        "value": "0 8px 32px #19261920",
+        "purpose": "Status notification elevation."
+      },
+      {
+        "name": "sticky-roster-edge",
+        "value": "2px 0 4px #253c2010",
+        "purpose": "Pinned employee column at narrow widths."
+      }
+    ],
+    "motion": [
+      {
+        "name": "button-state",
+        "value": "background-color 150ms ease, color 150ms ease, border-color 150ms ease",
+        "purpose": "Button state transitions."
+      },
+      {
+        "name": "switch-thumb",
+        "value": "transform 150ms ease",
+        "purpose": "Configuration switch thumb."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "transition-duration: .01ms !important; animation-duration: .01ms !important; scroll-behavior: auto !important",
+        "purpose": "Applied to all elements and pseudo-elements when prefers-reduced-motion is reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide-min",
+        "value": "1650px"
+      },
+      {
+        "name": "compact-max",
+        "value": "1300px"
+      },
+      {
+        "name": "stacked-max",
+        "value": "1100px"
+      },
+      {
+        "name": "mobile-max",
+        "value": "760px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Compact scheduling action; copied from the current button variants.",
+      "html": "<button class=\"ds-button-primary\">Publish schedule</button>",
+      "css": ".ds-button-primary{height:35px;display:inline-flex;justify-content:center;align-items:center;gap:7px;border:1px solid #dce1d8;border-radius:6px;background:white;color:#465045;font-size:11px;font-weight:500;padding:0 12px;white-space:nowrap;cursor:pointer;transition:background-color 150ms ease,color 150ms ease,border-color 150ms ease;font-family:'Geist Variable','Segoe UI',sans-serif;background:var(--green,#285640);color:#fff;border-color:var(--green,#285640);}.ds-button-primary:hover:not(:disabled){background:var(--green-hover,#1b422f);border-color:var(--green-hover,#1b422f);}.ds-button-primary:focus-visible { outline: 2px solid var(--green, #285640); outline-offset: 4px; }.ds-button-primary:disabled{cursor:not-allowed;opacity:.48;} @media(prefers-reduced-motion:reduce){.ds-button-primary{transition-duration:.01ms!important;}}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Compact scheduling action; copied from the current button variants.",
+      "html": "<button class=\"ds-button-secondary\">Generate week</button>",
+      "css": ".ds-button-secondary{height:35px;display:inline-flex;justify-content:center;align-items:center;gap:7px;border:1px solid #dce1d8;border-radius:6px;background:white;color:#465045;font-size:11px;font-weight:500;padding:0 12px;white-space:nowrap;cursor:pointer;transition:background-color 150ms ease,color 150ms ease,border-color 150ms ease;font-family:'Geist Variable','Segoe UI',sans-serif;}.ds-button-secondary:hover:not(:disabled){background:#f0f3ec;border-color:#bfcbb8;}.ds-button-secondary:focus-visible { outline: 2px solid var(--green, #285640); outline-offset: 4px; }.ds-button-secondary:disabled{cursor:not-allowed;opacity:.48;} @media(prefers-reduced-motion:reduce){.ds-button-secondary{transition-duration:.01ms!important;}}"
+    },
+    {
+      "name": "Subtle Button",
+      "kind": "button",
+      "refersTo": "button-subtle",
+      "description": "Compact scheduling action; copied from the current button variants.",
+      "html": "<button class=\"ds-button-subtle\">Demo week</button>",
+      "css": ".ds-button-subtle{height:35px;display:inline-flex;justify-content:center;align-items:center;gap:7px;border:1px solid #dce1d8;border-radius:6px;background:white;color:#465045;font-size:11px;font-weight:500;padding:0 12px;white-space:nowrap;cursor:pointer;transition:background-color 150ms ease,color 150ms ease,border-color 150ms ease;font-family:'Geist Variable','Segoe UI',sans-serif;background:transparent;}.ds-button-subtle:hover:not(:disabled){background:#f0f3ec;border-color:#bfcbb8;}.ds-button-subtle:focus-visible { outline: 2px solid var(--green, #285640); outline-offset: 4px; }.ds-button-subtle:disabled{cursor:not-allowed;opacity:.48;} @media(prefers-reduced-motion:reduce){.ds-button-subtle{transition-duration:.01ms!important;}}"
+    },
+    {
+      "name": "Icon Button",
+      "kind": "button",
+      "description": "Compact close action, with an inline SVG icon.",
+      "html": "<button class=\"ds-icon\" aria-label=\"Close dialog\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\" aria-hidden=\"true\"><path d=\"M5 5L15 15M15 5L5 15\" stroke=\"currentColor\" stroke-width=\"1.5\"/></svg></button>",
+      "css": ".ds-icon{width:31px;height:31px;border:0;border-radius:5px;background:transparent;color:#778071;padding:0;display:inline-grid;place-items:center;cursor:pointer;transition:background-color 150ms ease,color 150ms ease;}.ds-icon:hover{background:#e9eee4;color:#31492e;}.ds-icon:focus-visible { outline: 2px solid var(--green, #285640); outline-offset: 4px; }@media(prefers-reduced-motion:reduce){.ds-icon{transition-duration:.01ms!important;}}"
+    },
+    {
+      "name": "Dialog Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Visible label above a dialog text input.",
+      "html": "<label class=\"ds-field\">Full name<input placeholder=\"e.g. Anjali Rao\" /></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:7px;font-size:11px;color:#65705e;margin:17px 0;font-family:'Geist Variable','Segoe UI',sans-serif;}.ds-field input{border:1px solid #dbe1d5;border-radius:6px;padding:10px 11px;background:#fff;color:var(--ink,#252e29);width:100%;min-width:0;font-size:13px;caret-color:var(--green,#285640);font-family:'Geist Variable','Segoe UI',sans-serif;}.ds-field input::placeholder{color:#75806e;opacity:1;}.ds-field input:disabled{background:#f3f5ef;color:#7b8374;}.ds-field input:focus-visible { outline: 2px solid var(--green, #285640); outline-offset: 4px; }"
+    },
+    {
+      "name": "Sidebar Navigation",
+      "kind": "nav",
+      "description": "Current active and inactive sidebar items.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Workspace\"><button class=\"ds-nav-item ds-active\" aria-current=\"page\">Schedule</button><button class=\"ds-nav-item\">Team</button></nav>",
+      "css": ".ds-nav{padding:8px;background:var(--sidebar,#f6f7f3);}.ds-nav-item{display:flex;align-items:center;gap:11px;width:100%;background:transparent;border:0;border-radius:6px;padding:10px 12px;margin-bottom:4px;text-align:left;color:#646d65;font-size:12px;cursor:pointer;font-family:'Geist Variable','Segoe UI',sans-serif;}.ds-nav-item:hover{background:#ecf0e8;color:var(--ink,#252e29);}.ds-nav-item.ds-active{background:#e4ecdf;color:#355237;font-weight:600;}.ds-nav-item:focus-visible { outline: 2px solid var(--green, #285640); outline-offset: 4px; }"
+    },
+    {
+      "name": "Kitchen Role Badge",
+      "kind": "chip",
+      "description": "Role label shares the schedule role pair.",
+      "html": "<span class=\"ds-role\">Kitchen</span>",
+      "css": ".ds-role{display:inline-block;border-radius:4px;padding:4px 8px;font-size:10px;background:var(--kitchen,#e7eee2);color:var(--kitchen-ink,#3b5336);font-family:'Geist Variable','Segoe UI',sans-serif;}"
+    },
+    {
+      "name": "Data Surface",
+      "kind": "card",
+      "refersTo": "data-surface",
+      "description": "Flat border-delimited container for operational information.",
+      "html": "<section class=\"ds-surface\"><div class=\"ds-surface-heading\">Team requests</div></section>",
+      "css": ".ds-surface{background:white;border:1px solid var(--line,#e5e8e1);border-radius:8px;overflow:hidden;color:var(--ink,#252e29);font-family:'Geist Variable','Segoe UI',sans-serif;}.ds-surface-heading{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px;border-bottom:1px solid var(--line,#e5e8e1);font-size:15px;font-weight:500;letter-spacing:-.02em;}"
+    },
+    {
+      "name": "Kitchen Shift",
+      "kind": "custom",
+      "refersTo": "shift-kitchen",
+      "description": "Clickable time and role tile; source width fills its table cell.",
+      "html": "<button class=\"ds-shift\"><span>10:00 ? 18:00</span><small>Kitchen</small></button>",
+      "css": ".ds-shift{width:100%;min-height:45px;padding:7px 6px;border:0;border-radius:5px;text-align:left;overflow:hidden;cursor:pointer;background:var(--kitchen,#e7eee2);color:var(--kitchen-ink,#3b5336);font-family:'Geist Variable','Segoe UI',sans-serif;}.ds-shift>span{display:flex;justify-content:space-between;align-items:center;gap:2px;font-size:9px;font-weight:550;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:-.025em;}.ds-shift>small{display:block;font-size:8px;margin-top:3px;}.ds-shift:hover{filter:brightness(.965);}.ds-shift:focus-visible { outline: 2px solid var(--green, #285640); outline-offset: 4px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Working Week",
+    "overview": "The current Operate-mode interface treats the weekly roster as a working surface: a fine grid, compact controls, quiet neutral framing and role-colored assignments. Forest green concentrates attention on actions; pastel fills let a manager scan shifts without making the whole workspace loud. This name describes the observed implementation and is not a claim of user-approved brand language.\n\nThis document captures source code in `web/src/app/globals.css`, `web/src/components/ui.tsx`, `web/src/components/workspace.tsx` and the local Geist import in `web/src/app/layout.tsx`. It is a source scan, not a browser or detector audit. The Impeccable engine could not run because its engine cache was unwritable. The user owns the product plan in `docs/Newupdate.doc`; Codex owns UI and Claude owns backend implementation. This slice uses synthetic browser state, with no connected production scheduling backend.",
+    "keyCharacteristics": [
+      "A dense weekly roster leads the workspace.",
+      "Warm neutral framing supports forest actions and pastel role coding.",
+      "Fine dividers and modest corners organize information with little elevation.",
+      "The persistent label reads \"Synthetic browser demo\".",
+      "Responsive navigation and horizontal roster scrolling preserve the weekly structure."
+    ],
+    "rules": [
+      {
+        "name": "The Role Pair Rule",
+        "body": "Keep role text with its matching pastel fill and retain the written role label; color alone does not identify a shift.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "**Do** keep the weekly roster visually dominant and preserve its fine grid.",
+      "**Do** keep the \"Synthetic browser demo\" label visible, including narrow layouts.",
+      "**Do** retain written roles, lock indicators, absence text and draft status alongside color.",
+      "**Do** preserve visible focus, the shift editor alternative to dragging and reduced-motion treatment.",
+      "**Do** reuse the current local Geist typography, forest actions and paired role colors."
+    ],
+    "donts": [
+      "**Don't** present local browser publication, fixture generation or simple replacement suggestions as validated production scheduling.",
+      "**Don't** remove horizontal roster scrolling or the sticky employee column on narrow screens.",
+      "**Don't** replace the fine-bordered roster with a collection of elevated cards.",
+      "**Don't** claim user approval, pixel fidelity or universal accessibility from this source scan."
+    ]
+  }
+}

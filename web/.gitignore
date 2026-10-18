@@ -1,0 +1,8 @@
+node_modules/
+.next/
+test-results/
+playwright-report/
+*.tsbuildinfo
+.impeccable/review/
+.superdesign/weekly-roster.html
+.superdesign/tmp/
