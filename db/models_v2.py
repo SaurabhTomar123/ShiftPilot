@@ -36,7 +36,9 @@ from db.models import Base
 
 
 def pk() -> Mapped[uuid.UUID]:
-    return mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # UUIDv7: time-ordered, so inserts append to the right edge of B-tree indexes (architecture §17).
+    # Never use its embedded time as business ordering.
+    return mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid7)
 
 
 def org() -> Mapped[uuid.UUID]:
@@ -95,10 +97,11 @@ class EmployeeAvailability(Base):
         ),
         one_of("kind", AVAILABILITY_KINDS, "availability_kind"),
         CheckConstraint("valid_to IS NULL OR valid_to >= valid_from", name="availability_validity"),
+        Index("ix_employee_availability_lookup", "org_id", "employee_id", "weekday"),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
-    employee_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    employee_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     weekday: Mapped[int] = mapped_column(SmallInteger)
     start_minute: Mapped[int] = mapped_column(SmallInteger)
     end_minute: Mapped[int] = mapped_column(SmallInteger)
@@ -116,7 +119,7 @@ class Absence(Base):
         one_of("kind", ("leave", "sick", "other"), "absence_kind"),
         one_of("status", ("requested", "confirmed", "rejected", "cancelled"), "absence_status"),
         one_of("source", ("manager", "employee", "import"), "absence_source"),
-        Index("ix_absences_employee_time", "employee_id", "start_at"),
+        Index("ix_absences_lookup", "org_id", "employee_id", "start_at"),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
@@ -245,6 +248,7 @@ class StaffingRequirement(Base):
         ref("outlet_id", "outlets"),
         ref("skill_id", "skills"),
         UniqueConstraint("outlet_id", "skill_id", "interval_start"),
+        Index("ix_staffing_requirements_week", "outlet_id", "interval_start"),
         CheckConstraint("interval_end > interval_start", name="requirement_interval"),
         CheckConstraint(
             "minimum_required >= 0 AND preferred_required >= minimum_required", name="requirement_staff"
@@ -393,12 +397,13 @@ class VersionShift(Base):
             name="shift_break_inside",
         ),
         CheckConstraint("locked OR lock_reason IS NULL", name="shift_lock_reason"),
+        Index("ix_version_shifts_roster", "version_id", "employee_id", "start_at"),
         Index("ix_version_shifts_employee_time", "employee_id", "start_at"),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
     schedule_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
-    version_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    version_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     logical_shift_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     outlet_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     employee_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
@@ -414,6 +419,7 @@ class VersionShift(Base):
 
 # ---------------------------------------------------------------- runs, candidates, proposals
 
+LANES = ("interactive", "batch")
 JOB_STATES = ("queued", "running", "succeeded", "failed", "cancelled")
 SOLVER_STATUSES = ("OPTIMAL", "FEASIBLE", "INFEASIBLE", "MODEL_INVALID", "UNKNOWN")
 
@@ -430,15 +436,21 @@ class OptimizationRun(Base):
             f"solver_status IS NULL OR solver_status IN {SOLVER_STATUSES}", name="run_solver_status"
         ),
         CheckConstraint("attempts >= 0", name="run_attempts"),
+        one_of("lane", LANES, "run_lane"),
         Index(
-            "ix_optimization_runs_queue",
+            "ix_optimization_runs_claim",
+            "lane",
+            "priority",
             "queued_at",
-            postgresql_where=text("job_state IN ('queued', 'running')"),
+            postgresql_where=text("job_state = 'queued'"),
         ),
+        Index("ix_optimization_runs_lease", "lease_until", postgresql_where=text("job_state = 'running'")),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
     kind: Mapped[str] = mapped_column(String(20))
+    lane: Mapped[str] = mapped_column(String(20), default="batch", server_default="batch")
+    priority: Mapped[int] = mapped_column(SmallInteger, default=100, server_default="100")
     strategy: Mapped[str] = mapped_column(String(20))
     outlet_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
     base_version_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
@@ -461,6 +473,21 @@ class OptimizationRun(Base):
     best_bound: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     stats: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     error: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    traceparent: Mapped[str | None] = mapped_column(String(80), nullable=True)
+
+
+class ScheduleRunSlot(Base):
+    """Admission guard: at most one active run per schedule (architecture §11). Inserted in the
+    enqueue transaction, deleted in the transaction that makes the run terminal."""
+
+    __tablename__ = "schedule_run_slots"
+    __table_args__ = (ref("schedule_id", "schedules"), ref("run_id", "optimization_runs"))
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("organizations.id"), primary_key=True
+    )
+    schedule_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    run_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
+    created_at: Mapped[datetime] = created_at()
 
 
 class OptimizationCandidate(Base):
@@ -524,6 +551,59 @@ class ScheduleProposal(Base):
     created_at: Mapped[datetime] = created_at()
 
 
+OUTBOX_TOPICS = (
+    "schedule.published",
+    "proposal.ready",
+    "proposal.stale",
+    "run.finished",
+    "absence.reported",
+    "rule.changed",
+    "version.metrics.requested",
+)
+
+
+class OutboxEvent(Base):
+    """Transactional outbox (architecture §19): written in the same transaction as the change,
+    delivered at least once by jobs.outbox_relay."""
+
+    __tablename__ = "outbox_events"
+    __table_args__ = (
+        UniqueConstraint("org_id", "id"),
+        one_of("topic", OUTBOX_TOPICS, "outbox_topic"),
+        CheckConstraint("attempts >= 0", name="outbox_attempts"),
+        Index("ix_outbox_events_pending", "next_attempt_at", postgresql_where=text("published_at IS NULL")),
+    )
+    id: Mapped[uuid.UUID] = pk()
+    org_id: Mapped[uuid.UUID] = org()
+    topic: Mapped[str] = mapped_column(String(60))
+    aggregate_type: Mapped[str] = mapped_column(String(40))
+    aggregate_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    payload: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    traceparent: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    created_at: Mapped[datetime] = created_at()
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    attempts: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
+    next_attempt_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class NotificationDelivery(Base):
+    """Idempotent consumer record: one delivery per event, recipient and channel. No FK to
+    outbox_events, whose published rows are deleted after 7 days."""
+
+    __tablename__ = "notification_deliveries"
+    __table_args__ = (
+        ref("recipient_user_id", "users"),
+        UniqueConstraint("event_id", "recipient_user_id", "channel"),
+    )
+    id: Mapped[uuid.UUID] = pk()
+    org_id: Mapped[uuid.UUID] = org()
+    event_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    recipient_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    channel: Mapped[str] = mapped_column(String(20))
+    delivered_at: Mapped[datetime] = created_at()
+
+
 V2_TENANT_TABLES = [
     "skills",
     "employee_skills",
@@ -544,4 +624,7 @@ V2_TENANT_TABLES = [
     "optimization_runs",
     "optimization_candidates",
     "schedule_proposals",
+    "schedule_run_slots",
+    "outbox_events",
+    "notification_deliveries",
 ]

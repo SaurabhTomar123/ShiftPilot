@@ -15,6 +15,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     ForeignKey,
+    Index,
     Integer,
     Numeric,
     String,
@@ -36,7 +37,9 @@ class Base(DeclarativeBase):
 
 
 def pk() -> Mapped[uuid.UUID]:
-    return mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    # UUIDv7: time-ordered, so inserts append to the right edge of B-tree indexes (architecture §17).
+    # Never use its embedded time as business ordering.
+    return mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid7)
 
 
 def org_fk() -> Mapped[uuid.UUID]:
@@ -79,6 +82,8 @@ class Employee(Base):
     __table_args__ = (
         UniqueConstraint("org_id", "id"),
         CheckConstraint("max_weekly_minutes >= regular_weekly_minutes", name="employee_weekly_caps"),
+        Index("ix_employees_org_outlet_status", "org_id", "outlet_id", "status"),
+        Index("ix_employees_tags", "tags", postgresql_using="gin"),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org_fk()
@@ -274,6 +279,7 @@ class PendingAction(Base):
 
 class AuditLog(Base):
     __tablename__ = "audit_log"
+    __table_args__ = (Index("ix_audit_log_target", "org_id", "target_type", "target_id", "ts"),)
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org_fk()
     ts: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

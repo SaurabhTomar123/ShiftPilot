@@ -351,3 +351,88 @@ def test_app_role_cannot_delete_versions_or_rewrite_audit(db: str) -> None:
             with pytest.raises(DBAPIError) as exc:
                 conn.execute(text(stmt), ids)
             assert sqlstate(exc) == "42501", stmt
+
+
+# ---------------------------------------------------------------- durable work (0004, architecture rev 2)
+
+
+def queue_run(conn: Connection, t: dict[str, uuid.UUID], key: str, lane: str = "batch") -> uuid.UUID:
+    run = uuid.uuid7()
+    conn.execute(
+        text(
+            "INSERT INTO optimization_runs (id, org_id, kind, lane, strategy, outlet_ids, base_version_ids, "
+            "idempotency_key, request_hash, input_hash, input_snapshot, config) "
+            "VALUES (:id, :org, 'generate', "
+            ":lane, 'balanced', ARRAY[CAST(:outlet AS uuid)], '{}', :key, 'r', 'i', '{}', '{}')"
+        ),
+        {"id": run, "org": t["org"], "outlet": t["outlet"], "key": key, "lane": lane},
+    )
+    return run
+
+
+def test_one_active_run_per_schedule(db: str) -> None:
+    migrate.upgrade(db)
+    with admin(db) as conn:
+        t = tenant(conn, "A")
+        ids = draft_with_shift(conn, t)
+        first, second = queue_run(conn, t, "k1"), queue_run(conn, t, "k2")
+        slot = "INSERT INTO schedule_run_slots (org_id, schedule_id, run_id) VALUES (:org, :schedule, :run)"
+        conn.execute(text(slot), {**ids, "run": first})
+        with pytest.raises(DBAPIError) as exc:
+            conn.execute(text(slot), {**ids, "run": second})
+        assert sqlstate(exc) == "23505"  # unique_violation -> API answers 409 with the active run
+        conn.execute(text("DELETE FROM schedule_run_slots WHERE run_id = :run"), {"run": first})
+        conn.execute(text(slot), {**ids, "run": second})
+
+
+def test_outbox_is_tenant_scoped_and_append_only_for_the_app(db: str) -> None:
+    migrate.upgrade(db)
+    with admin(db) as conn:
+        a, b = tenant(conn, "A"), tenant(conn, "B")
+    insert = (
+        "INSERT INTO outbox_events (id, org_id, topic, aggregate_type, aggregate_id, payload) "
+        "VALUES (:id, :org, 'schedule.published', 'schedule_version', :agg, '{}')"
+    )
+    with app(db, a["org"]) as conn:
+        conn.execute(text(insert), {"id": uuid.uuid7(), "org": a["org"], "agg": uuid.uuid7()})
+        for stmt, params in (
+            (insert, {"id": uuid.uuid7(), "org": b["org"], "agg": uuid.uuid7()}),
+            ("UPDATE outbox_events SET published_at = now()", {}),
+            ("DELETE FROM outbox_events", {}),
+        ):
+            with pytest.raises(DBAPIError) as exc:
+                conn.execute(text(stmt), params)
+            assert sqlstate(exc) == "42501", stmt
+        with pytest.raises(DBAPIError):
+            conn.execute(
+                text(insert.replace("schedule.published", "made.up")),
+                {"id": uuid.uuid7(), "org": a["org"], "agg": uuid.uuid7()},
+            )
+
+
+def test_worker_claim_query_can_use_its_partial_index(db: str) -> None:
+    migrate.upgrade(db)
+    with admin(db) as conn:
+        t = tenant(conn, "A")
+        for i in range(3):
+            queue_run(conn, t, f"k{i}", lane="interactive" if i else "batch")
+        conn.execute(text("SET enable_seqscan = off"))
+        plan = "\n".join(
+            conn.execute(
+                text(
+                    "EXPLAIN SELECT id FROM optimization_runs "
+                    "WHERE lane = 'interactive' AND job_state = 'queued' "
+                    "ORDER BY priority, queued_at FOR UPDATE SKIP LOCKED LIMIT 1"
+                )
+            ).scalars()
+        )
+        assert "ix_optimization_runs_claim" in plan, plan
+
+
+def test_new_rows_get_time_ordered_uuid7_keys() -> None:
+    from db.models import AuditLog
+    from db.models_v2 import OutboxEvent, VersionShift
+
+    for model in (AuditLog, OutboxEvent, VersionShift):
+        default = model.__table__.c.id.default
+        assert default is not None and default.arg.__name__ == "uuid7", model.__name__

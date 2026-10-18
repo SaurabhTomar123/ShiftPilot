@@ -1,6 +1,8 @@
 # v2 schema, migration and legacy plan (B0.2)
 
-Status: plan for B1.1 (18 October 2026, Claude). Written against `db/models.py`, `db/init.py`, `db/session.py`, `core/auth.py` and `seed/load.py` at baseline `392fc5a`. Table and column names below are binding for B0.3 contracts and B1.1 migrations unless a later revision of this file changes them.
+Status: **implemented** through migration `0004` (B1.1 plus architecture revision 2), 18 October 2026, Claude. Originally written against `db/models.py`, `db/init.py`, `db/session.py`, `core/auth.py` and `seed/load.py` at baseline `392fc5a`. Names below match the migrations; a later revision of this file must accompany any schema change.
+
+Revision 2 (18 October 2026): aligned with [architecture revision 2](../SCHEDULING_V2_ARCHITECTURE.md) and roadmap decision 16. It adds UUIDv7 keys, worker lanes and fencing, an admission guard (`schedule_run_slots`), the transactional outbox (§3.7) and a hot-path index list (§3.8). No table or column named in revision 1 was renamed or removed.
 
 ## 1. Findings in the current schema
 
@@ -24,7 +26,7 @@ Status: plan for B1.1 (18 October 2026, Claude). Written against `db/models.py`,
 | `agent/` | LangGraph graph, LiteLLM client, verifier | **Frozen.** B5.1/B5.2 may extract the model-calling part of `agent/llm.py` into `commands/llm.py`. The graph is not extended. |
 | `mcp_server/` | v1 read tools, deduction proposals, `actions.decide` | **Frozen.** Its tests remain in the suite while the code exists. `actions.py` is a pattern reference only; v2 approvals live in `approvals/` and `schedule_proposals`. |
 | `rag/` | `ingest.chunk_markdown`, used by `seed.load` for policy docs | **Frozen.** The v2 seed must not depend on it. |
-| `jobs/` | Empty package (docstring only) | **Frozen placeholder.** The v2 solver worker lives in `scheduling/worker.py` (`python -m scheduling.worker`) with a Postgres-backed queue (§3.5). No Redis or Arq unless measured need justifies it. Notifications can use `jobs/` later. |
+| `jobs/` | Empty package (docstring only) | **Reused for the outbox relay** (`python -m jobs.outbox_relay`, §3.7). The v2 solver worker lives in `scheduling/worker.py` (`python -m scheduling.worker`) with a Postgres-backed queue (§3.5). No Redis or Arq unless measured need justifies it (roadmap decision 16). |
 | `voice/`, `importer/` | Empty packages | `voice/` is frozen. `importer/` is reused by B5.4 for CSV import. |
 | v1 tables (payroll, tips, checklists, policy, conversations, pending_actions) | Live v1 data | Kept unchanged and still covered by RLS. No drops until a v2 replacement is verified and the user approves the removal. |
 
@@ -33,6 +35,7 @@ Status: plan for B1.1 (18 October 2026, Claude). Written against `db/models.py`,
 Conventions for every table below:
 
 - `org_id uuid not null`.
+- Primary keys are UUIDv7, generated in the application with `uuid.uuid7()` (Python 3.14; PostgreSQL 16 has no v7 generator). **Decided in B1.1:** the `pk()` default is `uuid.uuid7` for every new row, in both v1 and v2 tables. Existing rows keep their keys, and seeds that set explicit IDs are unaffected. Time-ordered keys keep inserts at the right edge of B-tree indexes, which matters for `version_shifts`, `optimization_runs`, `outbox_events` and `audit_log`. Never use the embedded timestamp as business ordering; use `version_number` and `now()` timestamps (architecture §17, §25).
 - RLS policy `tenant_isolation` with both `USING` and `WITH CHECK` on `app.org_id`.
 - Grants to `shiftpilot_app` in the same migration.
 - Every parent referenced by a v2 child gets `UNIQUE (org_id, id)`, and children reference `(org_id, parent_id)`. This applies to v1 `outlets`, `employees` and `users` too (additive).
@@ -94,31 +97,37 @@ Rules:
 
 - **Immutability.** A trigger rejects `INSERT/UPDATE/DELETE` on `version_shifts` when the parent version's status is not `draft`. A trigger also rejects `schedule_versions` updates other than these transitions: `draft → published | discarded` and `published → superseded`. The app role has no `DELETE` on either table.
 - **Live roster** means the `version_shifts` of each schedule's `current_version_id`. Superseded and draft rows are never counted as employee commitments. Organization-wide conflict checks (overlap, rest, travel, weekly caps) read the current versions of every outlet, including adjacent weeks (decision 4).
-- **Within-version overlap guard (optional, decided in B1.1).** A `btree_gist` exclusion constraint on `(version_id, employee_id, tstzrange(start_at, end_at))`. It is defence in depth only; the validator remains authoritative because rest, travel and cross-version checks cannot be expressed this way.
+- **Within-version overlap guard: not added (decided in B1.1).** A `btree_gist` exclusion constraint on `(version_id, employee_id, tstzrange(start_at, end_at))` would only duplicate one of the validator's checks, could not cover rest, travel or cross-version conflicts, and would need extra handling for open shifts. The validator stays the single authority. Revisit only if a validator bug ever lets an overlap through.
 - **Publication** (B3.2) runs in one transaction:
-  1. Lock the affected `schedules` rows `FOR UPDATE` in stable id order.
-  2. Lock the affected employees' current shifts.
-  3. Check that each `current_version_id` still equals the proposal's base version and that the input hash still matches.
-  4. Re-run the validator against the organization-wide live roster.
-  5. Mark the old version `superseded` and the new one `published`, and move the pointer.
-  6. Write audit and outbox rows.
+  1. Authorize the approver (role and outlet scope) before replaying any stored idempotent result.
+  2. Lock the affected `schedules` rows `FOR UPDATE` in stable id order, so multi-outlet publications cannot deadlock.
+  3. Lock the affected employees' current shifts.
+  4. Check that each `current_version_id` still equals the proposal's base version, and that the input hash recomputed from current facts (availability, absences, rules, rates, demand) still matches. Otherwise mark the proposal `stale`.
+  5. Re-run the validator against the organization-wide live roster.
+  6. Mark the old version `superseded` and the new one `published`, and move the pointer.
+  7. Write audit rows and `outbox_events` (`schedule.published`, §3.7) in the same transaction. Nothing outside the database is called inside it.
 - **Restore** copies an old version's shifts into a new draft, validates it against current facts (absences, availability) and goes through normal publication. History is never rewritten.
 
 ### 3.5 Runs, candidates, proposals
 
 - `optimization_runs` has these columns:
   - `id, org_id, kind generate|optimize|repair`
+  - `lane interactive|batch` (repairs are interactive, weekly generation is batch), `priority smallint`
   - `outlet_ids uuid[]`, `base_version_ids uuid[]`, `requested_by_user_id`
   - `idempotency_key`, with `UNIQUE(org_id, idempotency_key)`
   - `job_state queued|running|succeeded|failed|cancelled`
   - `solver_status OPTIMAL|FEASIBLE|INFEASIBLE|MODEL_INVALID|UNKNOWN null`
-  - `input_hash`, `input_snapshot jsonb`, `config jsonb` (strategy, time limit, workers, seed, ortools version)
+  - `input_hash`, `input_snapshot jsonb` (carries `snapshot_schema_version`), `config jsonb` (strategy, time limit, workers, seed, ortools version)
+  - `traceparent text null` (W3C trace context of the request, continued by the worker as a span link)
   - `attempts`, `lease_owner`, `lease_until`
   - `queued_at, started_at, finished_at, solver_wall_ms`
   - `objective`, `best_bound`, `stats jsonb` (variable and constraint counts), `error jsonb`
   
   Job state and solver status are separate, and approval state lives on proposals (decision 7).
-- **Worker.** It claims runs with `UPDATE … WHERE id = (SELECT id … WHERE job_state='queued' OR (job_state='running' AND lease_until < now()) ORDER BY queued_at FOR UPDATE SKIP LOCKED LIMIT 1)`, solves in a bounded process pool, and renews its lease while solving. An expired lease after a crash is reclaimed, with bounded `attempts`. Durable state is never held only in memory.
+- **Enqueue.** The API builds `input_snapshot` and `input_hash` in one `REPEATABLE READ` transaction that also inserts the run, inserts the `schedule_run_slots` guard rows and issues `NOTIFY optimization_runs`. The run row *is* the job: there is no second write to a broker that could fail after commit (architecture §7–8).
+- **Admission guard.** `schedule_run_slots (org_id, schedule_id, run_id, PK(org_id, schedule_id))`. One row per schedule in the run's scope is inserted at enqueue and deleted in the same transaction that moves the run to a terminal `job_state`. A conflicting insert means a run is already active, and the API returns `409` with that run's ID. A per-org cap on queued plus running runs (default 5, lower for demo orgs) is checked under `pg_advisory_xact_lock` and returns `429` (architecture §11).
+- **Worker.** It claims runs with `UPDATE … SET job_state='running', lease_owner=:me, lease_until=now()+'30 s', attempts=attempts+1 WHERE id = (SELECT id … WHERE lane=:lane AND (job_state='queued' OR (job_state='running' AND lease_until < now())) AND attempts < :max ORDER BY priority, queued_at FOR UPDATE SKIP LOCKED LIMIT 1) RETURNING …`. It solves in a bounded process pool, and renews its lease every 10 seconds while solving. An expired lease after a crash is reclaimed; a sweeper fails runs whose `attempts` are exhausted. Interactive and batch lanes have separate process pools (batch workers may take interactive work when idle, never the reverse). Workers `LISTEN optimization_runs` and fall back to polling every 1–2 seconds. Leases use only the database clock. Durable state is never held only in memory, and no database transaction stays open while solving.
+- **Fenced results.** The solver is a pure function of `(input_snapshot, config)`. Results are written in one transaction guarded by `WHERE id=:run AND lease_owner=:me AND attempts=:my_attempt AND job_state='running'`; zero rows updated means the lease was lost, and the worker discards its output. Candidates insert with `ON CONFLICT (run_id, dedup_hash) DO NOTHING` (architecture §10).
 - `optimization_candidates (id, org_id, run_id, rank, strategy, solver_status, objective_components jsonb, metrics jsonb, diff jsonb, draft_version_id, validation jsonb, explanation_facts jsonb, dedup_hash, UNIQUE(run_id, dedup_hash))`. Each candidate's schedule is a draft `schedule_version`, so review, edit and publish share one path.
 - `schedule_proposals` has these columns:
   - `id, org_id, candidate_id null, draft_version_ids uuid[]`
@@ -137,6 +146,31 @@ Rules:
 - `employee_requests` (B5.3): availability changes, leave, absence and swap requests. These are requests, never direct schedule writes.
 - `import_jobs`, `import_rows` (B5.4): staged rows with a TTL, committed in one transaction.
 - Demo sessions (B6.2): **each public demo session is its own cloned synthetic organization**. Isolation then comes from the same RLS and composite keys as every tenant. TTL cleanup deletes that org's rows, and reset can never reach another org. This is why `outlets.slug` must be unique per org.
+- `version_metrics (org_id, version_id PK, coverage_ratio, minimum_deficit_minutes, labour_cost_paise, overtime_minutes, fairness jsonb, computed_at)` (B3.4): a read model computed once per published version from the outbox. Versions are immutable, so it never needs invalidation.
+
+### 3.7 Transactional outbox
+
+- `outbox_events (id uuidv7, org_id, topic, aggregate_type, aggregate_id, payload jsonb, traceparent null, created_at, published_at null, attempts, next_attempt_at, last_error null)`. Topics: `schedule.published`, `proposal.ready`, `proposal.stale`, `run.finished`, `absence.reported`, `rule.changed`, `version.metrics.requested`.
+- Any state change with a consequence outside its own transaction (notification, UI event, derived data) inserts its outbox row **in that transaction**. Code never calls an external service and then writes, or writes and then calls.
+- The relay (`python -m jobs.outbox_relay`) claims unsent rows with `FOR UPDATE SKIP LOCKED`, delivers them, sets `published_at`, and backs off failures through `next_attempt_at`. Delivery is at least once.
+- Consumers are idempotent: `notification_deliveries (org_id, event_id, recipient_id, channel, delivered_at, UNIQUE(event_id, recipient_id, channel))`. Derived-data refreshes recompute from immutable versions.
+- Published rows older than 7 days are deleted by the relay. No change data capture is used.
+
+### 3.8 Hot-path indexes
+
+Create these in the migration that creates the table; add others only for a query that needs them, checked with `EXPLAIN` in integration tests.
+
+| Table | Index | Serves |
+|---|---|---|
+| `optimization_runs` | `(lane, priority, queued_at) WHERE job_state = 'queued'` | Worker claim |
+| `optimization_runs` | `(lease_until) WHERE job_state = 'running'` | Lease reclaim, sweeper |
+| `outbox_events` | `(next_attempt_at) WHERE published_at IS NULL` | Relay claim |
+| `version_shifts` | `(version_id, employee_id, start_at)` | Roster grid; overlap and rest checks |
+| `employees` | `(org_id, outlet_id, status)`; GIN on `tags` | Outlet roster; tag-scoped rules |
+| `employee_availability` | `(org_id, employee_id, weekday)` | Snapshot build |
+| `absences` | `(org_id, employee_id, start_at)` | Snapshot build, absence handling |
+| `staffing_requirements` | existing unique, plus `(outlet_id, interval_start)` | Week-range reads |
+| `audit_log` | `(org_id, target_type, target_id, ts)` | Entity history |
 
 ## 4. Migration mechanics
 
@@ -146,8 +180,9 @@ Alembic lives in `db/migrations/`, with `alembic.ini` at the repo root using the
 |---|---|
 | `0001_v1_baseline` | The exact current schema: tables, indexes, extensions, app role, grants, RLS and the audit revoke, as produced today by `db.init`. It is verified by comparing a fresh `upgrade 0001` database with a fresh `db.init` database (reflected schema and `pg_policies`) in a test. |
 | `0002_tenant_hardening` | Adds `UNIQUE(org_id, id)` on outlets, employees and users; makes `outlets.slug` per-org; adds the org timezone; extends audit columns and revokes `DELETE`; sets default privileges. |
-| `0003_scheduling_core` | §3.1–3.5 tables (runs, candidates and proposals included, merged from the planned 0004), the immutability triggers, RLS and grants, plus backfilling `skills` and `employee_skills` from `employees.job_role`. |
-| `0004+` | Rules, employee requests, imports, demo sessions, as each phase needs them. |
+| `0003_scheduling_core` | §3.1–3.5 tables (runs, candidates and proposals included), the immutability triggers, RLS and grants, plus backfilling `skills` and `employee_skills` from `employees.job_role`. |
+| `0004_durable_work` | Architecture revision 2: run `lane`, `priority` and `traceparent`; `schedule_run_slots` (§3.5); `outbox_events` and `notification_deliveries` (§3.7); the §3.8 indexes, replacing the narrower ones they make redundant. The relay's own cross-tenant role arrives with the relay task; until then the app role may only insert and read its own outbox rows. |
+| `0005+` | `version_metrics` (B3.4), rules, employee requests, imports, demo sessions, as each phase needs them. |
 
 **Existing databases.** `python -m db.migrate adopt` handles a database that has v1 tables but no `alembic_version`:
 
@@ -168,7 +203,8 @@ Then `alembic upgrade head` runs as usual. A database is never stamped blind.
 
 ## 5. Session context and authorization
 
-- `tenant_session` sets `app.org_id`, `app.user_id` and `app.role` with transaction-local `set_config`.
+- `tenant_session` sets `app.org_id`, `app.user_id` and `app.role` with transaction-local `set_config`. Session-level `SET` is never used, so a transaction-mode pooler (PgBouncer) cannot leak one tenant's context into another request. `LISTEN` connections (workers, and SSE later) are direct, not pooled.
+- The API, worker and relay have separate connection pools whose total stays under the server's connection limit.
 - Services check outlet scope through `core.auth` before any read or write. A manager is bound to one outlet. Cross-outlet actions (B4.5) need the owner role, enforced in the service and covered by tests.
 - Every v2 table gets a second-tenant test with the runtime role, covering both read invisibility and a rejected cross-tenant insert via composite foreign keys.
 
@@ -179,10 +215,11 @@ Then `alembic upgrade head` runs as usual. A database is never stamped blind.
 - Durations: integer minutes.
 - Money: integer paise plus `currency: "INR"`. Display rounding is the client's job and is not authoritative.
 - Grid: shift start and end must fall on the policy grid (default 30 minutes) in outlet local time.
-- IDs are UUID strings.
+- IDs are UUID strings (v7 for v2 rows; clients must treat them as opaque).
 - Every mutating request carries an `Idempotency-Key` header. Every proposal or publish carries `base_version_id(s)` and `input_hash`.
+- Proposed for contract 2.2 (B0.4, not in `2.1.0-p1p2`): a distinct `409 run_in_progress` code with the active run's ID in `details`; `Retry-After` on `429`; `ETag` plus `Cache-Control: private, max-age=31536000, immutable` on published and superseded `GET /v2/schedule-versions/{id}`, and an `ETag` of `current_version_id` on the schedule week.
 
-## 7. Implemented in B1.1 — commands
+## 7. Implemented — commands and evidence
 
 ```sh
 python -m db.init                      # upgrade to head; adopts a matching pre-Alembic DB first
@@ -192,4 +229,13 @@ python -m alembic check                # models and migrations must agree (also 
 python -m db.init --drop               # DEVELOPMENT ONLY: drop the public schema, then upgrade
 ```
 
-Acceptance evidence is `tests/integration/test_migrations.py` (fresh upgrade, downgrade/re-upgrade, adopt accepts identical and refuses different schemas, populated v1 upgrade with skill backfill, RLS on v2 tables with the runtime role, composite-key cross-tenant rejection, per-org slugs, version and shift immutability, app-role privileges), plus the unchanged v1 integration suite running on a database adopted from the old `db.init`.
+Evidence is `tests/integration/test_migrations.py` (17 tests):
+
+- **Migrations:** fresh upgrade matches the models; downgrade to base and re-upgrade.
+- **Adoption:** accepts an identical schema; refuses a different one and changes nothing; refuses empty and already-managed databases.
+- **Upgrade with data:** a populated v1 database keeps its rows and gets skills backfilled.
+- **Tenant isolation:** RLS on v2 tables with the runtime role; composite keys reject cross-tenant links even for the admin role; outlet slugs are unique per org.
+- **Immutability:** published shifts cannot change; version status transitions are enforced; a schedule's current version must belong to it; the app role cannot delete versions or rewrite audit rows.
+- **Durable work:** one active run per schedule; the outbox is tenant-scoped and insert-only for the app; the worker claim query uses `ix_optimization_runs_claim`; new rows get UUIDv7 keys.
+
+The unchanged v1 integration suite also passes on a database adopted from the old `db.init`.
