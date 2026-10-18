@@ -92,36 +92,6 @@ Remaining limitations/external input: <details or none>
 
 Done requires task-appropriate evidence. Fakes do not satisfy live-model checks; a missing key cannot make a live gate green. Agent prose cannot replace human judge labels, a recording or a measured result.
 
-## 6. Copyable starting prompts
+## 6. Starting prompts (removed)
 
-**Codex session**
-
-```text
-Read docs/DEV_PLAN.md, docs/IMPLEMENTATION_CONTRACTS.md and
-docs/PARALLEL_WORK.md. Implement F0/F1 first, then take the next ready
-Codex-owned task. Inspect applicable AGENTS.md instructions. Preserve
-unrelated work and do not mutate Claude-owned files. Freeze schemas and
-synthetic fixtures in contracts/v1 before changing public interfaces;
-request Claude review. Use a disposable DB. Verify actual SDK/provider
-support; never print secrets or claim live checks without running them.
-Deliver focused code/tests and a handoff with commits, checks and blockers.
-Start with this package; do not spawn additional agents.
-```
-
-**Claude session**
-
-```text
-Read docs/DEV_PLAN.md, docs/IMPLEMENTATION_CONTRACTS.md and
-docs/PARALLEL_WORK.md. Inspect applicable AGENTS.md instructions. Your
-first implementation tasks are E1/W1 after Codex freezes F1 fixtures.
-Before that, review the contract and draft case/assertion examples.
-Own web/ and evals/ initially. Do not edit backend, seed, migrations,
-root dependencies, CI or shared config; send specific requests to Codex.
-Use agreed fixtures/fake providers and a separate disposable database.
-Repair per-turn grading, evidence, cost and numeric gates before adding
-cases. Build web against the POST SSE and action contracts. Deliver
-focused tests and a handoff. Do not fabricate human labels/live results
-or start channels before their dependencies.
-```
-
-For later sessions, specify one ready task ID, the current integration commit and external blockers. Keep handoffs verifiable against code.
+The v1 starting prompts were removed on 18 October 2026 because they assign ownership in reverse of scheduling v2 (they told Claude to own `web/` and Codex the backend). Use the v2 prompts in [SCHEDULING_V2_TASKS.md](SCHEDULING_V2_TASKS.md#starting-prompts). The v1 prompt text remains in Git history (commit 392fc5a) if needed for reference.

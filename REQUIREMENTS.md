@@ -1,5 +1,7 @@
 # ShiftPilot — Requirements Spec v1.0
 
+> **Superseded for scheduling v2.** The product specification is now [docs/SCHEDULING_V2_SPEC.md](docs/SCHEDULING_V2_SPEC.md), as amended by the decisions in [docs/SCHEDULING_V2_ROADMAP.md](docs/SCHEDULING_V2_ROADMAP.md). This v1 spec is historical context for the existing chatbot code; do not implement from it.
+
 > AI ops agent for restaurants: managers, owners and staff ask questions and request actions in plain language (web, voice, WhatsApp). The agent answers from real data through an MCP tool server, never does arithmetic itself, and every change needs human approval. Quality is proven by a public eval suite.
 
 ## 0. Goals and success metrics

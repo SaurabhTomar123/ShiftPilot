@@ -1,5 +1,7 @@
 ﻿# ShiftPilot implementation contracts
 
+> **Historical: v1 contracts only.** Scheduling v2 contracts are produced by task B0.3 in [SCHEDULING_V2_TASKS.md](SCHEDULING_V2_TASKS.md) under `contracts/v2/`. The ownership references below ("the work board defines owners") point to the superseded v1 board. Reuse individual technical rules only where the v2 roadmap explicitly adopts them.
+
 **Status: proposed target behavior, 16 October 2026.** These are implementation decisions, not a description of the current API. F1 must create machine-readable schemas and fixtures before parallel consumers rely on them.
 
 The [plan](DEV_PLAN.md) defines acceptance and the [work board](PARALLEL_WORK.md) defines owners. Product-spec conflicts require an explicit decision. Contract changes update schemas, fixtures and provider/consumer tests together.

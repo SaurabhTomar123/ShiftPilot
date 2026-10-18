@@ -261,4 +261,4 @@ Suggested new paths are planned files. Every task needs evidence in its handoff 
 | Meta/voice setup | Human controls business/number/template and live-contact permissions. | Start early |
 | Personal publication/outreach | Drafts can be prepared; human approves external sending/publication. | L1 |
 
-Next: **Codex F0/F1; Claude reviews F1, then implements E1/W1 against frozen fixtures.** Copy the starting prompts from the work board.
+Historical (v1): the next step was Codex F0/F1, then Claude E1/W1. **For v2, start from [SCHEDULING_V2_TASKS.md](SCHEDULING_V2_TASKS.md); do not start F0/F1/E1/W1.**

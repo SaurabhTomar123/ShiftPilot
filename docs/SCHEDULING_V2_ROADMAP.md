@@ -1,8 +1,10 @@
 # ShiftPilot scheduling v2: evaluation and delivery roadmap
 
-Reviewed on 18 October 2026 against `Newupdate.doc`, the existing planning documents, and selected implementation files. Resume positioning is excluded. This is a proposed implementation baseline, not evidence of working scheduling features. Existing DEV_PLAN task IDs describe the previous product and should not be used to implement this pivot.
+Reviewed on 18 October 2026 against the [v2 spec](SCHEDULING_V2_SPEC.md) (formerly `Newupdate.doc`), the existing planning documents, and selected implementation files. Resume positioning is excluded. This is a proposed implementation baseline, not evidence of working scheduling features. Existing DEV_PLAN task IDs describe the previous product and should not be used to implement this pivot.
 
 Ownership revised to match the user's instruction: **Codex owns the entire UI; Claude owns the database, solver and backend.** This supersedes the ownership assignments in `DEV_PLAN.md` and `PARALLEL_WORK.md` for scheduling v2. The approximate 50/50 effort target does not permit splitting UI ownership.
+
+Executable tasks, states, the handoff format and starting prompts are in [SCHEDULING_V2_TASKS.md](SCHEDULING_V2_TASKS.md). Deviations from the spec are recorded at the top of the spec itself.
 
 ## Product assessment
 
@@ -41,6 +43,8 @@ The following are recommended defaults, to be recorded before consumers implemen
 11. **Publication and restore:** generated output is a draft. Manual edits to published schedules also require a reviewed publication. Reject stale proposals when relevant schedules, availability, rules, rates or demand change. Publish version, assignments, audit and delivery events atomically. Restore creates a new validated version; it does not erase history or revive an absent employee's shift blindly.
 12. **Multi-outlet scope:** support three outlets from the start, with organization-wide conflict checks. Initial generation can be outlet-specific. Owner-authorized cross-outlet repair is included with atomic updates across affected outlets; broad joint optimization across all outlets is a later enhancement, resolving the document's inconsistent MVP/future descriptions.
 13. **Employee and import scope:** basic own-schedule, availability, leave, absence and swap-request flows belong to the full v2 scope. Requests are not direct schedule writes. Include employee CSV preview/validation/commit; external messaging and automatic shift offers remain deferred.
+14. **Tenant isolation:** every new tenant-owned table carries `org_id` (directly or through a composite foreign key) and has an RLS policy keyed on `app.org_id`, tested with the non-superuser runtime role. Add `app.role` to the session context as the spec requires. Today `db/session.py` sets only `app.org_id` and `app.user_id`. RLS is defence in depth for organization isolation. Outlet-level and employee-level authorization stays explicit in services and is tested separately.
+15. **Runtime version:** the spec, `pyproject.toml` and the mypy configuration target Python 3.12, but the local `.venv` is Python 3.14.0. B0.1 picks one version, recommended 3.12 unless OR-Tools and every locked dependency are verified on 3.14. It rebuilds the environment and locks dependencies. CI, containers and both worktrees use the same version.
 
 ## Architecture and implementation boundaries
 
@@ -94,12 +98,29 @@ Balance estimated effort, not lines of code or folder count. The following provi
 
 Points describe relative effort, not elapsed days. Codex owns every user-facing screen and interaction, frontend API integration and browser verification. Claude owns the database/backend implementation and its tests. This provisional budget is not proof of equal duration. If the backend becomes the bottleneck, revise the schedule or scope; do not transfer UI work to Claude or silently claim the split remains equal. Cross-review does not change exclusive write ownership.
 
+**Expected bottleneck and agreed cut order.** The backend lane carries the serial critical path (schema → validator → solver → publication → repair), so it is the likely bottleneck from P2 onward. While blocked, Codex should take fixture-driven work: accessibility, mobile states, browser tests and error and recovery states. Codex should not wait idle or invent response shapes. If the P2 re-estimate shows the full scope will not fit, defer in this order, and record each deferral as an open definition-of-done gap rather than marking it done:
+
+1. CSV import (B5.4/X5.3). Keep manual employee forms.
+2. Employee swap requests (part of B5.3/X5.2). Keep own-schedule, availability, leave and absence.
+3. NL commands (B5.1/X5.1). Keep NL rule creation, because it is a flagship demo step.
+4. Third strategy profile. Keep two genuinely different alternatives.
+5. Cross-outlet repair (B4.5). Keep organization-wide conflict checks and outlet-local repair.
+
+Never cut: the independent validator, atomic publication and versioning, tenant and outlet isolation, lock preservation, honest solver and timeout status, or stale-proposal rejection.
+
 Proposed exclusive write ownership:
 
 - Codex: all of `web/`, including components, styles, design tokens, application routes, browser state, API clients, mock handlers, frontend package/lock files, browser tests and frontend deployment configuration. Includes every manager/owner/employee screen, mobile states, loading/empty/error states, notifications, demo controls and report presentation.
-- Claude: `db/`, `core/`, `api/`, `scheduling/`, `commands/`, `rules/`, `employees/`, `schedules/`, `approvals/`, `audit/`, `importer/`, `seed/`, backend workers, `evals/`, Python/backend tests, backend dependencies/locks, backend `infra/` and CI. Owns authoritative metrics, explanations, eligibility checks and authorization.
+- Claude: `db/`, `core/`, `api/`, `scheduling/`, `commands/`, `rules/`, `employees/`, `schedules/`, `approvals/`, `audit/`, `importer/`, `seed/`, backend workers, `evals/`, `tests/` (Python/backend tests), backend dependencies/locks (`pyproject.toml` and its lock file), `.env.example`, backend `infra/` and CI (`.github/`). Owns authoritative metrics, explanations, eligibility checks and authorization.
+- Claude also owns the legacy v1 directories, with these statuses (B0.2 confirms them):
+  - `agent/`: frozen. Its model client (`agent/llm.py`) may be extracted into a v2 module for `commands/` and `rules/`. The LangGraph graph is not extended.
+  - `mcp_server/`: frozen. `actions.py` is a reference pattern only. v2 approvals live in `approvals/`.
+  - `jobs/`: the v2 scheduling worker either lives here or replaces it. B0.2 decides.
+  - `rag/` and `voice/`: frozen, with no v2 work.
+  - Frozen code is not deleted until its replacement is verified.
+- `.gitignore`: either session may append entries for its own area only.
 - Claude is the active writer for `contracts/`, backend fixtures and OpenAPI exports; Codex reviews them as the consumer before dependent implementation. Codex owns generated frontend client artifacts under `web/`. Contract changes require a versioned update and consumer handoff.
-- Codex owns this roadmap and UI/product documentation; Claude owns backend runbooks. Root README and shared planning changes use one active writer, Codex initially. Frontend and backend deployment files must be separate; agree shared deployment/CI edits before changing them.
+- Documentation: Codex owns UI, design and product-interaction documentation. Claude owns backend runbooks. Shared planning documents have one active writer at a time, assigned by the user. These are this roadmap, the task board, the spec and its deviations list, the root README and `REQUIREMENTS.md`. Claude holds that role as of 18 October 2026, by the user's instruction. Hand it over with an explicit note on the task board. The other session sends change requests rather than editing. Frontend and backend deployment files must be separate; agree shared deployment/CI edits before changing them.
 
 Codex may calculate visual previews locally, but authoritative cost, coverage, conflict validity and publication permission come from Claude's backend. Pending previews must not appear as server-accepted changes. Claude returns structured explanation facts; Codex renders the complete explanation experience.
 
@@ -110,7 +131,7 @@ Codex may calculate visual previews locally, but authoritative cost, coverage, c
 3. Integrate small slices: roster read -> edit validation -> generate -> publish -> absence/repair -> history/restore -> rules/import/employee requests.
 4. Claude runs provider/database/solver checks. Codex runs consumer/build and real-API browser checks. Both must pass before a slice closes; mocks alone are not integration evidence.
 
-Create a reviewed committed baseline before using worktrees: the prior repository inspection found project files untracked. Give each session its own checkout, database and ports. Integrate small slices through contract and focused integration checks. No two sessions seed/reset the same database.
+A committed baseline now exists (commit `392fc5a`, 18 October 2026). Create worktrees from the current `main`. Give each session its own checkout, database and ports. Integrate small slices through contract and focused integration checks. No two sessions seed/reset the same database.
 
 Every handoff includes task ID, commit, changed contracts, commands/results, migration effects, consumer instructions and known limitations. A browser mock is not a completed backend feature; a passing solver unit test is not a completed publishing workflow.
 
@@ -125,6 +146,8 @@ Every handoff includes task ID, commit, changed contracts, commands/results, mig
 - Reproducible clean setup, migrations, durable worker recovery, live browser flows and a report tied to code/configuration hashes. Model access, hosting account/budget and real-user acceptance remain human inputs; deterministic development can proceed independently.
 
 ## First assignments
+
+Concrete first tasks are B0.1–B0.3 (Claude) and X0.1–X0.3 (Codex) in [SCHEDULING_V2_TASKS.md](SCHEDULING_V2_TASKS.md). The summary below describes each lane's overall scope.
 
 **Codex:** own the entire schedule-first UI. Define desktop/mobile manager and employee workflows, review Claude's API fixtures, establish the frontend design system and build the weekly roster with outlet/week selection, employee/demand forms and generation/review states against agreed fixtures. Own subsequent editing, repair, approval, history, rules, import and employee screens, API integration and browser tests. Do not implement a chat homepage or invent backend response formats.
 

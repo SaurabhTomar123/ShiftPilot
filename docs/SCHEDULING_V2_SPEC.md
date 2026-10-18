@@ -4,6 +4,24 @@
 **Version:** MVP v2.0  
 **Primary goal:** Build a focused, recruiter-worthy product that automatically creates and continuously repairs employee schedules using constraint optimization, demand signals and natural-language business rules.
 
+> **Status (18 October 2026):** Product vision for scheduling v2, previously `docs/Newupdate.doc`. It supersedes [REQUIREMENTS.md](../REQUIREMENTS.md) v1.0 as the product specification. Where this vision and the "Decisions" in [SCHEDULING_V2_ROADMAP.md](SCHEDULING_V2_ROADMAP.md) differ, the roadmap governs implementation. Work is tracked in [SCHEDULING_V2_TASKS.md](SCHEDULING_V2_TASKS.md).
+>
+> **Recorded deviations from the text below** (roadmap decision numbers in brackets):
+>
+> - Wait-time figures and live travel ETAs (§10, §17, §22, §26) are illustrative only and will not be built. Travel uses a configured matrix labelled as an estimate [10].
+> - "Smallest constraint relaxations" (§17) becomes a bounded list of authorized relaxations, re-solved and checked. No global-minimality claim [9].
+> - "Unless the organization explicitly enables overtime" (§12) does not lift the absolute weekly cap [2].
+> - The 17:00 → 17:35 travel example (§12) is same-workday split-shift travel. Between-workday rest is a separate rule [4].
+> - "Locked shifts are sacred" (§24, §58) does not override a confirmed absence. The conflict is flagged and needs explicit authorization to change [5].
+> - The run lifecycle (§37) is split into separate job state, solver status (OPTIMAL/FEASIBLE/INFEASIBLE/MODEL_INVALID/UNKNOWN) and approval state [7].
+> - "Approximately three alternatives" (§38) means up to three genuinely different options. Fewer are shown when fewer exist [8].
+> - Undo (§29, DoD 14) is restore creating a new validated version. Unpublished drafts can be discarded. History is never erased [11].
+> - Multi-outlet: three outlets with organization-wide conflict checks from the start. Owner-authorized cross-outlet repair is in scope. Joint all-outlet optimization is deferred [12].
+> - Employee self-service flows and CSV import are in v2 scope. Automatic shift offers and external messaging are deferred [13].
+> - Tenant isolation uses PostgreSQL RLS plus explicit service-level outlet authorization. RLS alone is not outlet authorization [14].
+> - Product analytics (§45) such as time saved or acceptance rate are reported only with real human-use evidence.
+> - §61 (resume positioning) is outside the engineering scope.
+
 ---
 
 # 1. Product Vision

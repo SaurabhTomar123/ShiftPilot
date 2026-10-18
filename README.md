@@ -1,5 +1,7 @@
 # ShiftPilot
 
+> **Pivot in progress: scheduling v2.** ShiftPilot is being rebuilt as a workforce scheduling and roster-repair product. See the [v2 spec](docs/SCHEDULING_V2_SPEC.md), [roadmap](docs/SCHEDULING_V2_ROADMAP.md) and [task board](docs/SCHEDULING_V2_TASKS.md). The rest of this README describes the previous v1 chatbot code, which is kept until replacement is verified; it is not the v2 plan.
+
 **An AI operations agent for restaurants.** Managers ask *"Why did Ravi get less this week?"* or *"Add a ₹150 meal deduction for Ravi K"*. The agent answers from real data through an MCP tool server, never does arithmetic itself, and nothing changes without human approval. Quality is measured by an eval suite that gates CI.
 
 > 🎥 Demo video · 🔗 Live demo · 📊 Eval dashboard — *(add links at M2/M3)*
