@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    { "name": "API (uvicorn)", "type": "debugpy", "request": "launch", "module": "uvicorn",
+      "args": ["api.main:app", "--reload", "--port", "8000"], "envFile": "${workspaceFolder}/.env" },
+    { "name": "MCP server (HTTP :8765)", "type": "debugpy", "request": "launch",
+      "module": "mcp_server.server", "args": ["--http"], "envFile": "${workspaceFolder}/.env" },
+    { "name": "Evals: smoke", "type": "debugpy", "request": "launch", "module": "evals.runner",
+      "args": ["--suite", "smoke"], "envFile": "${workspaceFolder}/.env" },
+    { "name": "Seed: reset sandbox", "type": "debugpy", "request": "launch", "module": "seed.load",
+      "envFile": "${workspaceFolder}/.env" }
+  ]
+}

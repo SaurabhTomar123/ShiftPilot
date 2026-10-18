@@ -1,0 +1,3302 @@
+# ShiftPilot
+## Intelligent Workforce Scheduling & Real-Time Roster Repair
+
+**Version:** MVP v2.0  
+**Primary goal:** Build a focused, recruiter-worthy product that automatically creates and continuously repairs employee schedules using constraint optimization, demand signals and natural-language business rules.
+
+---
+
+# 1. Product Vision
+
+ShiftPilot is not a generic AI assistant for restaurant operations.
+
+It is an **intelligent workforce scheduling system for multi-location restaurants and other shift-based businesses**.
+
+Its job is simple:
+
+> Build the best possible staff schedule, keep it valid as conditions change, and make schedule changes easy for managers to understand and approve.
+
+The product should remove one of the most repetitive operational problems faced by shift managers:
+
+- figuring out who is available,
+- matching skills to required roles,
+- avoiding overtime,
+- respecting employee preferences,
+- maintaining sufficient coverage,
+- coordinating multiple outlets,
+- dealing with absences,
+- repairing schedules when demand changes,
+- and communicating those changes.
+
+The intelligence is therefore not centered around answering questions.
+
+It is centered around **making and repairing decisions**.
+
+---
+
+# 2. Core Product Promise
+
+A manager should be able to provide:
+
+- employees,
+- employee skills,
+- employee availability,
+- labour costs,
+- outlet operating hours,
+- expected staffing demand,
+- business rules,
+- existing schedule,
+- leave/absence information,
+
+and ShiftPilot should produce:
+
+> A valid, explainable and near-optimal roster.
+
+If circumstances change later, ShiftPilot should modify the existing schedule with the **smallest reasonable amount of disruption**.
+
+The product therefore has two fundamental modes:
+
+## Mode A — Generate
+
+```text
+Employees
++
+Availability
++
+Skills
++
+Demand
++
+Business Rules
+
+        ↓
+
+Scheduling Engine
+
+        ↓
+
+Optimized Weekly Roster
+```
+
+## Mode B — Repair
+
+```text
+Existing Roster
++
+Absence / Demand Change / Rule Change
+
+        ↓
+
+Repair Engine
+
+        ↓
+
+Minimal Safe Schedule Changes
+```
+
+Everything in the MVP should support one of these two workflows.
+
+---
+
+# 3. The Fundamental Use Case
+
+Consider a restaurant group with:
+
+- 3 outlets,
+- 60 employees,
+- several job roles,
+- different opening hours,
+- employee leave,
+- variable demand,
+- overtime restrictions,
+- and employees occasionally calling in sick.
+
+Today, a manager might maintain this through:
+
+- spreadsheets,
+- WhatsApp groups,
+- phone calls,
+- manual calculations,
+- memory,
+- or basic roster software.
+
+ShiftPilot replaces the planning portion.
+
+Example:
+
+```text
+Friday — Indiranagar
+
+Dinner forecast:
+6–7 PM    39 orders
+7–8 PM    67 orders
+8–9 PM    82 orders
+9–10 PM   58 orders
+
+Required:
+5 kitchen staff
+7 service staff
+2 cashiers
+```
+
+Available employee pool:
+
+```text
+61 employees
+
+↓ availability
+
+39 available
+
+↓ outlet / travel feasibility
+
+31 reachable
+
+↓ skill compatibility
+
+22 compatible
+
+↓ rest constraints
+
+19 valid
+
+↓ overtime limits
+
+16 valid
+
+↓ optimizer
+
+Recommended roster
+```
+
+The manager never needs to manually evaluate those combinations.
+
+---
+
+# 4. MVP Positioning
+
+The MVP should be described as:
+
+> **ShiftPilot automatically builds and repairs workforce schedules for multi-location restaurants using constraint optimization, demand forecasting and natural-language operating rules.**
+
+Avoid positioning it as:
+
+- AI restaurant assistant,
+- chatbot for restaurant managers,
+- restaurant operating system,
+- AI dashboard,
+- multi-agent platform,
+- AI employee management suite.
+
+Those descriptions dilute the core product.
+
+---
+
+# 5. Primary Users
+
+## 5.1 Restaurant Manager
+
+The primary MVP user.
+
+Responsibilities:
+
+- creates weekly schedules,
+- reacts to employee absences,
+- edits shifts,
+- manages staffing coverage,
+- approves ShiftPilot recommendations.
+
+The manager should have access only to their permitted outlet.
+
+The original design already establishes outlet-level manager permissions and tenant isolation. Those principles remain.
+
+---
+
+## 5.2 Owner / Operations Manager
+
+Manages multiple outlets.
+
+Can:
+
+- view all outlets,
+- optimize across outlets,
+- move employees between locations,
+- configure organization-wide scheduling rules,
+- view cost and coverage trends.
+
+---
+
+## 5.3 Employee
+
+Employees should have an intentionally minimal interface.
+
+They can:
+
+- see their schedule,
+- update availability,
+- request leave,
+- report absence,
+- request a swap.
+
+Employees do **not** interact with the optimization engine directly.
+
+---
+
+# 6. Core Product Loop
+
+The entire product should revolve around:
+
+```text
+PLAN
+  ↓
+GENERATE
+  ↓
+PUBLISH
+  ↓
+OPERATE
+  ↓
+CHANGE OCCURS
+  ↓
+REPAIR
+  ↓
+APPROVE
+  ↓
+PUBLISH UPDATED SCHEDULE
+```
+
+This is the loop ShiftPilot should optimize.
+
+---
+
+# 7. MVP Feature Set
+
+Only six major capabilities should exist.
+
+## 7.1 Employee & Skill Management
+
+Store:
+
+```text
+Employee
+├── name
+├── outlet
+├── roles
+├── skills
+├── hourly cost
+├── maximum weekly hours
+├── preferred weekly hours
+├── availability
+├── preferred shifts
+├── employment status
+└── cross-outlet eligibility
+```
+
+Example:
+
+```text
+Ravi Kumar
+
+Primary role:
+Cook
+
+Skills:
+✓ Grill
+✓ Prep
+✗ Pastry
+
+Home outlet:
+Indiranagar
+
+Hourly cost:
+₹210
+
+Weekly maximum:
+48h
+
+Availability:
+Mon      10–22
+Tue      unavailable
+Wed      14–23
+Thu      14–23
+Fri      14–23
+Sat      12–23
+Sun      unavailable
+```
+
+---
+
+# 8. Demand → Staffing Requirement
+
+For the MVP, avoid introducing an unnecessary machine-learning system immediately.
+
+Start with deterministic demand bands.
+
+Example:
+
+```text
+Kitchen staffing
+
+Orders / hour      Required cooks
+
+0–15                    2
+16–30                   3
+31–50                   4
+51–70                   5
+71+                     6
+```
+
+Similar mappings exist for:
+
+- service staff,
+- cashiers,
+- baristas,
+- preparation staff.
+
+The staffing requirement for every time block becomes:
+
+```text
+staffing_requirement(
+    outlet,
+    role,
+    time_interval
+)
+```
+
+Later this can be generated from a forecasting model.
+
+---
+
+# 9. Weekly Schedule Generation
+
+This is the flagship feature.
+
+Manager chooses:
+
+```text
+Outlet:
+Indiranagar
+
+Week:
+19–25 October
+
+Optimization priority:
+Balanced
+```
+
+Clicks:
+
+> Generate Schedule
+
+ShiftPilot solves the scheduling problem and returns:
+
+```text
+Schedule generated
+
+Coverage                    98.7%
+Labour cost               ₹43,840
+Overtime                     ₹620
+Availability conflicts          0
+Rule violations                 0
+Preference match              91%
+```
+
+The user then reviews the roster before publishing it.
+
+---
+
+# 10. Real-Time Schedule Repair
+
+This is the second flagship feature.
+
+Suppose Ravi reports:
+
+> I cannot work today.
+
+Ravi has:
+
+```text
+18:00–23:00
+Grill
+Indiranagar
+```
+
+ShiftPilot calculates the consequences.
+
+```text
+SHIFT AT RISK
+
+Role:
+Grill
+
+Expected dinner demand:
+High
+
+Without replacement:
+
+Coverage           72%
+Estimated wait     14.1 min
+```
+
+The repair engine explores feasible alternatives.
+
+### Plan A
+
+```text
+Assign Arjun
+
+Additional cost       ₹180
+Schedule changes         1
+Overtime                 No
+Skill match             100%
+Travel                  22m
+```
+
+### Plan B
+
+```text
+Extend Neha
+
+Additional cost       ₹360
+Schedule changes         1
+Overtime                 No
+Rest risk               Medium
+```
+
+### Plan C
+
+```text
+Rebalance current team
+
+Neha → Grill
+Aman → Prep
+Karan +60m
+
+Additional cost        ₹90
+Schedule changes         3
+Overtime                 No
+```
+
+ShiftPilot recommends one.
+
+The manager approves.
+
+---
+
+# 11. Schedule Stability
+
+This should be a first-class optimization objective.
+
+A mathematically optimal solution is not necessarily operationally useful.
+
+If one employee calls in sick, ShiftPilot should not redesign twenty unrelated shifts simply because doing so saves ₹500.
+
+Define:
+
+```text
+schedule_disruption =
+number of modified existing assignments
++
+weighted change in start/end times
++
+outlet transfers
++
+employee reassignment penalties
+```
+
+Repair optimization therefore becomes:
+
+```text
+minimize
+
+labour_cost
++
+overtime
++
+understaffing
++
+preference_violations
++
+schedule_disruption
+```
+
+The repair engine strongly favors keeping existing commitments unchanged.
+
+---
+
+# 12. Hard Constraints
+
+Hard constraints can never be violated.
+
+Examples:
+
+## Availability
+
+An employee cannot be assigned when unavailable.
+
+```text
+assignment[e,t] <= availability[e,t]
+```
+
+---
+
+## Skill requirements
+
+A grill shift can only be filled by an employee with grill capability.
+
+```text
+employee.skills contains shift.required_skill
+```
+
+---
+
+## Overlapping shifts
+
+Employees cannot work two overlapping shifts.
+
+---
+
+## Maximum working hours
+
+Example:
+
+```text
+weekly_hours(employee) <= 48
+```
+
+unless the organization explicitly enables overtime.
+
+---
+
+## Minimum rest period
+
+Example:
+
+```text
+next_shift.start - previous_shift.end >= 10 hours
+```
+
+---
+
+## Outlet feasibility
+
+If an employee works:
+
+```text
+Koramangala
+10:00–17:00
+```
+
+and the travel time to Indiranagar is 35 minutes:
+
+```text
+earliest feasible Indiranagar start = 17:35
+```
+
+---
+
+## Required role eligibility
+
+Cashier assignment requires cashier eligibility.
+
+A cook cannot automatically fill it simply because they are available.
+
+---
+
+# 13. Soft Constraints
+
+Soft constraints may be violated when necessary but receive penalties.
+
+Examples:
+
+- employee shift preferences,
+- preferred number of weekly hours,
+- preferred outlet,
+- fairness,
+- overtime,
+- unusual shift times,
+- cross-outlet movement,
+- last-minute changes.
+
+The optimizer can trade these against one another.
+
+---
+
+# 14. Objective Function
+
+Conceptually:
+
+```text
+Minimize:
+
+W1 × Labour Cost
++
+W2 × Overtime Cost
++
+W3 × Understaffing Penalty
++
+W4 × Preference Violation
++
+W5 × Schedule Disruption
++
+W6 × Cross-Outlet Transfer Cost
++
+W7 × Fairness Penalty
+```
+
+The exact weights remain internal.
+
+The normal user should never need to configure mathematical weights.
+
+Instead provide human-readable strategies:
+
+```text
+Optimization Mode
+
+○ Lowest Cost
+● Balanced
+○ Staff Friendly
+○ Maximum Coverage
+```
+
+These map internally to objective weights.
+
+---
+
+# 15. Solver
+
+Recommended implementation:
+
+## Google OR-Tools CP-SAT
+
+Why CP-SAT:
+
+- scheduling is naturally constraint-heavy,
+- supports Boolean assignment variables,
+- handles hard and soft constraints,
+- supports optimization,
+- provides strong performance for MVP scale,
+- supports infeasibility reasoning patterns,
+- is an established engineering choice rather than an LLM hack.
+
+The LLM must never decide the final schedule.
+
+The architecture is:
+
+```text
+Natural language
+        ↓
+Structured intent / constraints
+        ↓
+Validated scheduling model
+        ↓
+CP-SAT
+        ↓
+Feasible solutions
+        ↓
+Ranking / explanation
+        ↓
+Manager approval
+```
+
+---
+
+# 16. Explainable Optimization
+
+ShiftPilot should never return:
+
+> The optimizer selected Arjun.
+
+Instead:
+
+```text
+WHY ARJUN?
+
+✓ Available 6–11 PM
+✓ Grill trained
+✓ No conflicting shift
+✓ 38 weekly hours after assignment
+✓ No overtime
+✓ 22 minutes from outlet
+✓ Worked this role previously
+
+Alternative candidates
+
+Neha
+Rejected: minimum rest violation
+
+Aman
+Rejected: overtime threshold
+
+Priya
+Rejected: missing grill skill
+```
+
+The explanation must come from deterministic solver facts.
+
+The LLM may convert those facts into friendly language, but it must not invent the reasoning.
+
+---
+
+# 17. Infeasible Schedule Handling
+
+One of the strongest parts of ShiftPilot should be how it handles impossible schedules.
+
+Do not display:
+
+```text
+Solver status: INFEASIBLE
+```
+
+Instead:
+
+```text
+I couldn't create a schedule that satisfies every rule.
+
+Friday 7–10 PM requires:
+
+5 grill cooks
+
+Available qualified employees:
+
+3
+```
+
+Then ShiftPilot finds the smallest constraint relaxations.
+
+Example:
+
+```text
+Option A
+
+Allow Aman 2 hours overtime
+Cost: +₹420
+
+
+Option B
+
+Bring Ravi from Koramangala
+Travel: 32 minutes
+Cost: +₹180
+
+
+Option C
+
+Run with 4 cooks
+
+Expected coverage: 88%
+Estimated wait increase: +2.8 min
+```
+
+Manager chooses which tradeoff is acceptable.
+
+---
+
+# 18. Natural-Language Rule Engine
+
+This is one place where an LLM adds meaningful usability.
+
+A manager should be able to write:
+
+> Students shouldn't work after 9 PM on weekdays.
+
+The model converts this to:
+
+```json
+{
+  "scope": {
+    "employee_tag": "student",
+    "days": ["MON", "TUE", "WED", "THU", "FRI"]
+  },
+  "constraint": {
+    "shift_end_before": "21:00"
+  }
+}
+```
+
+Before saving, ShiftPilot shows:
+
+```text
+New scheduling rule
+
+Applies to:
+Employees tagged "Student"
+
+Days:
+Monday–Friday
+
+Rule:
+Shift must end by 9 PM
+
+Affected employees:
+6
+
+[Save rule]
+```
+
+The manager confirms it.
+
+Only then does it become a deterministic solver constraint.
+
+---
+
+# 19. Natural-Language Commands
+
+AI chat should not dominate the product.
+
+Instead provide a universal command box:
+
+```text
+Ask ShiftPilot...
+```
+
+Examples:
+
+> Give Ravi Saturday off.
+
+> Find someone to cover Neha tonight.
+
+> Try reducing overtime next week.
+
+> Keep more experienced people during Friday dinner.
+
+> Don't move anyone between outlets this weekend.
+
+> Make the schedule cheaper without reducing dinner coverage.
+
+Each command gets translated into a structured scheduling operation.
+
+Example:
+
+```text
+User:
+Give Ravi Saturday off.
+```
+
+ShiftPilot:
+
+```text
+This affects one shift.
+
+Ravi
+Saturday
+16:00–23:00
+
+Recommended replacement:
+
+Arjun
+16:00–23:00
+
+Cost difference:
++₹120
+
+Coverage:
+unchanged
+
+[Apply]
+```
+
+---
+
+# 20. User Experience Philosophy
+
+ShiftPilot should feel like scheduling software that happens to be intelligent.
+
+Not:
+
+> an AI chatbot that happens to know about schedules.
+
+The key UX rule is:
+
+> **No critical workflow should require writing a prompt.**
+
+Prompts are shortcuts.
+
+Core functionality must work through normal UI interactions.
+
+---
+
+# 21. Schedule-First Interface
+
+The homepage is the schedule.
+
+Not an analytics dashboard.
+
+Not AI chat.
+
+Not graphs.
+
+Example:
+
+```text
+SHIFT PILOT                              Indiranagar ▼
+
+OCT 19–25                                 Ask ShiftPilot ⌕
+
+         MON       TUE       WED       THU       FRI
+
+Ravi     10–6      12–8                2–10      2–10
+
+Neha     2–10                2–10      2–10
+
+Aman     10–6      10–6      10–6                4–11
+
+Priya              12–8      12–8      12–8      4–11
+
+
+Coverage          97%
+Labour Cost       ₹43,850
+Overtime Risk     ₹620
+Conflicts         0
+
+
+              [ Optimize Schedule ]
+```
+
+---
+
+# 22. Visual Coverage Indicators
+
+Managers should not need to interpret complex metrics.
+
+For each hour:
+
+```text
+FRIDAY DINNER
+
+6 PM       7 PM       8 PM       9 PM      10 PM
+
+████████   ██████     █████      ███████   ███████
+             ⚠          ⚠
+
+Required cooks:     5
+Scheduled cooks:    3
+```
+
+Selecting the warning displays:
+
+```text
+Understaffed by 2 cooks.
+
+Expected consequence:
+
+Kitchen wait
+7.1m → 13.4m
+
+[Fix this]
+```
+
+---
+
+# 23. Drag-and-Drop Editing
+
+Managers must retain manual control.
+
+Allow:
+
+- moving shifts,
+- resizing shifts,
+- duplicating shifts,
+- assigning employees,
+- changing roles.
+
+ShiftPilot validates edits instantly.
+
+Example valid edit:
+
+```text
+✓ Ravi is available
+✓ No overlap
+✓ Rest period satisfied
+✓ No overtime
+
+Coverage
+86% → 93%
+```
+
+Example invalid edit:
+
+```text
+This shift creates a conflict.
+
+Ravi works:
+
+Koramangala
+10:00–17:00
+
+Travel time:
+38 minutes
+
+Earliest feasible start:
+17:45
+```
+
+Do not silently reject changes.
+
+Explain them.
+
+---
+
+# 24. Locked Shifts
+
+Managers should be able to lock:
+
+- one shift,
+- one employee's day,
+- an entire day,
+- a published section of the schedule.
+
+Example:
+
+```text
+Ravi
+
+Saturday
+14:00–22:00    🔒
+```
+
+The optimizer treats locked shifts as hard constraints.
+
+This gives users confidence that optimization will not unexpectedly rearrange decisions they care about.
+
+---
+
+# 25. Before / After Optimization
+
+Optimization should never silently replace the roster.
+
+Show comparison:
+
+```text
+I found a better schedule.
+
+                      CURRENT       PROPOSED
+
+Coverage                91%            98%
+Labour Cost           ₹46,400        ₹43,900
+Overtime               ₹3,200          ₹800
+Conflicts                   3              0
+Preference Match          79%            90%
+
+Estimated saving:
+₹2,500
+```
+
+Then show the actual changes.
+
+```text
+7 changes
+
+Ravi
+Tue 10–6 → Tue 12–8
+
+Reason:
+better dinner coverage
+
+
+Neha
+Fri OFF → Fri 4–10
+
+Reason:
+fills kitchen shortage
+
+
+Aman
+Fri 4–11 → Fri 3–10
+
+Reason:
+avoids overtime
+```
+
+Actions:
+
+```text
+[Apply all]
+
+[Review individually]
+
+[Discard]
+```
+
+---
+
+# 26. Mobile Absence Workflow
+
+This should be one of the fastest experiences in the system.
+
+Manager taps:
+
+```text
+Ravi Kumar
+
+Today
+18:00–23:00
+
+[Late]
+[Absent]
+[Swap]
+```
+
+Tap:
+
+> Absent
+
+ShiftPilot immediately responds:
+
+```text
+Ravi marked absent.
+
+3 valid solutions found.
+```
+
+Recommended option:
+
+```text
+BEST MATCH
+
+Arjun
+
+Available          ✓
+Grill trained      ✓
+No overtime        ✓
+22 min away
+
+Additional cost:
+₹180
+
+[Assign Arjun]
+```
+
+Target interaction time:
+
+> under 10 seconds from absence report to replacement approval.
+
+---
+
+# 27. Employee Experience
+
+Employee experience stays intentionally small.
+
+Homepage:
+
+```text
+YOUR WEEK
+
+MON      10–6
+TUE      OFF
+WED      2–10
+THU      2–10
+FRI      4–11
+
+Next shift:
+
+Wednesday
+2 PM
+Indiranagar
+
+[Can't work]
+
+[Request swap]
+```
+
+Absence flow:
+
+```text
+Wednesday
+
+2 PM – 10 PM
+
+Reason
+(optional)
+
+__________________
+
+[Request coverage]
+```
+
+The employee does not search for replacements manually.
+
+ShiftPilot solves it.
+
+---
+
+# 28. Schedule Versions
+
+Every published change creates a new immutable schedule version.
+
+Example:
+
+```text
+Schedule v18
+
+Created:
+18 Oct · 7:42 PM
+
+Reason:
+Ravi absence repair
+
+Changed:
+3 shifts
+
+Created by:
+ShiftPilot
+
+Approved by:
+Manager Priya
+```
+
+History:
+
+```text
+v18   Ravi absence repair         7:42 PM
+v17   Manager manual edit         3:12 PM
+v16   Weekly optimization         Monday
+```
+
+Actions:
+
+```text
+View version
+
+Compare
+
+Restore
+```
+
+---
+
+# 29. Undo
+
+Every recently applied change should expose:
+
+```text
+3 schedule changes applied.
+
+[Undo]
+```
+
+Users should never feel trapped by automation.
+
+---
+
+# 30. Data Model
+
+Retain the useful parts of the original data design but dramatically narrow it. The original spec already includes organizations, outlets, users, employees, shifts, attendance, rules, pending actions and audit logs; these remain the strongest foundations.
+
+Core tables:
+
+## organizations
+
+```text
+id
+name
+timezone
+settings
+```
+
+---
+
+## outlets
+
+```text
+id
+org_id
+name
+timezone
+latitude?
+longitude?
+operating_hours
+```
+
+---
+
+## employees
+
+```text
+id
+org_id
+home_outlet_id
+name
+status
+hourly_rate
+max_weekly_hours
+preferred_weekly_hours
+tags[]
+```
+
+---
+
+## employee_skills
+
+```text
+employee_id
+skill_id
+level
+```
+
+---
+
+## skills
+
+```text
+id
+org_id
+name
+```
+
+Examples:
+
+```text
+Grill
+Prep
+Cashier
+Server
+Barista
+```
+
+---
+
+## employee_availability
+
+```text
+employee_id
+day
+start_time
+end_time
+availability_type
+```
+
+---
+
+## employee_preferences
+
+```text
+employee_id
+preference_type
+value
+weight
+```
+
+---
+
+## staffing_requirements
+
+```text
+outlet_id
+date
+interval_start
+interval_end
+role
+minimum_required
+preferred_required
+source
+```
+
+---
+
+## shifts
+
+```text
+id
+schedule_version_id
+outlet_id
+employee_id
+role
+start_at
+end_at
+status
+locked
+```
+
+---
+
+## schedule_versions
+
+```text
+id
+org_id
+week_start
+version_number
+status
+created_by
+source
+optimization_run_id
+created_at
+```
+
+---
+
+## scheduling_rules
+
+```text
+id
+org_id
+scope
+rule_type
+parameters
+priority
+hard_constraint
+source_text
+active
+```
+
+---
+
+## optimization_runs
+
+```text
+id
+org_id
+schedule_version_before
+schedule_version_after
+status
+solver_time_ms
+objective_score
+metrics_json
+trigger
+```
+
+---
+
+## optimization_candidates
+
+```text
+id
+optimization_run_id
+rank
+objective_score
+metrics
+schedule_diff
+```
+
+---
+
+## pending_actions
+
+Continue the safe proposal/approval pattern from the original architecture. Writes are proposed first and only executed after human approval.
+
+---
+
+## audit_log
+
+```text
+id
+timestamp
+actor
+action
+target
+before
+after
+trace_id
+```
+
+---
+
+# 31. Multi-Tenant Security
+
+Continue the original design:
+
+```text
+Organization
+      ↓
+Outlets
+      ↓
+Employees
+```
+
+Every table should contain organization ownership either directly or through a validated relation.
+
+Use PostgreSQL Row-Level Security.
+
+Session context:
+
+```text
+app.org_id
+app.user_id
+app.role
+```
+
+The model is never responsible for access control.
+
+---
+
+# 32. System Architecture
+
+```text
+                 ┌──────────────────┐
+                 │   Next.js Web    │
+                 │  Schedule UI     │
+                 └────────┬─────────┘
+                          │
+                          ↓
+                 ┌──────────────────┐
+                 │     FastAPI      │
+                 │      API         │
+                 └───────┬──────────┘
+                         │
+          ┌──────────────┼───────────────┐
+          │              │               │
+          ↓              ↓               ↓
+  ┌─────────────┐ ┌──────────────┐ ┌────────────┐
+  │ Scheduling  │ │ AI Command   │ │ Approval   │
+  │ Service     │ │ Service      │ │ Service    │
+  └──────┬──────┘ └──────┬───────┘ └─────┬──────┘
+         │                │               │
+         ↓                │               │
+  ┌─────────────┐         │               │
+  │ CP-SAT      │         │               │
+  │ Optimizer   │         │               │
+  └──────┬──────┘         │               │
+         │                │               │
+         └────────┬───────┴───────────────┘
+                  ↓
+             PostgreSQL
+```
+
+Redis can be introduced only if necessary for:
+
+- caching,
+- jobs,
+- distributed locks,
+- background optimization status.
+
+Kafka is unnecessary for the MVP.
+
+---
+
+# 33. AI Architecture
+
+The AI layer has narrowly defined responsibilities.
+
+## Allowed
+
+### Natural-language command parsing
+
+```text
+"Give Ravi Friday evening off"
+```
+
+→ structured operation.
+
+### Rule translation
+
+```text
+"Students shouldn't work after 9 PM"
+```
+
+→ scheduling constraint.
+
+### Explanation formatting
+
+Solver:
+
+```json
+{
+  "candidate": "emp_14",
+  "accepted": true,
+  "reasons": [
+    "skill_match",
+    "available",
+    "no_overtime"
+  ]
+}
+```
+
+LLM:
+
+> Arjun is the best replacement because he is available, has the required grill skill and can take the shift without entering overtime.
+
+### Ambiguity resolution
+
+```text
+User:
+Give Ravi Friday off.
+
+System:
+There are two Ravis:
+
+Ravi Kumar
+Ravi K.
+
+Which one?
+```
+
+---
+
+# 34. What AI Must Not Do
+
+The LLM must never independently determine:
+
+- whether a schedule is valid,
+- whether two shifts overlap,
+- overtime calculations,
+- employee availability,
+- skill eligibility,
+- labour cost,
+- rest requirements,
+- final candidate rankings,
+- authorization.
+
+These must remain deterministic.
+
+This follows one of the best architectural principles in the original ShiftPilot design: important arithmetic and operational truth belongs in tools, not in the model.
+
+---
+
+# 35. Backend Services
+
+Organize backend functionality around domain services rather than agents.
+
+```text
+EmployeeService
+
+AvailabilityService
+
+DemandService
+
+SchedulingService
+
+RepairService
+
+RuleService
+
+ApprovalService
+
+ScheduleVersionService
+
+ExplanationService
+
+AuditService
+```
+
+The LLM-facing orchestration should call these services rather than implement business logic itself.
+
+---
+
+# 36. Main APIs
+
+## Employees
+
+```text
+GET    /employees
+POST   /employees
+PATCH  /employees/{id}
+GET    /employees/{id}/availability
+PUT    /employees/{id}/availability
+```
+
+---
+
+## Scheduling
+
+```text
+POST   /schedules/generate
+
+GET    /schedules/{week}
+
+POST   /schedules/{id}/optimize
+
+POST   /schedules/{id}/repair
+
+POST   /schedules/{id}/publish
+
+GET    /schedules/{id}/versions
+```
+
+---
+
+## Shift editing
+
+```text
+POST   /shifts
+
+PATCH  /shifts/{id}
+
+DELETE /shifts/{id}
+
+POST   /shifts/{id}/lock
+
+POST   /shifts/{id}/absence
+```
+
+---
+
+## Optimization
+
+```text
+GET /optimization-runs/{id}
+
+GET /optimization-runs/{id}/solutions
+
+GET /optimization-runs/{id}/explanation
+```
+
+---
+
+## Rules
+
+```text
+GET    /rules
+
+POST   /rules
+
+PATCH  /rules/{id}
+
+DELETE /rules/{id}
+
+POST   /rules/parse-natural-language
+```
+
+---
+
+## Natural language
+
+```text
+POST /commands/interpret
+```
+
+---
+
+# 37. Optimization Run Lifecycle
+
+```text
+REQUESTED
+
+↓ validate input
+
+BUILDING_MODEL
+
+↓ construct CP-SAT variables
+
+SOLVING
+
+↓
+
+FEASIBLE
+or
+INFEASIBLE
+
+↓
+
+RANKING
+
+↓
+
+PROPOSAL_READY
+
+↓
+
+AWAITING_APPROVAL
+
+↓
+
+APPLIED
+```
+
+Failures:
+
+```text
+FAILED_INPUT
+
+FAILED_SOLVER
+
+TIMEOUT
+```
+
+---
+
+# 38. Candidate Solutions
+
+Do not return one single optimizer output.
+
+For significant repair operations, generate approximately three useful alternatives.
+
+For example:
+
+```text
+OPTION A
+Lowest Cost
+
+OPTION B
+Least Disruptive
+
+OPTION C
+Best Coverage
+```
+
+They should represent meaningfully different tradeoffs.
+
+This makes the system feel more intelligent while keeping the human in control.
+
+---
+
+# 39. Demand Forecasting Roadmap
+
+MVP:
+
+```text
+historical demand
+→ manually configured demand bands
+→ staffing requirements
+```
+
+MVP+:
+
+```text
+historical orders
++
+day of week
++
+hour
++
+seasonality
+
+→ forecast
+```
+
+Later:
+
+```text
+historical orders
+weather
+holidays
+events
+promotions
+local events
+
+→ forecast model
+```
+
+Forecasting should only be introduced once scheduling optimization works reliably.
+
+---
+
+# 40. Testing Strategy
+
+This project should demonstrate serious engineering quality.
+
+## Unit Tests
+
+Cover:
+
+- availability constraints,
+- overlap detection,
+- rest rules,
+- weekly hours,
+- skill matching,
+- cost calculations,
+- schedule locking,
+- repair behavior.
+
+---
+
+## Property-Based Tests
+
+Useful for optimizer behavior.
+
+Examples:
+
+```text
+No employee appears in overlapping shifts.
+
+Locked shifts never change.
+
+All hard constraints hold in every published schedule.
+
+Employee weekly hours never exceed the configured hard limit.
+
+Every assigned employee has the required role/skill.
+```
+
+---
+
+## Integration Tests
+
+Test:
+
+```text
+Postgres
++
+Scheduling service
++
+Optimizer
++
+Approval flow
+```
+
+---
+
+## End-to-End Tests
+
+Required flows:
+
+1. Import employees.
+2. Generate weekly schedule.
+3. Lock a shift.
+4. Optimize schedule.
+5. Mark employee absent.
+6. Apply repair.
+7. Undo.
+8. Natural-language rule creation.
+
+---
+
+# 41. Optimization Evaluation Suite
+
+The original project places unusual emphasis on evaluations, including deterministic grading, failure analysis and CI regression gates. That philosophy should remain, but the evaluation target changes from chatbot correctness to **decision quality**.
+
+Create deterministic scheduling scenarios.
+
+Example:
+
+```text
+scenario_017.json
+```
+
+Contains:
+
+```text
+Employees: 22
+
+Demand intervals: 36
+
+Unavailable employees: 4
+
+Required roles:
+Cook
+Server
+Cashier
+
+Expected:
+
+No hard constraint violations
+
+Coverage >= 95%
+
+Labour cost <= baseline
+
+Locked assignments preserved
+```
+
+---
+
+# 42. Important Metrics
+
+## Correctness
+
+```text
+Hard constraint violation rate
+Target: 0%
+```
+
+---
+
+## Coverage
+
+```text
+Covered required staff intervals
+Target: >= 97%
+```
+
+---
+
+## Cost
+
+Compare:
+
+```text
+baseline roster cost
+
+vs
+
+optimized roster cost
+```
+
+---
+
+## Repair disruption
+
+```text
+number of changed shifts
+```
+
+This should be minimized.
+
+---
+
+## Solver performance
+
+Targets for MVP-sized schedules:
+
+```text
+Typical optimize:
+< 1 second
+
+Large scenario:
+< 3 seconds
+```
+
+---
+
+## User experience
+
+```text
+Generate first roster:
+< 60 seconds after import
+
+Repair an absence:
+< 10 seconds interaction time
+
+Apply suggested repair:
+<= 3 clicks
+```
+
+---
+
+# 43. AI Evaluation
+
+Natural-language functionality needs a separate eval set.
+
+Categories:
+
+```text
+Employee identification
+
+Date parsing
+
+Rule parsing
+
+Scheduling command parsing
+
+Ambiguity detection
+
+Unsafe/invalid request handling
+```
+
+Example:
+
+```text
+"Ravi can't work tomorrow night."
+```
+
+Expected structured result:
+
+```json
+{
+  "operation": "mark_unavailable",
+  "employee": "Ravi",
+  "date": "...",
+  "time_range": "evening"
+}
+```
+
+The AI result is validated before affecting the scheduler.
+
+---
+
+# 44. Observability
+
+Each optimization run should record:
+
+```text
+trace_id
+
+schedule version
+
+input employee count
+
+candidate assignment count
+
+hard constraint count
+
+soft constraint count
+
+solver duration
+
+objective value
+
+solution count
+
+chosen candidate
+
+schedule diff size
+```
+
+Advanced UI:
+
+```text
+Optimization Details
+
+Employees                 61
+Candidate assignments    913
+Hard constraints         142
+Soft constraints          87
+Solve time              284ms
+Solutions evaluated       18
+```
+
+Keep this behind a technical disclosure panel.
+
+---
+
+# 45. Product Analytics
+
+Do not create a giant analytics dashboard.
+
+Track only metrics useful for proving value:
+
+```text
+manager scheduling time saved
+
+optimizer acceptance rate
+
+schedule edits after optimization
+
+absence repair acceptance rate
+
+average repair time
+
+overtime reduction
+
+coverage improvement
+
+schedule changes per repair
+```
+
+---
+
+# 46. Notifications
+
+For MVP, notifications should be event-driven and sparse.
+
+Examples:
+
+```text
+Priya requested Friday off.
+
+A repair is ready.
+```
+
+or:
+
+```text
+Friday dinner is now understaffed.
+
+3 valid repair options found.
+```
+
+Do not spam users with insights.
+
+---
+
+# 47. "What Changed?" Experience
+
+When a manager returns:
+
+```text
+2 things changed since yesterday.
+
+Priya requested Friday off.
+
+Dinner demand forecast increased 12%.
+```
+
+Then:
+
+```text
+I found an updated schedule.
+
+3 shifts affected
+
+Additional cost:
+₹340
+
+Coverage remains:
+98%
+
+[Review]
+```
+
+This keeps the interface action-oriented.
+
+---
+
+# 48. Import Experience
+
+CSV onboarding remains useful from the original ShiftPilot concept, but should only import scheduling-relevant information.
+
+Upload:
+
+```text
+employees.csv
+```
+
+Potential headers:
+
+```text
+Name
+Role
+Hourly Rate
+Outlet
+Monday Availability
+Tuesday Availability
+...
+```
+
+ShiftPilot maps:
+
+```text
+"Emp Name"
+→ employee.name
+
+"Rate/Hr"
+→ employee.hourly_rate
+```
+
+User confirms mappings.
+
+Then validate:
+
+```text
+✓ 58 employees valid
+
+⚠ 2 need attention
+
+Ravi K
+No role assigned
+
+Priya Sharma
+Invalid Friday availability
+```
+
+The original specification already included AI-assisted CSV field mapping and validation; that idea remains valuable when narrowed to workforce scheduling.
+
+---
+
+# 49. Demo Dataset
+
+Seed:
+
+```text
+1 organization
+
+3 outlets
+
+60 employees
+
+5 skills
+
+4 weeks of historical staffing demand
+
+1 upcoming week
+
+employee preferences
+
+availability
+
+leave requests
+
+several deliberate conflicts
+```
+
+Create scenarios:
+
+### Scenario 1
+
+Normal schedule generation.
+
+### Scenario 2
+
+Two grill employees unavailable Friday.
+
+### Scenario 3
+
+Employee calls in sick.
+
+### Scenario 4
+
+Unexpected demand +25%.
+
+### Scenario 5
+
+Impossible staffing requirement.
+
+### Scenario 6
+
+Natural-language business rule.
+
+---
+
+# 50. Demo Experience
+
+The public demo should require no signup.
+
+The original spec correctly emphasizes that a stranger should be able to open the demo and reach useful functionality quickly. Keep that philosophy.
+
+Landing directly into:
+
+```text
+Indiranagar
+Oct 19–25
+```
+
+Preloaded roster.
+
+A small demo bar:
+
+```text
+Try a scenario
+
+[Generate Week]
+
+[Ravi Calls In Sick]
+
+[Friday Demand +30%]
+
+[Impossible Coverage]
+
+[Add Rule]
+```
+
+This makes the interesting engineering instantly demonstrable.
+
+---
+
+# 51. 90-Second Recruiter Demo
+
+The demo should tell one story.
+
+## 0–10 sec
+
+> ShiftPilot automatically builds employee schedules from availability, skills, labour cost and business constraints.
+
+Click:
+
+> Generate Schedule
+
+Roster appears.
+
+---
+
+## 10–25 sec
+
+Show:
+
+```text
+Coverage       98%
+Cost           ₹43k
+Overtime       ₹620
+Conflicts      0
+```
+
+Lock Ravi's Saturday shift.
+
+---
+
+## 25–40 sec
+
+Say:
+
+> But real schedules don't stay perfect.
+
+Click:
+
+> Ravi calls in sick.
+
+---
+
+## 40–60 sec
+
+ShiftPilot generates three repair strategies.
+
+Show:
+
+```text
+Lowest Cost
+
+Least Disruptive
+
+Best Coverage
+```
+
+Select the recommendation.
+
+---
+
+## 60–75 sec
+
+Click:
+
+> Why?
+
+Show deterministic candidate explanation.
+
+---
+
+## 75–85 sec
+
+Type:
+
+> Students shouldn't work after 9 PM.
+
+Show structured rule preview.
+
+---
+
+## 85–90 sec
+
+Finish with:
+
+```text
+CP-SAT optimization
+Natural language → deterministic constraints
+Versioned schedules
+RLS
+Human approval
+Explainable decisions
+```
+
+That communicates the engineering depth without a long explanation.
+
+---
+
+# 52. Technology Stack
+
+## Backend
+
+```text
+Python 3.12
+
+FastAPI
+
+SQLAlchemy
+
+Alembic
+
+Pydantic v2
+
+OR-Tools CP-SAT
+```
+
+---
+
+## Database
+
+```text
+PostgreSQL 16
+```
+
+Use:
+
+```text
+Row-Level Security
+
+JSONB where appropriate
+
+transactional schedule publishing
+```
+
+---
+
+## AI Layer
+
+```text
+LiteLLM or direct model provider
+
+structured outputs
+
+Pydantic validation
+```
+
+LangGraph is optional.
+
+For this architecture, a complex agent graph may be unnecessary.
+
+Do not use LangGraph merely because it was part of the previous design.
+
+---
+
+## Frontend
+
+```text
+Next.js
+
+TypeScript
+
+Tailwind
+
+shadcn/ui
+
+dnd-kit
+```
+
+`dnd-kit` can handle schedule drag/drop interactions.
+
+---
+
+## Jobs
+
+Initially:
+
+```text
+APScheduler
+or
+Arq
+```
+
+For:
+
+```text
+scheduled optimization
+
+forecast recalculation
+
+notification processing
+```
+
+---
+
+## Observability
+
+```text
+OpenTelemetry
+
+Langfuse for AI calls if desired
+
+structured application logs
+```
+
+---
+
+# 53. Repository Structure
+
+```text
+shiftpilot/
+
+├── api/
+│   ├── routes/
+│   ├── auth/
+│   └── main.py
+│
+├── scheduling/
+│   ├── models/
+│   ├── constraints/
+│   │   ├── availability.py
+│   │   ├── skills.py
+│   │   ├── overlap.py
+│   │   ├── rest.py
+│   │   ├── weekly_hours.py
+│   │   └── locks.py
+│   │
+│   ├── objectives/
+│   │   ├── labour_cost.py
+│   │   ├── preferences.py
+│   │   ├── disruption.py
+│   │   └── coverage.py
+│   │
+│   ├── solver.py
+│   ├── repair.py
+│   ├── explain.py
+│   └── alternatives.py
+│
+├── commands/
+│   ├── parser.py
+│   ├── schemas.py
+│   └── prompts/
+│
+├── rules/
+│   ├── parser.py
+│   ├── compiler.py
+│   └── validators.py
+│
+├── employees/
+│
+├── schedules/
+│
+├── approvals/
+│
+├── audit/
+│
+├── db/
+│   ├── models.py
+│   ├── migrations/
+│   └── rls.sql
+│
+├── seed/
+│   ├── generate.py
+│   └── scenarios/
+│
+├── evals/
+│   ├── scheduling/
+│   ├── ai_commands/
+│   ├── graders/
+│   └── reports/
+│
+├── web/
+│
+├── tests/
+│
+├── infra/
+│
+└── README.md
+```
+
+---
+
+# 54. MVP Milestones
+
+## M1 — Domain & Data
+
+Build:
+
+```text
+organizations
+
+outlets
+
+employees
+
+skills
+
+availability
+
+shifts
+
+staffing requirements
+```
+
+Seed demo data.
+
+Acceptance:
+
+> UI can display a manually created weekly roster.
+
+---
+
+## M2 — Constraint Engine
+
+Implement:
+
+```text
+availability
+
+skills
+
+overlap
+
+weekly hours
+
+rest periods
+
+locked shifts
+```
+
+Acceptance:
+
+> Solver generates valid schedules with zero hard constraint violations.
+
+---
+
+## M3 — Optimization
+
+Implement:
+
+```text
+labour cost objective
+
+coverage objective
+
+preference objective
+
+overtime objective
+```
+
+Acceptance:
+
+> Generated schedule beats baseline against defined evaluation scenarios.
+
+---
+
+## M4 — Schedule UI
+
+Implement:
+
+```text
+weekly roster
+
+drag/drop
+
+resize shifts
+
+lock shifts
+
+coverage indicator
+
+schedule metrics
+```
+
+Acceptance:
+
+> Manager can manually edit a schedule while receiving immediate validation feedback.
+
+---
+
+## M5 — Repair Engine
+
+Implement:
+
+```text
+absence handling
+
+minimal-change optimization
+
+alternative solutions
+
+candidate explanation
+```
+
+Acceptance:
+
+> Employee absence produces valid repair recommendations while preserving unrelated shifts.
+
+---
+
+## M6 — Approval & Versioning
+
+Implement:
+
+```text
+preview diff
+
+approve
+
+reject
+
+undo
+
+schedule versions
+
+audit log
+```
+
+Acceptance:
+
+> No optimizer result changes a published schedule without approval.
+
+---
+
+## M7 — Natural Language
+
+Implement:
+
+```text
+command parser
+
+rule parser
+
+ambiguity resolution
+
+structured output validation
+```
+
+Acceptance:
+
+> Key scheduling operations can be requested naturally while remaining deterministic after parsing.
+
+---
+
+## M8 — Evaluation
+
+Build:
+
+```text
+50+ deterministic schedule scenarios
+
+30+ natural-language command cases
+
+infeasible cases
+
+repair scenarios
+
+security cases
+```
+
+Acceptance:
+
+```text
+0 hard constraint violations
+
+stable optimization regression suite
+
+measured cost / coverage improvements
+```
+
+---
+
+## M9 — Public Demo
+
+Implement:
+
+```text
+sample organization
+
+scenario buttons
+
+reset sandbox
+
+public deployment
+
+README
+
+architecture diagram
+
+demo video
+```
+
+Acceptance:
+
+> A recruiter can understand and trigger the core workflow within 30 seconds.
+
+---
+
+# 55. Things Explicitly Removed From MVP
+
+The following original ShiftPilot functionality should not be built initially:
+
+```text
+Payroll
+
+Payslip explanations
+
+Tip allocation
+
+Policy RAG
+
+Employee handbook
+
+WhatsApp
+
+Voice agent
+
+Checklist system
+
+Inventory
+
+Generic anomaly detection
+
+Experiments
+
+Causal analytics
+
+Revenue intelligence
+
+General-purpose restaurant chatbot
+
+Multi-agent orchestration
+```
+
+These are not necessarily bad ideas.
+
+They simply do not strengthen the core product enough to justify their complexity.
+
+---
+
+# 56. Future Expansion
+
+Only after the MVP is excellent.
+
+## Phase 2
+
+Demand forecasting.
+
+---
+
+## Phase 3
+
+Automated shift offers:
+
+```text
+Arjun, an open Grill shift is available:
+
+Friday
+6–11 PM
+
+[Accept]
+```
+
+---
+
+## Phase 4
+
+Employee fairness and burnout models.
+
+---
+
+## Phase 5
+
+Advanced multi-outlet optimization.
+
+---
+
+## Phase 6
+
+External integrations:
+
+```text
+POS
+
+attendance systems
+
+HRIS
+
+payroll providers
+```
+
+---
+
+## Phase 7
+
+Additional industries:
+
+```text
+cafés
+
+retail
+
+warehouses
+
+call centres
+
+hospitality
+
+clinics
+```
+
+The scheduling abstraction remains the same.
+
+---
+
+# 57. Key Engineering Decisions
+
+## Why constraint optimization instead of LLM scheduling?
+
+Because scheduling requires:
+
+- guaranteed constraints,
+- deterministic arithmetic,
+- global optimization,
+- reproducibility,
+- explainability.
+
+LLMs are unsuitable as the source of truth for those requirements.
+
+---
+
+## Why use an LLM at all?
+
+Because natural language dramatically improves interaction with complex scheduling rules.
+
+The model handles:
+
+```text
+human intent
+        ↓
+structured constraints
+```
+
+The solver handles:
+
+```text
+constraints
+        ↓
+valid decisions
+```
+
+Each technology is used where it is strongest.
+
+---
+
+## Why human approval?
+
+Scheduling changes affect real people.
+
+The system should recommend and prepare changes, not silently alter employee commitments.
+
+The original ShiftPilot proposal already uses human approval before executing operational writes; that remains an important safety principle.
+
+---
+
+## Why schedule versions?
+
+Because users must be able to:
+
+- understand what changed,
+- restore previous states,
+- audit changes,
+- trust optimization.
+
+---
+
+## Why minimize schedule disruption?
+
+Because operational quality is not identical to mathematical optimality.
+
+A small labour saving is rarely worth changing half the staff roster after it has already been communicated.
+
+This becomes an explicit optimization objective rather than an informal heuristic.
+
+---
+
+# 58. Product Design Principles
+
+Every feature should satisfy these rules.
+
+### 1. Schedule first
+
+The roster is the homepage.
+
+### 2. No prompt required
+
+AI commands are shortcuts, never prerequisites.
+
+### 3. Explain decisions
+
+Every important recommendation answers:
+
+> Why?
+
+### 4. Preview before applying
+
+Automation never silently edits published schedules.
+
+### 5. Easy undo
+
+Every action should be reversible where possible.
+
+### 6. Respect manual decisions
+
+Locked shifts are sacred.
+
+### 7. Hide mathematical complexity
+
+Managers see:
+
+```text
+Coverage
+
+Cost
+
+Overtime
+
+Conflicts
+```
+
+Not solver internals.
+
+### 8. Surface actions, not analytics
+
+Prefer:
+
+> Friday dinner needs one more cook.
+
+over:
+
+> Staffing utilization = 81.7%.
+
+### 9. Progressive disclosure
+
+Advanced engineering metrics exist, but ordinary users should not need them.
+
+### 10. Optimize for seconds
+
+Absence → recommendation → approval should feel nearly instantaneous.
+
+---
+
+# 59. Success Metrics
+
+The MVP should eventually be measured on real numbers.
+
+## Technical
+
+```text
+Hard constraint violations       0%
+
+Solver p95                       <3s
+
+Schedule publish correctness     100%
+
+Unauthorized data access         0
+
+Duplicate action execution       0
+```
+
+---
+
+## Optimization
+
+```text
+Coverage improvement
+
+Overtime reduction
+
+Labour cost improvement
+
+Preference satisfaction
+
+Schedule disruption per repair
+```
+
+---
+
+## UX
+
+```text
+Time to generate first schedule
+
+Time to repair absence
+
+Clicks per repair
+
+Recommendation acceptance rate
+
+Manual edits after optimization
+```
+
+---
+
+# 60. Definition of Done
+
+ShiftPilot MVP is complete when:
+
+1. A public demo contains at least three realistic outlets and approximately 60 employees.
+
+2. A user can generate a valid weekly roster from employee availability, skills and staffing demand.
+
+3. Every generated roster satisfies all hard constraints.
+
+4. The optimizer balances labour cost, coverage, overtime, preferences and schedule stability.
+
+5. A user can manually drag and resize shifts and receive immediate validation.
+
+6. Shifts can be locked and are guaranteed not to change during optimization.
+
+7. Employee absence triggers repair recommendations.
+
+8. Repair recommendations minimize unrelated schedule changes.
+
+9. The system presents multiple repair strategies with meaningful tradeoffs.
+
+10. Every recommendation can explain why an employee was selected or rejected.
+
+11. Impossible scheduling situations produce understandable constraint-relaxation options.
+
+12. Users can preview schedule differences before applying them.
+
+13. Every published update creates a schedule version.
+
+14. Recent changes can be undone or restored.
+
+15. Natural-language commands can perform common scheduling operations.
+
+16. Natural-language business rules are converted into validated deterministic constraints.
+
+17. Organization and outlet permissions are enforced outside the LLM.
+
+18. All scheduling changes are audited.
+
+19. An automated evaluation suite tests normal, edge-case, repair and infeasible scenarios.
+
+20. The public demo communicates the product's core value in under 30 seconds.
+
+---
+
+# 61. Resume Positioning
+
+Avoid:
+
+> Built an AI restaurant management agent using LangGraph, MCP and RAG.
+
+Prefer:
+
+> **ShiftPilot — Intelligent Workforce Scheduling Platform**
+
+> Designed a constraint-based workforce scheduling engine using OR-Tools CP-SAT to optimize staff allocation across availability, skills, demand, labour cost, overtime, employee preferences and cross-location constraints.
+
+> Built a real-time roster repair engine that recomputes minimal-disruption schedules following employee absences or demand changes while preserving locked assignments and existing commitments.
+
+> Developed a natural-language rule compiler that converts manager policies into validated deterministic scheduling constraints, separating LLM intent interpretation from optimization and business logic.
+
+> Implemented versioned schedules, human approval workflows, PostgreSQL row-level security, explainable candidate ranking and deterministic evaluation scenarios for scheduling correctness and optimization regressions.
+
+Those bullets create much stronger interview paths around:
+
+- algorithms,
+- optimization,
+- system design,
+- AI architecture,
+- database design,
+- security,
+- UX,
+- reliability,
+- testing,
+- explainability.
+
+---
+
+# 62. Final Product Thesis
+
+The most important principle behind ShiftPilot is:
+
+> **AI should reduce the amount of scheduling work a manager performs, not replace a scheduling UI with a chat box.**
+
+Managers should still see a familiar roster.
+
+They should still be able to drag shifts around.
+
+They should still control important decisions.
+
+The intelligence operates underneath that familiar experience.
+
+It continuously answers:
+
+```text
+Is this schedule valid?
+
+Can it be improved?
+
+What changed?
+
+Does it need repair?
+
+What are the feasible alternatives?
+
+Which alternative is best?
+
+Why?
+
+What exactly will change if we apply it?
+```
+
+That creates a focused product rather than a collection of AI features.
+
+The core technical thesis is equally simple:
+
+```text
+LLM
+=
+understand human intent
+
+Constraint Solver
+=
+make operational decisions
+
+Database
+=
+source of truth
+
+Human
+=
+final authority
+```
+
+That separation is what makes ShiftPilot both technically credible and genuinely useful.

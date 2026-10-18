@@ -1,0 +1,49 @@
+name: nightly-evals
+
+on:
+  schedule:
+    - cron: "30 20 * * *"   # 02:00 IST
+  workflow_dispatch:
+
+jobs:
+  full:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        model:
+          - anthropic/claude-sonnet-5-5
+          - anthropic/claude-haiku-5-5
+          - gemini/gemini-2.5-flash
+          - groq/llama-3.3-70b-versatile
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: shiftpilot
+          POSTGRES_PASSWORD: shiftpilot
+          POSTGRES_DB: shiftpilot
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U shiftpilot" --health-interval 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql+psycopg://shiftpilot:shiftpilot@localhost:5433/shiftpilot
+      APP_DATABASE_URL: postgresql+psycopg://shiftpilot_app:shiftpilot_app@localhost:5433/shiftpilot
+      JWT_SECRET: ci-only-secret
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: python -m db.init && python -m seed.load
+      - run: python -m evals.runner --suite full --runs 3 --judge --model ${{ matrix.model }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eval-${{ strategy.job-index }}
+          path: evals/reports/*.json

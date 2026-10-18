@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+evals/reports/*.json
+!evals/reports/baseline.json
+web/node_modules/
+web/.next/
+.DS_Store

@@ -1,0 +1,154 @@
+{
+  "ravi_kumar_last_week_vs_previous": {
+    "net_delta": "-₹2,824.46",
+    "previous_net": "₹7,177.54",
+    "current_net": "₹4,353.08",
+    "changes": [
+      {
+        "component": "base_pay",
+        "delta": "-₹1,829.01",
+        "reason": "2 fewer shifts; 48.00 h -> 33.13 h"
+      },
+      {
+        "component": "ot_pay",
+        "delta": "-₹302.58",
+        "reason": "overtime 1.23 h -> 0.00 h"
+      },
+      {
+        "component": "tips",
+        "delta": "-₹452.87",
+        "reason": "tips ₹970.96 -> ₹518.09"
+      },
+      {
+        "component": "deduction_uniform",
+        "delta": "-₹240",
+        "reason": "uniform deduction ₹0 -> ₹240"
+      }
+    ],
+    "facts": [
+      "₹2,824.46",
+      "2 fewer shifts",
+      "₹240"
+    ]
+  },
+  "cafe_closing_last_friday": {
+    "day": "2026-10-09",
+    "names": [
+      "Divya Das",
+      "Geetha Iyer",
+      "Lakshmi Patil",
+      "Nandini Reddy",
+      "Neha Joshi"
+    ]
+  },
+  "cafe_closing_last_saturday": {
+    "day": "2026-10-10",
+    "names": [
+      "Divya Das",
+      "Lakshmi Patil",
+      "Manoj Pillai",
+      "Nandini Reddy",
+      "Neha Joshi"
+    ]
+  },
+  "missing_clock_outs": [
+    {
+      "employee": "Ganesh Thomas",
+      "day": "2026-09-25"
+    },
+    {
+      "employee": "Manoj Pillai",
+      "day": "2026-09-30"
+    },
+    {
+      "employee": "Divya Das",
+      "day": "2026-10-01"
+    },
+    {
+      "employee": "Neha Joshi",
+      "day": "2026-10-03"
+    },
+    {
+      "employee": "Kiran Khan",
+      "day": "2026-10-08"
+    },
+    {
+      "employee": "Kiran Patil",
+      "day": "2026-10-11"
+    }
+  ],
+  "ot_spikes": [
+    {
+      "employee": "Geetha Shetty",
+      "day": "2026-09-28",
+      "hours": "13.17"
+    },
+    {
+      "employee": "Manoj Rao",
+      "day": "2026-10-05",
+      "hours": "14.07"
+    },
+    {
+      "employee": "Swathi Bhat",
+      "day": "2026-10-08",
+      "hours": "14.03"
+    },
+    {
+      "employee": "Rahul Gowda",
+      "day": "2026-10-10",
+      "hours": "13.08"
+    }
+  ],
+  "duplicate_deductions": [
+    {
+      "employee": "Abdul Rao",
+      "type": "meal",
+      "amount": "₹250",
+      "period_start": "2026-10-05"
+    },
+    {
+      "employee": "Manoj Pillai",
+      "type": "meal",
+      "amount": "₹300",
+      "period_start": "2026-10-05"
+    },
+    {
+      "employee": "Nandini Reddy",
+      "type": "meal",
+      "amount": "₹200",
+      "period_start": "2026-09-21"
+    }
+  ],
+  "tip_mismatches": [
+    {
+      "outlet": "cafe_indiranagar",
+      "day": "2026-09-22"
+    },
+    {
+      "outlet": "cafe_indiranagar",
+      "day": "2026-10-08"
+    }
+  ],
+  "rate_change": {
+    "employee": "Nandini Reddy",
+    "effective_from": "2026-09-16",
+    "old_rate": "₹128",
+    "new_rate": "₹143"
+  },
+  "outlet_net_payroll_last_week": {
+    "cafe_indiranagar": "₹1,40,474.43",
+    "qsr_koramangala": "₹1,33,798.90",
+    "kitchen_hsr": "₹1,27,242.08"
+  },
+  "last_week": {
+    "start": "2026-10-05",
+    "end": "2026-10-11"
+  },
+  "users": {
+    "owner": "+919800000001",
+    "cafe_manager": "+919800000002",
+    "qsr_manager": "+919800000003",
+    "kitchen_manager": "+919800000004",
+    "ravi_kumar_staff": "+919700022903"
+  }
+}
