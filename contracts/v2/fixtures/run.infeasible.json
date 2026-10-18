@@ -1,0 +1,48 @@
+{
+  "name": "run.infeasible",
+  "operation_id": "getOptimizationRun",
+  "method": "GET",
+  "path": "/v2/optimization-runs/{run_id}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "run_id": "1bc0f4df-a456-5c62-8fdf-c099d4b5a68b"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "OptimizationRun",
+    "body": {
+      "id": "1bc0f4df-a456-5c62-8fdf-c099d4b5a68b",
+      "kind": "generate",
+      "outlet_ids": [
+        "69e0477e-4a09-55c5-b467-8c673e7245b5"
+      ],
+      "base_version_ids": [],
+      "strategy": "balanced",
+      "job_state": "succeeded",
+      "solver_status": "INFEASIBLE",
+      "input_hash": "sha256:a9aefe1885535e62920a74d53098d5af",
+      "queued_at": "2026-10-18T19:40:00+05:30",
+      "started_at": "2026-10-18T19:40:00.400000+05:30",
+      "finished_at": "2026-10-18T19:40:02.100000+05:30",
+      "solver_wall_ms": 1640,
+      "poll_after_ms": null,
+      "candidates": [],
+      "infeasibility": {
+        "summary": "Friday 19:00–22:00 needs 5 grill cooks; only 3 qualified employees are available.",
+        "shortages": [
+          {
+            "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+            "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+            "interval_start": "2026-10-30T19:00:00+05:30",
+            "interval_end": "2026-10-30T22:00:00+05:30",
+            "minimum_required": 5,
+            "max_assignable": 3
+          }
+        ]
+      },
+      "error": null
+    }
+  }
+}

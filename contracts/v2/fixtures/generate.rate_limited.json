@@ -1,0 +1,36 @@
+{
+  "name": "generate.rate_limited",
+  "operation_id": "generateSchedule",
+  "method": "POST",
+  "path": "/v2/outlets/{outlet_id}/schedules/{week_start}/generate",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-26"
+    },
+    "headers": {
+      "Idempotency-Key": "gen-7d1c2e9a"
+    },
+    "body": {
+      "strategy": "balanced",
+      "base_version_id": null,
+      "time_limit_seconds": 10
+    }
+  },
+  "response": {
+    "status": 429,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "rate_limited",
+        "message": "Too many optimizations are running. Try again shortly.",
+        "retryable": true,
+        "details": {
+          "retry_after_ms": 3000
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

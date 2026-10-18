@@ -1,8 +1,8 @@
 [project]
 name = "shiftpilot"
 version = "0.1.0"
-description = "AI operations agent for restaurants: MCP tools, LangGraph agent, evals."
-requires-python = ">=3.12"
+description = "Workforce scheduling and real-time roster repair: CP-SAT optimization, versioned schedules, human approval."
+requires-python = ">=3.14,<3.15"
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
@@ -19,6 +19,8 @@ dependencies = [
     "rapidfuzz>=3.9",
     "pyjwt>=2.9",
     "python-dotenv>=1.0",
+    "ortools==9.15.6755",
+    "alembic>=1.20,<2",
 ]
 
 [project.optional-dependencies]
@@ -46,13 +48,13 @@ addopts = "-m 'not integration'"
 
 [tool.ruff]
 line-length = 110
-target-version = "py312"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.14"
 strict = true
-files = ["core", "mcp_server"]
+files = ["core", "mcp_server", "api/v2"]
 ignore_missing_imports = true

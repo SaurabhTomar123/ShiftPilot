@@ -1,0 +1,145 @@
+{
+  "name": "outlets.owner",
+  "operation_id": "listOutlets",
+  "method": "GET",
+  "path": "/v2/outlets",
+  "persona": "owner",
+  "request": {},
+  "response": {
+    "status": 200,
+    "schema": "OutletList",
+    "body": {
+      "items": [
+        {
+          "id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "name": "Indiranagar",
+          "slug": "indiranagar",
+          "timezone": "Asia/Kolkata",
+          "operating_hours": [
+            {
+              "weekday": 0,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 1,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 2,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 3,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 4,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 5,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 6,
+              "open_minute": 600,
+              "close_minute": 1380
+            }
+          ]
+        },
+        {
+          "id": "59d8d06e-6680-5ee8-92d0-69212ccaac8f",
+          "name": "Koramangala",
+          "slug": "koramangala",
+          "timezone": "Asia/Kolkata",
+          "operating_hours": [
+            {
+              "weekday": 0,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 1,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 2,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 3,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 4,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 5,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 6,
+              "open_minute": 600,
+              "close_minute": 1380
+            }
+          ]
+        },
+        {
+          "id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "name": "HSR Layout",
+          "slug": "hsr",
+          "timezone": "Asia/Kolkata",
+          "operating_hours": [
+            {
+              "weekday": 0,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 1,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 2,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 3,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 4,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 5,
+              "open_minute": 600,
+              "close_minute": 1380
+            },
+            {
+              "weekday": 6,
+              "open_minute": 600,
+              "close_minute": 1380
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

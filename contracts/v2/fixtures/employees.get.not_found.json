@@ -1,0 +1,25 @@
+{
+  "name": "employees.get.not_found",
+  "operation_id": "getEmployee",
+  "method": "GET",
+  "path": "/v2/employees/{employee_id}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "employee_id": "e50a794e-fca1-5064-a7d5-df9df9ccf72c"
+    }
+  },
+  "response": {
+    "status": 404,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "not_found",
+        "message": "Employee not found.",
+        "retryable": false,
+        "details": {},
+        "trace_id": null
+      }
+    }
+  }
+}

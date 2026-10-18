@@ -1,0 +1,125 @@
+"""contracts/v2 stays valid, consistent with the OpenAPI export, and up to date."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+from pydantic import ValidationError
+
+from api.v2 import contract_build, schemas
+from api.v2.routes import install
+
+CONTRACTS = Path(__file__).resolve().parents[1] / "contracts" / "v2"
+INDEX = json.loads((CONTRACTS / "fixtures" / "index.json").read_text(encoding="utf-8"))
+OPENAPI = json.loads((CONTRACTS / "openapi.json").read_text(encoding="utf-8"))
+
+
+def load(name: str) -> dict[str, Any]:
+    return json.loads((CONTRACTS / "fixtures" / f"{name}.json").read_text(encoding="utf-8"))
+
+
+def test_committed_contract_matches_source() -> None:
+    for path, text in contract_build.outputs().items():
+        assert path.read_text(encoding="utf-8") == text, (
+            f"{path.name} is stale: run python -m api.v2.contract_build"
+        )
+    on_disk = {p.name for p in (CONTRACTS / "fixtures").glob("*.json")}
+    assert on_disk == {p.name for p in contract_build.outputs() if p.parent.name == "fixtures"}
+
+
+def test_index_version_matches_schemas() -> None:
+    assert INDEX["contract_version"] == schemas.CONTRACT_VERSION == OPENAPI["info"]["version"]
+
+
+@pytest.mark.parametrize("entry", INDEX["fixtures"], ids=lambda e: e["name"])
+def test_fixture_body_validates(entry: dict[str, Any]) -> None:
+    fx = load(entry["name"])
+    model = getattr(schemas, fx["response"]["schema"])
+    model.model_validate(fx["response"]["body"])
+
+
+@pytest.mark.parametrize("entry", INDEX["fixtures"], ids=lambda e: e["name"])
+def test_fixture_matches_openapi_operation(entry: dict[str, Any]) -> None:
+    fx = load(entry["name"])
+    op = OPENAPI["paths"][fx["path"]][fx["method"].lower()]
+    assert op["operationId"] == fx["operation_id"]
+    response = op["responses"][str(fx["response"]["status"])]
+    ref = response["content"]["application/json"]["schema"]["$ref"]
+    assert ref.endswith("/" + fx["response"]["schema"])
+
+
+def test_every_operation_has_a_success_fixture() -> None:
+    covered = {(e["operation_id"]) for e in INDEX["fixtures"] if e["status"] < 300}
+    declared = {op["operationId"] for ops in OPENAPI["paths"].values() for op in ops.values()}
+    missing = declared - covered
+    assert not missing, f"operations without a success fixture: {sorted(missing)}"
+
+
+def test_errors_use_the_envelope_everywhere() -> None:
+    assert "HTTPValidationError" not in json.dumps(OPENAPI)
+    for ops in OPENAPI["paths"].values():
+        for op in ops.values():
+            for code, response in op["responses"].items():
+                if int(code) >= 400:
+                    assert response["content"]["application/json"]["schema"]["$ref"].endswith(
+                        "/ErrorResponse"
+                    )
+
+
+def test_published_fixture_has_no_hard_violations_and_honest_coverage() -> None:
+    version = load("schedule_week.published")["response"]["body"]["current_version"]
+    assert version["validation"]["hard_violations"] == 0
+    assert version["metrics"]["minimum_deficit_minutes"] == 0
+    cells = version["coverage"]
+    covered = sum(min(c["scheduled"], c["preferred_required"]) for c in cells)
+    target = sum(c["preferred_required"] for c in cells)
+    assert version["metrics"]["coverage_ratio"] == round(covered / target, 4)
+
+
+def test_stub_routes_answer_with_the_error_envelope() -> None:
+    app = FastAPI()
+    install(app)
+    response = TestClient(app).get("/v2/me")
+    assert response.status_code == 501
+    assert schemas.ErrorResponse.model_validate(response.json()).error.code == "not_implemented"
+
+
+def run_body(**changes: Any) -> dict[str, Any]:
+    body = load("run.succeeded")["response"]["body"]
+    body.update(changes)
+    return body
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"solver_status": "INFEASIBLE"},  # infeasible with candidates
+        {"solver_status": "UNKNOWN"},  # timeout without a solution cannot carry candidates
+        {"job_state": "running"},  # running run already has results
+        {"job_state": "failed"},  # failed without error
+        {"candidates": []},  # OPTIMAL with nothing to show
+    ],
+)
+def test_inconsistent_run_states_are_rejected(changes: dict[str, Any]) -> None:
+    with pytest.raises(ValidationError):
+        schemas.OptimizationRun.model_validate(run_body(**changes))
+
+
+def test_candidate_cannot_claim_optimality_or_carry_hard_violations() -> None:
+    candidate = load("run.succeeded")["response"]["body"]["candidates"][0]
+    with pytest.raises(ValidationError):
+        schemas.Candidate.model_validate({**candidate, "solver_status": "FEASIBLE", "proven_optimal": True})
+    bad_validation = {**candidate["validation"], "hard_violations": 1}
+    with pytest.raises(ValidationError):
+        schemas.Candidate.model_validate({**candidate, "validation": bad_validation})
+
+
+def test_staffing_preferred_below_minimum_is_rejected() -> None:
+    interval = load("staffing.get")["response"]["body"]["intervals"][0]
+    with pytest.raises(ValidationError):
+        schemas.StaffingInterval.model_validate({**interval, "minimum_required": 3, "preferred_required": 2})

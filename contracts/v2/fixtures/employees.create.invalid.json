@@ -1,0 +1,40 @@
+{
+  "name": "employees.create.invalid",
+  "operation_id": "createEmployee",
+  "method": "POST",
+  "path": "/v2/employees",
+  "persona": "manager_indiranagar",
+  "request": {
+    "headers": {
+      "Idempotency-Key": "emp-0c2d4e11"
+    }
+  },
+  "response": {
+    "status": 422,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "validation_failed",
+        "message": "Some fields need attention.",
+        "retryable": false,
+        "details": {
+          "fields": [
+            {
+              "path": [
+                "name"
+              ],
+              "message": "Name is required."
+            },
+            {
+              "path": [
+                "max_weekly_minutes"
+              ],
+              "message": "Must be at least regular_weekly_minutes."
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

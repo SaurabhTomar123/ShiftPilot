@@ -1,0 +1,239 @@
+{
+  "contract_version": "2.1.0-p1p2",
+  "fixtures": [
+    {
+      "name": "session.demo.manager",
+      "operation_id": "createDemoSession",
+      "status": 201,
+      "schema": "DemoSession"
+    },
+    {
+      "name": "session.demo.disabled",
+      "operation_id": "createDemoSession",
+      "status": 403,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "me.owner",
+      "operation_id": "getMe",
+      "status": 200,
+      "schema": "Me"
+    },
+    {
+      "name": "me.manager",
+      "operation_id": "getMe",
+      "status": 200,
+      "schema": "Me"
+    },
+    {
+      "name": "me.staff",
+      "operation_id": "getMe",
+      "status": 200,
+      "schema": "Me"
+    },
+    {
+      "name": "me.unauthenticated",
+      "operation_id": "getMe",
+      "status": 401,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "outlets.owner",
+      "operation_id": "listOutlets",
+      "status": 200,
+      "schema": "OutletList"
+    },
+    {
+      "name": "outlets.manager",
+      "operation_id": "listOutlets",
+      "status": 200,
+      "schema": "OutletList"
+    },
+    {
+      "name": "skills.list",
+      "operation_id": "listSkills",
+      "status": 200,
+      "schema": "SkillList"
+    },
+    {
+      "name": "employees.list",
+      "operation_id": "listEmployees",
+      "status": 200,
+      "schema": "EmployeeList"
+    },
+    {
+      "name": "employees.list.other_outlet_denied",
+      "operation_id": "listEmployees",
+      "status": 403,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "employees.get",
+      "operation_id": "getEmployee",
+      "status": 200,
+      "schema": "Employee"
+    },
+    {
+      "name": "employees.get.not_found",
+      "operation_id": "getEmployee",
+      "status": 404,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "employees.create",
+      "operation_id": "createEmployee",
+      "status": 201,
+      "schema": "Employee"
+    },
+    {
+      "name": "employees.create.invalid",
+      "operation_id": "createEmployee",
+      "status": 422,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "employees.update",
+      "operation_id": "updateEmployee",
+      "status": 200,
+      "schema": "Employee"
+    },
+    {
+      "name": "employees.update.stale",
+      "operation_id": "updateEmployee",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "availability.get",
+      "operation_id": "getAvailability",
+      "status": 200,
+      "schema": "Availability"
+    },
+    {
+      "name": "availability.get.student",
+      "operation_id": "getAvailability",
+      "status": 200,
+      "schema": "Availability"
+    },
+    {
+      "name": "availability.put.invalid",
+      "operation_id": "putAvailability",
+      "status": 422,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "availability.put",
+      "operation_id": "putAvailability",
+      "status": 200,
+      "schema": "Availability"
+    },
+    {
+      "name": "staffing.put",
+      "operation_id": "putStaffingRequirements",
+      "status": 200,
+      "schema": "StaffingRequirements"
+    },
+    {
+      "name": "staffing.get",
+      "operation_id": "getStaffingRequirements",
+      "status": 200,
+      "schema": "StaffingRequirements"
+    },
+    {
+      "name": "schedule_week.published",
+      "operation_id": "getScheduleWeek",
+      "status": 200,
+      "schema": "ScheduleWeek"
+    },
+    {
+      "name": "schedule_week.empty",
+      "operation_id": "getScheduleWeek",
+      "status": 200,
+      "schema": "ScheduleWeek"
+    },
+    {
+      "name": "schedule_week.denied",
+      "operation_id": "getScheduleWeek",
+      "status": 403,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "my_week.staff",
+      "operation_id": "getMyWeek",
+      "status": 200,
+      "schema": "MyWeek"
+    },
+    {
+      "name": "generate.accepted",
+      "operation_id": "generateSchedule",
+      "status": 202,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "generate.idempotency_conflict",
+      "operation_id": "generateSchedule",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "generate.stale_base",
+      "operation_id": "generateSchedule",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "generate.rate_limited",
+      "operation_id": "generateSchedule",
+      "status": 429,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "run.queued",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.running",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.succeeded",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.time_limited_feasible",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.infeasible",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.no_solution_in_time",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.failed",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "schedule_version.draft",
+      "operation_id": "getScheduleVersion",
+      "status": 200,
+      "schema": "ScheduleVersion"
+    }
+  ]
+}

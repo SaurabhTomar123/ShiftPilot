@@ -1,0 +1,43 @@
+{
+  "name": "employees.get",
+  "operation_id": "getEmployee",
+  "method": "GET",
+  "path": "/v2/employees/{employee_id}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "Employee",
+    "body": {
+      "name": "Ravi Kumar",
+      "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "status": "active",
+      "hourly_rate": {
+        "amount_paise": 21000,
+        "currency": "INR"
+      },
+      "skills": [
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "level": 2
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "level": 1
+        }
+      ],
+      "tags": [],
+      "regular_weekly_minutes": 2880,
+      "max_weekly_minutes": 2880,
+      "preferred_weekly_minutes": null,
+      "overtime_allowed": false,
+      "cross_outlet_eligible": false,
+      "id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+      "revision": 1
+    }
+  }
+}

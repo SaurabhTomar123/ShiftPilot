@@ -1,0 +1,68 @@
+{
+  "name": "employees.create",
+  "operation_id": "createEmployee",
+  "method": "POST",
+  "path": "/v2/employees",
+  "persona": "manager_indiranagar",
+  "request": {
+    "headers": {
+      "Idempotency-Key": "emp-3f9a1b77"
+    },
+    "body": {
+      "name": "Tara Singh",
+      "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "status": "active",
+      "hourly_rate": {
+        "amount_paise": 15900,
+        "currency": "INR"
+      },
+      "skills": [
+        {
+          "skill_id": "b712ed56-af3c-5221-bd78-87676295e21c",
+          "level": 2
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "level": 1
+        }
+      ],
+      "tags": [],
+      "regular_weekly_minutes": 2880,
+      "max_weekly_minutes": 2880,
+      "preferred_weekly_minutes": null,
+      "overtime_allowed": false,
+      "cross_outlet_eligible": false
+    }
+  },
+  "response": {
+    "status": 201,
+    "schema": "Employee",
+    "body": {
+      "name": "Tara Singh",
+      "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "status": "active",
+      "hourly_rate": {
+        "amount_paise": 15900,
+        "currency": "INR"
+      },
+      "skills": [
+        {
+          "skill_id": "b712ed56-af3c-5221-bd78-87676295e21c",
+          "level": 2
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "level": 1
+        }
+      ],
+      "tags": [],
+      "regular_weekly_minutes": 2880,
+      "max_weekly_minutes": 2880,
+      "preferred_weekly_minutes": null,
+      "overtime_allowed": false,
+      "cross_outlet_eligible": false,
+      "id": "0712bad2-bcd2-58ea-a70d-a74663232e98",
+      "revision": 1
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "me.owner",
+  "operation_id": "getMe",
+  "method": "GET",
+  "path": "/v2/me",
+  "persona": "owner",
+  "request": {},
+  "response": {
+    "status": 200,
+    "schema": "Me",
+    "body": {
+      "user_id": "bbbbc083-429d-5c97-add6-96d07b3c39b6",
+      "org_id": "08b61824-d17a-5028-91b1-d498945700e0",
+      "org_name": "Spice Route Kitchens",
+      "display_name": "Asha Menon",
+      "role": "owner",
+      "outlet_id": null,
+      "employee_id": null,
+      "timezone": "Asia/Kolkata",
+      "capabilities": [
+        "view_all_outlets",
+        "manage_employees",
+        "edit_demand",
+        "generate",
+        "publish",
+        "view_costs",
+        "approve_cross_outlet"
+      ]
+    }
+  }
+}
