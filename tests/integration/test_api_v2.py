@@ -21,7 +21,7 @@ from core import config
 from core.auth import Caller, Role
 from core.tokens import issue
 from db import migrate, session
-from seed import v2
+from seed import v2, world
 from seed.world import uid
 
 pytestmark = pytest.mark.integration
@@ -243,12 +243,12 @@ def test_availability_matches_the_fixture_and_replaces_with_revision(client: Tes
     assert client.get(f"/v2/employees/{RAVI}/availability", headers=MANAGER).json() == fixture(
         "availability.get"
     )
-    target = str(uid("employee", "farhan"))
-    current = client.get(f"/v2/employees/{target}/availability", headers=MANAGER).json()
+    target = str(uid("employee", "manoj"))  # HSR, owner: keeps the Indiranagar parity week intact
+    current = client.get(f"/v2/employees/{target}/availability", headers=OWNER).json()
     windows = [{"weekday": 0, "start_minute": 600, "end_minute": 1080, "kind": "available"}]
     ok = client.put(
         f"/v2/employees/{target}/availability",
-        headers=MANAGER,
+        headers=OWNER,
         json={"base_revision": current["revision"], "windows": windows},
     )
     assert (
@@ -258,7 +258,7 @@ def test_availability_matches_the_fixture_and_replaces_with_revision(client: Tes
     )
     stale = client.put(
         f"/v2/employees/{target}/availability",
-        headers=MANAGER,
+        headers=OWNER,
         json={"base_revision": current["revision"], "windows": windows},
     )
     assert stale.status_code == 409
@@ -289,6 +289,114 @@ def test_staffing_replace_checks_revision_week_and_role(client: TestClient) -> N
     assert client.get(url, headers=MANAGER, params={"week_start": WEEK}).status_code == 403
 
 
-def test_schedule_reads_stay_declared_but_unimplemented(client: TestClient) -> None:
+def comparable_shifts(version: dict[str, Any]) -> set[tuple[Any, ...]]:
+    return {
+        (
+            sh["logical_shift_id"],
+            sh["employee_id"],
+            sh["skill_id"],
+            sh["start_at"],
+            sh["end_at"],
+            sh["break_start_at"],
+            sh["locked"],
+        )
+        for sh in version["shifts"]
+    }
+
+
+def test_week_read_matches_the_published_fixture(client: TestClient) -> None:
     r = client.get(f"/v2/outlets/{IND}/schedules/{WEEK}", headers=MANAGER)
-    assert r.status_code == 501 and error_code(r) == "not_implemented"
+    assert r.status_code == 200, r.text
+    live, expected = r.json(), fixture("schedule_week.published")
+    assert live["schedule_id"] == expected["schedule_id"] and live["absences"] == expected["absences"]
+    lv, ev = live["current_version"], expected["current_version"]
+    assert comparable_shifts(lv) == comparable_shifts(ev)
+    assert lv["metrics"] == ev["metrics"]
+    assert lv["validation"]["hard_violations"] == 0
+    assert {json.dumps(v, sort_keys=True) for v in lv["validation"]["violations"]} == {
+        json.dumps(v, sort_keys=True) for v in ev["validation"]["violations"]
+    }
+    assert lv["coverage"] == sorted(
+        [c for c in ev["coverage"] if c["preferred_required"]],
+        key=lambda c: (c["interval_start"], c["skill_id"]),
+    )
+    fixture_rows = {e["id"]: e for e in expected["employees"]}
+    for row in live["employees"]:
+        if row["id"] in fixture_rows:
+            assert row == fixture_rows[row["id"]]
+
+
+def test_week_etag_revalidates_with_304(client: TestClient) -> None:
+    url = f"/v2/outlets/{IND}/schedules/{WEEK}"
+    first = client.get(url, headers=MANAGER)
+    etag = first.headers["ETag"]
+    assert etag.startswith('"week-')
+    again = client.get(url, headers=MANAGER | {"If-None-Match": etag})
+    assert again.status_code == 304 and again.content == b"" and again.headers["ETag"] == etag
+    denied = client.get(f"/v2/outlets/{KOR}/schedules/{WEEK}", headers=MANAGER | {"If-None-Match": etag})
+    assert denied.status_code == 403  # authorization runs before any 304
+
+
+def test_empty_week_and_staff_denial(client: TestClient) -> None:
+    empty = client.get(f"/v2/outlets/{IND}/schedules/2026-10-26", headers=MANAGER).json()
+    assert empty["schedule_id"] is None and empty["current_version"] is None
+    seeded = {str(uid("employee", e.key)) for e in [*world.STAFF["indiranagar"], *v2.bench("indiranagar")]}
+    assert seeded <= {e["id"] for e in empty["employees"]}
+    assert client.get(f"/v2/outlets/{IND}/schedules/{WEEK}", headers=STAFF).status_code == 403
+
+
+def test_published_versions_are_immutably_cacheable(client: TestClient) -> None:
+    week = client.get(f"/v2/outlets/{IND}/schedules/{WEEK}", headers=MANAGER).json()
+    version_id = week["current_version"]["id"]
+    r = client.get(f"/v2/schedule-versions/{version_id}", headers=MANAGER)
+    assert r.status_code == 200 and r.json() == week["current_version"]
+    assert r.headers["Cache-Control"] == "private, max-age=31536000, immutable"
+    assert (
+        client.get(
+            f"/v2/schedule-versions/{version_id}", headers=MANAGER | {"If-None-Match": r.headers["ETag"]}
+        ).status_code
+        == 304
+    )
+    assert (
+        client.get(
+            f"/v2/schedule-versions/{version_id}", headers=token("manager_koramangala", Role.MANAGER, KOR)
+        ).status_code
+        == 403
+    )
+    assert client.get(f"/v2/schedule-versions/{uuid.uuid4()}", headers=MANAGER).status_code == 404
+
+
+def test_my_week_matches_the_fixture_and_is_staff_only(client: TestClient) -> None:
+    live = client.get("/v2/me/shifts", headers=STAFF, params={"week_start": WEEK}).json()
+    expected = fixture("my_week.staff")
+    assert live["skills"] == sorted(expected["skills"], key=lambda k: k["name"])
+    assert live["outlets"] == expected["outlets"]
+    assert {(sh["logical_shift_id"], sh["start_at"], sh["locked"]) for sh in live["shifts"]} == {
+        (sh["logical_shift_id"], sh["start_at"], sh["locked"]) for sh in expected["shifts"]
+    }
+    assert client.get("/v2/me/shifts", headers=MANAGER, params={"week_start": WEEK}).status_code == 403
+
+
+def test_confirmed_absence_after_publication_is_reported_not_hidden(client: TestClient) -> None:
+    week = client.get(f"/v2/outlets/{KOR}/schedules/{WEEK}", headers=OWNER).json()
+    target = next(sh for sh in week["current_version"]["shifts"] if sh["employee_id"])
+    with create_engine(config.settings().database_url).begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO absences (id, org_id, employee_id, start_at, end_at, kind, status, source) "
+                "VALUES (:id, :org, :emp, :s, :e, 'sick', 'confirmed', 'manager')"
+            ),
+            {
+                "id": uuid.uuid4(),
+                "org": uid("org", v2.SPICE),
+                "emp": target["employee_id"],
+                "s": target["start_at"],
+                "e": target["end_at"],
+            },
+        )
+    after = client.get(f"/v2/outlets/{KOR}/schedules/{WEEK}", headers=OWNER).json()
+    violations = after["current_version"]["validation"]["violations"]
+    assert after["current_version"]["validation"]["hard_violations"] >= 1
+    assert any(
+        v["code"] == "absent" and target["logical_shift_id"] in v["logical_shift_ids"] for v in violations
+    )

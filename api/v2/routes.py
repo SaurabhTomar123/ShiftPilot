@@ -12,12 +12,12 @@ from typing import Annotated, Any, NoReturn
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, FastAPI, Header, Query, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from api.v2 import auth as v2auth
+from api.v2 import rosters, service
 from api.v2 import schemas as s
-from api.v2 import service
 
 bearer = HTTPBearer(auto_error=False)
 Auth = Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)]
@@ -107,9 +107,9 @@ def get_me(caller: v2auth.CallerDep) -> s.Me:
 
 
 @router.get("/me/shifts", operation_id="getMyWeek", response_model=s.MyWeek, responses=_errors(403, 422))
-def get_my_week(auth: Auth, week_start: WeekStart) -> s.MyWeek:
+def get_my_week(caller: v2auth.CallerDep, week_start: WeekStart) -> s.MyWeek:
     """Staff only: the caller's own published shifts."""
-    _stub()
+    return rosters.my_week(caller, week_start)
 
 
 @router.get("/outlets", operation_id="listOutlets", response_model=s.OutletList, responses=_errors())
@@ -229,10 +229,13 @@ def put_staffing_requirements(
     },
 )
 def get_schedule_week(
-    auth: Auth, outlet_id: UUID, week_start: date, if_none_match: IfNoneMatch = None
-) -> s.ScheduleWeek:
+    caller: v2auth.CallerDep, outlet_id: UUID, week_start: date, if_none_match: IfNoneMatch = None
+) -> Response:
     """200 with schedule_id null when the week has no schedule yet; 404 only for unknown outlets."""
-    _stub()
+    etag, body = rosters.schedule_week(caller, outlet_id, week_start, if_none_match)
+    if body is None:
+        return Response(status_code=304, headers={"ETag": etag})
+    return JSONResponse(body.model_dump(mode="json"), headers={"ETag": etag})
 
 
 @router.get(
@@ -246,9 +249,12 @@ def get_schedule_week(
     },
 )
 def get_schedule_version(
-    auth: Auth, version_id: UUID, if_none_match: IfNoneMatch = None
-) -> s.ScheduleVersion:
-    _stub()
+    caller: v2auth.CallerDep, version_id: UUID, if_none_match: IfNoneMatch = None
+) -> Response:
+    etag, cache, body = rosters.schedule_version(caller, version_id, if_none_match)
+    if body is None:
+        return Response(status_code=304, headers={"ETag": etag, "Cache-Control": cache})
+    return JSONResponse(body.model_dump(mode="json"), headers={"ETag": etag, "Cache-Control": cache})
 
 
 @router.post(

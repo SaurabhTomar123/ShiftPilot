@@ -74,15 +74,13 @@ Fixture files may now include `response.headers`, and `response.schema`/`respons
 
 ## Status
 
-**Live (B1.2 part 1):** `createDemoSession`, `getMe`, `listOutlets`, `listSkills`, `listEmployees`, `getEmployee`, `createEmployee`, `updateEmployee`, `getAvailability`, `putAvailability`, `getStaffingRequirements` and `putStaffingRequirements`.
+**Live (B1.2):** `createDemoSession`, `getMe`, `listOutlets`, `listSkills`, `listEmployees`, `getEmployee`, `createEmployee`, `updateEmployee`, `getAvailability`, `putAvailability`, `getStaffingRequirements`, `putStaffingRequirements`, `getScheduleWeek`, `getScheduleVersion` and `getMyWeek`.
 
-**Still `501 not_implemented`:**
+- **Schedule reads:** `validation` and `metrics` come from the independent validator, evaluated against current live facts. A roster published before a confirmed absence therefore shows that absence as a hard violation, and the read never hides it.
+- **Caching:** `ETag`, `If-None-Match`/304 and `Cache-Control` work as described in 2.2. Authorization always runs before a 304.
+- **Coverage cells:** only intervals with demand are listed.
 
-| Endpoint | Waits for |
-|---|---|
-| `getScheduleWeek`, `getScheduleVersion` | B1.2 part 2, after the B2.1 validator, so `validation` is truthful |
-| `getMyWeek` | B1.2 part 2 |
-| `generateSchedule`, `getOptimizationRun` | B2.3 |
+**Still `501 not_implemented`:** `generateSchedule` and `getOptimizationRun` (B2.2 solver, B2.3 worker).
 
 Where the seed and a fixture describe the same data, the live response equals the fixture body; integration tests enforce this. The seed has 20 employees per outlet, while the fixtures have 13, so lists can be longer. Instants come back in the outlet's own offset (`+05:30`).
 
