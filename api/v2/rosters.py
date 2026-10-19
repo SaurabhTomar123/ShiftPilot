@@ -53,6 +53,7 @@ def _summary(v: ScheduleVersion, tz: ZoneInfo) -> dict[str, object]:
         approved_by_user_id=v.approved_by_user_id,
         created_at=v.created_at.astimezone(tz),
         published_at=v.published_at.astimezone(tz) if v.published_at else None,
+        revision=v.revision,
     )
 
 

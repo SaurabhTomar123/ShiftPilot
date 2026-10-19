@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "2.2.0-p1p2"
+    "version": "2.3.0-p3"
   },
   "paths": {
     "/v2/session/demo": {
@@ -1588,6 +1588,875 @@
           }
         }
       }
+    },
+    "/v2/outlets/{outlet_id}/schedules/{week_start}/drafts": {
+      "post": {
+        "summary": "Create Draft",
+        "description": "A new draft copied from the published version (or another version of the same week). 409\nstale_version when base_version_id is no longer the published version.",
+        "operationId": "createDraft",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outlet_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Outlet Id"
+            }
+          },
+          {
+            "name": "week_start",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Week Start"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDraftRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleVersion"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/schedule-versions/{version_id}/edits/preview": {
+      "post": {
+        "summary": "Preview Edits",
+        "description": "Validate edits against the draft without writing anything (drag/resize/keyboard previews).",
+        "operationId": "previewEdits",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule version (draft, published or superseded).",
+              "title": "Version Id"
+            },
+            "description": "A schedule version (draft, published or superseded)."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EditPreview"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/schedule-versions/{version_id}/edits": {
+      "post": {
+        "summary": "Apply Edits",
+        "description": "Apply edits to a draft. 409 stale_version when expected_revision is not current\n(details.current_revision); 409 conflict when the version is not a draft. Edits that break rules\nare applied and reported in validation; publishing is what refuses hard violations.",
+        "operationId": "applyEdits",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule version (draft, published or superseded).",
+              "title": "Version Id"
+            },
+            "description": "A schedule version (draft, published or superseded)."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleVersion"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/schedule-versions/{version_id}/publish": {
+      "post": {
+        "summary": "Publish Version",
+        "description": "Atomically publish a draft and supersede the current version. 409 stale_version when the published\nversion or the draft revision moved; 422 validation_failed with details.violations when the draft has\nhard violations against current facts.",
+        "operationId": "publishVersion",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule version (draft, published or superseded).",
+              "title": "Version Id"
+            },
+            "description": "A schedule version (draft, published or superseded)."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/schedule-versions/{version_id}/discard": {
+      "post": {
+        "summary": "Discard Draft",
+        "operationId": "discardDraft",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule version (draft, published or superseded).",
+              "title": "Version Id"
+            },
+            "description": "A schedule version (draft, published or superseded)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleVersionSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/schedules/{schedule_id}/versions": {
+      "get": {
+        "summary": "List Versions",
+        "operationId": "listVersions",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Schedule Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionHistory"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/schedule-versions/{version_id}/compare": {
+      "get": {
+        "summary": "Compare Versions",
+        "description": "Changes from `with` to this version, keyed on logical_shift_id.",
+        "operationId": "compareVersions",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule version (draft, published or superseded).",
+              "title": "Version Id"
+            },
+            "description": "A schedule version (draft, published or superseded)."
+          },
+          {
+            "name": "with",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The version to compare against.",
+              "title": "With"
+            },
+            "description": "The version to compare against."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionDiff"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/schedule-versions/{version_id}/restore": {
+      "post": {
+        "summary": "Restore Version",
+        "description": "A new draft with this version's shifts, validated against current facts (an absent employee's\nrestored shift shows as a hard violation; it is never revived silently). History is never rewritten.",
+        "operationId": "restoreVersion",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule version (draft, published or superseded).",
+              "title": "Version Id"
+            },
+            "description": "A schedule version (draft, published or superseded)."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleVersion"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1644,6 +2513,76 @@
           "status"
         ],
         "title": "AbsenceMark"
+      },
+      "AddShift": {
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "add",
+            "title": "Op"
+          },
+          "employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Id",
+            "description": "null adds an open (unfilled) shift."
+          },
+          "skill_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Skill Id"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start At"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End At"
+          },
+          "break_start_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Break Start At"
+          },
+          "break_minutes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Break Minutes",
+            "default": 0
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "op",
+          "employee_id",
+          "skill_id",
+          "start_at",
+          "end_at"
+        ],
+        "title": "AddShift"
       },
       "Availability": {
         "properties": {
@@ -1847,6 +2786,42 @@
         ],
         "title": "CoverageCell"
       },
+      "CreateDraftRequest": {
+        "properties": {
+          "base_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Version Id",
+            "description": "The currently published version (null for an empty week). Stale -> 409."
+          },
+          "copy_from_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Copy From Version Id",
+            "description": "Version whose shifts start the draft; defaults to base_version_id (empty when both are null)."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "base_version_id"
+        ],
+        "title": "CreateDraftRequest"
+      },
       "DemoSession": {
         "properties": {
           "access_token": {
@@ -1897,6 +2872,100 @@
           "persona"
         ],
         "title": "DemoSessionRequest"
+      },
+      "EditPreview": {
+        "properties": {
+          "version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Version Id"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "title": "Expected Revision"
+          },
+          "shifts": {
+            "items": {
+              "$ref": "#/components/schemas/Shift"
+            },
+            "type": "array",
+            "title": "Shifts"
+          },
+          "changes": {
+            "items": {
+              "$ref": "#/components/schemas/ShiftChange"
+            },
+            "type": "array",
+            "title": "Changes"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/Metrics"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/ValidationResult"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version_id",
+          "expected_revision",
+          "shifts",
+          "changes",
+          "metrics",
+          "validation"
+        ],
+        "title": "EditPreview",
+        "description": "What the draft would look like after the edits. Nothing is written; the server is the only\nauthority on validity, cost and coverage."
+      },
+      "EditRequest": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "description": "The draft revision the edits were made against."
+          },
+          "edits": {
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/AddShift"
+                },
+                {
+                  "$ref": "#/components/schemas/UpdateShift"
+                },
+                {
+                  "$ref": "#/components/schemas/RemoveShift"
+                },
+                {
+                  "$ref": "#/components/schemas/SetLock"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "op",
+                "mapping": {
+                  "add": "#/components/schemas/AddShift",
+                  "lock": "#/components/schemas/SetLock",
+                  "remove": "#/components/schemas/RemoveShift",
+                  "unlock": "#/components/schemas/SetLock",
+                  "update": "#/components/schemas/UpdateShift"
+                }
+              }
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Edits"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "edits"
+        ],
+        "title": "EditRequest"
       },
       "Employee": {
         "properties": {
@@ -2953,6 +4022,111 @@
         ],
         "title": "OutletRef"
       },
+      "PublishRequest": {
+        "properties": {
+          "expected_base_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Base Version Id",
+            "description": "The published version this draft replaces."
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_base_version_id",
+          "expected_revision"
+        ],
+        "title": "PublishRequest"
+      },
+      "PublishResult": {
+        "properties": {
+          "schedule_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Schedule Id"
+          },
+          "published": {
+            "$ref": "#/components/schemas/ScheduleVersionSummary"
+          },
+          "superseded_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Superseded Version Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schedule_id",
+          "published",
+          "superseded_version_id"
+        ],
+        "title": "PublishResult"
+      },
+      "RemoveShift": {
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "remove",
+            "title": "Op"
+          },
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "op",
+          "logical_shift_id"
+        ],
+        "title": "RemoveShift"
+      },
+      "RestoreRequest": {
+        "properties": {
+          "expected_base_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Base Version Id",
+            "description": "The currently published version."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_base_version_id"
+        ],
+        "title": "RestoreRequest"
+      },
       "RosterEmployee": {
         "properties": {
           "id": {
@@ -3126,6 +4300,12 @@
             ],
             "title": "Published At"
           },
+          "revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision",
+            "description": "Bumped by every applied edit while the version is a draft; send it as expected_revision. Fixed once published."
+          },
           "input_hash": {
             "type": "string",
             "title": "Input Hash"
@@ -3166,6 +4346,7 @@
           "approved_by_user_id",
           "created_at",
           "published_at",
+          "revision",
           "input_hash",
           "shifts",
           "metrics",
@@ -3283,6 +4464,12 @@
               }
             ],
             "title": "Published At"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Revision",
+            "description": "Bumped by every applied edit while the version is a draft; send it as expected_revision. Fixed once published."
           }
         },
         "additionalProperties": false,
@@ -3299,7 +4486,8 @@
           "created_by_user_id",
           "approved_by_user_id",
           "created_at",
-          "published_at"
+          "published_at",
+          "revision"
         ],
         "title": "ScheduleVersionSummary"
       },
@@ -3381,6 +4569,42 @@
           "absences"
         ],
         "title": "ScheduleWeek"
+      },
+      "SetLock": {
+        "properties": {
+          "op": {
+            "type": "string",
+            "enum": [
+              "lock",
+              "unlock"
+            ],
+            "title": "Op"
+          },
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "op",
+          "logical_shift_id"
+        ],
+        "title": "SetLock"
       },
       "Shift": {
         "properties": {
@@ -3478,6 +4702,61 @@
           "lock_reason"
         ],
         "title": "Shift"
+      },
+      "ShiftChange": {
+        "properties": {
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id"
+          },
+          "kinds": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "added",
+                "removed",
+                "reassigned",
+                "moved",
+                "resized",
+                "role_changed",
+                "lock_changed",
+                "break_changed"
+              ]
+            },
+            "type": "array",
+            "title": "Kinds"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Shift"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "after": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Shift"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "logical_shift_id",
+          "kinds",
+          "before",
+          "after"
+        ],
+        "title": "ShiftChange"
       },
       "Shortage": {
         "properties": {
@@ -3675,6 +4954,100 @@
         ],
         "title": "StaffingRequirementsUpdate"
       },
+      "UpdateShift": {
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "update",
+            "title": "Op"
+          },
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id"
+          },
+          "employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Id"
+          },
+          "skill_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Id"
+          },
+          "start_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start At"
+          },
+          "end_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End At"
+          },
+          "break_start_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Break Start At"
+          },
+          "break_minutes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Break Minutes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "op",
+          "logical_shift_id"
+        ],
+        "title": "UpdateShift",
+        "description": "Move, resize, reassign or change role. Omitted fields keep their value; employee_id may be\nnull to unassign."
+      },
       "ValidationResult": {
         "properties": {
           "hard_violations": {
@@ -3703,6 +5076,80 @@
           "violations"
         ],
         "title": "ValidationResult"
+      },
+      "VersionDiff": {
+        "properties": {
+          "from_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "From Version Id"
+          },
+          "to_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "To Version Id"
+          },
+          "changes": {
+            "items": {
+              "$ref": "#/components/schemas/ShiftChange"
+            },
+            "type": "array",
+            "title": "Changes"
+          },
+          "metrics_from": {
+            "$ref": "#/components/schemas/Metrics"
+          },
+          "metrics_to": {
+            "$ref": "#/components/schemas/Metrics"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "from_version_id",
+          "to_version_id",
+          "changes",
+          "metrics_from",
+          "metrics_to"
+        ],
+        "title": "VersionDiff"
+      },
+      "VersionHistory": {
+        "properties": {
+          "schedule_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Schedule Id"
+          },
+          "current_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Version Id"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ScheduleVersionSummary"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Newest first; drafts included."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schedule_id",
+          "current_version_id",
+          "items"
+        ],
+        "title": "VersionHistory"
       },
       "Violation": {
         "properties": {

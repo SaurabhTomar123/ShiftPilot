@@ -1,0 +1,31 @@
+{
+  "name": "draft.discard",
+  "operation_id": "discardDraft",
+  "method": "POST",
+  "path": "/v2/schedule-versions/{version_id}/discard",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "version_id": "7d932d02-e046-5127-aaff-604dd184d809"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "ScheduleVersionSummary",
+    "body": {
+      "id": "7d932d02-e046-5127-aaff-604dd184d809",
+      "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+      "version_number": 4,
+      "status": "discarded",
+      "source": "manual",
+      "reason": "Manager edit",
+      "base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "optimization_run_id": null,
+      "created_by_user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+      "approved_by_user_id": null,
+      "created_at": "2026-10-18T19:05:00+05:30",
+      "published_at": null,
+      "revision": 2
+    }
+  }
+}

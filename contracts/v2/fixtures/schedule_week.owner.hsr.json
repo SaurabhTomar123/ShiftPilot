@@ -34,6 +34,7 @@
         "approved_by_user_id": "bbbbc083-429d-5c97-add6-96d07b3c39b6",
         "created_at": "2026-10-16T18:00:00+05:30",
         "published_at": "2026-10-16T18:05:00+05:30",
+        "revision": 1,
         "input_hash": "sha256:0fd35d2cc8ab56bba6f39d30eee3dae0",
         "shifts": [
           {

@@ -344,6 +344,7 @@ class ScheduleVersion(Base):
             "(status IN ('published', 'superseded')) = (published_at IS NOT NULL)",
             name="version_published_at",
         ),
+        CheckConstraint("revision >= 1", name="version_revision"),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
@@ -359,6 +360,7 @@ class ScheduleVersion(Base):
     created_at: Mapped[datetime] = created_at()
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     input_hash: Mapped[str] = mapped_column(String(80))
+    revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
 
 
 class LogicalShift(Base):

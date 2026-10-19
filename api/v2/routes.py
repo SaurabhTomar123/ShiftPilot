@@ -11,7 +11,7 @@ from datetime import date
 from typing import Annotated, Any, NoReturn
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, FastAPI, Header, Query, status
+from fastapi import APIRouter, Depends, FastAPI, Header, Path, Query, status
 from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -297,3 +297,117 @@ def generate_schedule(
 )
 def get_optimization_run(caller: v2auth.CallerDep, run_id: UUID) -> s.OptimizationRun:
     return generation.get_run(caller, run_id)
+
+
+# ---------------------------------------------------------------- P3: drafts, edits, publication, history
+# Declared in contract 2.3; implemented in B3.1-B3.3. Authentication runs before the 501.
+
+VersionPath = Annotated[UUID, Path(description="A schedule version (draft, published or superseded).")]
+
+
+@router.post(
+    "/outlets/{outlet_id}/schedules/{week_start}/drafts",
+    operation_id="createDraft",
+    response_model=s.ScheduleVersion,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def create_draft(
+    caller: v2auth.CallerDep,
+    outlet_id: UUID,
+    week_start: date,
+    idempotency_key: IdempotencyKey,
+    body: s.CreateDraftRequest,
+) -> s.ScheduleVersion:
+    """A new draft copied from the published version (or another version of the same week). 409
+    stale_version when base_version_id is no longer the published version."""
+    _stub()
+
+
+@router.post(
+    "/schedule-versions/{version_id}/edits/preview",
+    operation_id="previewEdits",
+    response_model=s.EditPreview,
+    responses=_errors(403, 404, 409, 422),
+)
+def preview_edits(caller: v2auth.CallerDep, version_id: VersionPath, body: s.EditRequest) -> s.EditPreview:
+    """Validate edits against the draft without writing anything (drag/resize/keyboard previews)."""
+    _stub()
+
+
+@router.post(
+    "/schedule-versions/{version_id}/edits",
+    operation_id="applyEdits",
+    response_model=s.ScheduleVersion,
+    responses=_errors(403, 404, 409, 422),
+)
+def apply_edits(caller: v2auth.CallerDep, version_id: VersionPath, body: s.EditRequest) -> s.ScheduleVersion:
+    """Apply edits to a draft. 409 stale_version when expected_revision is not current
+    (details.current_revision); 409 conflict when the version is not a draft. Edits that break rules
+    are applied and reported in validation; publishing is what refuses hard violations."""
+    _stub()
+
+
+@router.post(
+    "/schedule-versions/{version_id}/publish",
+    operation_id="publishVersion",
+    response_model=s.PublishResult,
+    responses=_errors(403, 404, 409, 422),
+)
+def publish_version(
+    caller: v2auth.CallerDep, version_id: VersionPath, idempotency_key: IdempotencyKey, body: s.PublishRequest
+) -> s.PublishResult:
+    """Atomically publish a draft and supersede the current version. 409 stale_version when the published
+    version or the draft revision moved; 422 validation_failed with details.violations when the draft has
+    hard violations against current facts."""
+    _stub()
+
+
+@router.post(
+    "/schedule-versions/{version_id}/discard",
+    operation_id="discardDraft",
+    response_model=s.ScheduleVersionSummary,
+    responses=_errors(403, 404, 409, 422),
+)
+def discard_draft(caller: v2auth.CallerDep, version_id: VersionPath) -> s.ScheduleVersionSummary:
+    _stub()
+
+
+@router.get(
+    "/schedules/{schedule_id}/versions",
+    operation_id="listVersions",
+    response_model=s.VersionHistory,
+    responses=_errors(403, 404, 422),
+)
+def list_versions(caller: v2auth.CallerDep, schedule_id: UUID) -> s.VersionHistory:
+    _stub()
+
+
+@router.get(
+    "/schedule-versions/{version_id}/compare",
+    operation_id="compareVersions",
+    response_model=s.VersionDiff,
+    responses=_errors(403, 404, 422),
+)
+def compare_versions(
+    caller: v2auth.CallerDep,
+    version_id: VersionPath,
+    with_version: Annotated[UUID, Query(alias="with", description="The version to compare against.")],
+) -> s.VersionDiff:
+    """Changes from `with` to this version, keyed on logical_shift_id."""
+    _stub()
+
+
+@router.post(
+    "/schedule-versions/{version_id}/restore",
+    operation_id="restoreVersion",
+    response_model=s.ScheduleVersion,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def restore_version(
+    caller: v2auth.CallerDep, version_id: VersionPath, idempotency_key: IdempotencyKey, body: s.RestoreRequest
+) -> s.ScheduleVersion:
+    """A new draft with this version's shifts, validated against current facts (an absent employee's
+    restored shift shows as a hard violation; it is never revived silently). History is never rewritten."""
+    _stub()

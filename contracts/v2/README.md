@@ -23,6 +23,33 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 2.3.0-p3 (for review; the backend is in progress)
+
+Additive. Everything from 2.2 is unchanged except one new field: **every version summary now has `revision`** (fixed at 1 for published and superseded versions; bumped by each applied draft edit).
+
+| Operation | What it does | Fixture |
+|---|---|---|
+| `createDraft` `POST /v2/outlets/{id}/schedules/{week}/drafts` | Creates a new draft copied from the published version, or from `copy_from_version_id`. Stale `base_version_id` returns 409. Needs `Idempotency-Key`. | `draft.create` |
+| `previewEdits` `POST /v2/schedule-versions/{id}/edits/preview` | Shows what the draft would become: `shifts`, typed `changes`, authoritative `metrics` and `validation`. **Writes nothing.** Use it for drag, resize and keyboard previews. | `edits.preview` |
+| `applyEdits` `POST /v2/schedule-versions/{id}/edits` | Applies edits to a **draft** and bumps `revision`. A stale `expected_revision` returns `409 stale_version` (`details.current_revision`); editing a non-draft returns `409 conflict`. Rule-breaking edits are applied and reported in `validation`. | `edits.apply`, `.stale`, `.not_draft` |
+| `publishVersion` `POST /v2/schedule-versions/{id}/publish` | Publishes the draft and supersedes the current version in one atomic step. A moved base or revision returns `409 stale_version`. **Hard violations against current facts return `422 validation_failed` with `details.violations`.** Needs `Idempotency-Key`. | `publish`, `.blocked`, `.stale_base` |
+| `discardDraft` `POST /v2/schedule-versions/{id}/discard` | Marks a draft `discarded`. | `draft.discard` |
+| `listVersions` `GET /v2/schedules/{schedule_id}/versions` | History, newest first, drafts included. | `versions.list` |
+| `compareVersions` `GET /v2/schedule-versions/{id}/compare?with={other}` | Changes from `with` to `id`, keyed on `logical_shift_id`, plus metrics on both sides. | `versions.compare` |
+| `restoreVersion` `POST /v2/schedule-versions/{id}/restore` | Creates a **new draft** (`source: restore`) with that version's shifts, validated against current facts. A restored shift for someone now absent shows as a hard violation and is never revived silently. History is never rewritten. | `versions.restore` |
+
+Edits are a discriminated union on `op`:
+- `add`: a full shift, optionally open (`employee_id: null`).
+- `update`: move, resize, reassign or change role. Omitted fields are unchanged, and moving the start shifts the break with it.
+- `remove`.
+- `lock` / `unlock`.
+
+`ShiftChange.kinds` uses `added`, `removed`, `reassigned`, `moved`, `resized`, `role_changed`, `lock_changed` and `break_changed`.
+
+The fixture story: draft v4 copies published v3. The preview reassigns a Tuesday Grill shift to Ravi, who is unavailable on Tuesdays, which gives a hard `unavailable` violation. The apply locks Monday's opening Grill shift (revision 2). Then publish; then restore v2 as draft v5.
+
+These eight operations currently authenticate, then answer `501` until B3.1–B3.3 land. Build against the fixtures.
+
 ## What changed in 2.2.0-p1p2
 
 This release answers the follow-ups in `web/docs/CONTRACT_REVIEW.md` and adds B0.4 from architecture revision 2. It only adds things; nothing from 2.1 was removed or renamed, and every 2.1 fixture keeps its IDs.

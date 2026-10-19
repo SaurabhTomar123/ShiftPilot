@@ -25,12 +25,19 @@ from pydantic import BaseModel
 
 from api.v2 import schemas as s
 from api.v2.routes import router
+from scheduling import diff as sched_diff
+from scheduling import edits as sched_edits
+from scheduling import metrics as sched_metrics
+from scheduling import model
+from scheduling import validator as sched_validator
+from seed import world_snapshot
 from seed.world import (
     CLOSE,
     EMP,
     EMPLOYEES,
     HOME,
     INTERVAL,
+    IST,
     NEXT_WEEK,
     NS,
     OPEN,
@@ -170,6 +177,7 @@ def version(
     key: str, week: date, roster: list[PlannedShift], *, outlet_key: str = "indiranagar", **summary: Any
 ) -> s.ScheduleVersion:
     metrics, cells, validation = evaluate(week, roster)
+    summary.setdefault("revision", 1)
     return s.ScheduleVersion(
         id=uid("version", key),
         schedule_id=uid("schedule", f"{outlet_key}:{week}"),
@@ -479,7 +487,7 @@ def fixtures() -> list[Fixture]:
 
     owner_weeks = {key: other_outlet_week(key) for key in ("koramangala", "hsr")}
 
-    return [
+    return p3_fixtures(published) + [
         Fixture(
             "session.demo.manager",
             "createDemoSession",
@@ -1077,6 +1085,358 @@ def fixtures() -> list[Fixture]:
             )
             for key in owner_weeks
         ],
+    ]
+
+
+# ---------------------------------------------------------------- P3 (contract 2.3): drafts, edits, publish
+
+
+def _to_model(sh: s.Shift) -> model.Shift:
+    return model.Shift(
+        sh.logical_shift_id,
+        sh.outlet_id,
+        sh.employee_id,
+        sh.skill_id,
+        sh.start_at,
+        sh.end_at,
+        sh.break_minutes,
+        sh.break_start_at,
+        sh.locked,
+    )
+
+
+def _to_contract(sh: model.Shift, version_key: str) -> s.Shift:
+    return s.Shift(
+        id=uid("version_shift", f"{version_key}:{sh.logical_id}"),
+        logical_shift_id=sh.logical_id,
+        outlet_id=sh.outlet_id,
+        employee_id=sh.employee_id,
+        skill_id=sh.skill_id,
+        start_at=sh.start_at.astimezone(IST),
+        end_at=sh.end_at.astimezone(IST),
+        break_start_at=sh.break_start_at.astimezone(IST) if sh.break_start_at else None,
+        break_minutes=sh.break_minutes,
+        locked=sh.locked,
+        lock_reason="Locked by manager" if sh.locked else None,
+    )
+
+
+def _evaluated(roster: list[model.Shift]) -> dict[str, Any]:
+    snap = world_snapshot.build("indiranagar", WEEK)
+    m = sched_metrics.compute(snap, roster)
+    return {
+        "metrics": s.Metrics.model_validate(sched_metrics.as_contract(m)),
+        "coverage": [
+            s.CoverageCell(
+                skill_id=c.skill_id,
+                interval_start=c.interval_start.astimezone(IST),
+                minimum_required=c.minimum_required,
+                preferred_required=c.preferred_required,
+                scheduled=c.scheduled,
+            )
+            for c in m.cells
+        ],
+        "validation": s.ValidationResult.model_validate(
+            sched_validator.as_contract(sched_validator.validate(snap, roster))
+        ),
+    }
+
+
+def _changes(
+    before: list[model.Shift], after: list[model.Shift], key_before: str, key_after: str
+) -> list[s.ShiftChange]:
+    return [
+        s.ShiftChange(
+            logical_shift_id=c.logical_id,
+            kinds=list(c.kinds),  # type: ignore[arg-type]
+            before=_to_contract(c.before, key_before) if c.before else None,
+            after=_to_contract(c.after, key_after) if c.after else None,
+        )
+        for c in sched_diff.diff(before, after)
+    ]
+
+
+def _summary(v: s.ScheduleVersion, **changes: Any) -> s.ScheduleVersionSummary:
+    data = {k: getattr(v, k) for k in s.ScheduleVersionSummary.model_fields}
+    return s.ScheduleVersionSummary(**{**data, **changes})
+
+
+def p3_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
+    ind = str(HOME)
+    manager = uid("user", "manager_indiranagar")
+    base = [_to_model(sh) for sh in published.shifts]
+
+    def draft(key: str, number: int, roster: list[model.Shift], **summary: Any) -> s.ScheduleVersion:
+        return s.ScheduleVersion(
+            id=uid("version", key),
+            schedule_id=published.schedule_id,
+            version_number=number,
+            status="draft",
+            optimization_run_id=None,
+            approved_by_user_id=None,
+            published_at=None,
+            input_hash="sha256:" + uuid.uuid5(NS, f"input:{key}").hex,
+            shifts=[_to_contract(sh, key) for sh in roster],
+            **_evaluated(roster),
+            **summary,
+        )
+
+    v4_key = f"indiranagar:{WEEK}:v4"
+    draft_common = dict(
+        source="manual",
+        reason="Manager edit",
+        base_version_id=published.id,
+        created_by_user_id=manager,
+        created_at=stamp("2026-10-18T19:05:00"),
+    )
+    v4 = draft(v4_key, 4, base, revision=1, **draft_common)
+
+    # Preview: reassign a Tuesday Grill shift to Ravi, who is unavailable on Tuesdays.
+    tuesday = WEEK + timedelta(days=1)
+    target = next(
+        sh for sh in base if sh.skill_id == SKILL["Grill"] and sh.start_at.astimezone(IST).date() == tuesday
+    )
+    reassign = sched_edits.Edit("update", target.logical_id, {"employee_id": uid("employee", "ravi")})
+    previewed = sched_edits.apply(base, [reassign], HOME)
+    preview = s.EditPreview(
+        version_id=v4.id,
+        expected_revision=1,
+        shifts=[_to_contract(sh, v4_key) for sh in previewed],
+        changes=_changes(base, previewed, v4_key, v4_key),
+        **{k: v for k, v in _evaluated(previewed).items() if k != "coverage"},
+    )
+    preview_request = {
+        "expected_revision": 1,
+        "edits": [
+            {
+                "op": "update",
+                "logical_shift_id": str(target.logical_id),
+                "employee_id": str(uid("employee", "ravi")),
+            }
+        ],
+    }
+
+    # Apply: lock Monday's opening Grill shift (valid), which moves the draft to revision 2.
+    monday_open = next(
+        sh
+        for sh in base
+        if sh.skill_id == SKILL["Grill"] and not sh.locked and sh.start_at.astimezone(IST).date() == WEEK
+    )
+    applied_roster = sched_edits.apply(base, [sched_edits.Edit("lock", monday_open.logical_id)], HOME)
+    v4_applied = draft(v4_key, 4, applied_roster, revision=2, **draft_common)
+    apply_request = {
+        "expected_revision": 1,
+        "edits": [
+            {
+                "op": "lock",
+                "logical_shift_id": str(monday_open.logical_id),
+                "reason": "Opening cook confirmed",
+            }
+        ],
+    }
+    version_path = "/v2/schedule-versions/{version_id}"
+    v4_req = {"path_params": {"version_id": str(v4.id)}}
+
+    # History: v2 (superseded), v3 (published), v4 (draft). Restore v2 as a new draft v5.
+    v2_key = f"indiranagar:{WEEK}:v2"
+    v2_roster = [_to_model(sh) for sh in to_shifts(v2_key, build_roster(WEEK, with_preferred_extras=False))]
+    v2_summary = s.ScheduleVersionSummary(
+        id=uid("version", v2_key),
+        schedule_id=published.schedule_id,
+        version_number=2,
+        status="superseded",
+        source="generate",
+        reason="Generated (lowest cost)",
+        base_version_id=None,
+        optimization_run_id=None,
+        created_by_user_id=None,
+        approved_by_user_id=manager,
+        created_at=stamp("2026-10-16T18:00:00"),
+        published_at=stamp("2026-10-16T18:10:00"),
+        revision=1,
+    )
+    v5_key = f"indiranagar:{WEEK}:v5"
+    v5 = draft(
+        v5_key,
+        5,
+        v2_roster,
+        revision=1,
+        source="restore",
+        reason="Restored from version 2",
+        base_version_id=published.id,
+        created_by_user_id=manager,
+        created_at=stamp("2026-10-18T19:20:00"),
+    )
+    published_v4 = _summary(
+        v4_applied, status="published", approved_by_user_id=manager, published_at=stamp("2026-10-18T19:12:00")
+    )
+    hard = [v for v in preview.validation.violations if v.severity == "hard"]
+
+    return [
+        Fixture(
+            "draft.create",
+            "createDraft",
+            "POST",
+            "/v2/outlets/{outlet_id}/schedules/{week_start}/drafts",
+            "manager_indiranagar",
+            201,
+            v4,
+            {
+                "path_params": {"outlet_id": ind, "week_start": WEEK.isoformat()},
+                "headers": {"Idempotency-Key": "draft-51c0e7aa"},
+                "body": {"base_version_id": str(published.id), "copy_from_version_id": None},
+            },
+        ),
+        Fixture(
+            "edits.preview",
+            "previewEdits",
+            "POST",
+            version_path + "/edits/preview",
+            "manager_indiranagar",
+            200,
+            preview,
+            {**v4_req, "body": preview_request},
+        ),
+        Fixture(
+            "edits.apply",
+            "applyEdits",
+            "POST",
+            version_path + "/edits",
+            "manager_indiranagar",
+            200,
+            v4_applied,
+            {**v4_req, "body": apply_request},
+        ),
+        Fixture(
+            "edits.apply.stale",
+            "applyEdits",
+            "POST",
+            version_path + "/edits",
+            "manager_indiranagar",
+            409,
+            error(
+                "stale_version",
+                "This draft was changed by someone else. Reload and try again.",
+                current_revision=2,
+            ),
+            {**v4_req, "body": apply_request},
+        ),
+        Fixture(
+            "edits.apply.not_draft",
+            "applyEdits",
+            "POST",
+            version_path + "/edits",
+            "manager_indiranagar",
+            409,
+            error("conflict", "Published versions cannot be edited. Create a draft first."),
+            {"path_params": {"version_id": str(published.id)}, "body": apply_request},
+        ),
+        Fixture(
+            "publish",
+            "publishVersion",
+            "POST",
+            version_path + "/publish",
+            "manager_indiranagar",
+            200,
+            s.PublishResult(
+                schedule_id=published.schedule_id, published=published_v4, superseded_version_id=published.id
+            ),
+            {
+                **v4_req,
+                "headers": {"Idempotency-Key": "pub-7f3a9b12"},
+                "body": {"expected_base_version_id": str(published.id), "expected_revision": 2},
+            },
+        ),
+        Fixture(
+            "publish.blocked",
+            "publishVersion",
+            "POST",
+            version_path + "/publish",
+            "manager_indiranagar",
+            422,
+            error(
+                "validation_failed",
+                "This draft breaks scheduling rules. Fix them before publishing.",
+                violations=[v.model_dump(mode="json") for v in hard],
+            ),
+            {
+                **v4_req,
+                "headers": {"Idempotency-Key": "pub-0d44e9c1"},
+                "body": {"expected_base_version_id": str(published.id), "expected_revision": 3},
+            },
+        ),
+        Fixture(
+            "publish.stale_base",
+            "publishVersion",
+            "POST",
+            version_path + "/publish",
+            "manager_indiranagar",
+            409,
+            error(
+                "stale_version",
+                "Someone published a newer version. Review the changes and try again.",
+                current_version_id=str(uid("version", f"indiranagar:{WEEK}:v6")),
+            ),
+            {
+                **v4_req,
+                "headers": {"Idempotency-Key": "pub-91be22f0"},
+                "body": {"expected_base_version_id": str(published.id), "expected_revision": 2},
+            },
+        ),
+        Fixture(
+            "draft.discard",
+            "discardDraft",
+            "POST",
+            version_path + "/discard",
+            "manager_indiranagar",
+            200,
+            _summary(v4_applied, status="discarded"),
+            v4_req,
+        ),
+        Fixture(
+            "versions.list",
+            "listVersions",
+            "GET",
+            "/v2/schedules/{schedule_id}/versions",
+            "manager_indiranagar",
+            200,
+            s.VersionHistory(
+                schedule_id=published.schedule_id,
+                current_version_id=published.id,
+                items=[_summary(v5), _summary(v4_applied), _summary(published), v2_summary],
+            ),
+            {"path_params": {"schedule_id": str(published.schedule_id)}},
+        ),
+        Fixture(
+            "versions.compare",
+            "compareVersions",
+            "GET",
+            version_path + "/compare",
+            "manager_indiranagar",
+            200,
+            s.VersionDiff(
+                from_version_id=published.id,
+                to_version_id=v4_applied.id,
+                changes=_changes(base, applied_roster, f"indiranagar:{WEEK}:v3", v4_key),
+                metrics_from=published.metrics,
+                metrics_to=v4_applied.metrics,
+            ),
+            {**v4_req, "query": {"with": str(published.id)}},
+        ),
+        Fixture(
+            "versions.restore",
+            "restoreVersion",
+            "POST",
+            version_path + "/restore",
+            "manager_indiranagar",
+            201,
+            v5,
+            {
+                "path_params": {"version_id": str(v2_summary.id)},
+                "headers": {"Idempotency-Key": "restore-3e8d"},
+                "body": {"expected_base_version_id": str(published.id)},
+            },
+        ),
     ]
 
 

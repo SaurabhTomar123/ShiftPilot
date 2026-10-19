@@ -112,6 +112,7 @@ def test_every_operation_rejects_missing_credentials_with_the_envelope() -> None
         "employee_id": uuid.uuid4(),
         "version_id": uuid.uuid4(),
         "run_id": uuid.uuid4(),
+        "schedule_id": uuid.uuid4(),
         "week_start": "2026-10-19",
     }
     for path, ops in OPENAPI["paths"].items():
