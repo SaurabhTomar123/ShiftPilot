@@ -1015,6 +1015,29 @@ def fixtures() -> list[Fixture]:
                 },
             ),
             Fixture(
+                "candidate.detail.lowest_cost",
+                "getOptimizationCandidate",
+                "GET",
+                "/v2/optimization-candidates/{candidate_id}",
+                "manager_indiranagar",
+                200,
+                candidate_detail(candidate(2, d2, "lowest_cost"), d2),
+                {"path_params": {"candidate_id": str(candidate(2, d2, "lowest_cost").id)}},
+            ),
+            Fixture(
+                "candidate.select.lowest_cost",
+                "selectOptimizationCandidate",
+                "POST",
+                "/v2/optimization-candidates/{candidate_id}/select",
+                "manager_indiranagar",
+                201,
+                d2,
+                {
+                    "path_params": {"candidate_id": str(candidate(2, d2, "lowest_cost").id)},
+                    "headers": {"Idempotency-Key": "select-8d0c3f47"},
+                },
+            ),
+            Fixture(
                 "schedule_version.draft",
                 "getScheduleVersion",
                 "GET",
@@ -1787,6 +1810,9 @@ def proposal_fixtures(draft: s.ScheduleVersion) -> list[Fixture]:
         approved_by_user_id=manager,
         published_at=stamp("2026-10-18T19:52:00"),
     )
+    # Publication stores the metrics measured against current facts, so the acknowledged story publishes
+    # the moved cost the manager accepted, not the cost at proposal time.
+    published_acknowledged = published.model_copy(update={"recorded_metrics": s.Metrics.model_validate(now)})
     return [
         Fixture(
             "proposal.create",
@@ -1800,6 +1826,16 @@ def proposal_fixtures(draft: s.ScheduleVersion) -> list[Fixture]:
                 "headers": {"Idempotency-Key": "propose-61c0d4a8"},
                 "body": {"draft_version_id": str(draft.id), "expected_revision": draft.revision},
             },
+        ),
+        Fixture(
+            "proposals.list.pending",
+            "listProposals",
+            "GET",
+            "/v2/proposals",
+            "manager_indiranagar",
+            200,
+            s.ProposalList(items=[proposal]),
+            {"query": {"schedule_id": str(draft.schedule_id), "status": "pending"}},
         ),
         Fixture(
             "proposal.get",
@@ -1883,7 +1919,7 @@ def proposal_fixtures(draft: s.ScheduleVersion) -> list[Fixture]:
                 outcome="published",
                 message="Published.",
                 proposal=decided("approved"),
-                published=published,
+                published=published_acknowledged,
                 superseded_version_id=None,
             ),
             approve("approve-7c5d0b96", acknowledge=True),

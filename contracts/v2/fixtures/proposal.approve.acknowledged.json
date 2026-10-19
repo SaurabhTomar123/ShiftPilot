@@ -71,7 +71,7 @@
           "minimum_deficit_minutes": 0,
           "preferred_deficit_minutes": 6570,
           "labour_cost": {
-            "amount_paise": 7470000,
+            "amount_paise": 7843500,
             "currency": "INR"
           },
           "overtime_cost": {

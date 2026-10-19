@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.2.0-p4",
+  "contract_version": "3.3.0-p4",
   "fixtures": [
     {
       "name": "draft.create",
@@ -126,6 +126,12 @@
       "operation_id": "createProposal",
       "status": 201,
       "schema": "Proposal"
+    },
+    {
+      "name": "proposals.list.pending",
+      "operation_id": "listProposals",
+      "status": 200,
+      "schema": "ProposalList"
     },
     {
       "name": "proposal.get",
@@ -411,6 +417,18 @@
     },
     {
       "name": "candidate.select",
+      "operation_id": "selectOptimizationCandidate",
+      "status": 201,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "candidate.detail.lowest_cost",
+      "operation_id": "getOptimizationCandidate",
+      "status": 200,
+      "schema": "CandidateDetail"
+    },
+    {
+      "name": "candidate.select.lowest_cost",
       "operation_id": "selectOptimizationCandidate",
       "status": 201,
       "schema": "ScheduleVersion"

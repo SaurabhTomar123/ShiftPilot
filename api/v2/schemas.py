@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.2.0-p4"
+CONTRACT_VERSION = "3.3.0-p4"
 
 
 class Model(BaseModel):
@@ -561,6 +561,10 @@ class Proposal(Model):
     created_at: AwareDatetime
     decided_at: AwareDatetime | None
     expires_at: AwareDatetime
+
+
+class ProposalList(Model):
+    items: list[Proposal] = Field(description="Newest first, at most 100.")
 
 
 class ApproveProposalRequest(Model):

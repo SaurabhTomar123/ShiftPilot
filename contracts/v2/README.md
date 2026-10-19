@@ -23,6 +23,15 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.3.0-p4 (live): answers to the 3.1 consumer review
+
+This change is additive.
+
+- **`listProposals` `GET /v2/proposals?schedule_id=…&status=pending`:** a week's proposals, newest first, at most 100. Repeat `status` to filter by several statuses. Use it to find the pending proposal again after a reload. Fixture: `proposals.list.pending`.
+- **Expiry is visible:** a pending proposal past `expires_at` now reads as `expired` in `getProposal` and `listProposals`, not only when someone tries to approve it.
+- **Second candidate's fixtures:** `candidate.detail.lowest_cost` and `candidate.select.lowest_cost` cover candidate 2 of `run.succeeded`.
+- **Fixture story fixed:** `proposal.approve.acknowledged` now publishes `recorded_metrics` with the moved cost the manager accepted, which matches `proposal.approve.changed`. Publication stores the metrics measured at publication.
+
 ## What changed in 3.2.0-p4 (live): repair widening
 
 This change is additive (architecture v3 §12).

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.2.0-p4"
+    "version": "3.3.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -2345,6 +2345,121 @@
               }
             },
             "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      },
+      "get": {
+        "summary": "List Proposals",
+        "description": "Find a week's proposals, e.g. the pending one after a reload. Newest first.",
+        "operationId": "listProposals",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The week (schedule) whose proposals to list.",
+              "title": "Schedule Id"
+            },
+            "description": "The week (schedule) whose proposals to list."
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "pending",
+                      "approved",
+                      "rejected",
+                      "expired",
+                      "stale",
+                      "failed"
+                    ],
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeat to filter, e.g. status=pending. A pending proposal past expiry is expired.",
+              "title": "Status"
+            },
+            "description": "Repeat to filter, e.g. status=pending. A pending proposal past expiry is expired."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalList"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
           },
           "422": {
             "content": {
@@ -5943,6 +6058,24 @@
         ],
         "title": "ProposalDecision",
         "description": "The publication transaction's answer (architecture v3 section 31). Always 200: each outcome is a\nnormal business result, not an error."
+      },
+      "ProposalList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Proposal"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Newest first, at most 100."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "ProposalList"
       },
       "PublishRequest": {
         "properties": {
