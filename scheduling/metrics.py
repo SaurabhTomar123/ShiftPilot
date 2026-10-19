@@ -114,3 +114,18 @@ def _inside_preferred(snap: Snapshot, sh: Shift) -> bool:
         w.kind == "preferred" and w.weekday == local.weekday() and w.start_minute <= s and e <= w.end_minute
         for w in emp.windows
     )
+
+
+def as_contract(m: Metrics) -> dict[str, object]:
+    """The contract's Metrics shape (api.v2.schemas.Metrics), so workers need no API imports."""
+    return {
+        "coverage_ratio": m.coverage_ratio,
+        "minimum_deficit_minutes": m.minimum_deficit_minutes,
+        "preferred_deficit_minutes": m.preferred_deficit_minutes,
+        "labour_cost": {"amount_paise": m.labour_cost_paise, "currency": "INR"},
+        "overtime_cost": {"amount_paise": m.overtime_cost_paise, "currency": "INR"},
+        "overtime_minutes": m.overtime_minutes,
+        "preference_match_ratio": m.preference_match_ratio,
+        "open_shifts": m.open_shifts,
+        "assigned_minutes": m.assigned_minutes,
+    }

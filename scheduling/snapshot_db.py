@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import uuid
 from collections.abc import Iterable
+from dataclasses import replace
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
@@ -183,3 +184,8 @@ def load(
         commitments=commitments,
         templates=templates,
     )
+
+
+def with_base_locks(snap: Snapshot, locked: list[Shift]) -> Snapshot:
+    """The same snapshot with the base version's locked shifts fixed for the solver and validator."""
+    return replace(snap, base_locked={sh.logical_id: sh for sh in locked})

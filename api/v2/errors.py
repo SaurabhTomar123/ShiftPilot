@@ -27,9 +27,18 @@ STATUS: dict[str, int] = {
 
 
 class ApiError(Exception):
-    def __init__(self, code: s.ErrorCode, message: str, *, retryable: bool = False, **details: Any) -> None:
+    def __init__(
+        self,
+        code: s.ErrorCode,
+        message: str,
+        *,
+        retryable: bool = False,
+        headers: dict[str, str] | None = None,
+        **details: Any,
+    ) -> None:
         super().__init__(message)
         self.code, self.message, self.retryable, self.details = code, message, retryable, details
+        self.headers = headers or {}
 
     @property
     def status(self) -> int:
@@ -53,7 +62,7 @@ def not_found(what: str) -> ApiError:
 def install(app: FastAPI) -> None:
     async def on_api_error(_request: Request, exc: Exception) -> JSONResponse:
         assert isinstance(exc, ApiError)
-        return response(exc)
+        return response(exc, exc.headers or None)
 
     async def on_permission(_request: Request, exc: Exception) -> JSONResponse:
         return response(ApiError("permission_denied", str(exc) or "You do not have access to this."))

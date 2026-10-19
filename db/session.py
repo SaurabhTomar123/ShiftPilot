@@ -35,8 +35,12 @@ def admin_session() -> Iterator[Session]:
 
 
 @contextmanager
-def tenant_session(caller: Caller) -> Iterator[Session]:
+def tenant_session(caller: Caller, isolation: str | None = None) -> Iterator[Session]:
+    """`isolation` (e.g. "REPEATABLE READ") applies to this transaction only; it must be chosen before
+    the first statement, which is why it is a parameter here."""
     with sessionmaker(app_engine())() as s, s.begin():
+        if isolation:
+            s.connection(execution_options={"isolation_level": isolation})
         s.execute(text("select set_config('app.org_id', :org, true)"), {"org": caller.org_id})
         s.execute(text("select set_config('app.user_id', :uid, true)"), {"uid": caller.user_id})
         s.execute(text("select set_config('app.role', :role, true)"), {"role": str(caller.role)})

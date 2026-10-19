@@ -74,13 +74,15 @@ Fixture files may now include `response.headers`, and `response.schema`/`respons
 
 ## Status
 
-**Live (B1.2):** `createDemoSession`, `getMe`, `listOutlets`, `listSkills`, `listEmployees`, `getEmployee`, `createEmployee`, `updateEmployee`, `getAvailability`, `putAvailability`, `getStaffingRequirements`, `putStaffingRequirements`, `getScheduleWeek`, `getScheduleVersion` and `getMyWeek`.
+**Every declared operation is live.** Nothing returns `501` any more.
 
-- **Schedule reads:** `validation` and `metrics` come from the independent validator, evaluated against current live facts. A roster published before a confirmed absence therefore shows that absence as a hard violation, and the read never hides it.
-- **Caching:** `ETag`, `If-None-Match`/304 and `Cache-Control` work as described in 2.2. Authorization always runs before a 304.
-- **Coverage cells:** only intervals with demand are listed.
-
-**Still `501 not_implemented`:** `generateSchedule` and `getOptimizationRun` (B2.2 solver, B2.3 worker).
+- **Data and schedule reads (B1.2):** `validation` and `metrics` come from the independent validator, evaluated against current live facts. A roster published before a confirmed absence shows that absence as a hard violation. `ETag`, `If-None-Match`/304 and `Cache-Control` work as described in 2.2, and authorization always runs first. Coverage cells list only intervals with demand.
+- **Generation (B2.2/B2.3):**
+  - `generateSchedule` queues a run; a worker process solves it.
+  - `run_in_progress` (409, with `details.run_id`), `stale_version`, `idempotency_conflict` and `rate_limited` (429 with `Retry-After`) all behave as specified.
+  - Each candidate is a draft version, checked by the independent validator, and never published automatically.
+  - An impossible week returns `INFEASIBLE` with `infeasibility.shortages` and a plain summary.
+  - Runs are queued on the batch lane, with `poll_after_ms` of 500.
 
 Where the seed and a fixture describe the same data, the live response equals the fixture body; integration tests enforce this. The seed has 20 employees per outlet, while the fixtures have 13, so lists can be longer. Instants come back in the outlet's own offset (`+05:30`).
 
@@ -90,6 +92,7 @@ Run the provider locally (Postgres on the URL in `DATABASE_URL` / `APP_DATABASE_
 python -m db.init          # migrate to head
 python -m seed.v2          # demo tenants (Spice Route Kitchens, Northwind Diner)
 DEMO_SESSIONS_ENABLED=true python -m uvicorn api.v2.app:app --port 8000
+python -m scheduling.worker  # in a second terminal: solves queued generation runs
 ```
 
 CORS allows `localhost` and `127.0.0.1` on ports 3000 and 3001. Request missing fields or flows through a handoff note; a contract change bumps `contract_version`.

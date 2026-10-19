@@ -329,3 +329,22 @@ def validate(snap: Snapshot, roster: Iterable[Shift]) -> Result:
     found.extend(_locks(snap, shifts))
     found.extend(_coverage(snap, shifts))
     return Result(tuple(found))
+
+
+def as_contract(result: Result) -> dict[str, Any]:
+    """The contract's ValidationResult shape (api.v2.schemas.ValidationResult)."""
+    return {
+        "hard_violations": result.hard,
+        "soft_violations": result.soft,
+        "violations": [
+            {
+                "code": v.code,
+                "severity": v.severity,
+                "message": v.message,
+                "employee_id": str(v.employee_id) if v.employee_id else None,
+                "logical_shift_ids": [str(i) for i in v.logical_shift_ids],
+                "facts": v.facts,
+            }
+            for v in result.violations
+        ],
+    }

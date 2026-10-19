@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from api.v2 import auth as v2auth
-from api.v2 import rosters, service
+from api.v2 import generation, rosters, service
 from api.v2 import schemas as s
 
 bearer = HTTPBearer(auto_error=False)
@@ -278,11 +278,15 @@ def get_schedule_version(
     },
 )
 def generate_schedule(
-    auth: Auth, outlet_id: UUID, week_start: date, idempotency_key: IdempotencyKey, body: s.GenerateRequest
+    caller: v2auth.CallerDep,
+    outlet_id: UUID,
+    week_start: date,
+    idempotency_key: IdempotencyKey,
+    body: s.GenerateRequest,
 ) -> s.OptimizationRun:
     """Queues a run and returns it (job_state queued). Poll getOptimizationRun. 409 stale_version
     when base_version_id is no longer the published version."""
-    _stub()
+    return generation.enqueue(caller, outlet_id, week_start, idempotency_key, body)
 
 
 @router.get(
@@ -291,5 +295,5 @@ def generate_schedule(
     response_model=s.OptimizationRun,
     responses=_errors(403, 404, 422),
 )
-def get_optimization_run(auth: Auth, run_id: UUID) -> s.OptimizationRun:
-    _stub()
+def get_optimization_run(caller: v2auth.CallerDep, run_id: UUID) -> s.OptimizationRun:
+    return generation.get_run(caller, run_id)
