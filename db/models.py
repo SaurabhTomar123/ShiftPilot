@@ -105,6 +105,7 @@ class Employee(Base):
     overtime_allowed: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     cross_outlet_eligible: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
     revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    availability_revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
 
 
 class RateHistory(Base):

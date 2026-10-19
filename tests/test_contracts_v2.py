@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -104,9 +105,13 @@ def test_published_fixture_has_no_hard_violations_and_honest_coverage() -> None:
 def test_stub_routes_answer_with_the_error_envelope() -> None:
     app = FastAPI()
     install(app)
-    response = TestClient(app).get("/v2/me")
-    assert response.status_code == 501
-    assert schemas.ErrorResponse.model_validate(response.json()).error.code == "not_implemented"
+    client = TestClient(app)
+    stub = client.get(f"/v2/optimization-runs/{uuid.uuid4()}")  # not implemented until B2.3
+    assert stub.status_code == 501
+    assert schemas.ErrorResponse.model_validate(stub.json()).error.code == "not_implemented"
+    real = client.get("/v2/me")  # implemented: auth runs before any database access
+    assert real.status_code == 401
+    assert schemas.ErrorResponse.model_validate(real.json()).error.code == "unauthenticated"
 
 
 def run_body(**changes: Any) -> dict[str, Any]:

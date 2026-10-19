@@ -74,4 +74,24 @@ Fixture files may now include `response.headers`, and `response.schema`/`respons
 
 ## Status
 
-All routes are declared but return `501 not_implemented` until B1.2 and B2.3 land. Build against the fixtures until then. Request missing fields or flows through a handoff note; a contract change bumps `contract_version`.
+**Live (B1.2 part 1):** `createDemoSession`, `getMe`, `listOutlets`, `listSkills`, `listEmployees`, `getEmployee`, `createEmployee`, `updateEmployee`, `getAvailability`, `putAvailability`, `getStaffingRequirements` and `putStaffingRequirements`.
+
+**Still `501 not_implemented`:**
+
+| Endpoint | Waits for |
+|---|---|
+| `getScheduleWeek`, `getScheduleVersion` | B1.2 part 2, after the B2.1 validator, so `validation` is truthful |
+| `getMyWeek` | B1.2 part 2 |
+| `generateSchedule`, `getOptimizationRun` | B2.3 |
+
+Where the seed and a fixture describe the same data, the live response equals the fixture body; integration tests enforce this. The seed has 20 employees per outlet, while the fixtures have 13, so lists can be longer. Instants come back in the outlet's own offset (`+05:30`).
+
+Run the provider locally (Postgres on the URL in `DATABASE_URL` / `APP_DATABASE_URL`):
+
+```sh
+python -m db.init          # migrate to head
+python -m seed.v2          # demo tenants (Spice Route Kitchens, Northwind Diner)
+DEMO_SESSIONS_ENABLED=true python -m uvicorn api.v2.app:app --port 8000
+```
+
+CORS allows `localhost` and `127.0.0.1` on ports 3000 and 3001. Request missing fields or flows through a handoff note; a contract change bumps `contract_version`.

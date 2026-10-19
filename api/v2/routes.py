@@ -15,7 +15,9 @@ from fastapi import APIRouter, Depends, FastAPI, Header, Query, status
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from api.v2 import auth as v2auth
 from api.v2 import schemas as s
+from api.v2 import service
 
 bearer = HTTPBearer(auto_error=False)
 Auth = Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)]
@@ -79,8 +81,11 @@ router = APIRouter(prefix="/v2")
 
 
 def install(app: FastAPI) -> None:
+    from api.v2 import errors
+
     app.include_router(router)
     app.add_exception_handler(NotImplementedYet, lambda _req, _exc: not_implemented_response())
+    errors.install(app)
 
 
 @router.post(
@@ -93,12 +98,12 @@ def install(app: FastAPI) -> None:
 def create_demo_session(body: s.DemoSessionRequest) -> s.DemoSession:
     """Public synthetic demo only: issues a short-lived token for an isolated demo org (B6.2).
     403 permission_denied when the deployment is private."""
-    _stub()
+    return v2auth.demo_session(body.persona)
 
 
 @router.get("/me", operation_id="getMe", response_model=s.Me, responses=_errors())
-def get_me(auth: Auth) -> s.Me:
-    _stub()
+def get_me(caller: v2auth.CallerDep) -> s.Me:
+    return v2auth.me(caller)
 
 
 @router.get("/me/shifts", operation_id="getMyWeek", response_model=s.MyWeek, responses=_errors(403, 422))
@@ -108,21 +113,21 @@ def get_my_week(auth: Auth, week_start: WeekStart) -> s.MyWeek:
 
 
 @router.get("/outlets", operation_id="listOutlets", response_model=s.OutletList, responses=_errors())
-def list_outlets(auth: Auth) -> s.OutletList:
+def list_outlets(caller: v2auth.CallerDep) -> s.OutletList:
     """Owners see every outlet; managers and staff see their own."""
-    _stub()
+    return service.list_outlets(caller)
 
 
 @router.get("/skills", operation_id="listSkills", response_model=s.SkillList, responses=_errors())
-def list_skills(auth: Auth) -> s.SkillList:
-    _stub()
+def list_skills(caller: v2auth.CallerDep) -> s.SkillList:
+    return service.list_skills(caller)
 
 
 @router.get(
     "/employees", operation_id="listEmployees", response_model=s.EmployeeList, responses=_errors(403, 422)
 )
 def list_employees(
-    auth: Auth,
+    caller: v2auth.CallerDep,
     outlet_id: Annotated[
         UUID | None, Query(description="Home outlet filter; required for managers' own outlet only.")
     ] = None,
@@ -130,7 +135,7 @@ def list_employees(
     cursor: str | None = None,
     limit: Annotated[int, Query(ge=1, le=200)] = 100,
 ) -> s.EmployeeList:
-    _stub()
+    return service.list_employees(caller, outlet_id, status_filter, cursor, limit)
 
 
 @router.post(
@@ -140,8 +145,10 @@ def list_employees(
     status_code=status.HTTP_201_CREATED,
     responses=_errors(403, 409, 422),
 )
-def create_employee(auth: Auth, idempotency_key: IdempotencyKey, body: s.EmployeeCreate) -> s.Employee:
-    _stub()
+def create_employee(
+    caller: v2auth.CallerDep, idempotency_key: IdempotencyKey, body: s.EmployeeCreate
+) -> s.Employee:
+    return service.create_employee(caller, idempotency_key, body)
 
 
 @router.get(
@@ -150,8 +157,8 @@ def create_employee(auth: Auth, idempotency_key: IdempotencyKey, body: s.Employe
     response_model=s.Employee,
     responses=_errors(403, 404, 422),
 )
-def get_employee(auth: Auth, employee_id: UUID) -> s.Employee:
-    _stub()
+def get_employee(caller: v2auth.CallerDep, employee_id: UUID) -> s.Employee:
+    return service.get_employee(caller, employee_id)
 
 
 @router.patch(
@@ -160,9 +167,9 @@ def get_employee(auth: Auth, employee_id: UUID) -> s.Employee:
     response_model=s.Employee,
     responses=_errors(403, 404, 409, 422),
 )
-def update_employee(auth: Auth, employee_id: UUID, body: s.EmployeeUpdate) -> s.Employee:
+def update_employee(caller: v2auth.CallerDep, employee_id: UUID, body: s.EmployeeUpdate) -> s.Employee:
     """409 stale_version when base_revision is not current; details.current_revision is set."""
-    _stub()
+    return service.update_employee(caller, employee_id, body)
 
 
 @router.get(
@@ -171,8 +178,8 @@ def update_employee(auth: Auth, employee_id: UUID, body: s.EmployeeUpdate) -> s.
     response_model=s.Availability,
     responses=_errors(403, 404, 422),
 )
-def get_availability(auth: Auth, employee_id: UUID) -> s.Availability:
-    _stub()
+def get_availability(caller: v2auth.CallerDep, employee_id: UUID) -> s.Availability:
+    return service.get_availability(caller, employee_id)
 
 
 @router.put(
@@ -181,8 +188,10 @@ def get_availability(auth: Auth, employee_id: UUID) -> s.Availability:
     response_model=s.Availability,
     responses=_errors(403, 404, 409, 422),
 )
-def put_availability(auth: Auth, employee_id: UUID, body: s.AvailabilityUpdate) -> s.Availability:
-    _stub()
+def put_availability(
+    caller: v2auth.CallerDep, employee_id: UUID, body: s.AvailabilityUpdate
+) -> s.Availability:
+    return service.put_availability(caller, employee_id, body)
 
 
 @router.get(
@@ -191,8 +200,10 @@ def put_availability(auth: Auth, employee_id: UUID, body: s.AvailabilityUpdate) 
     response_model=s.StaffingRequirements,
     responses=_errors(403, 404, 422),
 )
-def get_staffing_requirements(auth: Auth, outlet_id: UUID, week_start: WeekStart) -> s.StaffingRequirements:
-    _stub()
+def get_staffing_requirements(
+    caller: v2auth.CallerDep, outlet_id: UUID, week_start: WeekStart
+) -> s.StaffingRequirements:
+    return service.get_staffing(caller, outlet_id, week_start)
 
 
 @router.put(
@@ -202,9 +213,9 @@ def get_staffing_requirements(auth: Auth, outlet_id: UUID, week_start: WeekStart
     responses=_errors(403, 404, 409, 422),
 )
 def put_staffing_requirements(
-    auth: Auth, outlet_id: UUID, week_start: WeekStart, body: s.StaffingRequirementsUpdate
+    caller: v2auth.CallerDep, outlet_id: UUID, week_start: WeekStart, body: s.StaffingRequirementsUpdate
 ) -> s.StaffingRequirements:
-    _stub()
+    return service.put_staffing(caller, outlet_id, week_start, body)
 
 
 @router.get(

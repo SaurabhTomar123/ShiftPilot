@@ -604,6 +604,22 @@ class NotificationDelivery(Base):
     delivered_at: Mapped[datetime] = created_at()
 
 
+class IdempotencyKey(Base):
+    """Stored result of a mutating request, replayed when the same key is sent again. A different
+    request body under the same key is a 409 idempotency_conflict."""
+
+    __tablename__ = "idempotency_keys"
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("organizations.id"), primary_key=True
+    )
+    key: Mapped[str] = mapped_column(String(80), primary_key=True)
+    operation: Mapped[str] = mapped_column(String(80))
+    request_hash: Mapped[str] = mapped_column(String(80))
+    status_code: Mapped[int] = mapped_column(SmallInteger)
+    response: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = created_at()
+
+
 V2_TENANT_TABLES = [
     "skills",
     "employee_skills",
@@ -627,4 +643,5 @@ V2_TENANT_TABLES = [
     "schedule_run_slots",
     "outbox_events",
     "notification_deliveries",
+    "idempotency_keys",
 ]
