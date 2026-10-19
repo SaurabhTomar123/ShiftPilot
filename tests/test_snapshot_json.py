@@ -11,7 +11,7 @@ import pytest
 from scheduling import snapshot_json
 from scheduling.model import Absence, Shift
 from seed import world
-from tests.world_snapshot import build
+from seed.world_snapshot import build
 
 
 def rich_snapshot():  # type: ignore[no-untyped-def]

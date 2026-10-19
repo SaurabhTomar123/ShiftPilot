@@ -32,7 +32,7 @@ from scheduling import snapshot_db, snapshot_json
 ACTIVE = ("queued", "running")
 ORG_ACTIVE_CAP = 5
 RETRY_AFTER_SECONDS = 3
-SOLVER_WORKERS = 4
+SOLVER_WORKERS = 8  # 4 workers lack the bound-improving strategies; see docs/runbooks/solver-benchmark.md
 
 
 def _request_hash(outlet_id: uuid.UUID, week_start: date, body: s.GenerateRequest) -> str:

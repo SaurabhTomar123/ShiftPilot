@@ -11,7 +11,7 @@ import pytest
 from scheduling import metrics, solver, validator
 from scheduling.model import Requirement, Shift
 from seed import world
-from tests.world_snapshot import build, greedy_roster
+from seed.world_snapshot import build, greedy_roster
 
 FRIDAY = world.NEXT_WEEK + timedelta(days=4)
 GRILL = world.SKILL["Grill"]
@@ -126,3 +126,17 @@ def test_no_demand_means_no_shifts() -> None:
 
 def test_requirement_type_is_unchanged() -> None:  # guards the helper's assumptions
     assert all(isinstance(r, Requirement) for r in build().requirements)
+
+
+def test_matched_coverage_is_never_more_expensive_than_the_baseline() -> None:
+    """B2.4 regression guard: at the baseline's coverage the optimizer must not cost more."""
+    snap = build()
+    baseline = metrics.compute(snap, greedy_roster())
+    _, matched, _ = solver.solve(
+        snap, "lowest_cost", time_limit=6.0, max_shortfall_staff_minutes=baseline.preferred_deficit_minutes
+    )
+    assert matched is not None
+    result = metrics.compute(snap, matched.roster)
+    assert validator.validate(snap, matched.roster).valid
+    assert result.preferred_deficit_minutes <= baseline.preferred_deficit_minutes
+    assert result.labour_cost_paise <= baseline.labour_cost_paise

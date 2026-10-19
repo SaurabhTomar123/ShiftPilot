@@ -9,8 +9,13 @@ from seed import world
 
 
 def build(
-    outlet_key: str = "indiranagar", week: date = world.NEXT_WEEK, *, extras: bool = True, **overrides: object
+    outlet_key: str = "indiranagar",
+    week: date = world.NEXT_WEEK,
+    *,
+    with_bench: bool = False,
+    **overrides: object,
 ) -> Snapshot:
+    """with_bench adds the seed's 7 bench staff per outlet (20 employees, as in the database seed)."""
     outlet_id = world.uid("outlet", outlet_key)
     employees = {
         world.uid("employee", e.key): Employee(
@@ -25,7 +30,7 @@ def build(
             overtime_allowed=False,
             windows=tuple(Window(*w) for w in world.availability_windows(e)),
         )
-        for e in world.STAFF[outlet_key]
+        for e in staff_for(outlet_key, with_bench)
     }
     requirements = []
     for d in range(7):
@@ -67,7 +72,15 @@ def build(
         tuple(requirements),
         templates=templates,
     )
-    return Snapshot(**{**snap.__dict__, **overrides})  # type: ignore[arg-type]
+    return Snapshot(**{**snap.__dict__, **overrides})
+
+
+def staff_for(outlet_key: str, with_bench: bool) -> list[world.Emp]:
+    if not with_bench:
+        return list(world.STAFF[outlet_key])
+    from seed.v2 import bench  # local import: seed.v2 pulls in the database layer
+
+    return [*world.STAFF[outlet_key], *bench(outlet_key)]
 
 
 def greedy_roster(outlet_key: str = "indiranagar", week: date = world.NEXT_WEEK) -> list[Shift]:

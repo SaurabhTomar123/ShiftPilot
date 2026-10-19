@@ -265,8 +265,16 @@ def describe(snap: Snapshot, s: Shortage) -> str:
 
 
 def solve(
-    snap: Snapshot, strategy: str, *, time_limit: float, seed: int = 7, workers: int = 4
+    snap: Snapshot,
+    strategy: str,
+    *,
+    time_limit: float,
+    seed: int = 7,
+    workers: int = 8,
+    max_shortfall_staff_minutes: int | None = None,
 ) -> tuple[str, Candidate | None, dict[str, Any]]:
+    """max_shortfall_staff_minutes caps preferred shortfall (equal shortfall = equal coverage), which
+    gives matched-coverage comparisons: the cheapest roster covering at least as well as a reference."""
     weights = STRATEGIES[strategy]
     cands = slots(snap)
     model = cp_model.CpModel()
@@ -345,6 +353,8 @@ def solve(
             short_terms.append(short * minutes)
 
     cost, ot, shortfall, off_pref = sum(cost_terms), sum(ot_terms), sum(short_terms), sum(pref_terms)
+    if max_shortfall_staff_minutes is not None:
+        model.add(shortfall <= max_shortfall_staff_minutes)
     model.minimize(
         weights.cost * cost
         + weights.overtime * ot
@@ -410,7 +420,7 @@ def generate(
     *,
     time_limit: float = 10.0,
     seed: int = 7,
-    workers: int = 4,
+    workers: int = 8,
     max_candidates: int = 3,
 ) -> Outcome:
     """Requested strategy first, then other profiles; deduplicated; each independently validated."""
