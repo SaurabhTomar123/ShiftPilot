@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Next.js and TypeScript frontend; FastAPI, PostgreSQL and CP-SAT backend as specified in `docs/Newupdate.doc`. Codex owns the whole UI; Claude owns backend/database implementation.
+Next.js and TypeScript frontend; FastAPI, PostgreSQL and CP-SAT backend under the governing `ShiftPilot System Architecture v3.docx` (local source in the main checkout). Codex owns the whole UI; Claude owns backend/database implementation.
 
 ## Users
 
@@ -24,7 +24,7 @@ Schedule-first interaction. No core action requires a prompt. Authoritative vali
 
 ## Evidence on Hand
 
-Existing Python backend foundations and the v2 plan; no working v2 scheduling API or benchmark evidence has been established. First UI iteration uses isolated demo state.
+Provider contract 2.3 data APIs and seed are delivered; the UI has a fixture preview and isolated compatibility smoke checks. Architecture v3 supersedes older behavior where it differs; revised candidates, proposals, staffing templates and other v3 contracts require consumer review before integration. The fixture preview remains explicit.
 
 ## Product Principles
 

@@ -180,3 +180,43 @@ describe('contract 2.2 admission and private caching', () => {
     expect((await stale).name).toBe('AbortError');
   });
 });
+
+describe('management forms transport and synthetic isolation', () => {
+  it('creates once per key, saves changed fields, and rejects stale employee revisions', async () => {
+    const { client } = setup(); const me = await client.signIn('manager');
+    const original = (await client.employees(me.outlet_id!)).items[0];
+    const input = { ...original, name: 'Ananya Rao' };
+    const created = await client.createEmployee(input, 'create-once');
+    expect(await client.createEmployee(input, 'create-once')).toEqual(created);
+    const updated = await client.updateEmployee(created.id, { base_revision: created.revision, preferred_weekly_minutes: null, name: 'Ananya Nair' });
+    expect(updated.revision).toBe(created.revision + 1);
+    await expect(client.updateEmployee(created.id, { base_revision: created.revision, name: 'Old tab' })).rejects.toMatchObject({ status: 409 });
+    expect((await client.employee(created.id)).name).toBe('Ananya Nair');
+  });
+  it('never shares synthetic edits with another session or sends preview session IDs to a real API', async () => {
+    const { client } = setup(); const me = await client.signIn('manager');
+    const employee = (await client.employees(me.outlet_id!)).items[0];
+    await client.updateEmployee(employee.id, { base_revision: employee.revision, name: 'Preview only' });
+    const other = setup().client; await other.signIn('manager');
+    expect((await other.employee(employee.id)).name).toBe(employee.name);
+    await client.signIn('manager');
+    expect((await client.employee(employee.id)).name).toBe(employee.name);
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(Response.json(fixture('me.manager')));
+    await new SchedulingClient({ baseUrl: 'https://api.example.test', fetcher }).me();
+    expect(new Headers(fetcher.mock.calls[0][1]?.headers).has('X-ShiftPilot-Preview-Session')).toBe(false);
+  });
+  it('preserves overnight recurring windows and versions the full staffing week', async () => {
+    const { client } = setup(); const me = await client.signIn('manager');
+    const employee = (await client.employees(me.outlet_id!)).items[0];
+    const availability = await client.availability(employee.id);
+    const windows = [{ weekday: 6, start_minute: 1320, end_minute: 1560, kind: 'available' as const }];
+    const saved = await client.saveAvailability(employee.id, { base_revision: availability.revision, windows });
+    expect(saved.windows).toEqual(windows);
+    expect(saved.revision).toBe(availability.revision + 1);
+    const staffing = await client.staffing(me.outlet_id!, '2026-10-19');
+    const intervals = staffing.intervals.map((value, i) => i ? value : { ...value, preferred_required: value.preferred_required + 1 });
+    const demand = await client.saveStaffing(me.outlet_id!, staffing.week_start, { base_demand_revision: staffing.demand_revision, intervals });
+    expect(demand.intervals).toEqual(intervals);
+    expect(demand.demand_revision).toBe(staffing.demand_revision + 1);
+  });
+});

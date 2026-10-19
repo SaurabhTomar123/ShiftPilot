@@ -1,22 +1,22 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-18T18:09:10.623908+00:00",
+  "generatedAt": "2026-10-19T14:07:09.126143+00:00",
   "title": "Design System: ShiftPilot",
   "extensions": {
     "colorMeta": {
       "canvas": {
         "role": "neutral",
         "displayName": "Canvas",
-        "canonical": "#f4f7f8",
+        "canonical": "#f2f3f4",
         "tonalRamp": [
-          "color-mix(in oklab, #f4f7f8 100%, white)",
-          "color-mix(in oklab, #f4f7f8 90%, white)",
-          "color-mix(in oklab, #f4f7f8 80%, white)",
-          "color-mix(in oklab, #f4f7f8 70%, white)",
-          "color-mix(in oklab, #f4f7f8 60%, white)",
-          "color-mix(in oklab, #f4f7f8 50%, white)",
-          "color-mix(in oklab, #f4f7f8 40%, white)",
-          "color-mix(in oklab, #f4f7f8 20%, white)"
+          "color-mix(in oklab, #f2f3f4 100%, white)",
+          "color-mix(in oklab, #f2f3f4 90%, white)",
+          "color-mix(in oklab, #f2f3f4 80%, white)",
+          "color-mix(in oklab, #f2f3f4 70%, white)",
+          "color-mix(in oklab, #f2f3f4 60%, white)",
+          "color-mix(in oklab, #f2f3f4 50%, white)",
+          "color-mix(in oklab, #f2f3f4 40%, white)",
+          "color-mix(in oklab, #f2f3f4 20%, white)"
         ]
       },
       "surface": {
@@ -35,108 +35,108 @@
         ]
       },
       "sidebar": {
-        "role": "primary",
+        "role": "neutral",
         "displayName": "Sidebar",
-        "canonical": "#133e3a",
+        "canonical": "#e7eaef",
         "tonalRamp": [
-          "color-mix(in oklab, #133e3a 100%, white)",
-          "color-mix(in oklab, #133e3a 90%, white)",
-          "color-mix(in oklab, #133e3a 80%, white)",
-          "color-mix(in oklab, #133e3a 70%, white)",
-          "color-mix(in oklab, #133e3a 60%, white)",
-          "color-mix(in oklab, #133e3a 50%, white)",
-          "color-mix(in oklab, #133e3a 40%, white)",
-          "color-mix(in oklab, #133e3a 20%, white)"
+          "color-mix(in oklab, #e7eaef 100%, white)",
+          "color-mix(in oklab, #e7eaef 90%, white)",
+          "color-mix(in oklab, #e7eaef 80%, white)",
+          "color-mix(in oklab, #e7eaef 70%, white)",
+          "color-mix(in oklab, #e7eaef 60%, white)",
+          "color-mix(in oklab, #e7eaef 50%, white)",
+          "color-mix(in oklab, #e7eaef 40%, white)",
+          "color-mix(in oklab, #e7eaef 20%, white)"
         ]
       },
       "ink": {
         "role": "neutral",
         "displayName": "Ink",
-        "canonical": "#1e3336",
+        "canonical": "#26303b",
         "tonalRamp": [
-          "color-mix(in oklab, #1e3336 100%, white)",
-          "color-mix(in oklab, #1e3336 90%, white)",
-          "color-mix(in oklab, #1e3336 80%, white)",
-          "color-mix(in oklab, #1e3336 70%, white)",
-          "color-mix(in oklab, #1e3336 60%, white)",
-          "color-mix(in oklab, #1e3336 50%, white)",
-          "color-mix(in oklab, #1e3336 40%, white)",
-          "color-mix(in oklab, #1e3336 20%, white)"
+          "color-mix(in oklab, #26303b 100%, white)",
+          "color-mix(in oklab, #26303b 90%, white)",
+          "color-mix(in oklab, #26303b 80%, white)",
+          "color-mix(in oklab, #26303b 70%, white)",
+          "color-mix(in oklab, #26303b 60%, white)",
+          "color-mix(in oklab, #26303b 50%, white)",
+          "color-mix(in oklab, #26303b 40%, white)",
+          "color-mix(in oklab, #26303b 20%, white)"
         ]
       },
       "muted": {
         "role": "neutral",
         "displayName": "Muted",
-        "canonical": "#566d72",
+        "canonical": "#56606d",
         "tonalRamp": [
-          "color-mix(in oklab, #566d72 100%, white)",
-          "color-mix(in oklab, #566d72 90%, white)",
-          "color-mix(in oklab, #566d72 80%, white)",
-          "color-mix(in oklab, #566d72 70%, white)",
-          "color-mix(in oklab, #566d72 60%, white)",
-          "color-mix(in oklab, #566d72 50%, white)",
-          "color-mix(in oklab, #566d72 40%, white)",
-          "color-mix(in oklab, #566d72 20%, white)"
+          "color-mix(in oklab, #56606d 100%, white)",
+          "color-mix(in oklab, #56606d 90%, white)",
+          "color-mix(in oklab, #56606d 80%, white)",
+          "color-mix(in oklab, #56606d 70%, white)",
+          "color-mix(in oklab, #56606d 60%, white)",
+          "color-mix(in oklab, #56606d 50%, white)",
+          "color-mix(in oklab, #56606d 40%, white)",
+          "color-mix(in oklab, #56606d 20%, white)"
         ]
       },
       "line": {
         "role": "neutral",
         "displayName": "Line",
-        "canonical": "#dbe5e8",
+        "canonical": "#d7dce2",
         "tonalRamp": [
-          "color-mix(in oklab, #dbe5e8 100%, white)",
-          "color-mix(in oklab, #dbe5e8 90%, white)",
-          "color-mix(in oklab, #dbe5e8 80%, white)",
-          "color-mix(in oklab, #dbe5e8 70%, white)",
-          "color-mix(in oklab, #dbe5e8 60%, white)",
-          "color-mix(in oklab, #dbe5e8 50%, white)",
-          "color-mix(in oklab, #dbe5e8 40%, white)",
-          "color-mix(in oklab, #dbe5e8 20%, white)"
+          "color-mix(in oklab, #d7dce2 100%, white)",
+          "color-mix(in oklab, #d7dce2 90%, white)",
+          "color-mix(in oklab, #d7dce2 80%, white)",
+          "color-mix(in oklab, #d7dce2 70%, white)",
+          "color-mix(in oklab, #d7dce2 60%, white)",
+          "color-mix(in oklab, #d7dce2 50%, white)",
+          "color-mix(in oklab, #d7dce2 40%, white)",
+          "color-mix(in oklab, #d7dce2 20%, white)"
         ]
       },
       "green": {
         "role": "primary",
         "displayName": "Green",
-        "canonical": "#087364",
+        "canonical": "#2a4f9e",
         "tonalRamp": [
-          "color-mix(in oklab, #087364 100%, white)",
-          "color-mix(in oklab, #087364 90%, white)",
-          "color-mix(in oklab, #087364 80%, white)",
-          "color-mix(in oklab, #087364 70%, white)",
-          "color-mix(in oklab, #087364 60%, white)",
-          "color-mix(in oklab, #087364 50%, white)",
-          "color-mix(in oklab, #087364 40%, white)",
-          "color-mix(in oklab, #087364 20%, white)"
+          "color-mix(in oklab, #2a4f9e 100%, white)",
+          "color-mix(in oklab, #2a4f9e 90%, white)",
+          "color-mix(in oklab, #2a4f9e 80%, white)",
+          "color-mix(in oklab, #2a4f9e 70%, white)",
+          "color-mix(in oklab, #2a4f9e 60%, white)",
+          "color-mix(in oklab, #2a4f9e 50%, white)",
+          "color-mix(in oklab, #2a4f9e 40%, white)",
+          "color-mix(in oklab, #2a4f9e 20%, white)"
         ]
       },
       "green-hover": {
         "role": "primary",
         "displayName": "Green Hover",
-        "canonical": "#075c50",
+        "canonical": "#203c78",
         "tonalRamp": [
-          "color-mix(in oklab, #075c50 100%, white)",
-          "color-mix(in oklab, #075c50 90%, white)",
-          "color-mix(in oklab, #075c50 80%, white)",
-          "color-mix(in oklab, #075c50 70%, white)",
-          "color-mix(in oklab, #075c50 60%, white)",
-          "color-mix(in oklab, #075c50 50%, white)",
-          "color-mix(in oklab, #075c50 40%, white)",
-          "color-mix(in oklab, #075c50 20%, white)"
+          "color-mix(in oklab, #203c78 100%, white)",
+          "color-mix(in oklab, #203c78 90%, white)",
+          "color-mix(in oklab, #203c78 80%, white)",
+          "color-mix(in oklab, #203c78 70%, white)",
+          "color-mix(in oklab, #203c78 60%, white)",
+          "color-mix(in oklab, #203c78 50%, white)",
+          "color-mix(in oklab, #203c78 40%, white)",
+          "color-mix(in oklab, #203c78 20%, white)"
         ]
       },
       "mint": {
         "role": "secondary",
         "displayName": "Mint",
-        "canonical": "#dcf4ec",
+        "canonical": "#dee5f1",
         "tonalRamp": [
-          "color-mix(in oklab, #dcf4ec 100%, white)",
-          "color-mix(in oklab, #dcf4ec 90%, white)",
-          "color-mix(in oklab, #dcf4ec 80%, white)",
-          "color-mix(in oklab, #dcf4ec 70%, white)",
-          "color-mix(in oklab, #dcf4ec 60%, white)",
-          "color-mix(in oklab, #dcf4ec 50%, white)",
-          "color-mix(in oklab, #dcf4ec 40%, white)",
-          "color-mix(in oklab, #dcf4ec 20%, white)"
+          "color-mix(in oklab, #dee5f1 100%, white)",
+          "color-mix(in oklab, #dee5f1 90%, white)",
+          "color-mix(in oklab, #dee5f1 80%, white)",
+          "color-mix(in oklab, #dee5f1 70%, white)",
+          "color-mix(in oklab, #dee5f1 60%, white)",
+          "color-mix(in oklab, #dee5f1 50%, white)",
+          "color-mix(in oklab, #dee5f1 40%, white)",
+          "color-mix(in oklab, #dee5f1 20%, white)"
         ]
       },
       "grill": {
@@ -292,28 +292,20 @@
     },
     "typographyMeta": {
       "headline": {
-        "displayName": "Page headline",
-        "purpose": "Main workspace page titles."
-      },
-      "title": {
-        "displayName": "Roster title",
-        "purpose": "Roster and review headings in the API workspace."
+        "displayName": "Bricolage / Fraunces / Plex",
+        "purpose": "Selected display family for the working document."
       },
       "body": {
-        "displayName": "Application body",
-        "purpose": "Base text and form input type."
-      },
-      "label": {
-        "displayName": "Action label",
-        "purpose": "Standard compact button labels."
+        "displayName": "IBM Plex Sans",
+        "purpose": "Working text and controls, locally bundled."
       }
     },
     "shadows": [],
     "motion": [
       {
-        "name": "control-feedback",
-        "value": "background 180ms ease, border-color 180ms ease",
-        "purpose": "Skill filter feedback, with reduced-motion override."
+        "name": "sidebar",
+        "value": "CSS transitions under 300ms",
+        "purpose": "Slide, bounded dissolve, or fold; state changes immediately and reduced motion removes movement."
       }
     ],
     "breakpoints": [
@@ -330,40 +322,48 @@
         "value": "480px"
       }
     ],
-    "scope": "API workspace / (.contract-app); sandbox retains original neutral variant."
+    "scope": "Default Ink/Workshop API workspace; Paprika/Olive palettes and Editorial/Plain type are visit-local experiments. Sandbox retains original palette.",
+    "surfaceVariants": {
+      "ink": "Blue action accent and cool working-paper surfaces (default).",
+      "paprika": "Warm-paper experiment with rust actions.",
+      "olive": "Field-notes experiment with olive actions."
+    }
   },
   "components": [
     {
-      "name": "Grill shift",
+      "name": "Shift tile",
       "kind": "custom",
-      "description": "A native expandable shift with visible break duration.",
-      "html": "<details class=\"ds-shift\"><summary>10:00 - 18:00<small>Grill</small><span>30m break</span></summary><p>30-minute break at 14:00</p></details>",
-      "css": ".ds-shift{background:#ffe5d2;color:#8c3d0b;border-radius:7px;padding:9px 7px;font:12px/1.7 \"Geist Variable\",sans-serif;width:140px}.ds-shift summary{cursor:pointer;font-weight:600}.ds-shift small,.ds-shift span{display:block}.ds-shift span{font-size:10px;font-weight:450}.ds-shift p{margin-top:9px}"
+      "description": "Neutral working tile with a small written skill label and visible break duration.",
+      "html": "<details class=\"ds-shift\"><summary>10:00 - 18:00<small>Grill</small><span>30m break</span></summary><p>Template break: 30 minutes</p></details>",
+      "css": ".ds-shift{background:#f7f8f9;color:#26303b;border:1px solid #d7dce2;border-radius:7px;padding:9px 8px;font:12px/1.7 \"IBM Plex Sans\",sans-serif;width:140px}.ds-shift summary{cursor:pointer;font-weight:600}.ds-shift small{display:block;width:max-content;background:#ffe5d2;color:#8c3d0b;padding:1px 5px;border-radius:3px;margin-top:5px}.ds-shift span{display:block;font-size:11px;color:#56606d;margin-top:3px}"
     },
     {
       "name": "Primary action",
       "kind": "button",
-      "description": "Teal action with a legible label and visible focus.",
-      "html": "<button class=\"ds-action\">Generate draft</button>",
-      "css": ".ds-action{background:#087364;color:white;min-height:42px;padding:0 14px;border:0;border-radius:7px;font:550 13px \"Geist Variable\",sans-serif}.ds-action:hover{background:#075c50}.ds-action:focus-visible{outline:2px solid #008d79;outline-offset:4px}"
+      "description": "Single-accent action with written intent and visible focus.",
+      "html": "<button class=\"ds-action\">Save employee</button>",
+      "css": ".ds-action{background:#2a4f9e;color:white;min-height:42px;padding:0 14px;border:0;border-radius:7px;font:550 13px \"IBM Plex Sans\",sans-serif}.ds-action:hover{background:#203c78}.ds-action:focus-visible{outline:2px solid #2a4f9e;outline-offset:4px}"
     }
   ],
   "narrative": {
-    "northStar": "The working week, in full detail",
-    "overview": "Vibrant, legible scheduling with clear status, skill colors and metric explanations. User requested richer detail in place of extreme minimalism. Scoped to the API workspace; synthetic data and missing backend workflows remain explicit.",
+    "northStar": "The roster as a working document",
+    "overview": "User-directed typography, color and navigation experiments. Useful operational detail stays visible; architecture v3 governs behavior.",
     "keyCharacteristics": [
-      "Role colors always include text",
-      "Visible breaks and locks",
-      "Explanatory coverage review",
-      "Native keyboard controls and pinned roster names"
+      "Locally bundled Bricolage and IBM Plex Sans, with a Fraunces option",
+      "One action accent per palette",
+      "Neutral shift tiles with written skill labels",
+      "An accessible icon rail and mobile menu",
+      "Real employee and staffing forms"
     ],
     "dos": [
-      "Preserve synthetic data labels and capability boundaries",
-      "Keep preferred staffing separate from minimum requirements"
+      "Keep input state and server authority separate",
+      "Keep keyboard focus, cancellation, error recovery and reduced motion",
+      "Review revised v3 contracts before publication integration"
     ],
     "donts": [
-      "Do not add marketing imagery to schedule data",
-      "Do not fabricate publication, persistence or live solver claims"
+      "Do not turn a fixture into a live-solver claim",
+      "Do not infer fairness or paid-break policies",
+      "Do not add decorative analytics or marketing imagery"
     ]
   }
 }

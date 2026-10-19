@@ -1,3 +1,15 @@
+# Current contract workspace design
+
+The new working-document experiment in `DESIGN.md` supersedes the previous green/Geist treatment recorded below. The default is Ink + Workshop (IBM Plex Sans working text, Bricolage headings). Appearance exposes Paprika/Olive, Fraunces/Plain, and slide/dissolve/fold choices. Desktop gets a named icon rail; mobile gets inert closed content, focus management, Escape, backdrop closing and reduced-motion support.
+
+This delivery also adds real employee/skills/availability and date-specific staffing forms, session-local synthetic editing, typed API writes and TanStack Query. The forms are not a staffing-template expansion or v3 publication implementation. See the architecture alignment and 19 October handoff for exact boundaries.
+
+The requested additional skills were installed and inspected: `improve-animations` (read-only audit/planning criteria), `frontend-design` (intentional typography/color choices), and `ui-ux-pro-max` (verified focus-visibility and cancellable-transition search results). These are development tools, not frontend runtime dependencies. They will be discovered automatically on the next turn.
+
+---
+
+Historical design extension follows; numerical measurements below describe the previous version.
+
 # Contract workspace design
 
 Updated 18 October 2026 in response to the user's request for the full taste-skill package, more vibrancy and more useful detail. Canonical tokens and layout are in `web/DESIGN.md`; the preview sidecar and Superdesign notes reflect this direction. Earlier minimal UI measurements in prior handoffs are historical.

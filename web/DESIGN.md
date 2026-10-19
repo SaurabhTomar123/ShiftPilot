@@ -1,16 +1,16 @@
 ---
 name: ShiftPilot
-description: A colorful, detailed scheduling workspace with clear roster status and explicit synthetic data boundaries.
+description: An operational roster with deliberate typography, selectable color treatments and accessible collapsible navigation.
 colors:
-  canvas: "#f4f7f8"
+  canvas: "#f2f3f4"
   surface: "#fff"
-  sidebar: "#133e3a"
-  ink: "#1e3336"
-  muted: "#566d72"
-  line: "#dbe5e8"
-  green: "#087364"
-  green-hover: "#075c50"
-  mint: "#dcf4ec"
+  sidebar: "#e7eaef"
+  ink: "#26303b"
+  muted: "#56606d"
+  line: "#d7dce2"
+  green: "#2a4f9e"
+  green-hover: "#203c78"
+  mint: "#dee5f1"
   grill: "#ffe5d2"
   grill-ink: "#8c3d0b"
   prep: "#d8f2e5"
@@ -23,23 +23,23 @@ colors:
   barista-ink: "#265b91"
 typography:
   headline:
-    fontFamily: "'Geist Variable', 'Segoe UI', sans-serif"
-    fontSize: "34px"
+    fontFamily: "'IBM Plex Sans', sans-serif"
+    fontSize: "38px"
     fontWeight: 650
     lineHeight: 1.25
     letterSpacing: "-.035em"
   title:
-    fontFamily: "'Geist Variable', 'Segoe UI', sans-serif"
+    fontFamily: "'IBM Plex Sans', sans-serif"
     fontSize: "21px"
     fontWeight: 650
     lineHeight: 1.4
     letterSpacing: "-.025em"
   body:
-    fontFamily: "'Geist Variable', 'Segoe UI', sans-serif"
-    fontSize: "14px"
+    fontFamily: "'IBM Plex Sans', sans-serif"
+    fontSize: "15px"
     lineHeight: 1.5
   label:
-    fontFamily: "'Geist Variable', 'Segoe UI', sans-serif"
+    fontFamily: "'IBM Plex Sans', sans-serif"
     fontSize: "13px"
     fontWeight: 550
 rounded:
@@ -56,54 +56,56 @@ spacing:
 
 ## Overview
 
-The working week is the visual center: a strong green navigation frame, a light blue-gray canvas, legible shift blocks and five distinct written skill labels. Color carries operational meaning. Explanations sit next to numbers and controls so a new manager can understand the schedule without interpreting unexplained metrics.
+The roster is a working document, not an analytics dashboard. The default treatment pairs blue pencil-like actions and light ink-gray surfaces with locally bundled IBM Plex Sans for working text and Bricolage Grotesque for headings. User feedback rejected the earlier Geist/green treatment and excessive minimalism; the implementation now retains useful detail while making type and color independently switchable.
 
-This direction implements the user's request for more vibrancy and detail. It uses the full installed taste-skill package's existing-project redesign guidance. The public marketing-page skill explicitly excludes app dashboards, so its photographic hero, randomized marketing compositions and cinematic scroll requirements are not imposed on this scheduling tool.
+Appearance offers three palettes (Ink, Paprika, Olive), three typography choices (Workshop: Bricolage/Plex, Editorial: Fraunces/Plex, Plain: Plex), and three sidebar transitions (slide, dissolve, fold). Preferences apply to the current visit. These are working experiments, not a claim of approved branding.
 
-This document describes the API workspace at `/`, scoped by `.contract-app` in `src/app/globals.css`. `/sandbox` retains the earlier local editing prototype and its own neutral root palette. It remains a separate interaction demo, not a second live scheduling application.
+This document describes `/`. `/sandbox` retains its older Geist-based editing prototype. Architecture v3 governs product behavior; visual experiments do not replace its candidate, proposal, validation or human-approval requirements.
 
 ## Colors
 
-**The Skill Pair Rule.** Grill is orange, Prep is mint, Server is violet, Cashier is gold and Barista is blue. Every color includes a written skill name. Skill filters, shift blocks and coverage gaps share these pairs. Unknown skills use a neutral fallback.
+The frontmatter defines the default Ink palette. Paprika uses warm paper, dark brown ink and rust actions. Olive uses pale field-note surfaces and restrained olive actions. All treatments use one action accent. Schedule tiles use neutral surfaces; small written skill labels retain five meaningful skill pairs rather than filling the entire grid with pastel blocks. Unknown skills use a neutral fallback.
 
-**The Status Rule.** Published status uses a green field, draft review uses violet, and an unplanned week uses blue. Warnings use warm amber. A draft's written status always says it is not published. Never use success green for nonzero hard violations.
-
-The dark green sidebar separates identity and workflow context from the lighter working surface. Primary controls use the green action token and white text. Muted text remains readable; colored fields use darker text from their own hue family.
+Published, draft, warning and error states retain explicit words. A theme must never turn an invalid state into a successful one. Cost controls remain capability-gated. The fixture label remains visible at narrow widths.
 
 ## Typography
 
-Use the locally bundled Geist Variable font. Page headings are fluid (26-34px), roster headings are 21px, shift times and role labels are 12px, and supporting break metadata is 10px. This raises roster legibility over the earlier 8-10px treatment. Use tabular figures for time, hours, money and staffing counts. Supporting paragraphs keep a readable measure rather than spanning the viewport.
+Self-host IBM Plex Sans at 400/500/600, plus variable Bricolage Grotesque and Fraunces. No remote font request is required. Headings use the selected display family, while working text, numbers and controls remain Plex. The old sandbox alone retains Geist.
+
+Page headings are fluid (30-38px), working section titles are 21-23px, body is 15px, supporting explanations are 12-14px, shift times are 12px and break metadata is 11px. Use tabular figures for time, staffing and money. Written labels remain distinct from helper text; controls use explicit accessible names and relevant descriptions.
 
 ## Layout
 
-Desktop uses a 225px navigation column and a flexible working area with a maximum width of 1800px. The heading and outlet selector lead into week controls, status/action ribbon, week facts, four metric groups, skill filters and the weekly roster. The detailed staffing review follows the roster.
+Desktop navigation expands to 225px and collapses to a 72px icon rail. The toggle stays available, destinations keep accessible names, and hovered/focused rail controls reveal labels. The roster remains the largest working surface. Employee and staffing forms are real destinations with contextual headings, not decorative navigation.
 
-At 1150px the sidebar narrows to 195px, metrics form two columns and status actions wrap. At 900px the sidebar becomes a compact identity strip and the staffing review stacks. At 480px controls wrap and the identity avatars in roster rows are hidden to preserve reading space. The seven-day table keeps a minimum width of 1110px with horizontal scrolling and a pinned employee column (190px desktop, 165px phone). Do not squeeze seven days into unreadable cells.
+Below 900px, navigation is an off-canvas menu. Closed content is inert and invisible. Opening moves focus to Close; Tab stays inside; Escape and the backdrop close it and restore focus. The normal mobile workspace also retains a short section navigation row. Header controls stay compact; layouts at 1600px, 768px and 390px are checked for page overflow.
+
+The seven-day table keeps horizontal scrolling and a pinned employee column. Skill labels get their own line beneath shift times. Employee editors stack on phones; availability windows use two columns; demand rows wrap without shrinking their controls.
 
 ## Elevation & Depth
 
-Surfaces use fine borders or meaningful tonal fields. No ornamental shadows, photographic backgrounds or marketing effects sit behind schedule data. A selected skill filter gets a one-pixel inset stroke in addition to its border. Expanded shifts use an inset outline to distinguish their open state.
+Use fine structural borders and modest tonal differences. The Appearance panel has a bounded soft shadow; schedule tiles do not float on ornamental shadows. No decorative gradients, texture overlays or marketing imagery sit behind working data.
 
 ## Shapes
 
-Containers use 10px corners; controls and shift blocks use 7px corners. Identity avatars use rounded squares. Skill color markers are small squares with 3px corners. The roster remains one continuous table rather than floating cards.
+Controls and shift tiles use 7px corners; working containers use 10px. Role markers and labels use tighter corners. Navigation is a continuous rail/panel rather than a stack of cards.
 
 ## Components
 
-- **Week status:** icon, explicit publication state, supporting explanation and relevant actions. The published demo offers a working Plan upcoming week shortcut; the disabled generation action has adjacent guidance.
-- **Week facts:** total employees, shifts, locked assignments and outlet timezone. Totals describe the whole version and do not change when filtering rows.
-- **Metrics:** preferred coverage with a native meter, assigned hours with overtime, capability-gated estimated cost, and minimum staffing shortfall. Each metric explains what it means; money retains exact paise.
-- **Skill filters:** native buttons with aria-pressed state. These filter teammates by their skills; shift assignments keep their actual roles. Name search combines with the selected skill and provides a written no-results state.
-- **Roster:** written roles, shift times, visible break duration and lock status. Native details reveal the break start, lock reason and confirmed overlapping absence. Day headers show total shifts. Employee hours are explicitly across all outlets.
-- **Staffing review:** preferred deficit in staff-minutes, employee preference match, and up to four provider-reported staffing gaps ordered with minimum deficits first. Explain staff-minutes and minimum versus preferred requirements. Do not invent interval durations or recompute authoritative metrics.
-- **Employee view:** dates, times, outlet, assigned skill and break/lock details. It does not fetch employee costs or show manager planning instructions.
-- **Controls and states:** at least 42px for main buttons and 44px for week navigation/selects; clear focus outlines, pressed feedback, loading skeletons, errors and permission recovery. Existing reduced-motion rules remain in force. No decorative entrance animation delays schedule access.
+- **Sidebar:** Schedule, Employees and Staffing are real destinations. Manager controls are absent from the employee view. Collapse remains operable in the rail. Mobile menu focus and scroll-lock cleanup run independently of animation completion.
+- **Sidebar motion:** routine transitions remain under 300ms. Reversible CSS transitions retarget when toggled. Slide uses translation, Dissolve combines opacity with bounded 4px blur, Fold uses clipping. Reduced motion removes spatial effects. Semantic state changes immediately and does not wait for transitionend.
+- **Appearance:** native disclosure and labelled selects. Type, palette and motion can be compared on real roster data without changing the session or losing form inputs.
+- **Roster and review:** explicit draft/published state, provider-reported metrics and explanatory staffing gaps. Shift disclosures retain template break and lock details; break placement and pay rules are not editable features.
+- **Employees:** exact-paise hourly rate entry, status, skill levels, regular hours versus absolute cap, preferred hours, tags, overtime and cross-outlet eligibility. Unchanged fields are omitted from updates; nullable preferred hours can be cleared.
+- **Availability:** full recurring-window replacement, explicit same-day/next-day offsets and written errors. Overnight values remain integer minutes in the outlet's local time.
+- **Staffing:** edit, add and remove date-specific intervals. Minimum and preferred counts stay distinct. Filters never omit hidden intervals from a save. The initial skill prefers one with demand instead of assuming API list order. Template expansion awaits the v3 contract.
+- **Save/error states:** no optimistic success message, automatic write retry or silent stale overwrite. Inputs survive errors. Explicit reload replaces inputs with current values. Synthetic edits are session-scoped and do not alter fixed roster/solver fixtures.
 
 ## Do's and Don'ts
 
-- Keep role text, break and lock details visible; color adds meaning rather than replacing words.
-- Keep the synthetic contract preview label visible at every width.
-- Preserve token clearing, scoped caches, cancellation, generation idempotency and review before publication.
-- Keep minimum staffing distinct from preferred staffing and UNKNOWN distinct from INFEASIBLE.
-- Never add fictional approvals, live solves, persisted edits or publication controls for missing backend contracts.
-- Preserve native keyboard interaction, pinned roster names and horizontal scrolling.
+- Let the schedule, people and staffing details lead; keep the working surface understandable without a prompt.
+- Retain written skill and state labels, visible focus and keyboard alternatives.
+- Keep TanStack Query caches, credentials and synthetic input state scoped to the session.
+- Keep human approval and architecture v3's Published/Stale/Invalid/Changed distinction in subsequent publication work.
+- Do not mistake fixed fixture previews or legacy sandbox publication for v3's candidate-selection/proposal workflow.
+- Do not infer fairness, paid-break policies or forecast capabilities from the current metrics.

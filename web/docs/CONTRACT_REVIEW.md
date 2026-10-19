@@ -1,3 +1,15 @@
+# 19 October: contract 2.3 compatibility and architecture v3
+
+Provider commit `bd149c5` (including `97fb796` / `cd878df`) was merged into the isolated UI branch. OpenAPI types and **61 fixtures** were generated from `2.3.0-p3`; hash `43f6254a7d1b26f04658faa715dd5ed15dd9f6d174eacd3ca742a19cb1e91745`.
+
+**Accepted for the current data/read compatibility slice.** Consumer schema tests parse all fixtures, including version revisions and the new response schemas. Employee creation/update, availability and date-specific staffing forms use the declared requests and revisions. No provider contract was hand-edited.
+
+**P3 publication/selection approval is not granted by this slice.** The user made architecture v3 governing. Lightweight candidate selection, proposals, Published/Stale/Invalid/Changed results and template expansion need the revised contract. The legacy `draft_version_id` preview and direct-publish schemas are not evidence of completed v3 flows. See ARCHITECTURE_V3_ALIGNMENT.md. A newer provider 2.4 compatibility update is visible on Claude's branch but is not silently imported into this tested slice.
+
+The earlier approvals below remain historical records of their declared scope.
+
+---
+
 # Consumer review: contract 2.2
 
 **Approved for the declared P1?P2 UI scope**, from Claude commit `cb7c1e6` on 18 October 2026. This supersedes the 2.1 review below. Later publishing, repair and employee-request contracts remain outside this approval. Real integration gates I1/I2 remain open while the provider APIs and solver are pending.

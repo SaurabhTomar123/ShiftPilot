@@ -244,6 +244,166 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/outlets/{outlet_id}/schedules/{week_start}/drafts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Draft
+         * @description A new draft copied from the published version (or another version of the same week). 409
+         *     stale_version when base_version_id is no longer the published version.
+         */
+        post: operations["createDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/schedule-versions/{version_id}/edits/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Edits
+         * @description Validate edits against the draft without writing anything (drag/resize/keyboard previews).
+         */
+        post: operations["previewEdits"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/schedule-versions/{version_id}/edits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply Edits
+         * @description Apply edits to a draft. 409 stale_version when expected_revision is not current
+         *     (details.current_revision); 409 conflict when the version is not a draft. Edits that break rules
+         *     are applied and reported in validation; publishing is what refuses hard violations.
+         */
+        post: operations["applyEdits"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/schedule-versions/{version_id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish Version
+         * @description Atomically publish a draft and supersede the current version. 409 stale_version when the published
+         *     version or the draft revision moved; 422 validation_failed with details.violations when the draft has
+         *     hard violations against current facts.
+         */
+        post: operations["publishVersion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/schedule-versions/{version_id}/discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Discard Draft */
+        post: operations["discardDraft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/schedules/{schedule_id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Versions */
+        get: operations["listVersions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/schedule-versions/{version_id}/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Compare Versions
+         * @description Changes from `with` to this version, keyed on logical_shift_id.
+         */
+        get: operations["compareVersions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/schedule-versions/{version_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restore Version
+         * @description A new draft with this version's shifts, validated against current facts (an absent employee's
+         *     restored shift shows as a hard violation; it is never revived silently). History is never rewritten.
+         */
+        post: operations["restoreVersion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -281,6 +441,46 @@ export interface components {
              * @enum {string}
              */
             status: "requested" | "confirmed";
+        };
+        /** AddShift */
+        AddShift: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            op: "add";
+            /**
+             * Employee Id
+             * @description null adds an open (unfilled) shift.
+             */
+            employee_id: string | null;
+            /**
+             * Skill Id
+             * Format: uuid
+             */
+            skill_id: string;
+            /**
+             * Start At
+             * Format: date-time
+             */
+            start_at: string;
+            /**
+             * End At
+             * Format: date-time
+             */
+            end_at: string;
+            /** Break Start At */
+            break_start_at?: string | null;
+            /**
+             * Break Minutes
+             * @default 0
+             */
+            break_minutes: number;
+            /**
+             * Locked
+             * @default false
+             */
+            locked: boolean;
         };
         /** Availability */
         Availability: {
@@ -385,6 +585,19 @@ export interface components {
              */
             scheduled: number;
         };
+        /** CreateDraftRequest */
+        CreateDraftRequest: {
+            /**
+             * Base Version Id
+             * @description The currently published version (null for an empty week). Stale -> 409.
+             */
+            base_version_id: string | null;
+            /**
+             * Copy From Version Id
+             * @description Version whose shifts start the draft; defaults to base_version_id (empty when both are null).
+             */
+            copy_from_version_id?: string | null;
+        };
         /**
          * DemoSession
          * @description Synthetic public demo only; private deployments never expose this endpoint.
@@ -415,6 +628,36 @@ export interface components {
              * @enum {string}
              */
             persona: "owner" | "manager" | "staff";
+        };
+        /**
+         * EditPreview
+         * @description What the draft would look like after the edits. Nothing is written; the server is the only
+         *     authority on validity, cost and coverage.
+         */
+        EditPreview: {
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+            /** Expected Revision */
+            expected_revision: number;
+            /** Shifts */
+            shifts: components["schemas"]["Shift"][];
+            /** Changes */
+            changes: components["schemas"]["ShiftChange"][];
+            metrics: components["schemas"]["Metrics"];
+            validation: components["schemas"]["ValidationResult"];
+        };
+        /** EditRequest */
+        EditRequest: {
+            /**
+             * Expected Revision
+             * @description The draft revision the edits were made against.
+             */
+            expected_revision: number;
+            /** Edits */
+            edits: (components["schemas"]["AddShift"] | components["schemas"]["UpdateShift"] | components["schemas"]["RemoveShift"] | components["schemas"]["SetLock"])[];
         };
         /** Employee */
         Employee: {
@@ -819,6 +1062,48 @@ export interface components {
             /** Timezone */
             timezone: string;
         };
+        /** PublishRequest */
+        PublishRequest: {
+            /**
+             * Expected Base Version Id
+             * @description The published version this draft replaces.
+             */
+            expected_base_version_id: string | null;
+            /** Expected Revision */
+            expected_revision: number;
+        };
+        /** PublishResult */
+        PublishResult: {
+            /**
+             * Schedule Id
+             * Format: uuid
+             */
+            schedule_id: string;
+            published: components["schemas"]["ScheduleVersionSummary"];
+            /** Superseded Version Id */
+            superseded_version_id: string | null;
+        };
+        /** RemoveShift */
+        RemoveShift: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            op: "remove";
+            /**
+             * Logical Shift Id
+             * Format: uuid
+             */
+            logical_shift_id: string;
+        };
+        /** RestoreRequest */
+        RestoreRequest: {
+            /**
+             * Expected Base Version Id
+             * @description The currently published version.
+             */
+            expected_base_version_id: string | null;
+        };
         /** RosterEmployee */
         RosterEmployee: {
             /**
@@ -894,6 +1179,11 @@ export interface components {
             created_at: string;
             /** Published At */
             published_at: string | null;
+            /**
+             * Revision
+             * @description Bumped by every applied edit while the version is a draft; send it as expected_revision. Fixed once published.
+             */
+            revision: number;
             /** Input Hash */
             input_hash: string;
             /** Shifts */
@@ -947,6 +1237,11 @@ export interface components {
             created_at: string;
             /** Published At */
             published_at: string | null;
+            /**
+             * Revision
+             * @description Bumped by every applied edit while the version is a draft; send it as expected_revision. Fixed once published.
+             */
+            revision: number;
         };
         /** ScheduleWeek */
         ScheduleWeek: {
@@ -982,6 +1277,21 @@ export interface components {
              * @description Absences overlapping this week for listed employees.
              */
             absences: components["schemas"]["AbsenceMark"][];
+        };
+        /** SetLock */
+        SetLock: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            op: "lock" | "unlock";
+            /**
+             * Logical Shift Id
+             * Format: uuid
+             */
+            logical_shift_id: string;
+            /** Reason */
+            reason?: string | null;
         };
         /** Shift */
         Shift: {
@@ -1030,6 +1340,18 @@ export interface components {
             locked: boolean;
             /** Lock Reason */
             lock_reason: string | null;
+        };
+        /** ShiftChange */
+        ShiftChange: {
+            /**
+             * Logical Shift Id
+             * Format: uuid
+             */
+            logical_shift_id: string;
+            /** Kinds */
+            kinds: ("added" | "removed" | "reassigned" | "moved" | "resized" | "role_changed" | "lock_changed" | "break_changed")[];
+            before: components["schemas"]["Shift"] | null;
+            after: components["schemas"]["Shift"] | null;
         };
         /** Shortage */
         Shortage: {
@@ -1138,6 +1460,35 @@ export interface components {
             /** Intervals */
             intervals: components["schemas"]["StaffingInterval"][];
         };
+        /**
+         * UpdateShift
+         * @description Move, resize, reassign or change role. Omitted fields keep their value; employee_id may be
+         *     null to unassign.
+         */
+        UpdateShift: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            op: "update";
+            /**
+             * Logical Shift Id
+             * Format: uuid
+             */
+            logical_shift_id: string;
+            /** Employee Id */
+            employee_id?: string | null;
+            /** Skill Id */
+            skill_id?: string | null;
+            /** Start At */
+            start_at?: string | null;
+            /** End At */
+            end_at?: string | null;
+            /** Break Start At */
+            break_start_at?: string | null;
+            /** Break Minutes */
+            break_minutes?: number | null;
+        };
         /** ValidationResult */
         ValidationResult: {
             /** Hard Violations */
@@ -1146,6 +1497,38 @@ export interface components {
             soft_violations: number;
             /** Violations */
             violations: components["schemas"]["Violation"][];
+        };
+        /** VersionDiff */
+        VersionDiff: {
+            /**
+             * From Version Id
+             * Format: uuid
+             */
+            from_version_id: string;
+            /**
+             * To Version Id
+             * Format: uuid
+             */
+            to_version_id: string;
+            /** Changes */
+            changes: components["schemas"]["ShiftChange"][];
+            metrics_from: components["schemas"]["Metrics"];
+            metrics_to: components["schemas"]["Metrics"];
+        };
+        /** VersionHistory */
+        VersionHistory: {
+            /**
+             * Schedule Id
+             * Format: uuid
+             */
+            schedule_id: string;
+            /** Current Version Id */
+            current_version_id: string | null;
+            /**
+             * Items
+             * @description Newest first; drafts included.
+             */
+            items: components["schemas"]["ScheduleVersionSummary"][];
         };
         /** Violation */
         Violation: {
@@ -2299,6 +2682,635 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createDraft: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                outlet_id: string;
+                week_start: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDraftRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleVersion"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    previewEdits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A schedule version (draft, published or superseded). */
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EditPreview"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    applyEdits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A schedule version (draft, published or superseded). */
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleVersion"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    publishVersion: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                /** @description A schedule version (draft, published or superseded). */
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublishResult"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    discardDraft: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A schedule version (draft, published or superseded). */
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleVersionSummary"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listVersions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                schedule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionHistory"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    compareVersions: {
+        parameters: {
+            query: {
+                /** @description The version to compare against. */
+                with: string;
+            };
+            header?: never;
+            path: {
+                /** @description A schedule version (draft, published or superseded). */
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionDiff"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    restoreVersion: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                /** @description A schedule version (draft, published or superseded). */
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestoreRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleVersion"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

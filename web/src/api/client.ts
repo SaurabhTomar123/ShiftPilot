@@ -1,4 +1,5 @@
 import type { ApiErrorBody, Persona, Scenario, Schema } from './types';
+import { QueryClient } from '@tanstack/react-query';
 
 export class ApiError extends Error {
   constructor(public readonly status: number, public readonly detail: ApiErrorBody, public readonly retryAfter: string | null = null) {
@@ -15,16 +16,30 @@ export type ClientOptions = {
 
 /** Session credentials exist only in this instance; never persisted to browser storage. */
 export class SchedulingClient {
+  readonly queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 0, gcTime: 300000 } } });
   private token: string | null = null;
   private generation = 0;
+  private expired: { generation: number; error: ApiError } | null = null;
+  private previewSession = crypto.randomUUID();
   private readonly reads = new Map<string, { etag: string; payload: unknown }>();
   private fetcher: typeof fetch;
   constructor(private readonly options: ClientOptions) { this.fetcher = options.fetcher ?? ((input, init) => fetch(input, init)); }
 
-  clearSession() { this.token = null; this.generation += 1; this.reads.clear(); }
+  clearSession() { this.token = null; this.generation += 1; this.previewSession = crypto.randomUUID(); this.reads.clear(); this.queryClient.clear(); }
   setFixtureScenario(scenario: Scenario) { this.options.fixtureScenario = scenario; }
 
   private async request<T>(path: string, init: RequestInit = {}, idempotencyKey?: string): Promise<T> {
+    if ((init.method ?? 'GET') !== 'GET') return this.transport<T>(path, init, idempotencyKey);
+    const generation = this.generation;
+    try { return await this.queryClient.fetchQuery({ queryKey: ['session', generation, path], queryFn: ({ signal }) => this.transport<T>(path, { ...init, signal: init.signal ? AbortSignal.any([init.signal, signal]) : signal }) }); }
+    catch (error) {
+      if (this.expired?.generation === generation) throw this.expired.error;
+      if (generation !== this.generation) throw new DOMException('Session was replaced', 'AbortError');
+      throw error;
+    }
+  }
+
+  private async transport<T>(path: string, init: RequestInit = {}, idempotencyKey?: string): Promise<T> {
     const generation = this.generation;
     const cacheable = (init.method ?? 'GET') === 'GET' && (/^\/v2\/outlets\/[^/]+\/schedules\/[^/]+$/.test(path) || path.startsWith('/v2/schedule-versions/'));
     const cached = cacheable ? this.reads.get(path) : undefined;
@@ -36,6 +51,7 @@ export class SchedulingClient {
     if (idempotencyKey) headers.set('Idempotency-Key', idempotencyKey);
     // Scenario headers are strictly confined to the same-origin fixture gateway.
     if (this.options.baseUrl === '/api/fixture' && this.options.fixtureScenario) headers.set('X-ShiftPilot-Scenario', this.options.fixtureScenario);
+    if (this.options.baseUrl === '/api/fixture') headers.set('X-ShiftPilot-Preview-Session', this.previewSession);
     const response = await this.fetcher(`${this.options.baseUrl.replace(/\/$/, '')}${path}`, { ...init, headers, cache: 'no-store', credentials: 'omit' });
     if (generation !== this.generation || init.signal?.aborted) throw new DOMException('Session was replaced', 'AbortError');
     if (response.status === 304 && cached) return structuredClone(cached.payload) as T;
@@ -43,10 +59,11 @@ export class SchedulingClient {
     if (generation !== this.generation || init.signal?.aborted) throw new DOMException('Session was replaced', 'AbortError');
     if (!response.ok) {
       const detail = isErrorEnvelope(payload) ? payload.error : { code: 'internal' as const, message: 'The scheduling service returned an unreadable response.', retryable: false, details: {} };
-      if (response.status === 401) { this.clearSession(); this.options.onUnauthorized?.(); }
+      if (response.status === 401) { this.expired = { generation, error: new ApiError(response.status, detail) }; this.clearSession(); this.options.onUnauthorized?.(); }
       throw new ApiError(response.status, detail, response.headers.get('Retry-After'));
     }
     if (payload === null) throw new ApiError(response.status, { code: 'internal', message: 'The scheduling service returned an empty response.', retryable: false, details: {} });
+    if ((init.method ?? 'GET') !== 'GET') { this.reads.clear(); await this.queryClient.invalidateQueries({ refetchType: 'none' }); }
     const etag = response.headers.get('ETag');
     if (cacheable && etag && generation === this.generation) this.reads.set(path, { etag, payload: structuredClone(payload) });
     return payload as T;
@@ -73,6 +90,15 @@ export class SchedulingClient {
     return this.request<Schema['EmployeeList']>(`/v2/employees?${query}`, { signal });
   }
   availability(employeeId: string, signal?: AbortSignal) { return this.request<Schema['Availability']>(`/v2/employees/${encodeURIComponent(employeeId)}/availability`, { signal }); }
+  employee(employeeId: string, signal?: AbortSignal) { return this.request<Schema['Employee']>(`/v2/employees/${encodeURIComponent(employeeId)}`, { signal }); }
+  createEmployee(input: Schema['EmployeeCreate'], key: string, signal?: AbortSignal) {
+    if (!key) throw new Error('Creating an employee requires an idempotency key.');
+    return this.request<Schema['Employee']>('/v2/employees', { method: 'POST', body: JSON.stringify(input), signal }, key);
+  }
+  updateEmployee(id: string, input: Schema['EmployeeUpdate'], signal?: AbortSignal) { return this.request<Schema['Employee']>(`/v2/employees/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(input), signal }, crypto.randomUUID()); }
+  saveAvailability(id: string, input: Schema['AvailabilityUpdate'], signal?: AbortSignal) { return this.request<Schema['Availability']>(`/v2/employees/${encodeURIComponent(id)}/availability`, { method: 'PUT', body: JSON.stringify(input), signal }, crypto.randomUUID()); }
+  staffing(outletId: string, week: string, signal?: AbortSignal) { return this.request<Schema['StaffingRequirements']>(`/v2/outlets/${encodeURIComponent(outletId)}/staffing-requirements?week_start=${encodeURIComponent(week)}`, { signal }); }
+  saveStaffing(outletId: string, week: string, input: Schema['StaffingRequirementsUpdate'], signal?: AbortSignal) { return this.request<Schema['StaffingRequirements']>(`/v2/outlets/${encodeURIComponent(outletId)}/staffing-requirements?week_start=${encodeURIComponent(week)}`, { method: 'PUT', body: JSON.stringify(input), signal }, crypto.randomUUID()); }
   generate(outletId: string, week: string, input: Schema['GenerateRequest'], idempotencyKey: string, signal?: AbortSignal) {
     if (!idempotencyKey) throw new Error('Generation requires a stable idempotency key.');
     return this.request<Schema['OptimizationRun']>(`/v2/outlets/${encodeURIComponent(outletId)}/schedules/${encodeURIComponent(week)}/generate`, { method: 'POST', body: JSON.stringify(input), signal }, idempotencyKey);

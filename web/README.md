@@ -1,6 +1,6 @@
-# ShiftPilot scheduling UI
+# ShiftPilot web
 
-Codex owns this frontend; Claude owns database/backend delivery. The main UI now consumes contract **2.2.0-p1p2** rather than the original local prototype shapes.
+Codex owns `web/`; Claude owns backend/database contracts. **Architecture v3 is governing.** This branch currently consumes provider contract **2.3.0-p3** for tested data/roster compatibility. The revised candidate/proposal/template contracts must be reviewed before those v3 flows are connected.
 
 ## Run
 
@@ -10,55 +10,45 @@ npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:3001. This port isolates UI work from the main checkout. Node 24 is supported; dependencies are locked and the Geist font is self-hosted.
+Open http://127.0.0.1:3001. The UI uses Next.js 16, React 19, TypeScript, TanStack Query, Tailwind 4, Phosphor, a Radix/shadcn-compatible Button and dnd-kit. Fonts are bundled locally.
 
-## Two explicit environments
+## Current surfaces
 
-- `/`: synthetic provider-contract preview. Uses the supplied 49 fixtures, UUIDs, skills, breaks, locks, exact money, published metrics and asynchronous run statuses. Manager, owner and employee personas have separate session/view state. Try generation on 26 October; use the demo outcome selector for feasible, infeasible, timeout, worker failure, stale, denied, existing-run and rate-limit states. Draft preview is read-only; there is no publication endpoint in this slice.
-- `/sandbox`: the earlier browser-local editing prototype, with 60 synthetic employees across three outlets, shift editing, dnd-kit drag to empty same-role cells, locks, sample generation, simple absence replacement and local publish/history snapshots. It remains separate from the contract dataset and retains its localStorage key.
+- `/`: provider fixture preview, with separate owner/manager/employee sessions. Use Schedule, Employees and Staffing navigation. Employee/skill/availability and date-specific staffing forms have validation, explicit save results and stale-edit recovery. Synthetic edits exist only in a bounded, expiring preview session. Persona changes/server restarts reset them; fixed roster/solver fixtures do not change with input edits.
+- Appearance: three type treatments, three palettes, and slide/dissolve/fold sidebar transitions. Desktop collapses to a labelled icon rail; mobile has Escape, focus restoration, a backdrop and reduced-motion support.
+- `/sandbox`: earlier local editing/dragging/repair/publication prototype. Its browser-local data and Geist palette remain separate.
 
-The provider fixtures now include 13 employees per outlet across all three owner outlets, plus both candidate drafts. This is still synthetic data, not the final ~60-person database seed. Unsupported weeks and requests return an explicit missing-fixture error.
+The generated registry has 61 approved-provider fixtures, 13 employees per outlet and two candidate drafts. The real seed has 60 employees across three outlets. Unsupported fixture requests return an explicit error. No default UI action publishes a real schedule.
 
-**No live backend or solver is claimed.** The default same-origin gateway serves synthetic fixtures only. Real provider routes currently return 501 until their implementation lands. Editing/repair/publication in the sandbox are local simulations, not validated operational writes.
-
-## Frontend foundation
-
-Next.js 16, React 19, strict TypeScript, Tailwind 4 (utilities/theme without a reset of the established CSS), a shadcn-compatible Radix Slot/Button primitive, Phosphor icons and dnd-kit. ESLint covers TypeScript, React hooks and JSX accessibility; Vitest covers the client and provider schemas. Native dialogs support focus management and Escape. Keyboard Enter opens the sandbox shift editor; Space starts a drag, Escape cancels. Full reassignment/resize and server validation belong to X3.1.
-
-## Contracts and checks
+## Checks
 
 ```powershell
 npm run contracts:generate
 npm run contracts:check
-npm run lint
 npm run typecheck
+npm run lint
 npm test
 npm run build
 npm run test:e2e
 ```
 
-The generator reads `../contracts/v2` and writes only `src/api/generated`. Its manifest includes the schema/index/fixture hash. Drift checks fail when provider files change. The JavaScript/AJV suite independently validates every response fixture. Browser tests use installed Chrome at desktop/mobile sizes and include automated WCAG A/AA scans; they do not replace manual assistive-technology testing. Captures are gitignored under `.impeccable/review/`.
+The generator reads `../contracts/v2`; do not edit generated files. AJV checks provider response schemas, headers and bodyless 304s. Browser checks cover desktop/mobile flows and axe scans. Captures under `.impeccable/review/` are local and ignored. For production browser checks, build first and set `PLAYWRIGHT_SERVER_MODE=production`, or start a separate production server for Playwright to reuse. Stop that production server before rebuilding it.
 
-For production-browser checks, build first and set `PLAYWRIGHT_SERVER_MODE=production`. The runner launches Next directly. If a restricted Windows shell blocks child-process cleanup, run the server in a separate terminal first; Playwright reuses it and leaves its lifecycle with that terminal.
+## API mode
 
-## Live API connection, when ready
+Set `NEXT_PUBLIC_API_BASE_URL` to the API origin in an untracked `.env.local`, then restart Next (rebuild for production). Only a public origin belongs there. No database URL, admin credential or provider key belongs in frontend environment variables.
 
-Set `NEXT_PUBLIC_API_BASE_URL` to the API origin in an untracked `.env.local`, then restart Next.js. Only a public origin belongs there: never database URLs or admin/provider secrets. The same SDK sends bearer headers and keeps credentials in memory; fixture scenario headers are confined to `/api/fixture`. Demo sign-in is supported by this contract; private deployments need their future real sign-in flow.
+The client uses an in-memory bearer token and a session-local TanStack Query cache. Persona change/401 clears cached data and credentials, and cancels requests. Writes invalidate reads; GETs are not automatically retried. Week/version reads revalidate ETags and accept 304 only with a body from the same session. The transport does not trust immutable lifecycle-status caching, matching architecture v3. Cross-origin APIs must expose ETag and Retry-After.
 
-No fallback to fixtures occurs after a real API error. Live mode surfaces 401/403/409/501 honestly. Publication and other future writes cannot be enabled until their contracts exist.
+Fixture scenario/session headers are never sent to a configured real API. There is no automatic fallback to fixtures after an API error. Dedicated API/database smoke checks are described in the current handoff; they do not switch the default preview to live mode or close the v3 integration gates.
 
-## Handoffs
+## Architecture and handoffs
 
-- [Consumer approval and provider follow-ups](docs/CONTRACT_REVIEW.md)
-- [Initial backend handoff](docs/BACKEND_HANDOFF.md)
-- [Initial workflows and wireframes](docs/WORKFLOWS.md)
+- [Architecture v3 alignment](docs/ARCHITECTURE_V3_ALIGNMENT.md)
+- [Current delivery handoff](docs/UI_HANDOFF_2026-10-19.md)
 - [Design system](DESIGN.md)
+- [Contract reviews](docs/CONTRACT_REVIEW.md)
 
-Detailed employee/skill/availability and demand forms, employee requests, import, rule parsing, repair and durable publication remain subsequent slices. Review the current task board; the earlier workflow note records the first prototype, not current completion of every UI task.
+Upcoming work follows v3: staffing templates and preserved manual overrides, lightweight candidate selection, proposals with Published/Stale/Invalid/Changed outcomes, absence-triggered repair, fixed-template CSV onboarding, rules, history and validated restore. The old sandbox is not evidence that those server workflows are delivered.
 
-Design references: [Taste Skill minimalist UI](https://github.com/Leonxlnx/taste-skill/blob/main/skills/minimalist-skill/SKILL.md), adapted to an operational roster, and [Superdesign reference](https://p.superdesign.dev/draft/60a3db55-605b-483b-b5c6-a5ebb9c9d902).
-
-Read caching is scoped to an in-memory client session and only covers schedule weeks and versions. Repeated reads send `If-None-Match`; a 304 reuses that session's previous body. Requests still reach the provider for authorization. Persona replacement and 401 clear cached bodies as well as credentials. For a cross-origin API, the provider must expose ETag and Retry-After through CORS for these headers to be readable.
-
-
-The current UI applies the installed taste-skill package's existing-project redesign guidance: stronger skill colors, visible breaks/locks, explanatory metrics, team skill filters, and a staffing gap review. See `docs/CONTRACT_UI_DESIGN.md` and `DESIGN.md`. The complete package is installed locally in Codex; it is not a frontend runtime dependency.
+Design skills are local development tools, not runtime dependencies. Current work uses the requested [taste redesign guidance](https://github.com/Leonxlnx/taste-skill/tree/main/skills/redesign-skill), [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design), and [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill). [improve-animations](https://github.com/emilkowalski/skills/tree/main/skills/improve-animations) supplies read-only audit/planning criteria; implementation remains the authorized repository task.

@@ -1,5 +1,5 @@
-# ShiftPilot UI direction
+# ShiftPilot working-document direction
 
-Updated at the user's request: more vibrant and understandable, with useful detail instead of extreme minimalism. The canonical current design is `web/DESIGN.md`.
+The canonical implementation is in `web/DESIGN.md`. The user rejected the earlier font/color treatment and asked for experimentation. Default: light ink-gray surfaces, a blue action accent, IBM Plex Sans working text and Bricolage headings. Appearance offers Paprika/Olive palettes and Editorial/Plain typography alternatives. Role labels stay small and meaningful on neutral shift tiles. Sidebar can collapse to a named icon rail, or open as a focus-managed mobile drawer, with slide/dissolve/fold and reduced-motion support.
 
-The API workspace uses a deep green identity/navigation frame, light blue-gray working surface, teal primary actions, and five distinct role pairs (orange Grill, mint Prep, violet Server, gold Cashier, blue Barista). Use local Geist, legible 12px shift text, visible break and lock metadata, a status/action ribbon and explanatory metrics. Roster first; no marketing hero, decorative photography or cinematic scroll. Provide skill filters and an explanatory staffing review. Preserve the fixture label and all capability/session boundaries. The older local editing sandbox retains its original neutral palette.
+Keep the roster dominant, details useful and navigation real. Architecture v3 governs behavior: lightweight candidates, explicit selection, proposals, current-fact validation and four publication outcomes. Do not substitute decorative analytics or the old local sandbox for those flows.
