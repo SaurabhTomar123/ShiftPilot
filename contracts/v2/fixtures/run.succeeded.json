@@ -20,6 +20,7 @@
       ],
       "base_version_ids": [],
       "strategy": "balanced",
+      "absence_id": null,
       "job_state": "succeeded",
       "solver_status": "OPTIMAL",
       "input_hash": "sha256:a9aefe1885535e62920a74d53098d5af",
@@ -35,7 +36,7 @@
           "strategy": "balanced",
           "solver_status": "OPTIMAL",
           "proven_optimal": true,
-          "draft_version_id": "89d25c7e-d0ac-5664-a7ac-7981d26fd847",
+          "materialized_version_id": null,
           "metrics": {
             "coverage_ratio": 0.7714,
             "minimum_deficit_minutes": 0,
@@ -335,7 +336,9 @@
                 }
               }
             ]
-          }
+          },
+          "disruption": null,
+          "explanations": []
         },
         {
           "id": "cf2129a7-c492-5388-a2c8-bbc18065b8a5",
@@ -343,7 +346,7 @@
           "strategy": "lowest_cost",
           "solver_status": "OPTIMAL",
           "proven_optimal": true,
-          "draft_version_id": "cf2f79e3-a264-541e-bba7-4b02ed234df3",
+          "materialized_version_id": null,
           "metrics": {
             "coverage_ratio": 0.738,
             "minimum_deficit_minutes": 0,
@@ -643,7 +646,9 @@
                 }
               }
             ]
-          }
+          },
+          "disruption": null,
+          "explanations": []
         }
       ],
       "infeasibility": null,

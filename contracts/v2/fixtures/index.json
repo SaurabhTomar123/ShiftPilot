@@ -1,5 +1,5 @@
 {
-  "contract_version": "2.3.0-p3",
+  "contract_version": "3.1.0-p4",
   "fixtures": [
     {
       "name": "draft.create",
@@ -72,6 +72,96 @@
       "operation_id": "restoreVersion",
       "status": 201,
       "schema": "ScheduleVersion"
+    },
+    {
+      "name": "absence.report",
+      "operation_id": "reportAbsence",
+      "status": 201,
+      "schema": "AbsenceReport"
+    },
+    {
+      "name": "absence.report.requested",
+      "operation_id": "reportAbsence",
+      "status": 201,
+      "schema": "AbsenceReport"
+    },
+    {
+      "name": "absences.list",
+      "operation_id": "listAbsences",
+      "status": 200,
+      "schema": "AbsenceList"
+    },
+    {
+      "name": "absence.update.confirm",
+      "operation_id": "updateAbsence",
+      "status": 200,
+      "schema": "AbsenceReport"
+    },
+    {
+      "name": "repair.accepted",
+      "operation_id": "repairSchedule",
+      "status": 202,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "repair.locked",
+      "operation_id": "repairSchedule",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "proposal.create",
+      "operation_id": "createProposal",
+      "status": 201,
+      "schema": "Proposal"
+    },
+    {
+      "name": "proposal.get",
+      "operation_id": "getProposal",
+      "status": 200,
+      "schema": "Proposal"
+    },
+    {
+      "name": "proposal.approve.published",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.stale",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.invalid",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.changed",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.acknowledged",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.already_decided",
+      "operation_id": "approveProposal",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "proposal.reject",
+      "operation_id": "rejectProposal",
+      "status": 200,
+      "schema": "Proposal"
     },
     {
       "name": "session.demo.manager",
@@ -300,6 +390,18 @@
       "operation_id": "getOptimizationRun",
       "status": 200,
       "schema": "OptimizationRun"
+    },
+    {
+      "name": "candidate.detail",
+      "operation_id": "getOptimizationCandidate",
+      "status": 200,
+      "schema": "CandidateDetail"
+    },
+    {
+      "name": "candidate.select",
+      "operation_id": "selectOptimizationCandidate",
+      "status": 201,
+      "schema": "ScheduleVersion"
     },
     {
       "name": "schedule_version.draft",

@@ -275,7 +275,7 @@ def create_draft(
                 rows = _rows(session, source_id)
             draft = _new_draft(session, caller, schedule, rows, source="manual", reason="Manager edit")
             _audit(session, caller, "DRAFT_CREATED", "schedule_version", draft.id, None, None)
-            return version_view(session, draft)
+            return version_view(session, draft, record=True)
 
         return s.ScheduleVersion.model_validate(
             idempotent(session, caller, key, "createDraft", body, produce)
@@ -379,7 +379,7 @@ def apply_edits(caller: Caller, version_id: uuid.UUID, body: s.EditRequest) -> s
         except IntegrityError as exc:  # e.g. an employee or skill from another organization
             raise ApiError("validation_failed", "Some edits refer to unknown employees or roles.") from exc
         _audit(session, caller, "SHIFTS_EDITED", "schedule_version", version.id, None, None)
-        return version_view(session, version)
+        return version_view(session, version, record=True)
 
 
 def discard_draft(caller: Caller, version_id: uuid.UUID) -> s.ScheduleVersionSummary:
@@ -397,6 +397,55 @@ def discard_draft(caller: Caller, version_id: uuid.UUID) -> s.ScheduleVersionSum
 
 
 # ---------------------------------------------------------------- B3.2 publication
+
+
+def _live_check(
+    session: Session, schedule: Schedule, version: ScheduleVersion
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """(hard violations, metrics) of a draft against CURRENT facts: availability, absences, rules, skills
+    and the organization-wide live roster. Takes advisory locks on every rostered employee in stable
+    order first, so concurrent publications elsewhere cannot create cross-outlet conflicts."""
+    roster = [snapshot_db.to_shift(r) for r in _rows(session, version.id)]
+    for emp in sorted({str(sh.employee_id) for sh in roster if sh.employee_id}):
+        session.execute(text("SELECT pg_advisory_xact_lock(hashtextextended(:k, 0))"), {"k": f"emp:{emp}"})
+    snap = snapshot_db.load(session, schedule.outlet_id, schedule.week_start, roster, schedule.id)
+    result = validator.validate(snap, roster)
+    hard = [v for v in validator.as_contract(result)["violations"] if v["severity"] == "hard"]
+    return hard, metrics.as_contract(metrics.compute(snap, roster))
+
+
+def _publish_locked(
+    session: Session, caller: Caller, schedule: Schedule, version: ScheduleVersion, measured: dict[str, Any]
+) -> tuple[s.ScheduleVersionSummary, uuid.UUID | None]:
+    """Supersede, publish and move the pointer, with audit and outbox rows (schedule row locked).
+    `measured` (from _live_check, against current facts) is stored and frozen with the version."""
+    previous = schedule.current_version_id
+    if previous is not None:
+        session.execute(
+            text("UPDATE schedule_versions SET status = 'superseded' WHERE id = :v"), {"v": previous}
+        )
+    version.metrics = measured
+    version.status = "published"
+    version.published_at = datetime.now(UTC)
+    version.approved_by_user_id = uuid.UUID(caller.user_id)
+    session.flush()
+    schedule.current_version_id = version.id
+    session.flush()
+    _audit(session, caller, "SCHEDULE_PUBLISHED", "schedule_version", version.id, None, None)
+    _outbox(
+        session,
+        schedule.org_id,
+        "schedule.published",
+        "schedule_version",
+        version.id,
+        {"schedule_id": schedule.id, "version_id": version.id, "superseded_version_id": previous},
+    )
+    session.refresh(version)
+    view = version_view(session, version)
+    summary = s.ScheduleVersionSummary.model_validate(
+        view.model_dump(include=set(s.ScheduleVersionSummary.model_fields))
+    )
+    return summary, previous
 
 
 def publish(caller: Caller, version_id: uuid.UUID, key: str, body: s.PublishRequest) -> s.PublishResult:
@@ -418,50 +467,15 @@ def publish(caller: Caller, version_id: uuid.UUID, key: str, body: s.PublishRequ
                     "This draft was changed after you reviewed it. Review it again.",
                     current_revision=version.revision,
                 )
-            roster = [snapshot_db.to_shift(r) for r in _rows(session, version.id)]
-            for emp in sorted({str(sh.employee_id) for sh in roster if sh.employee_id}):
-                session.execute(
-                    text("SELECT pg_advisory_xact_lock(hashtextextended(:k, 0))"), {"k": f"emp:{emp}"}
-                )
-            snap = snapshot_db.load(session, schedule.outlet_id, schedule.week_start, roster, schedule.id)
-            result = validator.validate(snap, roster)
-            if not result.valid:
+            hard, measured = _live_check(session, schedule, version)
+            if hard:
                 raise ApiError(
                     "validation_failed",
                     "This draft breaks scheduling rules. Fix them before publishing.",
-                    violations=[
-                        v for v in validator.as_contract(result)["violations"] if v["severity"] == "hard"
-                    ],
+                    violations=hard,
                 )
-            previous = schedule.current_version_id
-            if previous is not None:
-                session.execute(
-                    text("UPDATE schedule_versions SET status = 'superseded' WHERE id = :v"), {"v": previous}
-                )
-            version.status = "published"
-            version.published_at = datetime.now(UTC)
-            version.approved_by_user_id = uuid.UUID(caller.user_id)
-            session.flush()
-            schedule.current_version_id = version.id
-            session.flush()
-            _audit(session, caller, "SCHEDULE_PUBLISHED", "schedule_version", version.id, None, None)
-            _outbox(
-                session,
-                schedule.org_id,
-                "schedule.published",
-                "schedule_version",
-                version.id,
-                {"schedule_id": schedule.id, "version_id": version.id, "superseded_version_id": previous},
-            )
-            session.refresh(version)
-            view = version_view(session, version)
-            return s.PublishResult(
-                schedule_id=schedule.id,
-                published=s.ScheduleVersionSummary.model_validate(
-                    view.model_dump(include=set(s.ScheduleVersionSummary.model_fields))
-                ),
-                superseded_version_id=previous,
-            )
+            summary, previous = _publish_locked(session, caller, schedule, version, measured)
+            return s.PublishResult(schedule_id=schedule.id, published=summary, superseded_version_id=previous)
 
         return s.PublishResult.model_validate(
             idempotent(session, caller, key, "publishVersion", body, produce)
@@ -532,7 +546,7 @@ def restore(caller: Caller, version_id: uuid.UUID, key: str, body: s.RestoreRequ
                 reason=f"Restored from version {source.version_number}",
             )
             _audit(session, caller, "SCHEDULE_RESTORED", "schedule_version", draft.id, None, None)
-            return version_view(session, draft)
+            return version_view(session, draft, record=True)
 
         return s.ScheduleVersion.model_validate(
             idempotent(session, caller, key, "restoreVersion", body, produce)

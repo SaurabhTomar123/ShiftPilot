@@ -24,6 +24,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from api.v2 import schemas as s
+from api.v2.proposals import STALE_PUBLISHED
+from api.v2.rosters import version_etag
 from api.v2.routes import router
 from scheduling import diff as sched_diff
 from scheduling import edits as sched_edits
@@ -178,6 +180,7 @@ def version(
 ) -> s.ScheduleVersion:
     metrics, cells, validation = evaluate(week, roster)
     summary.setdefault("revision", 1)
+    summary.setdefault("recorded_metrics", metrics)
     return s.ScheduleVersion(
         id=uid("version", key),
         schedule_id=uid("schedule", f"{outlet_key}:{week}"),
@@ -411,6 +414,7 @@ def fixtures() -> list[Fixture]:
     run_id = uid("run", f"generate:{NEXT_WEEK}")
 
     def draft(key: str, number: int, roster: list[PlannedShift], strategy: str) -> s.ScheduleVersion:
+        """The draft a manager gets by selecting candidate `number` (candidates are not versions)."""
         return version(
             f"indiranagar:{NEXT_WEEK}:{key}",
             NEXT_WEEK,
@@ -418,10 +422,10 @@ def fixtures() -> list[Fixture]:
             version_number=number,
             status="draft",
             source="generate",
-            reason=f"Generated ({strategy})",
+            reason=f"Selected option {number} ({strategy.replace('_', ' ')})",
             base_version_id=None,
             optimization_run_id=run_id,
-            created_by_user_id=None,
+            created_by_user_id=uid("user", "manager_indiranagar"),
             approved_by_user_id=None,
             created_at=stamp("2026-10-18T19:40:02"),
             published_at=None,
@@ -442,10 +446,23 @@ def fixtures() -> list[Fixture]:
             strategy=strategy,
             solver_status=status,
             proven_optimal=status == "OPTIMAL",
-            draft_version_id=v.id,
+            materialized_version_id=None,
             metrics=v.metrics,
             changed_shifts=len(v.shifts),
             validation=v.validation,
+        )
+
+    def candidate_detail(c: s.Candidate, v: s.ScheduleVersion) -> s.CandidateDetail:
+        added = [
+            s.CandidateShift.model_validate(sh.model_dump(exclude={"id", "lock_reason"})) for sh in v.shifts
+        ]
+        return s.CandidateDetail.model_validate(
+            c.model_dump()
+            | {
+                "run_id": run_id,
+                "base_version_id": None,
+                "diff": {"added": added, "changed": [], "removed": []},
+            }
         )
 
     done = dict(
@@ -464,7 +481,11 @@ def fixtures() -> list[Fixture]:
     run_req = {"path_params": {"run_id": str(run_id)}}
     stale_emp = employee(EMP["ravi"]).model_copy(update={"revision": 2})
     week_etag = {"ETag": f'"week-{published.id}"'}
-    immutable = {"Cache-Control": "private, max-age=31536000, immutable"}
+    no_cache = {"Cache-Control": "private, no-cache"}
+
+    def vtag(v: s.ScheduleVersion) -> str:
+        return version_etag(v.id, v.status, v.revision)
+
     ravi_skill_ids = {sh.skill_id for sh in published.shifts if sh.employee_id == uid("employee", "ravi")}
 
     def other_outlet_week(key: str) -> s.ScheduleVersion:
@@ -487,605 +508,644 @@ def fixtures() -> list[Fixture]:
 
     owner_weeks = {key: other_outlet_week(key) for key in ("koramangala", "hsr")}
 
-    return p3_fixtures(published) + [
-        Fixture(
-            "session.demo.manager",
-            "createDemoSession",
-            "POST",
-            "/v2/session/demo",
-            None,
-            201,
-            s.DemoSession(
-                access_token="demo.synthetic.token.not-a-real-jwt",
-                expires_at=stamp("2026-10-18T21:40:00"),
-                me=me("manager_indiranagar"),
-            ),
-            {"body": {"persona": "manager"}},
-        ),
-        Fixture(
-            "session.demo.disabled",
-            "createDemoSession",
-            "POST",
-            "/v2/session/demo",
-            None,
-            403,
-            error("permission_denied", "Demo sessions are not available on this deployment."),
-            {"body": {"persona": "owner"}},
-        ),
-        Fixture("me.owner", "getMe", "GET", "/v2/me", "owner", 200, me("owner")),
-        Fixture(
-            "me.manager", "getMe", "GET", "/v2/me", "manager_indiranagar", 200, me("manager_indiranagar")
-        ),
-        Fixture("me.staff", "getMe", "GET", "/v2/me", "staff_ravi", 200, me("staff_ravi")),
-        Fixture(
-            "me.unauthenticated",
-            "getMe",
-            "GET",
-            "/v2/me",
-            None,
-            401,
-            error("unauthenticated", "Sign in to continue."),
-        ),
-        Fixture(
-            "outlets.owner",
-            "listOutlets",
-            "GET",
-            "/v2/outlets",
-            "owner",
-            200,
-            s.OutletList(items=[outlet(k, n) for k, n in OUTLETS]),
-        ),
-        Fixture(
-            "outlets.manager",
-            "listOutlets",
-            "GET",
-            "/v2/outlets",
-            "manager_indiranagar",
-            200,
-            s.OutletList(items=[outlet(*OUTLETS[0])]),
-        ),
-        Fixture(
-            "skills.list",
-            "listSkills",
-            "GET",
-            "/v2/skills",
-            "manager_indiranagar",
-            200,
-            s.SkillList(items=[s.Skill(id=SKILL[n], name=n) for n in SKILLS]),
-        ),
-        Fixture(
-            "employees.list",
-            "listEmployees",
-            "GET",
-            "/v2/employees",
-            "manager_indiranagar",
-            200,
-            s.EmployeeList(items=[employee(e) for e in EMPLOYEES], next_cursor=None),
-            {"query": {"outlet_id": ind, "status": "active"}},
-        ),
-        Fixture(
-            "employees.list.other_outlet_denied",
-            "listEmployees",
-            "GET",
-            "/v2/employees",
-            "manager_indiranagar",
-            403,
-            error("permission_denied", "You can only access your own outlet."),
-            {"query": {"outlet_id": other_outlet}},
-        ),
-        Fixture(
-            "employees.get",
-            "getEmployee",
-            "GET",
-            "/v2/employees/{employee_id}",
-            "manager_indiranagar",
-            200,
-            employee(EMP["ravi"]),
-            {"path_params": {"employee_id": ravi}},
-        ),
-        Fixture(
-            "employees.get.not_found",
-            "getEmployee",
-            "GET",
-            "/v2/employees/{employee_id}",
-            "manager_indiranagar",
-            404,
-            error("not_found", "Employee not found."),
-            {"path_params": {"employee_id": str(uid("employee", "missing"))}},
-        ),
-        Fixture(
-            "employees.create",
-            "createEmployee",
-            "POST",
-            "/v2/employees",
-            "manager_indiranagar",
-            201,
-            employee(Emp("tara", "Tara Singh", ("Barista", "Cashier"), 159)),
-            {
-                "headers": {"Idempotency-Key": "emp-3f9a1b77"},
-                "body": s.EmployeeCreate(
-                    **employee(Emp("tara", "Tara Singh", ("Barista", "Cashier"), 159)).model_dump(
-                        exclude={"id", "revision"}
-                    )
-                ).model_dump(mode="json"),
-            },
-        ),
-        Fixture(
-            "employees.create.invalid",
-            "createEmployee",
-            "POST",
-            "/v2/employees",
-            "manager_indiranagar",
-            422,
-            error(
-                "validation_failed",
-                "Some fields need attention.",
-                fields=[
-                    {"path": ["name"], "message": "Name is required."},
-                    {"path": ["max_weekly_minutes"], "message": "Must be at least regular_weekly_minutes."},
-                ],
-            ),
-            {"headers": {"Idempotency-Key": "emp-0c2d4e11"}},
-        ),
-        Fixture(
-            "employees.update",
-            "updateEmployee",
-            "PATCH",
-            "/v2/employees/{employee_id}",
-            "manager_indiranagar",
-            200,
-            stale_emp,
-            {"path_params": {"employee_id": ravi}, "body": {"base_revision": 1, "tags": []}},
-        ),
-        Fixture(
-            "employees.update.stale",
-            "updateEmployee",
-            "PATCH",
-            "/v2/employees/{employee_id}",
-            "manager_indiranagar",
-            409,
-            error(
-                "stale_version",
-                "This employee was changed by someone else. Reload and try again.",
-                current_revision=2,
-            ),
-            {"path_params": {"employee_id": ravi}, "body": {"base_revision": 1, "tags": ["senior"]}},
-        ),
-        Fixture(
-            "availability.get",
-            "getAvailability",
-            "GET",
-            "/v2/employees/{employee_id}/availability",
-            "manager_indiranagar",
-            200,
-            availability(EMP["ravi"]),
-            {"path_params": {"employee_id": ravi}},
-        ),
-        Fixture(
-            "availability.get.student",
-            "getAvailability",
-            "GET",
-            "/v2/employees/{employee_id}/availability",
-            "manager_indiranagar",
-            200,
-            availability(EMP["rohit"]),
-            {"path_params": {"employee_id": str(uid("employee", "rohit"))}},
-        ),
-        Fixture(
-            "availability.put.invalid",
-            "putAvailability",
-            "PUT",
-            "/v2/employees/{employee_id}/availability",
-            "manager_indiranagar",
-            422,
-            error(
-                "validation_failed",
-                "Some fields need attention.",
-                fields=[
-                    {"path": ["windows", 0, "end_minute"], "message": "end_minute must be after start_minute"}
-                ],
-            ),
-            {"path_params": {"employee_id": ravi}},
-        ),
-        Fixture(
-            "availability.put",
-            "putAvailability",
-            "PUT",
-            "/v2/employees/{employee_id}/availability",
-            "manager_indiranagar",
-            200,
-            availability(EMP["ravi"]).model_copy(update={"revision": 2}),
-            {
-                "path_params": {"employee_id": ravi},
-                "body": s.AvailabilityUpdate(
-                    base_revision=1, windows=availability(EMP["ravi"]).windows
-                ).model_dump(mode="json"),
-            },
-        ),
-        Fixture(
-            "staffing.put",
-            "putStaffingRequirements",
-            "PUT",
-            "/v2/outlets/{outlet_id}/staffing-requirements",
-            "manager_indiranagar",
-            200,
-            staffing(WEEK).model_copy(update={"demand_revision": 4}),
-            {
-                "path_params": {"outlet_id": ind},
-                "query": {"week_start": WEEK.isoformat()},
-                "body": s.StaffingRequirementsUpdate(
-                    base_demand_revision=3, intervals=staffing(WEEK).intervals
-                ).model_dump(mode="json"),
-            },
-        ),
-        Fixture(
-            "staffing.get",
-            "getStaffingRequirements",
-            "GET",
-            "/v2/outlets/{outlet_id}/staffing-requirements",
-            "manager_indiranagar",
-            200,
-            staffing(WEEK),
-            {"path_params": {"outlet_id": ind}, "query": {"week_start": WEEK.isoformat()}},
-        ),
-        Fixture(
-            "schedule_week.published",
-            "getScheduleWeek",
-            "GET",
-            "/v2/outlets/{outlet_id}/schedules/{week_start}",
-            "manager_indiranagar",
-            200,
-            s.ScheduleWeek(
-                outlet_id=HOME,
-                week_start=WEEK,
-                timezone=TZ,
-                schedule_id=uid("schedule", f"indiranagar:{WEEK}"),
-                current_version=published,
-                drafts=[],
-                employees=roster_employees(published),
-                absences=requested_leave(published, WEEK + timedelta(days=3)),
-            ),
-            week_req,
-            week_etag,
-        ),
-        Fixture(
-            "schedule_week.empty",
-            "getScheduleWeek",
-            "GET",
-            "/v2/outlets/{outlet_id}/schedules/{week_start}",
-            "manager_indiranagar",
-            200,
-            s.ScheduleWeek(
-                outlet_id=HOME,
-                week_start=NEXT_WEEK,
-                timezone=TZ,
-                schedule_id=None,
-                current_version=None,
-                drafts=[],
-                employees=roster_employees(None),
-                absences=[],
-            ),
-            {"path_params": {"outlet_id": ind, "week_start": NEXT_WEEK.isoformat()}},
-        ),
-        Fixture(
-            "schedule_week.denied",
-            "getScheduleWeek",
-            "GET",
-            "/v2/outlets/{outlet_id}/schedules/{week_start}",
-            "manager_indiranagar",
-            403,
-            error("permission_denied", "You can only access your own outlet."),
-            {"path_params": {"outlet_id": other_outlet, "week_start": WEEK.isoformat()}},
-        ),
-        Fixture(
-            "my_week.staff",
-            "getMyWeek",
-            "GET",
-            "/v2/me/shifts",
-            "staff_ravi",
-            200,
-            s.MyWeek(
-                employee_id=uid("employee", "ravi"),
-                week_start=WEEK,
-                shifts=[sh for sh in published.shifts if sh.employee_id == uid("employee", "ravi")],
-                outlets=[s.OutletRef(id=HOME, name="Indiranagar", timezone=TZ)],
-                skills=[s.Skill(id=SKILL[n], name=n) for n in SKILLS if SKILL[n] in ravi_skill_ids],
-            ),
-            {"query": {"week_start": WEEK.isoformat()}},
-        ),
-        Fixture(
-            "generate.accepted",
-            "generateSchedule",
-            "POST",
-            gen_path,
-            "manager_indiranagar",
-            202,
-            run("queued"),
-            gen_req,
-        ),
-        Fixture(
-            "generate.idempotency_conflict",
-            "generateSchedule",
-            "POST",
-            gen_path,
-            "manager_indiranagar",
-            409,
-            error(
-                "idempotency_conflict",
-                "This request key was already used with different input.",
-                run_id=str(run_id),
-            ),
-            gen_req,
-        ),
-        Fixture(
-            "generate.stale_base",
-            "generateSchedule",
-            "POST",
-            gen_path,
-            "manager_indiranagar",
-            409,
-            error(
-                "stale_version",
-                "The schedule changed since you opened it. Reload and try again.",
-                current_version_id=str(published.id),
-            ),
-            {
-                **week_req,
-                "headers": {"Idempotency-Key": "gen-5b0e8c31"},
-                "body": s.GenerateRequest(
-                    base_version_id=uid("version", "indiranagar:2026-10-19:v2")
-                ).model_dump(mode="json"),
-            },
-        ),
-        Fixture(
-            "generate.rate_limited",
-            "generateSchedule",
-            "POST",
-            gen_path,
-            "manager_indiranagar",
-            429,
-            error(
-                "rate_limited",
-                "Too many optimizations are running. Try again shortly.",
-                retryable=True,
-                retry_after_ms=3000,
-            ),
-            gen_req,
-            {"Retry-After": "3"},
-        ),
-        Fixture(
-            "run.queued",
-            "getOptimizationRun",
-            "GET",
-            "/v2/optimization-runs/{run_id}",
-            "manager_indiranagar",
-            200,
-            run("queued"),
-            run_req,
-        ),
-        Fixture(
-            "run.running",
-            "getOptimizationRun",
-            "GET",
-            "/v2/optimization-runs/{run_id}",
-            "manager_indiranagar",
-            200,
-            run("running", started_at=stamp("2026-10-18T19:40:00.400")),
-            run_req,
-        ),
-        Fixture(
-            "run.succeeded",
-            "getOptimizationRun",
-            "GET",
-            "/v2/optimization-runs/{run_id}",
-            "manager_indiranagar",
-            200,
-            run(
-                "succeeded",
-                solver_status="OPTIMAL",
-                candidates=[candidate(1, d1, "balanced"), candidate(2, d2, "lowest_cost")],
-                **done,
-            ),
-            run_req,
-        ),
-        Fixture(
-            "run.time_limited_feasible",
-            "getOptimizationRun",
-            "GET",
-            "/v2/optimization-runs/{run_id}",
-            "manager_indiranagar",
-            200,
-            run(
-                "succeeded",
-                solver_status="FEASIBLE",
-                candidates=[candidate(1, d1, "balanced", "FEASIBLE")],
-                **{**done, "solver_wall_ms": 10000},
-            ),
-            run_req,
-        ),
-        Fixture(
-            "run.infeasible",
-            "getOptimizationRun",
-            "GET",
-            "/v2/optimization-runs/{run_id}",
-            "manager_indiranagar",
-            200,
-            run(
-                "succeeded",
-                solver_status="INFEASIBLE",
-                infeasibility=s.Infeasibility(
-                    summary="Friday 19:00-22:00 needs 5 grill cooks; only 3 qualified employees are "
-                    "available.",
-                    shortages=[
-                        s.Shortage(
-                            outlet_id=HOME,
-                            skill_id=SKILL["Grill"],
-                            interval_start=at(date(2026, 10, 30), 1140),
-                            interval_end=at(date(2026, 10, 30), 1320),
-                            minimum_required=5,
-                            max_assignable=3,
-                        )
-                    ],
-                ),
-                **done,
-            ),
-            run_req,
-        ),
-        Fixture(
-            "run.no_solution_in_time",
-            "getOptimizationRun",
-            "GET",
-            "/v2/optimization-runs/{run_id}",
-            "manager_indiranagar",
-            200,
-            run("succeeded", solver_status="UNKNOWN", **{**done, "solver_wall_ms": 10000}),
-            run_req,
-        ),
-        Fixture(
-            "run.failed",
-            "getOptimizationRun",
-            "GET",
-            "/v2/optimization-runs/{run_id}",
-            "manager_indiranagar",
-            200,
-            run(
-                "failed",
-                error=s.ErrorBody(
-                    code="internal",
-                    retryable=True,
-                    message="The optimizer stopped unexpectedly. Try again.",
-                    trace_id="trc_9f2c41d07ab3",
-                ),
-                **done,
-            ),
-            run_req,
-        ),
-        Fixture(
-            "schedule_version.draft",
-            "getScheduleVersion",
-            "GET",
-            "/v2/schedule-versions/{version_id}",
-            "manager_indiranagar",
-            200,
-            d1,
-            {"path_params": {"version_id": str(d1.id)}},
-            {"ETag": f'"{d1.id}"', "Cache-Control": "private, no-cache"},
-        ),
-        Fixture(
-            "schedule_version.draft.lowest_cost",
-            "getScheduleVersion",
-            "GET",
-            "/v2/schedule-versions/{version_id}",
-            "manager_indiranagar",
-            200,
-            d2,
-            {"path_params": {"version_id": str(d2.id)}},
-            {"ETag": f'"{d2.id}"', "Cache-Control": "private, no-cache"},
-        ),
-        Fixture(
-            "schedule_version.published",
-            "getScheduleVersion",
-            "GET",
-            "/v2/schedule-versions/{version_id}",
-            "manager_indiranagar",
-            200,
-            published,
-            {"path_params": {"version_id": str(published.id)}},
-            {"ETag": f'"{published.id}"', **immutable},
-        ),
-        Fixture(
-            "schedule_version.not_modified",
-            "getScheduleVersion",
-            "GET",
-            "/v2/schedule-versions/{version_id}",
-            "manager_indiranagar",
-            304,
-            None,
-            {
-                "path_params": {"version_id": str(published.id)},
-                "headers": {"If-None-Match": f'"{published.id}"'},
-            },
-            {"ETag": f'"{published.id}"'},
-        ),
-        Fixture(
-            "schedule_week.not_modified",
-            "getScheduleWeek",
-            "GET",
-            "/v2/outlets/{outlet_id}/schedules/{week_start}",
-            "manager_indiranagar",
-            304,
-            None,
-            {**week_req, "headers": {"If-None-Match": week_etag["ETag"]}},
-            week_etag,
-        ),
-        Fixture(
-            "generate.run_in_progress",
-            "generateSchedule",
-            "POST",
-            gen_path,
-            "manager_indiranagar",
-            409,
-            error(
-                "run_in_progress",
-                "An optimization is already running for this week. Showing its progress.",
-                retryable=False,
-                run_id=str(run_id),
-            ),
-            {**gen_req, "headers": {"Idempotency-Key": "gen-a91f30c2"}},
-        ),
-        Fixture(
-            "employees.update.null_field",
-            "updateEmployee",
-            "PATCH",
-            "/v2/employees/{employee_id}",
-            "manager_indiranagar",
-            422,
-            error(
-                "validation_failed",
-                "Some fields need attention.",
-                fields=[
-                    {"path": ["name"], "message": "null is not allowed; omit a field to leave it unchanged"}
-                ],
-            ),
-            {"path_params": {"employee_id": ravi}, "body": {"base_revision": 1, "name": None}},
-        ),
-        *[
+    return (
+        p3_fixtures(published)
+        + p4_fixtures(published)
+        + proposal_fixtures(d1)
+        + [
             Fixture(
-                f"schedule_week.owner.{key}",
-                "getScheduleWeek",
+                "session.demo.manager",
+                "createDemoSession",
+                "POST",
+                "/v2/session/demo",
+                None,
+                201,
+                s.DemoSession(
+                    access_token="demo.synthetic.token.not-a-real-jwt",
+                    expires_at=stamp("2026-10-18T21:40:00"),
+                    me=me("manager_indiranagar"),
+                ),
+                {"body": {"persona": "manager"}},
+            ),
+            Fixture(
+                "session.demo.disabled",
+                "createDemoSession",
+                "POST",
+                "/v2/session/demo",
+                None,
+                403,
+                error("permission_denied", "Demo sessions are not available on this deployment."),
+                {"body": {"persona": "owner"}},
+            ),
+            Fixture("me.owner", "getMe", "GET", "/v2/me", "owner", 200, me("owner")),
+            Fixture(
+                "me.manager", "getMe", "GET", "/v2/me", "manager_indiranagar", 200, me("manager_indiranagar")
+            ),
+            Fixture("me.staff", "getMe", "GET", "/v2/me", "staff_ravi", 200, me("staff_ravi")),
+            Fixture(
+                "me.unauthenticated",
+                "getMe",
                 "GET",
-                "/v2/outlets/{outlet_id}/schedules/{week_start}",
+                "/v2/me",
+                None,
+                401,
+                error("unauthenticated", "Sign in to continue."),
+            ),
+            Fixture(
+                "outlets.owner",
+                "listOutlets",
+                "GET",
+                "/v2/outlets",
                 "owner",
                 200,
-                s.ScheduleWeek(
-                    outlet_id=uid("outlet", key),
-                    week_start=WEEK,
-                    timezone=TZ,
-                    schedule_id=uid("schedule", f"{key}:{WEEK}"),
-                    current_version=v,
-                    drafts=[],
-                    employees=roster_employees(v, STAFF[key], uid("outlet", key)),
-                    absences=[],
-                ),
-                {"path_params": {"outlet_id": str(uid("outlet", key)), "week_start": WEEK.isoformat()}},
-                {"ETag": f'"week-{v.id}"'},
-            )
-            for key, v in owner_weeks.items()
-        ],
-        *[
+                s.OutletList(items=[outlet(k, n) for k, n in OUTLETS]),
+            ),
             Fixture(
-                f"employees.list.owner.{key}",
+                "outlets.manager",
+                "listOutlets",
+                "GET",
+                "/v2/outlets",
+                "manager_indiranagar",
+                200,
+                s.OutletList(items=[outlet(*OUTLETS[0])]),
+            ),
+            Fixture(
+                "skills.list",
+                "listSkills",
+                "GET",
+                "/v2/skills",
+                "manager_indiranagar",
+                200,
+                s.SkillList(items=[s.Skill(id=SKILL[n], name=n) for n in SKILLS]),
+            ),
+            Fixture(
+                "employees.list",
                 "listEmployees",
                 "GET",
                 "/v2/employees",
-                "owner",
+                "manager_indiranagar",
                 200,
-                s.EmployeeList(items=[employee(e, uid("outlet", key)) for e in STAFF[key]], next_cursor=None),
-                {"query": {"outlet_id": str(uid("outlet", key)), "status": "active"}},
-            )
-            for key in owner_weeks
-        ],
-    ]
+                s.EmployeeList(items=[employee(e) for e in EMPLOYEES], next_cursor=None),
+                {"query": {"outlet_id": ind, "status": "active"}},
+            ),
+            Fixture(
+                "employees.list.other_outlet_denied",
+                "listEmployees",
+                "GET",
+                "/v2/employees",
+                "manager_indiranagar",
+                403,
+                error("permission_denied", "You can only access your own outlet."),
+                {"query": {"outlet_id": other_outlet}},
+            ),
+            Fixture(
+                "employees.get",
+                "getEmployee",
+                "GET",
+                "/v2/employees/{employee_id}",
+                "manager_indiranagar",
+                200,
+                employee(EMP["ravi"]),
+                {"path_params": {"employee_id": ravi}},
+            ),
+            Fixture(
+                "employees.get.not_found",
+                "getEmployee",
+                "GET",
+                "/v2/employees/{employee_id}",
+                "manager_indiranagar",
+                404,
+                error("not_found", "Employee not found."),
+                {"path_params": {"employee_id": str(uid("employee", "missing"))}},
+            ),
+            Fixture(
+                "employees.create",
+                "createEmployee",
+                "POST",
+                "/v2/employees",
+                "manager_indiranagar",
+                201,
+                employee(Emp("tara", "Tara Singh", ("Barista", "Cashier"), 159)),
+                {
+                    "headers": {"Idempotency-Key": "emp-3f9a1b77"},
+                    "body": s.EmployeeCreate(
+                        **employee(Emp("tara", "Tara Singh", ("Barista", "Cashier"), 159)).model_dump(
+                            exclude={"id", "revision"}
+                        )
+                    ).model_dump(mode="json"),
+                },
+            ),
+            Fixture(
+                "employees.create.invalid",
+                "createEmployee",
+                "POST",
+                "/v2/employees",
+                "manager_indiranagar",
+                422,
+                error(
+                    "validation_failed",
+                    "Some fields need attention.",
+                    fields=[
+                        {"path": ["name"], "message": "Name is required."},
+                        {
+                            "path": ["max_weekly_minutes"],
+                            "message": "Must be at least regular_weekly_minutes.",
+                        },
+                    ],
+                ),
+                {"headers": {"Idempotency-Key": "emp-0c2d4e11"}},
+            ),
+            Fixture(
+                "employees.update",
+                "updateEmployee",
+                "PATCH",
+                "/v2/employees/{employee_id}",
+                "manager_indiranagar",
+                200,
+                stale_emp,
+                {"path_params": {"employee_id": ravi}, "body": {"base_revision": 1, "tags": []}},
+            ),
+            Fixture(
+                "employees.update.stale",
+                "updateEmployee",
+                "PATCH",
+                "/v2/employees/{employee_id}",
+                "manager_indiranagar",
+                409,
+                error(
+                    "stale_version",
+                    "This employee was changed by someone else. Reload and try again.",
+                    current_revision=2,
+                ),
+                {"path_params": {"employee_id": ravi}, "body": {"base_revision": 1, "tags": ["senior"]}},
+            ),
+            Fixture(
+                "availability.get",
+                "getAvailability",
+                "GET",
+                "/v2/employees/{employee_id}/availability",
+                "manager_indiranagar",
+                200,
+                availability(EMP["ravi"]),
+                {"path_params": {"employee_id": ravi}},
+            ),
+            Fixture(
+                "availability.get.student",
+                "getAvailability",
+                "GET",
+                "/v2/employees/{employee_id}/availability",
+                "manager_indiranagar",
+                200,
+                availability(EMP["rohit"]),
+                {"path_params": {"employee_id": str(uid("employee", "rohit"))}},
+            ),
+            Fixture(
+                "availability.put.invalid",
+                "putAvailability",
+                "PUT",
+                "/v2/employees/{employee_id}/availability",
+                "manager_indiranagar",
+                422,
+                error(
+                    "validation_failed",
+                    "Some fields need attention.",
+                    fields=[
+                        {
+                            "path": ["windows", 0, "end_minute"],
+                            "message": "end_minute must be after start_minute",
+                        }
+                    ],
+                ),
+                {"path_params": {"employee_id": ravi}},
+            ),
+            Fixture(
+                "availability.put",
+                "putAvailability",
+                "PUT",
+                "/v2/employees/{employee_id}/availability",
+                "manager_indiranagar",
+                200,
+                availability(EMP["ravi"]).model_copy(update={"revision": 2}),
+                {
+                    "path_params": {"employee_id": ravi},
+                    "body": s.AvailabilityUpdate(
+                        base_revision=1, windows=availability(EMP["ravi"]).windows
+                    ).model_dump(mode="json"),
+                },
+            ),
+            Fixture(
+                "staffing.put",
+                "putStaffingRequirements",
+                "PUT",
+                "/v2/outlets/{outlet_id}/staffing-requirements",
+                "manager_indiranagar",
+                200,
+                staffing(WEEK).model_copy(update={"demand_revision": 4}),
+                {
+                    "path_params": {"outlet_id": ind},
+                    "query": {"week_start": WEEK.isoformat()},
+                    "body": s.StaffingRequirementsUpdate(
+                        base_demand_revision=3, intervals=staffing(WEEK).intervals
+                    ).model_dump(mode="json"),
+                },
+            ),
+            Fixture(
+                "staffing.get",
+                "getStaffingRequirements",
+                "GET",
+                "/v2/outlets/{outlet_id}/staffing-requirements",
+                "manager_indiranagar",
+                200,
+                staffing(WEEK),
+                {"path_params": {"outlet_id": ind}, "query": {"week_start": WEEK.isoformat()}},
+            ),
+            Fixture(
+                "schedule_week.published",
+                "getScheduleWeek",
+                "GET",
+                "/v2/outlets/{outlet_id}/schedules/{week_start}",
+                "manager_indiranagar",
+                200,
+                s.ScheduleWeek(
+                    outlet_id=HOME,
+                    week_start=WEEK,
+                    timezone=TZ,
+                    schedule_id=uid("schedule", f"indiranagar:{WEEK}"),
+                    current_version=published,
+                    drafts=[],
+                    employees=roster_employees(published),
+                    absences=requested_leave(published, WEEK + timedelta(days=3)),
+                ),
+                week_req,
+                week_etag,
+            ),
+            Fixture(
+                "schedule_week.empty",
+                "getScheduleWeek",
+                "GET",
+                "/v2/outlets/{outlet_id}/schedules/{week_start}",
+                "manager_indiranagar",
+                200,
+                s.ScheduleWeek(
+                    outlet_id=HOME,
+                    week_start=NEXT_WEEK,
+                    timezone=TZ,
+                    schedule_id=None,
+                    current_version=None,
+                    drafts=[],
+                    employees=roster_employees(None),
+                    absences=[],
+                ),
+                {"path_params": {"outlet_id": ind, "week_start": NEXT_WEEK.isoformat()}},
+            ),
+            Fixture(
+                "schedule_week.denied",
+                "getScheduleWeek",
+                "GET",
+                "/v2/outlets/{outlet_id}/schedules/{week_start}",
+                "manager_indiranagar",
+                403,
+                error("permission_denied", "You can only access your own outlet."),
+                {"path_params": {"outlet_id": other_outlet, "week_start": WEEK.isoformat()}},
+            ),
+            Fixture(
+                "my_week.staff",
+                "getMyWeek",
+                "GET",
+                "/v2/me/shifts",
+                "staff_ravi",
+                200,
+                s.MyWeek(
+                    employee_id=uid("employee", "ravi"),
+                    week_start=WEEK,
+                    shifts=[sh for sh in published.shifts if sh.employee_id == uid("employee", "ravi")],
+                    outlets=[s.OutletRef(id=HOME, name="Indiranagar", timezone=TZ)],
+                    skills=[s.Skill(id=SKILL[n], name=n) for n in SKILLS if SKILL[n] in ravi_skill_ids],
+                ),
+                {"query": {"week_start": WEEK.isoformat()}},
+            ),
+            Fixture(
+                "generate.accepted",
+                "generateSchedule",
+                "POST",
+                gen_path,
+                "manager_indiranagar",
+                202,
+                run("queued"),
+                gen_req,
+            ),
+            Fixture(
+                "generate.idempotency_conflict",
+                "generateSchedule",
+                "POST",
+                gen_path,
+                "manager_indiranagar",
+                409,
+                error(
+                    "idempotency_conflict",
+                    "This request key was already used with different input.",
+                    run_id=str(run_id),
+                ),
+                gen_req,
+            ),
+            Fixture(
+                "generate.stale_base",
+                "generateSchedule",
+                "POST",
+                gen_path,
+                "manager_indiranagar",
+                409,
+                error(
+                    "stale_version",
+                    "The schedule changed since you opened it. Reload and try again.",
+                    current_version_id=str(published.id),
+                ),
+                {
+                    **week_req,
+                    "headers": {"Idempotency-Key": "gen-5b0e8c31"},
+                    "body": s.GenerateRequest(
+                        base_version_id=uid("version", "indiranagar:2026-10-19:v2")
+                    ).model_dump(mode="json"),
+                },
+            ),
+            Fixture(
+                "generate.rate_limited",
+                "generateSchedule",
+                "POST",
+                gen_path,
+                "manager_indiranagar",
+                429,
+                error(
+                    "rate_limited",
+                    "Too many optimizations are running. Try again shortly.",
+                    retryable=True,
+                    retry_after_ms=3000,
+                ),
+                gen_req,
+                {"Retry-After": "3"},
+            ),
+            Fixture(
+                "run.queued",
+                "getOptimizationRun",
+                "GET",
+                "/v2/optimization-runs/{run_id}",
+                "manager_indiranagar",
+                200,
+                run("queued"),
+                run_req,
+            ),
+            Fixture(
+                "run.running",
+                "getOptimizationRun",
+                "GET",
+                "/v2/optimization-runs/{run_id}",
+                "manager_indiranagar",
+                200,
+                run("running", started_at=stamp("2026-10-18T19:40:00.400")),
+                run_req,
+            ),
+            Fixture(
+                "run.succeeded",
+                "getOptimizationRun",
+                "GET",
+                "/v2/optimization-runs/{run_id}",
+                "manager_indiranagar",
+                200,
+                run(
+                    "succeeded",
+                    solver_status="OPTIMAL",
+                    candidates=[candidate(1, d1, "balanced"), candidate(2, d2, "lowest_cost")],
+                    **done,
+                ),
+                run_req,
+            ),
+            Fixture(
+                "run.time_limited_feasible",
+                "getOptimizationRun",
+                "GET",
+                "/v2/optimization-runs/{run_id}",
+                "manager_indiranagar",
+                200,
+                run(
+                    "succeeded",
+                    solver_status="FEASIBLE",
+                    candidates=[candidate(1, d1, "balanced", "FEASIBLE")],
+                    **{**done, "solver_wall_ms": 10000},
+                ),
+                run_req,
+            ),
+            Fixture(
+                "run.infeasible",
+                "getOptimizationRun",
+                "GET",
+                "/v2/optimization-runs/{run_id}",
+                "manager_indiranagar",
+                200,
+                run(
+                    "succeeded",
+                    solver_status="INFEASIBLE",
+                    infeasibility=s.Infeasibility(
+                        summary="Friday 19:00-22:00 needs 5 grill cooks; only 3 qualified employees are "
+                        "available.",
+                        shortages=[
+                            s.Shortage(
+                                outlet_id=HOME,
+                                skill_id=SKILL["Grill"],
+                                interval_start=at(date(2026, 10, 30), 1140),
+                                interval_end=at(date(2026, 10, 30), 1320),
+                                minimum_required=5,
+                                max_assignable=3,
+                            )
+                        ],
+                    ),
+                    **done,
+                ),
+                run_req,
+            ),
+            Fixture(
+                "run.no_solution_in_time",
+                "getOptimizationRun",
+                "GET",
+                "/v2/optimization-runs/{run_id}",
+                "manager_indiranagar",
+                200,
+                run("succeeded", solver_status="UNKNOWN", **{**done, "solver_wall_ms": 10000}),
+                run_req,
+            ),
+            Fixture(
+                "run.failed",
+                "getOptimizationRun",
+                "GET",
+                "/v2/optimization-runs/{run_id}",
+                "manager_indiranagar",
+                200,
+                run(
+                    "failed",
+                    error=s.ErrorBody(
+                        code="internal",
+                        retryable=True,
+                        message="The optimizer stopped unexpectedly. Try again.",
+                        trace_id="trc_9f2c41d07ab3",
+                    ),
+                    **done,
+                ),
+                run_req,
+            ),
+            Fixture(
+                "candidate.detail",
+                "getOptimizationCandidate",
+                "GET",
+                "/v2/optimization-candidates/{candidate_id}",
+                "manager_indiranagar",
+                200,
+                candidate_detail(candidate(1, d1, "balanced"), d1),
+                {"path_params": {"candidate_id": str(candidate(1, d1, "balanced").id)}},
+            ),
+            Fixture(
+                "candidate.select",
+                "selectOptimizationCandidate",
+                "POST",
+                "/v2/optimization-candidates/{candidate_id}/select",
+                "manager_indiranagar",
+                201,
+                d1,
+                {
+                    "path_params": {"candidate_id": str(candidate(1, d1, "balanced").id)},
+                    "headers": {"Idempotency-Key": "select-3b8e51d2"},
+                },
+            ),
+            Fixture(
+                "schedule_version.draft",
+                "getScheduleVersion",
+                "GET",
+                "/v2/schedule-versions/{version_id}",
+                "manager_indiranagar",
+                200,
+                d1,
+                {"path_params": {"version_id": str(d1.id)}},
+                {"ETag": vtag(d1), **no_cache},
+            ),
+            Fixture(
+                "schedule_version.draft.lowest_cost",
+                "getScheduleVersion",
+                "GET",
+                "/v2/schedule-versions/{version_id}",
+                "manager_indiranagar",
+                200,
+                d2,
+                {"path_params": {"version_id": str(d2.id)}},
+                {"ETag": vtag(d2), **no_cache},
+            ),
+            Fixture(
+                "schedule_version.published",
+                "getScheduleVersion",
+                "GET",
+                "/v2/schedule-versions/{version_id}",
+                "manager_indiranagar",
+                200,
+                published,
+                {"path_params": {"version_id": str(published.id)}},
+                {"ETag": vtag(published), **no_cache},
+            ),
+            Fixture(
+                "schedule_version.not_modified",
+                "getScheduleVersion",
+                "GET",
+                "/v2/schedule-versions/{version_id}",
+                "manager_indiranagar",
+                304,
+                None,
+                {
+                    "path_params": {"version_id": str(published.id)},
+                    "headers": {"If-None-Match": vtag(published)},
+                },
+                {"ETag": vtag(published)},
+            ),
+            Fixture(
+                "schedule_week.not_modified",
+                "getScheduleWeek",
+                "GET",
+                "/v2/outlets/{outlet_id}/schedules/{week_start}",
+                "manager_indiranagar",
+                304,
+                None,
+                {**week_req, "headers": {"If-None-Match": week_etag["ETag"]}},
+                week_etag,
+            ),
+            Fixture(
+                "generate.run_in_progress",
+                "generateSchedule",
+                "POST",
+                gen_path,
+                "manager_indiranagar",
+                409,
+                error(
+                    "run_in_progress",
+                    "An optimization is already running for this week. Showing its progress.",
+                    retryable=False,
+                    run_id=str(run_id),
+                ),
+                {**gen_req, "headers": {"Idempotency-Key": "gen-a91f30c2"}},
+            ),
+            Fixture(
+                "employees.update.null_field",
+                "updateEmployee",
+                "PATCH",
+                "/v2/employees/{employee_id}",
+                "manager_indiranagar",
+                422,
+                error(
+                    "validation_failed",
+                    "Some fields need attention.",
+                    fields=[
+                        {
+                            "path": ["name"],
+                            "message": "null is not allowed; omit a field to leave it unchanged",
+                        }
+                    ],
+                ),
+                {"path_params": {"employee_id": ravi}, "body": {"base_revision": 1, "name": None}},
+            ),
+            *[
+                Fixture(
+                    f"schedule_week.owner.{key}",
+                    "getScheduleWeek",
+                    "GET",
+                    "/v2/outlets/{outlet_id}/schedules/{week_start}",
+                    "owner",
+                    200,
+                    s.ScheduleWeek(
+                        outlet_id=uid("outlet", key),
+                        week_start=WEEK,
+                        timezone=TZ,
+                        schedule_id=uid("schedule", f"{key}:{WEEK}"),
+                        current_version=v,
+                        drafts=[],
+                        employees=roster_employees(v, STAFF[key], uid("outlet", key)),
+                        absences=[],
+                    ),
+                    {"path_params": {"outlet_id": str(uid("outlet", key)), "week_start": WEEK.isoformat()}},
+                    {"ETag": f'"week-{v.id}"'},
+                )
+                for key, v in owner_weeks.items()
+            ],
+            *[
+                Fixture(
+                    f"employees.list.owner.{key}",
+                    "listEmployees",
+                    "GET",
+                    "/v2/employees",
+                    "owner",
+                    200,
+                    s.EmployeeList(
+                        items=[employee(e, uid("outlet", key)) for e in STAFF[key]], next_cursor=None
+                    ),
+                    {"query": {"outlet_id": str(uid("outlet", key)), "status": "active"}},
+                )
+                for key in owner_weeks
+            ],
+        ]
+    )
 
 
 # ---------------------------------------------------------------- P3 (contract 2.3): drafts, edits, publish
@@ -1167,6 +1227,7 @@ def p3_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
     base = [_to_model(sh) for sh in published.shifts]
 
     def draft(key: str, number: int, roster: list[model.Shift], **summary: Any) -> s.ScheduleVersion:
+        evaluated = _evaluated(roster)
         return s.ScheduleVersion(
             id=uid("version", key),
             schedule_id=published.schedule_id,
@@ -1177,7 +1238,8 @@ def p3_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             published_at=None,
             input_hash="sha256:" + uuid.uuid5(NS, f"input:{key}").hex,
             shifts=[_to_contract(sh, key) for sh in roster],
-            **_evaluated(roster),
+            **evaluated,
+            recorded_metrics=evaluated["metrics"],
             **summary,
         )
 
@@ -1254,6 +1316,7 @@ def p3_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
         created_at=stamp("2026-10-16T18:00:00"),
         published_at=stamp("2026-10-16T18:10:00"),
         revision=1,
+        recorded_metrics=_evaluated(v2_roster)["metrics"],
     )
     v5_key = f"indiranagar:{WEEK}:v5"
     v5 = draft(
@@ -1436,6 +1499,352 @@ def p3_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
                 "headers": {"Idempotency-Key": "restore-3e8d"},
                 "body": {"expected_base_version_id": str(published.id)},
             },
+        ),
+    ]
+
+
+# ---------------------------------------------------------------- P4 (contract 2.4): absences and repair
+
+
+def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
+    wednesday = WEEK + timedelta(days=2)
+    hit = next(
+        sh
+        for sh in published.shifts
+        if sh.employee_id and not sh.locked and sh.start_at.astimezone(IST).date() == wednesday
+    )
+    employee = hit.employee_id
+    assert employee is not None
+    absence_id = uid("absence", f"sick:{employee}:{wednesday}")
+    mark = s.AbsenceMark(
+        id=absence_id,
+        employee_id=employee,
+        start_at=at(wednesday, 0),
+        end_at=at(wednesday, 1440),
+        kind="sick",
+        status="confirmed",
+    )
+    affected = [
+        s.AffectedShift(
+            schedule_id=published.schedule_id,
+            version_id=published.id,
+            logical_shift_id=hit.logical_shift_id,
+            outlet_id=hit.outlet_id,
+            skill_id=hit.skill_id,
+            start_at=hit.start_at,
+            end_at=hit.end_at,
+            locked=False,
+        )
+    ]
+    repair_run = uid("run", f"repair:{absence_id}")
+    report = s.AbsenceReport(
+        absence=mark, affected=affected, lock_conflicts=[], repair_suggested=True, repair_run_ids=[repair_run]
+    )
+    ravi = uid("employee", "ravi")
+    requested = s.AbsenceMark(
+        id=uid("absence", f"leave:{ravi}"),
+        employee_id=ravi,
+        start_at=at(WEEK + timedelta(days=4), 0),
+        end_at=at(WEEK + timedelta(days=5), 0),
+        kind="leave",
+        status="requested",
+    )
+    body = {
+        "employee_id": str(employee),
+        "start_at": mark.start_at.isoformat(),
+        "end_at": mark.end_at.isoformat(),
+        "kind": "sick",
+        "status": "confirmed",
+        "reason": None,
+    }
+    queued = s.OptimizationRun(
+        id=repair_run,
+        kind="repair",
+        outlet_ids=[HOME],
+        base_version_ids=[published.id],
+        strategy="least_disruption",
+        absence_id=absence_id,
+        job_state="queued",
+        solver_status=None,
+        input_hash="sha256:" + uuid.uuid5(NS, "input:repair").hex,
+        queued_at=stamp("2026-10-21T16:21:00"),
+        started_at=None,
+        finished_at=None,
+        solver_wall_ms=None,
+        poll_after_ms=300,
+        candidates=[],
+        infeasibility=None,
+        error=None,
+    )
+    repair_path = "/v2/outlets/{outlet_id}/schedules/{week_start}/repair"
+    repair_req = {
+        "path_params": {"outlet_id": str(HOME), "week_start": WEEK.isoformat()},
+        "headers": {"Idempotency-Key": "repair-c41a77e0"},
+        "body": {
+            "absence_id": str(absence_id),
+            "base_version_id": str(published.id),
+            "unlock_logical_shift_ids": [],
+            "time_limit_seconds": 3,
+        },
+    }
+    return [
+        Fixture(
+            "absence.report",
+            "reportAbsence",
+            "POST",
+            "/v2/absences",
+            "manager_indiranagar",
+            201,
+            report,
+            {"headers": {"Idempotency-Key": "absence-5a1e09c3"}, "body": body},
+        ),
+        Fixture(
+            "absence.report.requested",
+            "reportAbsence",
+            "POST",
+            "/v2/absences",
+            "staff_ravi",
+            201,
+            s.AbsenceReport(absence=requested, affected=[], lock_conflicts=[], repair_suggested=False),
+            {
+                "headers": {"Idempotency-Key": "absence-77b2d1f0"},
+                "body": {
+                    "employee_id": str(ravi),
+                    "start_at": requested.start_at.isoformat(),
+                    "end_at": requested.end_at.isoformat(),
+                    "kind": "leave",
+                    "status": "requested",
+                    "reason": "Family function",
+                },
+            },
+        ),
+        Fixture(
+            "absences.list",
+            "listAbsences",
+            "GET",
+            "/v2/absences",
+            "manager_indiranagar",
+            200,
+            s.AbsenceList(items=[mark, requested]),
+            {"query": {"outlet_id": str(HOME), "from": WEEK.isoformat() + "T00:00:00+05:30"}},
+        ),
+        Fixture(
+            "absence.update.confirm",
+            "updateAbsence",
+            "PATCH",
+            "/v2/absences/{absence_id}",
+            "manager_indiranagar",
+            200,
+            report,
+            {"path_params": {"absence_id": str(absence_id)}, "body": {"status": "confirmed"}},
+        ),
+        Fixture(
+            "repair.accepted",
+            "repairSchedule",
+            "POST",
+            repair_path,
+            "manager_indiranagar",
+            202,
+            queued,
+            repair_req,
+        ),
+        Fixture(
+            "repair.locked",
+            "repairSchedule",
+            "POST",
+            repair_path,
+            "manager_indiranagar",
+            409,
+            error(
+                "conflict",
+                "The absence hits a locked shift. Authorize changing it to repair.",
+                locked_logical_shift_ids=[str(hit.logical_shift_id)],
+            ),
+            repair_req,
+        ),
+    ]
+
+
+# ---------------------------------------------------------------- contract 3.0: proposals (v3 section 31)
+
+
+def proposal_fixtures(draft: s.ScheduleVersion) -> list[Fixture]:
+    """Proposal of the selected-candidate draft and each publication outcome of approving it."""
+    manager = uid("user", "manager_indiranagar")
+    proposal = s.Proposal(
+        id=uid("proposal", f"{draft.id}:1"),
+        schedule_id=draft.schedule_id,
+        draft_version_id=draft.id,
+        draft_revision=draft.revision,
+        base_version_id=draft.base_version_id,
+        candidate_id=uid("candidate", "1:OPTIMAL"),
+        status="pending",
+        metrics_at_proposal=draft.metrics,
+        requested_by_user_id=manager,
+        decided_by_user_id=None,
+        created_at=stamp("2026-10-18T19:45:00"),
+        decided_at=None,
+        expires_at=stamp("2026-10-19T19:45:00"),
+    )
+
+    def decided(status: s.ProposalStatus) -> s.Proposal:
+        return proposal.model_copy(
+            update={
+                "status": status,
+                "decided_by_user_id": manager,
+                "decided_at": stamp("2026-10-18T19:52:00"),
+            }
+        )
+
+    shift = next(sh for sh in draft.shifts if sh.employee_id)
+    assert shift.employee_id is not None
+    absent = s.Violation(
+        code="absent",
+        severity="hard",
+        message="This employee has a confirmed absence during this shift.",
+        employee_id=shift.employee_id,
+        logical_shift_ids=[shift.logical_shift_id],
+        facts={"absence_kind": "sick"},
+    )
+    agreed = draft.metrics.model_dump(mode="json")
+    cost = agreed["labour_cost"]["amount_paise"]
+    now = agreed | {"labour_cost": {"amount_paise": cost + max(15_000, cost // 20), "currency": "INR"}}
+    deltas = [s.MetricDelta.model_validate(d) for d in sched_metrics.material_changes(agreed, now)]
+    path = "/v2/proposals/{proposal_id}/approve"
+
+    def approve(key: str, acknowledge: bool = False) -> dict[str, Any]:
+        return {
+            "path_params": {"proposal_id": str(proposal.id)},
+            "headers": {"Idempotency-Key": key},
+            "body": {"acknowledge_changes": acknowledge},
+        }
+
+    published = _summary(
+        draft,
+        status="published",
+        approved_by_user_id=manager,
+        published_at=stamp("2026-10-18T19:52:00"),
+    )
+    return [
+        Fixture(
+            "proposal.create",
+            "createProposal",
+            "POST",
+            "/v2/proposals",
+            "manager_indiranagar",
+            201,
+            proposal,
+            {
+                "headers": {"Idempotency-Key": "propose-61c0d4a8"},
+                "body": {"draft_version_id": str(draft.id), "expected_revision": draft.revision},
+            },
+        ),
+        Fixture(
+            "proposal.get",
+            "getProposal",
+            "GET",
+            "/v2/proposals/{proposal_id}",
+            "manager_indiranagar",
+            200,
+            proposal,
+            {"path_params": {"proposal_id": str(proposal.id)}},
+        ),
+        Fixture(
+            "proposal.approve.published",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            200,
+            s.ProposalDecision(
+                outcome="published",
+                message="Published.",
+                proposal=decided("approved"),
+                published=published,
+                superseded_version_id=None,
+            ),
+            approve("approve-0f3a7b19"),
+        ),
+        Fixture(
+            "proposal.approve.stale",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            200,
+            s.ProposalDecision(
+                outcome="stale",
+                message=STALE_PUBLISHED,
+                proposal=decided("stale"),
+                current_version_id=uid("version", f"indiranagar:{NEXT_WEEK}:other"),
+            ),
+            approve("approve-5d21e8c4"),
+        ),
+        Fixture(
+            "proposal.approve.invalid",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            200,
+            s.ProposalDecision(
+                outcome="invalid",
+                message=f"This recommendation is no longer valid: {absent.message}",
+                proposal=decided("failed"),
+                violations=[absent],
+            ),
+            approve("approve-9b47c2e0"),
+        ),
+        Fixture(
+            "proposal.approve.changed",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            200,
+            s.ProposalDecision(
+                outcome="changed",
+                message=" ".join(d.message for d in deltas) + " Approve again to accept.",
+                proposal=proposal,
+                deltas=deltas,
+            ),
+            approve("approve-2e8f6a13"),
+        ),
+        Fixture(
+            "proposal.approve.acknowledged",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            200,
+            s.ProposalDecision(
+                outcome="published",
+                message="Published.",
+                proposal=decided("approved"),
+                published=published,
+                superseded_version_id=None,
+            ),
+            approve("approve-7c5d0b96", acknowledge=True),
+        ),
+        Fixture(
+            "proposal.approve.already_decided",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            409,
+            error("conflict", "This proposal is already approved.", status="approved"),
+            approve("approve-3a91f7d5"),
+        ),
+        Fixture(
+            "proposal.reject",
+            "rejectProposal",
+            "POST",
+            "/v2/proposals/{proposal_id}/reject",
+            "manager_indiranagar",
+            200,
+            decided("rejected"),
+            {"path_params": {"proposal_id": str(proposal.id)}},
         ),
     ]
 

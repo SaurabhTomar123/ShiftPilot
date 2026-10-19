@@ -17,6 +17,7 @@ Northwind Diner: a minimal second tenant for isolation tests.
 from __future__ import annotations
 
 import argparse
+import json
 import random
 import sys
 from collections.abc import Iterable
@@ -25,11 +26,13 @@ from datetime import date, timedelta
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import Connection, Table, insert, text
+from sqlalchemy import Connection, Table, insert, select, text
+from sqlalchemy.orm import Session
 
 from db import models_v2  # noqa: F401  (registers v2 tables on Base.metadata)
 from db.models import Base
 from db.session import admin_engine
+from scheduling import metrics, snapshot_db
 from seed.world import (
     CLOSE,
     INTERVAL,
@@ -423,6 +426,27 @@ def reset_org(conn: Connection, org_id: Any) -> None:
     conn.execute(text("SET LOCAL session_replication_role = origin"))
 
 
+def _measure(
+    conn: Connection, org: Any, outlet_id: Any, week: date, schedule: Any, version: Any
+) -> dict[str, Any]:
+    """The version's metrics as the API stores them (v3 section 22), computed under the app role with
+    the tenant context set, so row-level security scopes the snapshot to this organization."""
+    conn.execute(text("SET LOCAL ROLE shiftpilot_app"))
+    conn.execute(text("SELECT set_config('app.org_id', :org, true)"), {"org": str(org)})
+    conn.execute(text("SELECT set_config('app.role', 'owner', true)"))
+    try:
+        with Session(bind=conn) as session:
+            rows = session.scalars(
+                select(models_v2.VersionShift).where(models_v2.VersionShift.version_id == version)
+            )
+            roster = [snapshot_db.to_shift(r) for r in rows]
+            snap = snapshot_db.load(session, outlet_id, week, roster, schedule)
+            return metrics.as_contract(metrics.compute(snap, roster))
+    finally:
+        conn.execute(text("RESET ROLE"))
+        conn.execute(text("SELECT set_config('app.org_id', '', true)"))
+
+
 def publish_week(conn: Connection, org_key: str = SPICE, week: date = WEEK) -> None:
     """Seed one published version per outlet through the normal draft -> published path."""
     org = uid("org", org_key)
@@ -478,12 +502,18 @@ def publish_week(conn: Connection, org_key: str = SPICE, week: date = WEEK) -> N
             )
         conn.execute(insert(Base.metadata.tables["logical_shifts"]), logical)
         conn.execute(insert(Base.metadata.tables["version_shifts"]), shifts)
+        measured = _measure(conn, org, uid("outlet", key), week, schedule, version)
         conn.execute(
             text(
                 "UPDATE schedule_versions SET status = 'published', published_at = :at, "
-                "approved_by_user_id = :owner WHERE id = :v"
+                "approved_by_user_id = :owner, metrics = CAST(:metrics AS jsonb) WHERE id = :v"
             ),
-            {"at": stamp("2026-10-17T15:14:00"), "owner": uid("user", "owner"), "v": version},
+            {
+                "at": stamp("2026-10-17T15:14:00"),
+                "owner": uid("user", "owner"),
+                "v": version,
+                "metrics": json.dumps(measured),
+            },
         )
         conn.execute(
             text("UPDATE schedules SET current_version_id = :v WHERE id = :s"), {"v": version, "s": schedule}

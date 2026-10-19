@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "2.3.0-p3"
+    "version": "3.1.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -1286,7 +1286,7 @@
                 }
               },
               "Cache-Control": {
-                "description": "`private, max-age=31536000, immutable` for published and superseded versions (they never change); `private, no-cache` for drafts.",
+                "description": "Always `private, no-cache`: shift content never changes, but status does (published later becomes superseded), so clients revalidate with If-None-Match and get 304 when nothing changed.",
                 "schema": {
                   "type": "string"
                 }
@@ -1575,6 +1575,201 @@
               }
             },
             "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/optimization-candidates/{candidate_id}": {
+      "get": {
+        "summary": "Get Optimization Candidate",
+        "description": "The candidate's diff against its base version. Candidates are not versions until selected.",
+        "operationId": "getOptimizationCandidate",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "candidate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Candidate Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/optimization-candidates/{candidate_id}/select": {
+      "post": {
+        "summary": "Select Optimization Candidate",
+        "description": "Materializes the candidate into a draft (its base_version_id is the run's base, so publishing it\nafter someone else published returns stale_version). Selecting again returns the same draft while it\nis still a draft.",
+        "operationId": "selectOptimizationCandidate",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "candidate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Candidate Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleVersion"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
           },
           "422": {
             "content": {
@@ -2055,6 +2250,420 @@
         }
       }
     },
+    "/v2/proposals": {
+      "post": {
+        "summary": "Create Proposal",
+        "description": "Propose a draft for publication, recording its revision and its metrics against current facts\n(what the manager agrees to). 409 stale_version when the draft revision moved; 422 validation_failed\nwhen it has hard violations.",
+        "operationId": "createProposal",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProposalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/proposals/{proposal_id}": {
+      "get": {
+        "summary": "Get Proposal",
+        "operationId": "getProposal",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule proposal.",
+              "title": "Proposal Id"
+            },
+            "description": "A schedule proposal."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/proposals/{proposal_id}/approve": {
+      "post": {
+        "summary": "Approve Proposal",
+        "description": "The publication transaction (architecture v3 section 31). Always 200 with an `outcome`: published,\nstale, invalid or changed. 409 conflict only when the proposal is no longer pending or expired.",
+        "operationId": "approveProposal",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule proposal.",
+              "title": "Proposal Id"
+            },
+            "description": "A schedule proposal."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveProposalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalDecision"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/proposals/{proposal_id}/reject": {
+      "post": {
+        "summary": "Reject Proposal",
+        "operationId": "rejectProposal",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule proposal.",
+              "title": "Proposal Id"
+            },
+            "description": "A schedule proposal."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
     "/v2/schedule-versions/{version_id}/discard": {
       "post": {
         "summary": "Discard Draft",
@@ -2457,10 +3066,503 @@
           }
         }
       }
+    },
+    "/v2/absences": {
+      "post": {
+        "summary": "Report Absence",
+        "description": "Records the absence as a fact first (it stands whether or not a repair succeeds). A confirmed\nabsence then enqueues a repair run per affected schedule (repair_run_ids); locked affected shifts are\nlisted in lock_conflicts and need explicit authorization through repairSchedule.",
+        "operationId": "reportAbsence",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportAbsenceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbsenceReport"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      },
+      "get": {
+        "summary": "List Absences",
+        "operationId": "listAbsences",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outlet_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Outlet Id"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbsenceList"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/absences/{absence_id}": {
+      "patch": {
+        "summary": "Update Absence",
+        "description": "Managers confirm, reject or cancel. Confirming enqueues repairs exactly as reportAbsence does.",
+        "operationId": "updateAbsence",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "absence_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Absence Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAbsenceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbsenceReport"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/outlets/{outlet_id}/schedules/{week_start}/repair": {
+      "post": {
+        "summary": "Repair Schedule",
+        "description": "Repair runs are claimed before batch work and never blocked by it. An active repair for the same\nabsence is returned (idempotent). 409 conflict lists locked affected shifts without authorization.",
+        "operationId": "repairSchedule",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outlet_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Outlet Id"
+            }
+          },
+          {
+            "name": "week_start",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Week Start"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepairRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptimizationRun"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "429": {
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AbsenceList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AbsenceMark"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "AbsenceList"
+      },
       "AbsenceMark": {
         "properties": {
           "id": {
@@ -2496,10 +3598,12 @@
             "type": "string",
             "enum": [
               "requested",
-              "confirmed"
+              "confirmed",
+              "rejected",
+              "cancelled"
             ],
             "title": "Status",
-            "description": "Only confirmed absences make an overlapping shift invalid."
+            "description": "Only confirmed absences make an overlapping shift invalid. Rosters list only requested and confirmed absences; rejected and cancelled appear in absence management (2.4)."
           }
         },
         "additionalProperties": false,
@@ -2513,6 +3617,52 @@
           "status"
         ],
         "title": "AbsenceMark"
+      },
+      "AbsenceReport": {
+        "properties": {
+          "absence": {
+            "$ref": "#/components/schemas/AbsenceMark"
+          },
+          "affected": {
+            "items": {
+              "$ref": "#/components/schemas/AffectedShift"
+            },
+            "type": "array",
+            "title": "Affected",
+            "description": "Live published shifts the absence overlaps, all outlets."
+          },
+          "lock_conflicts": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Lock Conflicts",
+            "description": "Logical ids of affected shifts that are locked; repairing them needs explicit unlock authorization."
+          },
+          "repair_suggested": {
+            "type": "boolean",
+            "title": "Repair Suggested"
+          },
+          "repair_run_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Repair Run Ids",
+            "description": "Repair runs enqueued automatically for this confirmed absence (one per affected schedule without unauthorized lock conflicts). Poll them like any run."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "absence",
+          "affected",
+          "lock_conflicts",
+          "repair_suggested"
+        ],
+        "title": "AbsenceReport"
       },
       "AddShift": {
         "properties": {
@@ -2583,6 +3733,113 @@
           "end_at"
         ],
         "title": "AddShift"
+      },
+      "AffectedShift": {
+        "properties": {
+          "schedule_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Schedule Id"
+          },
+          "version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Version Id"
+          },
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id"
+          },
+          "outlet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Outlet Id"
+          },
+          "skill_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Skill Id"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start At"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End At"
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schedule_id",
+          "version_id",
+          "logical_shift_id",
+          "outlet_id",
+          "skill_id",
+          "start_at",
+          "end_at",
+          "locked"
+        ],
+        "title": "AffectedShift"
+      },
+      "AlternativeFact": {
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Employee Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "rejected",
+              "eligible_not_selected"
+            ],
+            "title": "Status",
+            "description": "rejected: a concrete rule blocks this person (see reasons). eligible_not_selected: allowed, but this plan chose someone else; never presented as a rejection."
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ExplanationFact"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "employee_id",
+          "name",
+          "status",
+          "reasons"
+        ],
+        "title": "AlternativeFact"
+      },
+      "ApproveProposalRequest": {
+        "properties": {
+          "acknowledge_changes": {
+            "type": "boolean",
+            "title": "Acknowledge Changes",
+            "description": "Set after a `changed` outcome to accept the moved metrics and publish.",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ApproveProposalRequest"
       },
       "Availability": {
         "properties": {
@@ -2692,12 +3949,24 @@
             "title": "Rank"
           },
           "strategy": {
-            "type": "string",
-            "enum": [
-              "balanced",
-              "lowest_cost",
-              "staff_friendly",
-              "max_coverage"
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "balanced",
+                  "lowest_cost",
+                  "staff_friendly",
+                  "max_coverage"
+                ]
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "least_disruption",
+                  "lowest_cost",
+                  "best_coverage"
+                ]
+              }
             ],
             "title": "Strategy"
           },
@@ -2714,11 +3983,18 @@
             "title": "Proven Optimal",
             "description": "False when the time limit ended the search with a valid but unproven schedule."
           },
-          "draft_version_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Draft Version Id",
-            "description": "Fetch with GET /v2/schedule-versions/{id}."
+          "materialized_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Materialized Version Id",
+            "description": "null until a manager selects this candidate (POST /v2/optimization-candidates/{id}/select); then the draft it became."
           },
           "metrics": {
             "$ref": "#/components/schemas/Metrics"
@@ -2732,6 +4008,25 @@
           "validation": {
             "$ref": "#/components/schemas/ValidationResult",
             "description": "Independent validator result. A candidate with hard violations is never returned."
+          },
+          "disruption": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Disruption"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Repair runs only."
+          },
+          "explanations": {
+            "items": {
+              "$ref": "#/components/schemas/ShiftExplanation"
+            },
+            "type": "array",
+            "title": "Explanations",
+            "description": "Repair runs: one per changed shift."
           }
         },
         "additionalProperties": false,
@@ -2742,12 +4037,258 @@
           "strategy",
           "solver_status",
           "proven_optimal",
-          "draft_version_id",
           "metrics",
           "changed_shifts",
           "validation"
         ],
         "title": "Candidate"
+      },
+      "CandidateDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Rank"
+          },
+          "strategy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "balanced",
+                  "lowest_cost",
+                  "staff_friendly",
+                  "max_coverage"
+                ]
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "least_disruption",
+                  "lowest_cost",
+                  "best_coverage"
+                ]
+              }
+            ],
+            "title": "Strategy"
+          },
+          "solver_status": {
+            "type": "string",
+            "enum": [
+              "OPTIMAL",
+              "FEASIBLE"
+            ],
+            "title": "Solver Status"
+          },
+          "proven_optimal": {
+            "type": "boolean",
+            "title": "Proven Optimal",
+            "description": "False when the time limit ended the search with a valid but unproven schedule."
+          },
+          "materialized_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Materialized Version Id",
+            "description": "null until a manager selects this candidate (POST /v2/optimization-candidates/{id}/select); then the draft it became."
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/Metrics"
+          },
+          "changed_shifts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Changed Shifts",
+            "description": "Logical shifts differing from the base version."
+          },
+          "validation": {
+            "$ref": "#/components/schemas/ValidationResult",
+            "description": "Independent validator result. A candidate with hard violations is never returned."
+          },
+          "disruption": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Disruption"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Repair runs only."
+          },
+          "explanations": {
+            "items": {
+              "$ref": "#/components/schemas/ShiftExplanation"
+            },
+            "type": "array",
+            "title": "Explanations",
+            "description": "Repair runs: one per changed shift."
+          },
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          },
+          "base_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Version Id",
+            "description": "The version this diff applies to; null = empty week."
+          },
+          "diff": {
+            "$ref": "#/components/schemas/CandidateDiff"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "rank",
+          "strategy",
+          "solver_status",
+          "proven_optimal",
+          "metrics",
+          "changed_shifts",
+          "validation",
+          "run_id",
+          "base_version_id",
+          "diff"
+        ],
+        "title": "CandidateDetail"
+      },
+      "CandidateDiff": {
+        "properties": {
+          "added": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateShift"
+            },
+            "type": "array",
+            "title": "Added"
+          },
+          "changed": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateShift"
+            },
+            "type": "array",
+            "title": "Changed",
+            "description": "The new state of shifts that exist in the base."
+          },
+          "removed": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Removed",
+            "description": "Logical shift ids of base shifts the candidate drops."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "added",
+          "changed",
+          "removed"
+        ],
+        "title": "CandidateDiff",
+        "description": "The candidate against its base version. For generation without a base, every shift is added."
+      },
+      "CandidateShift": {
+        "properties": {
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id",
+            "description": "Existing ids keep their identity; new shifts get new ids."
+          },
+          "outlet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Outlet Id"
+          },
+          "employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Id",
+            "description": "null = open (unfilled) shift."
+          },
+          "skill_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Skill Id"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start At"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End At"
+          },
+          "break_start_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Break Start At"
+          },
+          "break_minutes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Break Minutes"
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "logical_shift_id",
+          "outlet_id",
+          "employee_id",
+          "skill_id",
+          "start_at",
+          "end_at",
+          "break_start_at",
+          "break_minutes",
+          "locked"
+        ],
+        "title": "CandidateShift",
+        "description": "A shift as a candidate proposes it. It has no row id until the candidate is selected."
       },
       "CoverageCell": {
         "properties": {
@@ -2822,6 +4363,28 @@
         ],
         "title": "CreateDraftRequest"
       },
+      "CreateProposalRequest": {
+        "properties": {
+          "draft_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Draft Version Id"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "description": "The draft revision the manager reviewed."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "draft_version_id",
+          "expected_revision"
+        ],
+        "title": "CreateProposalRequest"
+      },
       "DemoSession": {
         "properties": {
           "access_token": {
@@ -2872,6 +4435,39 @@
           "persona"
         ],
         "title": "DemoSessionRequest"
+      },
+      "Disruption": {
+        "properties": {
+          "changed_shifts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Changed Shifts"
+          },
+          "added_shifts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Added Shifts"
+          },
+          "cross_outlet_moves": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Cross Outlet Moves"
+          },
+          "open_shifts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Open Shifts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "changed_shifts",
+          "added_shifts",
+          "cross_outlet_moves",
+          "open_shifts"
+        ],
+        "title": "Disruption"
       },
       "EditPreview": {
         "properties": {
@@ -3428,6 +5024,43 @@
         ],
         "title": "ErrorResponse"
       },
+      "ExplanationFact": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "skill",
+              "available",
+              "no_conflict",
+              "weekly_hours",
+              "travel"
+            ],
+            "title": "Code"
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Deterministic text built from facts; safe to show."
+          },
+          "facts": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Facts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "ok",
+          "message"
+        ],
+        "title": "ExplanationFact"
+      },
       "GenerateRequest": {
         "properties": {
           "strategy": {
@@ -3582,6 +5215,57 @@
           "capabilities"
         ],
         "title": "Me"
+      },
+      "MetricDelta": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "enum": [
+              "labour_cost",
+              "coverage_ratio",
+              "minimum_deficit_minutes",
+              "open_shifts"
+            ],
+            "title": "Metric"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Before",
+            "description": "labour_cost in paise."
+          },
+          "after": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Deterministic text built from the numbers; safe to show."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric",
+          "before",
+          "after",
+          "message"
+        ],
+        "title": "MetricDelta"
       },
       "Metrics": {
         "properties": {
@@ -3796,14 +5480,39 @@
             "title": "Base Version Ids"
           },
           "strategy": {
-            "type": "string",
-            "enum": [
-              "balanced",
-              "lowest_cost",
-              "staff_friendly",
-              "max_coverage"
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "balanced",
+                  "lowest_cost",
+                  "staff_friendly",
+                  "max_coverage"
+                ]
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "least_disruption",
+                  "lowest_cost",
+                  "best_coverage"
+                ]
+              }
             ],
             "title": "Strategy"
+          },
+          "absence_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Absence Id",
+            "description": "Repair runs: the absence being repaired."
           },
           "job_state": {
             "type": "string",
@@ -4022,6 +5731,211 @@
         ],
         "title": "OutletRef"
       },
+      "Proposal": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "schedule_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Schedule Id"
+          },
+          "draft_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Draft Version Id"
+          },
+          "draft_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Draft Revision"
+          },
+          "base_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Version Id",
+            "description": "The published version this plan replaces."
+          },
+          "candidate_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Id",
+            "description": "Set when the draft came from an optimization candidate."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected",
+              "expired",
+              "stale",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "metrics_at_proposal": {
+            "$ref": "#/components/schemas/Metrics",
+            "description": "What the manager agreed to; Changed is judged against it."
+          },
+          "requested_by_user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Requested By User Id"
+          },
+          "decided_by_user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided By User Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "decided_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "schedule_id",
+          "draft_version_id",
+          "draft_revision",
+          "base_version_id",
+          "candidate_id",
+          "status",
+          "metrics_at_proposal",
+          "requested_by_user_id",
+          "decided_by_user_id",
+          "created_at",
+          "decided_at",
+          "expires_at"
+        ],
+        "title": "Proposal"
+      },
+      "ProposalDecision": {
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "published",
+              "stale",
+              "invalid",
+              "changed"
+            ],
+            "title": "Outcome",
+            "description": "published: the new version is live. stale: someone published first or the draft changed; re-run against current_version_id. invalid: a current fact breaks the plan (violations); offer a repair. changed: still valid but metrics moved materially (deltas); approve again with acknowledge_changes to accept."
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "proposal": {
+            "$ref": "#/components/schemas/Proposal"
+          },
+          "published": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScheduleVersionSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "superseded_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Superseded Version Id"
+          },
+          "current_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Version Id",
+            "description": "Set when stale."
+          },
+          "violations": {
+            "items": {
+              "$ref": "#/components/schemas/Violation"
+            },
+            "type": "array",
+            "title": "Violations",
+            "description": "Set when invalid."
+          },
+          "deltas": {
+            "items": {
+              "$ref": "#/components/schemas/MetricDelta"
+            },
+            "type": "array",
+            "title": "Deltas",
+            "description": "Set when changed."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "outcome",
+          "message",
+          "proposal"
+        ],
+        "title": "ProposalDecision",
+        "description": "The publication transaction's answer (architecture v3 section 31). Always 200: each outcome is a\nnormal business result, not an error."
+      },
       "PublishRequest": {
         "properties": {
           "expected_base_version_id": {
@@ -4103,6 +6017,103 @@
           "logical_shift_id"
         ],
         "title": "RemoveShift"
+      },
+      "RepairRequest": {
+        "properties": {
+          "absence_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Absence Id"
+          },
+          "base_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Base Version Id",
+            "description": "The published version being repaired. Stale -> 409."
+          },
+          "unlock_logical_shift_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Unlock Logical Shift Ids",
+            "description": "Locked affected shifts the manager authorizes to change (decision 5)."
+          },
+          "time_limit_seconds": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Time Limit Seconds",
+            "default": 3
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "absence_id",
+          "base_version_id"
+        ],
+        "title": "RepairRequest"
+      },
+      "ReportAbsenceRequest": {
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Employee Id"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start At"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End At"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "leave",
+              "sick",
+              "other"
+            ],
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "requested",
+              "confirmed"
+            ],
+            "title": "Status",
+            "description": "Managers may report confirmed absences; staff may only request for themselves."
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "employee_id",
+          "start_at",
+          "end_at",
+          "kind",
+          "status"
+        ],
+        "title": "ReportAbsenceRequest"
       },
       "RestoreRequest": {
         "properties": {
@@ -4306,6 +6317,17 @@
             "title": "Revision",
             "description": "Bumped by every applied edit while the version is a draft; send it as expected_revision. Fixed once published."
           },
+          "recorded_metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Metrics"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Stored when the draft was last saved and recomputed at publication, then frozen: what the version cost and covered when it went live. Cheap to list in history. null for versions saved before contract 3.1. ScheduleVersion.metrics is evaluated against current facts."
+          },
           "input_hash": {
             "type": "string",
             "title": "Input Hash"
@@ -4470,6 +6492,17 @@
             "minimum": 1.0,
             "title": "Revision",
             "description": "Bumped by every applied edit while the version is a draft; send it as expected_revision. Fixed once published."
+          },
+          "recorded_metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Metrics"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Stored when the draft was last saved and recomputed at publication, then frozen: what the version cost and covered when it went live. Cheap to list in history. null for versions saved before contract 3.1. ScheduleVersion.metrics is evaluated against current facts."
           }
         },
         "additionalProperties": false,
@@ -4758,6 +6791,53 @@
         ],
         "title": "ShiftChange"
       },
+      "ShiftExplanation": {
+        "properties": {
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id"
+          },
+          "chosen_employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chosen Employee Id",
+            "description": "null = the shift was left open."
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ExplanationFact"
+            },
+            "type": "array",
+            "title": "Reasons",
+            "description": "Facts about the chosen employee."
+          },
+          "alternatives": {
+            "items": {
+              "$ref": "#/components/schemas/AlternativeFact"
+            },
+            "type": "array",
+            "title": "Alternatives",
+            "description": "Other qualified people (bounded list)."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "logical_shift_id",
+          "chosen_employee_id",
+          "reasons",
+          "alternatives"
+        ],
+        "title": "ShiftExplanation"
+      },
       "Shortage": {
         "properties": {
           "outlet_id": {
@@ -4953,6 +7033,25 @@
           "intervals"
         ],
         "title": "StaffingRequirementsUpdate"
+      },
+      "UpdateAbsenceRequest": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "rejected",
+              "cancelled"
+            ],
+            "title": "Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "UpdateAbsenceRequest"
       },
       "UpdateShift": {
         "properties": {

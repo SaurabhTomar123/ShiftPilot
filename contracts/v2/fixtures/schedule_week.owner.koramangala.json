@@ -35,6 +35,23 @@
         "created_at": "2026-10-16T18:00:00+05:30",
         "published_at": "2026-10-16T18:05:00+05:30",
         "revision": 1,
+        "recorded_metrics": {
+          "coverage_ratio": 0.7714,
+          "minimum_deficit_minutes": 0,
+          "preferred_deficit_minutes": 6570,
+          "labour_cost": {
+            "amount_paise": 7534500,
+            "currency": "INR"
+          },
+          "overtime_cost": {
+            "amount_paise": 0,
+            "currency": "INR"
+          },
+          "overtime_minutes": 0,
+          "preference_match_ratio": 0.2,
+          "open_shifts": 0,
+          "assigned_minutes": 25350
+        },
         "input_hash": "sha256:fb08f713e6fd5d82a79b4dc80a03e87a",
         "shifts": [
           {

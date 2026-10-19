@@ -1,0 +1,37 @@
+{
+  "name": "absences.list",
+  "operation_id": "listAbsences",
+  "method": "GET",
+  "path": "/v2/absences",
+  "persona": "manager_indiranagar",
+  "request": {
+    "query": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "from": "2026-10-19T00:00:00+05:30"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "AbsenceList",
+    "body": {
+      "items": [
+        {
+          "id": "a423d626-bfbf-5cd0-9360-c602bcc87519",
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "start_at": "2026-10-21T00:00:00+05:30",
+          "end_at": "2026-10-22T00:00:00+05:30",
+          "kind": "sick",
+          "status": "confirmed"
+        },
+        {
+          "id": "95307313-914e-59f4-b097-05e0b85f1a8d",
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "start_at": "2026-10-23T00:00:00+05:30",
+          "end_at": "2026-10-24T00:00:00+05:30",
+          "kind": "leave",
+          "status": "requested"
+        }
+      ]
+    }
+  }
+}

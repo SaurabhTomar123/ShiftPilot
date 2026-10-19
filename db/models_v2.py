@@ -120,6 +120,7 @@ class Absence(Base):
         one_of("status", ("requested", "confirmed", "rejected", "cancelled"), "absence_status"),
         one_of("source", ("manager", "employee", "import"), "absence_source"),
         Index("ix_absences_lookup", "org_id", "employee_id", "start_at"),
+        UniqueConstraint("org_id", "id"),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
@@ -361,6 +362,8 @@ class ScheduleVersion(Base):
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     input_hash: Mapped[str] = mapped_column(String(80))
     revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    # Contract Metrics, stored while a draft is validated and at publication (v3 section 22).
+    metrics: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
 
 
 class LogicalShift(Base):
@@ -428,7 +431,6 @@ class VersionShift(Base):
 
 # ---------------------------------------------------------------- runs, candidates, proposals
 
-LANES = ("interactive", "batch")
 JOB_STATES = ("queued", "running", "succeeded", "failed", "cancelled")
 SOLVER_STATUSES = ("OPTIMAL", "FEASIBLE", "INFEASIBLE", "MODEL_INVALID", "UNKNOWN")
 
@@ -445,22 +447,37 @@ class OptimizationRun(Base):
             f"solver_status IS NULL OR solver_status IN {SOLVER_STATUSES}", name="run_solver_status"
         ),
         CheckConstraint("attempts >= 0", name="run_attempts"),
-        one_of("lane", LANES, "run_lane"),
+        ref("schedule_id", "schedules", name="optimization_runs_schedule_fkey"),
+        ref("trigger_absence_id", "absences", name="optimization_runs_absence_fkey"),
         Index(
             "ix_optimization_runs_claim",
-            "lane",
             "priority",
             "queued_at",
             postgresql_where=text("job_state = 'queued'"),
+        ),
+        Index(
+            "ux_optimization_runs_active_batch",
+            "org_id",
+            "schedule_id",
+            unique=True,
+            postgresql_where=text("kind IN ('generate', 'optimize') AND job_state IN ('queued', 'running')"),
+        ),
+        Index(
+            "ux_optimization_runs_active_repair",
+            "org_id",
+            "trigger_absence_id",
+            unique=True,
+            postgresql_where=text("job_state IN ('queued', 'running')"),
         ),
         Index("ix_optimization_runs_lease", "lease_until", postgresql_where=text("job_state = 'running'")),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
     kind: Mapped[str] = mapped_column(String(20))
-    lane: Mapped[str] = mapped_column(String(20), default="batch", server_default="batch")
     priority: Mapped[int] = mapped_column(SmallInteger, default=100, server_default="100")
     strategy: Mapped[str] = mapped_column(String(20))
+    schedule_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    trigger_absence_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     outlet_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
     base_version_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
     requested_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
@@ -485,25 +502,11 @@ class OptimizationRun(Base):
     traceparent: Mapped[str | None] = mapped_column(String(80), nullable=True)
 
 
-class ScheduleRunSlot(Base):
-    """Admission guard: at most one active run per schedule (architecture §11). Inserted in the
-    enqueue transaction, deleted in the transaction that makes the run terminal."""
-
-    __tablename__ = "schedule_run_slots"
-    __table_args__ = (ref("schedule_id", "schedules"), ref("run_id", "optimization_runs"))
-    org_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("organizations.id"), primary_key=True
-    )
-    schedule_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
-    run_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
-    created_at: Mapped[datetime] = created_at()
-
-
 class OptimizationCandidate(Base):
     __tablename__ = "optimization_candidates"
     __table_args__ = (
         ref("run_id", "optimization_runs"),
-        ref("draft_version_id", "schedule_versions"),
+        ref("materialized_version_id", "schedule_versions"),
         UniqueConstraint("run_id", "dedup_hash"),
         UniqueConstraint("run_id", "rank"),
         UniqueConstraint("org_id", "id"),
@@ -521,7 +524,8 @@ class OptimizationCandidate(Base):
     objective_components: Mapped[dict[str, Any]] = mapped_column(JSONB)
     metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
     diff: Mapped[dict[str, Any]] = mapped_column(JSONB)
-    draft_version_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    # Null until a manager selects the candidate (architecture v3 section 23).
+    materialized_version_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     validation: Mapped[dict[str, Any]] = mapped_column(JSONB)
     explanation_facts: Mapped[dict[str, Any]] = mapped_column(
         JSONB, default=dict, server_default=text("'{}'::jsonb")
@@ -541,12 +545,18 @@ class ScheduleProposal(Base):
         ),
         one_of("required_role", ("owner", "manager"), "proposal_required_role"),
         CheckConstraint("(status = 'pending') = (decided_at IS NULL)", name="proposal_decided_at"),
+        CheckConstraint(
+            "cardinality(draft_revisions) = cardinality(draft_version_ids)", name="proposal_draft_revisions"
+        ),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
     candidate_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     draft_version_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
     base_version_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
+    # What the manager agreed to (architecture v3 section 31): the draft revisions and their metrics.
+    draft_revisions: Mapped[list[int]] = mapped_column(ARRAY(Integer), server_default=text("'{}'::integer[]"))
+    metrics_at_proposal: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
     input_hash: Mapped[str] = mapped_column(String(80))
     status: Mapped[str] = mapped_column(String(20), default="pending", server_default="pending")
     required_role: Mapped[str] = mapped_column(String(20))
@@ -649,7 +659,6 @@ V2_TENANT_TABLES = [
     "optimization_runs",
     "optimization_candidates",
     "schedule_proposals",
-    "schedule_run_slots",
     "outbox_events",
     "notification_deliveries",
     "idempotency_keys",

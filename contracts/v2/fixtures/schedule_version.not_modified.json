@@ -9,14 +9,14 @@
       "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef"
     },
     "headers": {
-      "If-None-Match": "\"59ddec56-dd6f-5ac4-871a-01119338a0ef\""
+      "If-None-Match": "\"59ddec56-dd6f-5ac4-871a-01119338a0ef:published:1\""
     }
   },
   "response": {
     "status": 304,
     "schema": null,
     "headers": {
-      "ETag": "\"59ddec56-dd6f-5ac4-871a-01119338a0ef\""
+      "ETag": "\"59ddec56-dd6f-5ac4-871a-01119338a0ef:published:1\""
     },
     "body": null
   }

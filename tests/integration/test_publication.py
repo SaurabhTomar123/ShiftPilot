@@ -13,7 +13,7 @@ from api.v2 import schemas
 from db.session import admin_engine
 from seed import v2
 from seed.world import uid
-from tests.integration.test_api_v2 import IND, MANAGER, STAFF, WEEK, client, error_code
+from tests.integration.test_api_v2 import IND, KOR, MANAGER, OWNER, STAFF, WEEK, client, error_code
 
 pytestmark = pytest.mark.integration
 __all__ = ["client"]
@@ -236,3 +236,39 @@ def test_staff_cannot_draft_or_publish(client: TestClient) -> None:
         json={"base_version_id": current(client)["id"], "copy_from_version_id": None},
     )
     assert r.status_code == 403
+
+
+def test_metrics_are_stored_on_save_and_frozen_at_publication(client: TestClient) -> None:
+    """Architecture v3 section 22: metrics are a column, not a read model. Uses Koramangala, which the
+    other tests in this module leave untouched."""
+    url = f"/v2/outlets/{KOR}/schedules/{WEEK}"
+    base = client.get(url, headers=OWNER).json()["current_version"]
+    assert base["recorded_metrics"] == base["metrics"]  # seeded through the same path, nothing changed since
+    created = client.post(
+        f"{url}/drafts",
+        headers=OWNER | key(),
+        json={"base_version_id": base["id"], "copy_from_version_id": None},
+    )
+    draft = created.json()
+    assert created.status_code == 201 and draft["recorded_metrics"] == draft["metrics"]
+    target = next(s for s in draft["shifts"] if not s["locked"] and s["employee_id"])
+    applied = client.post(
+        f"/v2/schedule-versions/{draft['id']}/edits",
+        headers=OWNER,
+        json={
+            "expected_revision": 1,
+            "edits": [{"op": "lock", "logical_shift_id": target["logical_shift_id"], "reason": "Confirmed"}],
+        },
+    ).json()
+    assert applied["revision"] == 2 and applied["recorded_metrics"] == applied["metrics"]
+    published = client.post(
+        f"/v2/schedule-versions/{draft['id']}/publish",
+        headers=OWNER | key(),
+        json={"expected_base_version_id": base["id"], "expected_revision": 2},
+    )
+    assert published.status_code == 200, published.text
+    history = client.get(f"/v2/schedules/{draft['schedule_id']}/versions", headers=OWNER).json()
+    row = next(v for v in history["items"] if v["id"] == draft["id"])
+    assert row["status"] == "published" and row["recorded_metrics"] == applied["metrics"]
+    with pytest.raises(Exception, match="cannot change"):
+        sql("UPDATE schedule_versions SET metrics = '{}'::jsonb WHERE id = :v", v=draft["id"])

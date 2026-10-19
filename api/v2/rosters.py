@@ -54,10 +54,13 @@ def _summary(v: ScheduleVersion, tz: ZoneInfo) -> dict[str, object]:
         created_at=v.created_at.astimezone(tz),
         published_at=v.published_at.astimezone(tz) if v.published_at else None,
         revision=v.revision,
+        recorded_metrics=v.metrics,
     )
 
 
-def version_view(session: Session, version: ScheduleVersion) -> s.ScheduleVersion:
+def version_view(session: Session, version: ScheduleVersion, *, record: bool = False) -> s.ScheduleVersion:
+    """record=True stores the computed metrics on a draft (v3 section 22): pass it wherever a draft is
+    created or saved."""
     schedule = session.get(Schedule, version.schedule_id)
     assert schedule is not None
     outlet = session.get(OutletRow, schedule.outlet_id)
@@ -74,6 +77,9 @@ def version_view(session: Session, version: ScheduleVersion) -> s.ScheduleVersio
     snap = snapshot_db.load(session, schedule.outlet_id, schedule.week_start, roster, schedule.id)
     result = validator.validate(snap, roster)
     m = metrics.compute(snap, roster)
+    if record and version.status == "draft":
+        version.metrics = metrics.as_contract(m)
+        session.flush()
     return s.ScheduleVersion(
         **_summary(version, tz),  # type: ignore[arg-type]
         input_hash=version.input_hash,
@@ -232,6 +238,11 @@ def schedule_week(
         return etag, body
 
 
+def version_etag(version_id: uuid.UUID, status: str, revision: int) -> str:
+    """Changes when the status (published -> superseded) or a draft's revision changes."""
+    return f'"{version_id}:{status}:{revision}"'
+
+
 def schedule_version(
     caller: Caller, version_id: uuid.UUID, if_none_match: str | None = None
 ) -> tuple[str, str, s.ScheduleVersion | None]:
@@ -245,9 +256,8 @@ def schedule_version(
         schedule = session.get(Schedule, version.schedule_id)
         assert schedule is not None
         assert_outlet(caller, str(schedule.outlet_id))
-        immutable = version.status in ("published", "superseded")
-        cache = "private, max-age=31536000, immutable" if immutable else "private, no-cache"
-        etag = f'"{version.id}"'
+        cache = "private, no-cache"  # status is mutable (published -> superseded); v3 section 35
+        etag = version_etag(version.id, version.status, version.revision)
         if if_none_match == etag:
             return etag, cache, None
         return etag, cache, version_view(session, version)

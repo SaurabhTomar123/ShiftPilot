@@ -14,9 +14,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, FastAPI, Header, Path, Query, status
 from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import AwareDatetime
 
+from api.v2 import absences, candidates, drafts, generation, proposals, rosters, service
 from api.v2 import auth as v2auth
-from api.v2 import drafts, generation, rosters, service
 from api.v2 import schemas as s
 
 bearer = HTTPBearer(auto_error=False)
@@ -44,8 +45,8 @@ def _header(description: str) -> dict[str, Any]:
 
 ETAG = _header("Opaque validator. Send it back as If-None-Match to get 304 when nothing changed.")
 IMMUTABLE = _header(
-    "`private, max-age=31536000, immutable` for published and superseded versions (they never "
-    "change); `private, no-cache` for drafts."
+    "Always `private, no-cache`: shift content never changes, but status does (published later becomes "
+    "superseded), so clients revalidate with If-None-Match and get 304 when nothing changed."
 )
 NOT_MODIFIED: dict[int | str, dict[str, Any]] = {
     304: {
@@ -299,6 +300,33 @@ def get_optimization_run(caller: v2auth.CallerDep, run_id: UUID) -> s.Optimizati
     return generation.get_run(caller, run_id)
 
 
+@router.get(
+    "/optimization-candidates/{candidate_id}",
+    operation_id="getOptimizationCandidate",
+    response_model=s.CandidateDetail,
+    responses=_errors(403, 404, 422),
+)
+def get_optimization_candidate(caller: v2auth.CallerDep, candidate_id: UUID) -> s.CandidateDetail:
+    """The candidate's diff against its base version. Candidates are not versions until selected."""
+    return candidates.get_candidate(caller, candidate_id)
+
+
+@router.post(
+    "/optimization-candidates/{candidate_id}/select",
+    operation_id="selectOptimizationCandidate",
+    response_model=s.ScheduleVersion,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def select_optimization_candidate(
+    caller: v2auth.CallerDep, candidate_id: UUID, idempotency_key: IdempotencyKey
+) -> s.ScheduleVersion:
+    """Materializes the candidate into a draft (its base_version_id is the run's base, so publishing it
+    after someone else published returns stale_version). Selecting again returns the same draft while it
+    is still a draft."""
+    return candidates.select_candidate(caller, candidate_id, idempotency_key)
+
+
 # ---------------------------------------------------------------- P3: drafts, edits, publication, history
 # Declared in contract 2.3; implemented in B3.1-B3.3. Authentication runs before the 501.
 
@@ -363,6 +391,62 @@ def publish_version(
     return drafts.publish(caller, version_id, idempotency_key, body)
 
 
+ProposalPath = Annotated[UUID, Path(description="A schedule proposal.")]
+
+
+@router.post(
+    "/proposals",
+    operation_id="createProposal",
+    response_model=s.Proposal,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def create_proposal(
+    caller: v2auth.CallerDep, idempotency_key: IdempotencyKey, body: s.CreateProposalRequest
+) -> s.Proposal:
+    """Propose a draft for publication, recording its revision and its metrics against current facts
+    (what the manager agrees to). 409 stale_version when the draft revision moved; 422 validation_failed
+    when it has hard violations."""
+    return proposals.create(caller, idempotency_key, body)
+
+
+@router.get(
+    "/proposals/{proposal_id}",
+    operation_id="getProposal",
+    response_model=s.Proposal,
+    responses=_errors(403, 404, 422),
+)
+def get_proposal(caller: v2auth.CallerDep, proposal_id: ProposalPath) -> s.Proposal:
+    return proposals.get(caller, proposal_id)
+
+
+@router.post(
+    "/proposals/{proposal_id}/approve",
+    operation_id="approveProposal",
+    response_model=s.ProposalDecision,
+    responses=_errors(403, 404, 409, 422),
+)
+def approve_proposal(
+    caller: v2auth.CallerDep,
+    proposal_id: ProposalPath,
+    idempotency_key: IdempotencyKey,
+    body: s.ApproveProposalRequest,
+) -> s.ProposalDecision:
+    """The publication transaction (architecture v3 section 31). Always 200 with an `outcome`: published,
+    stale, invalid or changed. 409 conflict only when the proposal is no longer pending or expired."""
+    return proposals.approve(caller, proposal_id, idempotency_key, body)
+
+
+@router.post(
+    "/proposals/{proposal_id}/reject",
+    operation_id="rejectProposal",
+    response_model=s.Proposal,
+    responses=_errors(403, 404, 409, 422),
+)
+def reject_proposal(caller: v2auth.CallerDep, proposal_id: ProposalPath) -> s.Proposal:
+    return proposals.reject(caller, proposal_id)
+
+
 @router.post(
     "/schedule-versions/{version_id}/discard",
     operation_id="discardDraft",
@@ -411,3 +495,69 @@ def restore_version(
     """A new draft with this version's shifts, validated against current facts (an absent employee's
     restored shift shows as a hard violation; it is never revived silently). History is never rewritten."""
     return drafts.restore(caller, version_id, idempotency_key, body)
+
+
+# ---------------------------------------------------------------- P4: absences and repair (contract 2.4)
+
+
+@router.post(
+    "/absences",
+    operation_id="reportAbsence",
+    response_model=s.AbsenceReport,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def report_absence(
+    caller: v2auth.CallerDep, idempotency_key: IdempotencyKey, body: s.ReportAbsenceRequest
+) -> s.AbsenceReport:
+    """Records the absence as a fact first (it stands whether or not a repair succeeds). A confirmed
+    absence then enqueues a repair run per affected schedule (repair_run_ids); locked affected shifts are
+    listed in lock_conflicts and need explicit authorization through repairSchedule."""
+    return absences.report(caller, idempotency_key, body)
+
+
+@router.get(
+    "/absences", operation_id="listAbsences", response_model=s.AbsenceList, responses=_errors(403, 422)
+)
+def list_absences(
+    caller: v2auth.CallerDep,
+    outlet_id: UUID | None = None,
+    start: Annotated[AwareDatetime | None, Query(alias="from")] = None,
+    end: Annotated[AwareDatetime | None, Query(alias="to")] = None,
+) -> s.AbsenceList:
+    return absences.list_absences(caller, outlet_id, start, end)
+
+
+@router.patch(
+    "/absences/{absence_id}",
+    operation_id="updateAbsence",
+    response_model=s.AbsenceReport,
+    responses=_errors(403, 404, 409, 422),
+)
+def update_absence(
+    caller: v2auth.CallerDep, absence_id: UUID, body: s.UpdateAbsenceRequest
+) -> s.AbsenceReport:
+    """Managers confirm, reject or cancel. Confirming enqueues repairs exactly as reportAbsence does."""
+    return absences.update(caller, absence_id, body)
+
+
+@router.post(
+    "/outlets/{outlet_id}/schedules/{week_start}/repair",
+    operation_id="repairSchedule",
+    response_model=s.OptimizationRun,
+    status_code=status.HTTP_202_ACCEPTED,
+    responses={
+        **_errors(403, 404, 409, 422),
+        429: {"model": s.ErrorResponse, "headers": {"Retry-After": _header("Seconds to wait.")}},
+    },
+)
+def repair_schedule(
+    caller: v2auth.CallerDep,
+    outlet_id: UUID,
+    week_start: date,
+    idempotency_key: IdempotencyKey,
+    body: s.RepairRequest,
+) -> s.OptimizationRun:
+    """Repair runs are claimed before batch work and never blocked by it. An active repair for the same
+    absence is returned (idempotent). 409 conflict lists locked affected shifts without authorization."""
+    return generation.enqueue_repair(caller, outlet_id, week_start, idempotency_key, body)
