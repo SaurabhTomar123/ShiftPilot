@@ -34,7 +34,8 @@
         "overtime_minutes": 0,
         "preference_match_ratio": 0.5,
         "open_shifts": 0,
-        "assigned_minutes": 24150
+        "assigned_minutes": 24150,
+        "hours_preference_deviation_minutes": 900
       },
       "changed_shifts": 56,
       "validation": {

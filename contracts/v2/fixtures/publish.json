@@ -50,7 +50,8 @@
           "overtime_minutes": 0,
           "preference_match_ratio": 0.4444,
           "open_shifts": 0,
-          "assigned_minutes": 25350
+          "assigned_minutes": 25350,
+          "hours_preference_deviation_minutes": 600
         }
       },
       "superseded_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef"

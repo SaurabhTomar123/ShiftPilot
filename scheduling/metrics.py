@@ -41,6 +41,9 @@ class Metrics:
     open_shifts: int
     assigned_minutes: int
     cells: tuple[Cell, ...]
+    # Hours-preference alignment (v3 section 9): sum over employees with a weekly preference of
+    # |worked - preferred| minutes. Not fairness: it says nothing about who gets the closing shifts.
+    hours_preference_deviation_minutes: int | None = None
 
 
 def _round_div(numerator: int, denominator: int) -> int:
@@ -92,6 +95,7 @@ def compute(snap: Snapshot, roster: Iterable[Shift]) -> Metrics:
         and any(w.kind == "preferred" for w in e.windows)
     ]
     matched = sum(_inside_preferred(snap, sh) for sh in with_prefs)
+    deviation = hours_preference_deviation(snap, assigned)
     return Metrics(
         coverage_ratio=round(covered / target, 4) if target else None,
         minimum_deficit_minutes=min_deficit,
@@ -103,7 +107,27 @@ def compute(snap: Snapshot, roster: Iterable[Shift]) -> Metrics:
         open_shifts=sum(1 for sh in shifts if sh.employee_id is None),
         assigned_minutes=sum(sh.paid_minutes for sh in assigned),
         cells=tuple(cells),
+        hours_preference_deviation_minutes=deviation,
     )
+
+
+def hours_preference_deviation(snap: Snapshot, assigned: list[Shift]) -> int | None:
+    """Sum of |worked - preferred| weekly minutes for this outlet's staff and anyone rostered here who
+    has a preference; work elsewhere in the week counts as worked. None when nobody has one."""
+    week_start, week_end = snap.week_bounds()
+    rostered = {sh.employee_id for sh in assigned}
+    people = [
+        e
+        for e in snap.employees.values()
+        if e.preferred_weekly_minutes is not None and (e.home_outlet_id == snap.outlet_id or e.id in rostered)
+    ]
+    if not people:
+        return None
+    worked: dict[UUID, int] = defaultdict(int)
+    for sh in [*assigned, *snap.commitments]:
+        if sh.employee_id is not None and week_start <= sh.start_at < week_end:
+            worked[sh.employee_id] += sh.paid_minutes
+    return sum(abs(worked[e.id] - (e.preferred_weekly_minutes or 0)) for e in people)
 
 
 def _inside_preferred(snap: Snapshot, sh: Shift) -> bool:
@@ -129,6 +153,7 @@ def as_contract(m: Metrics) -> dict[str, object]:
         "preference_match_ratio": m.preference_match_ratio,
         "open_shifts": m.open_shifts,
         "assigned_minutes": m.assigned_minutes,
+        "hours_preference_deviation_minutes": m.hours_preference_deviation_minutes,
     }
 
 

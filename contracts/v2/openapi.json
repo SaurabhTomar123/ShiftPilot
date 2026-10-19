@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.3.0-p4"
+    "version": "3.4.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -5443,6 +5443,19 @@
             "type": "integer",
             "minimum": 0.0,
             "title": "Assigned Minutes"
+          },
+          "hours_preference_deviation_minutes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hours Preference Deviation Minutes",
+            "description": "Hours-preference alignment: sum over employees with a preferred weekly total of |worked - preferred| minutes. Lower is better. Not a fairness measure. null when nobody states a preference, and in metrics stored before contract 3.4."
           }
         },
         "additionalProperties": false,

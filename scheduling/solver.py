@@ -34,17 +34,44 @@ STATUS = {
 
 @dataclass(frozen=True)
 class Weights:
-    shortfall_per_staff_minute: int  # paise-equivalent per staff-minute below preferred
-    cost: int  # multiplier on paise
-    overtime: int  # multiplier on premium paise
-    off_preference: int  # per shift outside the employee's preferred windows
+    """A profile as architecture v3 section 9 states it: shares of the objective that sum to 1. Users pick
+    a profile, never weights."""
+
+    cost: float  # labour cost including the overtime premium, paise
+    understaffing: float  # staff-minutes below preferred coverage
+    preferences: float  # shifts outside an employee's preferred windows
+    disruption: float  # base assignments not kept when regenerating over a published version
+    hours_alignment: float  # |worked - preferred weekly minutes|, summed over employees
+
+    def coefficients(self) -> dict[str, int]:
+        return {k: round(getattr(self, k) * UNIT[k]) for k in UNIT}
+
+
+# Exchange rates turning each term's unit into the objective's integer scale. They are set so that, at
+# Balanced, one staff-minute below preferred is worth INR 4 of labour, a shift outside preferred windows
+# INR 20, a changed base assignment INR 50 and a minute away from someone's preferred week 20 paise.
+UNIT = {
+    "cost": 100,  # per paise
+    "understaffing": 100 * 400 * 0.25 / 0.30,
+    "preferences": 100 * 2_000 * 0.25 / 0.15,
+    "disruption": 100 * 5_000 * 0.25 / 0.20,
+    "hours_alignment": 100 * 20 * 0.25 / 0.10,
+}
 
 
 STRATEGIES: dict[str, Weights] = {
-    "balanced": Weights(400, 1, 1, 2_000),
-    "lowest_cost": Weights(120, 1, 2, 0),
-    "max_coverage": Weights(3_000, 1, 1, 500),
-    "staff_friendly": Weights(400, 1, 3, 20_000),
+    "balanced": Weights(
+        cost=0.25, understaffing=0.30, preferences=0.15, disruption=0.20, hours_alignment=0.10
+    ),
+    "lowest_cost": Weights(
+        cost=0.55, understaffing=0.20, preferences=0.05, disruption=0.15, hours_alignment=0.05
+    ),
+    "max_coverage": Weights(
+        cost=0.10, understaffing=0.60, preferences=0.10, disruption=0.15, hours_alignment=0.05
+    ),
+    "staff_friendly": Weights(
+        cost=0.20, understaffing=0.25, preferences=0.30, disruption=0.10, hours_alignment=0.15
+    ),
 }
 ALTERNATIVES = ("balanced", "lowest_cost", "max_coverage", "staff_friendly")
 
@@ -280,7 +307,7 @@ def solve(
     deterministic_time bounds the search in CP-SAT's deterministic work units instead of wall time, so
     one worker with a fixed seed returns the same roster however loaded the machine is (evaluation
     mode; time_limit stays as a wall-clock safety net)."""
-    weights = STRATEGIES[strategy]
+    coef = STRATEGIES[strategy].coefficients()
     cands = slots(snap)
     model = cp_model.CpModel()
     x: dict[tuple[uuid.UUID, int], cp_model.IntVar] = {}
@@ -299,7 +326,7 @@ def solve(
     for emp_id, i in x:
         by_emp[emp_id].append(i)
 
-    cost_terms, ot_terms, pref_terms = [], [], []
+    cost_terms, ot_terms, pref_terms, align_terms = [], [], [], []
     for emp_id, idx in by_emp.items():
         emp = snap.employees[emp_id]
         idx.sort(key=lambda i: cands[i].start)
@@ -329,6 +356,13 @@ def solve(
             ot_terms.append(over * (emp.rate_paise_per_hour // 60))
         else:
             model.add(total <= emp.regular_weekly_minutes)
+        if emp.preferred_weekly_minutes is not None:
+            gap = model.new_int_var(
+                0, emp.max_weekly_minutes + emp.preferred_weekly_minutes, f"gap_{emp_id.hex[:6]}"
+            )
+            model.add(gap >= total - emp.preferred_weekly_minutes)
+            model.add(gap >= emp.preferred_weekly_minutes - total)
+            align_terms.append(gap)
         has_prefs = any(w.kind == "preferred" for w in emp.windows)
         for i in idx:
             cost_terms.append(x[emp_id, i] * ((cands[i].paid_minutes * emp.rate_paise_per_hour + 30) // 60))
@@ -357,14 +391,26 @@ def solve(
             minutes = int((req.interval_end - req.interval_start).total_seconds() // 60)
             short_terms.append(short * minutes)
 
+    # Disruption: an unlocked base assignment survives if the same person takes the same slot again.
+    kept_ids: dict[tuple[uuid.UUID, int], uuid.UUID] = {}
+    slot_of = {(c.skill_id, c.start, c.end): i for i, c in enumerate(cands)}
+    for b in snap.base:
+        same = slot_of.get((b.skill_id, b.start_at, b.end_at))
+        if b.employee_id is not None and same is not None and (b.employee_id, same) in x:
+            kept_ids[b.employee_id, same] = b.logical_id
+    base_assigned = sum(1 for b in snap.base if b.employee_id is not None)
+    changed = base_assigned - sum(x[k] for k in kept_ids)
+
     cost, ot, shortfall, off_pref = sum(cost_terms), sum(ot_terms), sum(short_terms), sum(pref_terms)
+    alignment = sum(align_terms)
     if max_shortfall_staff_minutes is not None:
         model.add(shortfall <= max_shortfall_staff_minutes)
     model.minimize(
-        weights.cost * cost
-        + weights.overtime * ot
-        + weights.shortfall_per_staff_minute * shortfall
-        + weights.off_preference * off_pref
+        coef["cost"] * (cost + ot)
+        + coef["understaffing"] * shortfall
+        + coef["preferences"] * off_pref
+        + coef["disruption"] * changed
+        + coef["hours_alignment"] * alignment
     )
     stats = {
         "candidate_slots": len(cands),
@@ -376,8 +422,9 @@ def solve(
     solver.parameters.max_time_in_seconds = time_limit
     solver.parameters.num_workers = workers
     solver.parameters.random_seed = seed
-    if deterministic_time is not None:
+    if deterministic_time is not None:  # evaluation mode (v3 section 15)
         solver.parameters.max_deterministic_time = deterministic_time
+        solver.parameters.interleave_search = workers > 1  # parallel search is otherwise nondeterministic
     status = STATUS[solver.solve(model)]
     stats["solver_wall_ms"] = int(solver.wall_time * 1000)
     if status not in ("OPTIMAL", "FEASIBLE"):
@@ -388,7 +435,7 @@ def solve(
             c = cands[i]
             roster.append(
                 Shift(
-                    uuid.uuid7(),
+                    kept_ids.get((emp_id, i)) or uuid.uuid7(),  # a kept assignment keeps its identity
                     snap.outlet_id,
                     emp_id,
                     c.skill_id,
@@ -403,6 +450,8 @@ def solve(
         "overtime_premium": int(solver.value(ot)),
         "shortfall_staff_minutes": int(solver.value(shortfall)),
         "off_preference_shifts": int(solver.value(off_pref)),
+        "changed_base_assignments": int(solver.value(changed)),
+        "hours_preference_deviation_minutes": int(solver.value(alignment)),
     }
     return (
         status,
@@ -429,6 +478,7 @@ def generate(
     seed: int = 7,
     workers: int = 8,
     max_candidates: int = 3,
+    deterministic_time: float | None = None,
 ) -> Outcome:
     """Requested strategy first, then other profiles; deduplicated; each independently validated."""
     started = time.perf_counter()
@@ -437,7 +487,14 @@ def generate(
     outcome = Outcome(status="UNKNOWN", stats={"strategies": {}, "rejected_by_validator": []})
     seen: set[frozenset[tuple[Any, ...]]] = set()
     for name in order:
-        status, cand, stats = solve(snap, name, time_limit=budget, seed=seed, workers=workers)
+        status, cand, stats = solve(
+            snap,
+            name,
+            time_limit=budget,
+            seed=seed,
+            workers=workers,
+            deterministic_time=deterministic_time / len(order) if deterministic_time else None,
+        )
         outcome.stats["strategies"][name] = {"status": status, **stats}
         if status == "INFEASIBLE":
             outcome.status = "INFEASIBLE"

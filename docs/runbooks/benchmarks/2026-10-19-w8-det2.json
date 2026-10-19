@@ -1,0 +1,192 @@
+{
+  "generated_at": "2026-10-19T14:54:40+00:00",
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.0",
+    "cpu_count": 16,
+    "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD"
+  },
+  "config": {
+    "runs_per_case": 3,
+    "time_limit_seconds": 3.0,
+    "workers": 8,
+    "deterministic_time": 2.0,
+    "ortools": "9.15.6755",
+    "strategy": "balanced",
+    "week": "2026-10-26",
+    "employees_per_outlet": 20
+  },
+  "target_p95_ms": 3000,
+  "outlets": {
+    "indiranagar": {
+      "model": {
+        "candidate_slots": 84,
+        "assignment_variables": 560,
+        "constraints": 1767
+      },
+      "single_solve_ms": {
+        "p50": 10079,
+        "p95": 10448,
+        "max": 10489
+      },
+      "statuses": {
+        "OPTIMAL": 3
+      },
+      "distinct_rosters": 1,
+      "reproducible": true,
+      "max_relative_gap": 0.0,
+      "three_candidate_generate": {
+        "ms": 1233,
+        "status": "OPTIMAL",
+        "candidates": [
+          "balanced",
+          "lowest_cost",
+          "max_coverage"
+        ]
+      },
+      "baseline": {
+        "coverage_ratio": 0.7714,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 6570,
+        "labour_cost_paise": 7470000,
+        "assigned_minutes": 25350,
+        "preference_match_ratio": 0.4444,
+        "hard_violations": 0
+      },
+      "optimizer": {
+        "coverage_ratio": 0.8633,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 3930,
+        "labour_cost_paise": 7864500,
+        "assigned_minutes": 28650,
+        "preference_match_ratio": 1.0,
+        "hard_violations": 0
+      },
+      "matched_coverage": {
+        "coverage_ratio": 0.7714,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 6570,
+        "labour_cost_paise": 6880500,
+        "assigned_minutes": 25350,
+        "preference_match_ratio": 1.0,
+        "hard_violations": 0,
+        "status": "OPTIMAL"
+      }
+    },
+    "koramangala": {
+      "model": {
+        "candidate_slots": 84,
+        "assignment_variables": 566,
+        "constraints": 1783
+      },
+      "single_solve_ms": {
+        "p50": 10299,
+        "p95": 10867,
+        "max": 10930
+      },
+      "statuses": {
+        "OPTIMAL": 3
+      },
+      "distinct_rosters": 1,
+      "reproducible": true,
+      "max_relative_gap": 0.0,
+      "three_candidate_generate": {
+        "ms": 977,
+        "status": "OPTIMAL",
+        "candidates": [
+          "balanced",
+          "lowest_cost",
+          "max_coverage"
+        ]
+      },
+      "baseline": {
+        "coverage_ratio": 0.7714,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 6570,
+        "labour_cost_paise": 7534500,
+        "assigned_minutes": 25350,
+        "preference_match_ratio": 0.2,
+        "hard_violations": 0
+      },
+      "optimizer": {
+        "coverage_ratio": 0.8633,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 3930,
+        "labour_cost_paise": 7852500,
+        "assigned_minutes": 28650,
+        "preference_match_ratio": 1.0,
+        "hard_violations": 0
+      },
+      "matched_coverage": {
+        "coverage_ratio": 0.7714,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 6570,
+        "labour_cost_paise": 6887250,
+        "assigned_minutes": 25350,
+        "preference_match_ratio": null,
+        "hard_violations": 0,
+        "status": "OPTIMAL"
+      }
+    },
+    "hsr": {
+      "model": {
+        "candidate_slots": 84,
+        "assignment_variables": 566,
+        "constraints": 1776
+      },
+      "single_solve_ms": {
+        "p50": 8599,
+        "p95": 8896,
+        "max": 8929
+      },
+      "statuses": {
+        "OPTIMAL": 3
+      },
+      "distinct_rosters": 1,
+      "reproducible": true,
+      "max_relative_gap": 0.0,
+      "three_candidate_generate": {
+        "ms": 1336,
+        "status": "OPTIMAL",
+        "candidates": [
+          "balanced",
+          "lowest_cost",
+          "max_coverage"
+        ]
+      },
+      "baseline": {
+        "coverage_ratio": 0.7714,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 6570,
+        "labour_cost_paise": 7440750,
+        "assigned_minutes": 25350,
+        "preference_match_ratio": 0.8,
+        "hard_violations": 0
+      },
+      "optimizer": {
+        "coverage_ratio": 0.8633,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 3930,
+        "labour_cost_paise": 7817250,
+        "assigned_minutes": 28650,
+        "preference_match_ratio": 1.0,
+        "hard_violations": 0
+      },
+      "matched_coverage": {
+        "coverage_ratio": 0.7714,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 6570,
+        "labour_cost_paise": 6877500,
+        "assigned_minutes": 25350,
+        "preference_match_ratio": 1.0,
+        "hard_violations": 0,
+        "status": "OPTIMAL"
+      }
+    }
+  },
+  "single_solve_ms_all_outlets": {
+    "p50": 9888,
+    "p95": 10754,
+    "meets_target": false
+  }
+}

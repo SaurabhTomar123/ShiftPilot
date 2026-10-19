@@ -251,9 +251,10 @@ def enqueue(
         )
         if existing is not None:
             return run_view(session, existing)
-        locked = _current_shifts(session, schedule, locked_only=True)
+        base = _current_shifts(session, schedule)
+        locked = [x for x in base if x.locked]
         snap = snapshot_db.with_base_locks(
-            snapshot_db.load(session, outlet_id, week_start, locked, schedule.id), locked
+            snapshot_db.load(session, outlet_id, week_start, base, schedule.id), locked, base
         )
         run = _insert(
             session,

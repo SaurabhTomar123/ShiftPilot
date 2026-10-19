@@ -61,14 +61,17 @@ from seed.world import (
     stamp,
     uid,
 )
+from seed.world import STAFF as world_staff
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "contracts" / "v2"
 
 
 def evaluate(
-    week: date, roster: list[PlannedShift]
+    week: date, roster: list[PlannedShift], staff: list[Emp] | None = None
 ) -> tuple[s.Metrics, list[s.CoverageCell], s.ValidationResult]:
+    """Independent of scheduling.metrics, so the contract checks the provider rather than copying it.
+    staff: the outlet's employees (hours-preference alignment covers those with a weekly preference)."""
     cells: list[s.CoverageCell] = []
     covered = target = min_deficit = pref_deficit = 0
     soft: list[s.Violation] = []
@@ -145,8 +148,19 @@ def evaluate(
         preference_match_ratio=round(len(inside) / len(prefs), 4) if prefs else None,
         open_shifts=sum(1 for sh in roster if sh.employee is None),
         assigned_minutes=sum(paid_minutes(sh.template) for sh in assigned),
+        hours_preference_deviation_minutes=_deviation(roster, staff or EMPLOYEES),
     )
     return metrics, cells, s.ValidationResult(hard_violations=0, soft_violations=len(soft), violations=soft)
+
+
+def _deviation(roster: list[PlannedShift], staff: list[Emp]) -> int | None:
+    preferring = [e for e in staff if e.preferred]  # the seed stores 2250 weekly minutes for them
+    if not preferring:
+        return None
+    return sum(
+        abs(sum(paid_minutes(sh.template) for sh in roster if sh.employee == e.key) - 2250)
+        for e in preferring
+    )
 
 
 def to_shifts(version_key: str, roster: list[PlannedShift], outlet_id: uuid.UUID = HOME) -> list[s.Shift]:
@@ -178,7 +192,7 @@ def to_shifts(version_key: str, roster: list[PlannedShift], outlet_id: uuid.UUID
 def version(
     key: str, week: date, roster: list[PlannedShift], *, outlet_key: str = "indiranagar", **summary: Any
 ) -> s.ScheduleVersion:
-    metrics, cells, validation = evaluate(week, roster)
+    metrics, cells, validation = evaluate(week, roster, world_staff[outlet_key])
     summary.setdefault("revision", 1)
     summary.setdefault("recorded_metrics", metrics)
     return s.ScheduleVersion(

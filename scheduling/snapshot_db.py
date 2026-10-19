@@ -117,6 +117,7 @@ def load(
             skill_ids=frozenset(skills[r.id]),
             rate_paise_per_hour=int((Decimal(r.hourly_rate) * 100).to_integral_value()),
             regular_weekly_minutes=r.regular_weekly_minutes,
+            preferred_weekly_minutes=r.preferred_weekly_minutes,
             max_weekly_minutes=r.max_weekly_minutes,
             overtime_allowed=r.overtime_allowed,
             windows=tuple(windows[r.id]),
@@ -191,6 +192,11 @@ def load(
     )
 
 
-def with_base_locks(snap: Snapshot, locked: list[Shift]) -> Snapshot:
-    """The same snapshot with the base version's locked shifts fixed for the solver and validator."""
-    return replace(snap, base_locked={sh.logical_id: sh for sh in locked})
+def with_base_locks(snap: Snapshot, locked: list[Shift], base: list[Shift] | None = None) -> Snapshot:
+    """The same snapshot with the base version's locked shifts fixed for the solver and validator, and
+    its other shifts available for the disruption term."""
+    return replace(
+        snap,
+        base_locked={sh.logical_id: sh for sh in locked},
+        base=tuple(sh for sh in (base or []) if not sh.locked),
+    )

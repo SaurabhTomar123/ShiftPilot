@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T11:37:14+00:00",
+  "generated_at": "2026-10-19T14:56:28+00:00",
   "hardware": {
     "platform": "Windows-11-10.0.26200-SP0",
     "python": "3.14.0",
@@ -7,9 +7,10 @@
     "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD"
   },
   "config": {
-    "runs_per_case": 10,
+    "runs_per_case": 5,
     "time_limit_seconds": 3.0,
     "workers": 8,
+    "deterministic_time": null,
     "ortools": "9.15.6755",
     "strategy": "balanced",
     "week": "2026-10-26",
@@ -21,19 +22,21 @@
       "model": {
         "candidate_slots": 84,
         "assignment_variables": 560,
-        "constraints": 1763
+        "constraints": 1767
       },
       "single_solve_ms": {
-        "p50": 443,
-        "p95": 583,
-        "max": 644
+        "p50": 355,
+        "p95": 389,
+        "max": 396
       },
       "statuses": {
-        "OPTIMAL": 10
+        "OPTIMAL": 5
       },
+      "distinct_rosters": 5,
+      "reproducible": null,
       "max_relative_gap": 0.0,
       "three_candidate_generate": {
-        "ms": 1424,
+        "ms": 1080,
         "status": "OPTIMAL",
         "candidates": [
           "balanced",
@@ -51,11 +54,11 @@
         "hard_violations": 0
       },
       "optimizer": {
-        "coverage_ratio": 0.8883,
+        "coverage_ratio": 0.8633,
         "minimum_deficit_minutes": 0,
-        "preferred_deficit_minutes": 3210,
-        "labour_cost_paise": 8116500,
-        "assigned_minutes": 29550,
+        "preferred_deficit_minutes": 3930,
+        "labour_cost_paise": 7855500,
+        "assigned_minutes": 28650,
         "preference_match_ratio": 1.0,
         "hard_violations": 0
       },
@@ -65,7 +68,7 @@
         "preferred_deficit_minutes": 6570,
         "labour_cost_paise": 6880500,
         "assigned_minutes": 25350,
-        "preference_match_ratio": 0.3333,
+        "preference_match_ratio": 1.0,
         "hard_violations": 0,
         "status": "OPTIMAL"
       }
@@ -74,19 +77,21 @@
       "model": {
         "candidate_slots": 84,
         "assignment_variables": 566,
-        "constraints": 1781
+        "constraints": 1783
       },
       "single_solve_ms": {
-        "p50": 422,
-        "p95": 473,
-        "max": 490
+        "p50": 434,
+        "p95": 466,
+        "max": 469
       },
       "statuses": {
-        "OPTIMAL": 10
+        "OPTIMAL": 5
       },
+      "distinct_rosters": 5,
+      "reproducible": null,
       "max_relative_gap": 0.0,
       "three_candidate_generate": {
-        "ms": 1337,
+        "ms": 1110,
         "status": "OPTIMAL",
         "candidates": [
           "balanced",
@@ -104,11 +109,11 @@
         "hard_violations": 0
       },
       "optimizer": {
-        "coverage_ratio": 0.88,
+        "coverage_ratio": 0.8633,
         "minimum_deficit_minutes": 0,
-        "preferred_deficit_minutes": 3450,
-        "labour_cost_paise": 8035500,
-        "assigned_minutes": 29250,
+        "preferred_deficit_minutes": 3930,
+        "labour_cost_paise": 7843500,
+        "assigned_minutes": 28650,
         "preference_match_ratio": null,
         "hard_violations": 0
       },
@@ -127,19 +132,21 @@
       "model": {
         "candidate_slots": 84,
         "assignment_variables": 566,
-        "constraints": 1774
+        "constraints": 1776
       },
       "single_solve_ms": {
-        "p50": 470,
-        "p95": 577,
-        "max": 643
+        "p50": 343,
+        "p95": 347,
+        "max": 348
       },
       "statuses": {
-        "OPTIMAL": 10
+        "OPTIMAL": 5
       },
+      "distinct_rosters": 5,
+      "reproducible": null,
       "max_relative_gap": 0.0,
       "three_candidate_generate": {
-        "ms": 1415,
+        "ms": 1059,
         "status": "OPTIMAL",
         "candidates": [
           "balanced",
@@ -157,11 +164,11 @@
         "hard_violations": 0
       },
       "optimizer": {
-        "coverage_ratio": 0.8883,
+        "coverage_ratio": 0.8633,
         "minimum_deficit_minutes": 0,
-        "preferred_deficit_minutes": 3210,
-        "labour_cost_paise": 8105250,
-        "assigned_minutes": 29550,
+        "preferred_deficit_minutes": 3930,
+        "labour_cost_paise": 7817250,
+        "assigned_minutes": 28650,
         "preference_match_ratio": 1.0,
         "hard_violations": 0
       },
@@ -171,15 +178,15 @@
         "preferred_deficit_minutes": 6570,
         "labour_cost_paise": 6877500,
         "assigned_minutes": 25350,
-        "preference_match_ratio": 0.0,
+        "preference_match_ratio": 1.0,
         "hard_violations": 0,
         "status": "OPTIMAL"
       }
     }
   },
   "single_solve_ms_all_outlets": {
-    "p50": 442,
-    "p95": 583,
+    "p50": 348,
+    "p95": 459,
     "meets_target": true
   }
 }

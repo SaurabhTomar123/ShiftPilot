@@ -141,3 +141,45 @@ def test_matched_coverage_is_never_more_expensive_than_the_baseline() -> None:
     assert validator.validate(snap, matched.roster).valid
     assert result.preferred_deficit_minutes <= baseline.preferred_deficit_minutes
     assert result.labour_cost_paise <= baseline.labour_cost_paise
+
+
+def test_profiles_are_v3_weight_vectors() -> None:
+    """Architecture v3 section 9: profiles, not user-editable weights; Balanced is fixed by the design."""
+    for name, w in solver.STRATEGIES.items():
+        shares = (w.cost, w.understaffing, w.preferences, w.disruption, w.hours_alignment)
+        assert abs(sum(shares) - 1) < 1e-9 and min(shares) > 0, name
+    b = solver.STRATEGIES["balanced"]
+    assert (b.cost, b.understaffing, b.preferences, b.disruption, b.hours_alignment) == (
+        0.25,
+        0.3,
+        0.15,
+        0.2,
+        0.1,
+    )
+
+
+def test_hours_preference_alignment_is_measured_and_optimized(balanced: solver.Outcome) -> None:
+    snap = build()
+    best = balanced.candidates[0]
+    measured = metrics.compute(snap, best.roster).hours_preference_deviation_minutes
+    assert measured is not None and measured == best.components["hours_preference_deviation_minutes"]
+    _, friendly, _ = solver.solve(snap, "staff_friendly", time_limit=6.0)
+    _, cheap, _ = solver.solve(snap, "lowest_cost", time_limit=6.0)
+    assert friendly is not None and cheap is not None
+    dev = {
+        k: metrics.compute(snap, c.roster).hours_preference_deviation_minutes
+        for k, c in (("friendly", friendly), ("cheap", cheap))
+    }
+    assert dev["friendly"] <= dev["cheap"]  # type: ignore[operator]
+
+
+def test_regenerating_an_unchanged_week_keeps_every_assignment_and_its_identity(
+    balanced: solver.Outcome,
+) -> None:
+    snap = build()
+    published = balanced.candidates[0].roster
+    again = solver.solve(replace(snap, base=published), "balanced", time_limit=8.0)[1]
+    assert again is not None and again.components["changed_base_assignments"] == 0
+    assert {(s.logical_id, s.employee_id, s.start_at) for s in again.roster} == {
+        (s.logical_id, s.employee_id, s.start_at) for s in published
+    }

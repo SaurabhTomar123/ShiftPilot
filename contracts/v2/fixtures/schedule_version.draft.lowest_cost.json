@@ -45,7 +45,8 @@
         "overtime_minutes": 0,
         "preference_match_ratio": 0.5,
         "open_shifts": 0,
-        "assigned_minutes": 24150
+        "assigned_minutes": 24150,
+        "hours_preference_deviation_minutes": 900
       },
       "input_hash": "sha256:56d44809e1695ede8b39896cfdd00231",
       "shifts": [
@@ -793,7 +794,8 @@
         "overtime_minutes": 0,
         "preference_match_ratio": 0.5,
         "open_shifts": 0,
-        "assigned_minutes": 24150
+        "assigned_minutes": 24150,
+        "hours_preference_deviation_minutes": 900
       },
       "coverage": [
         {

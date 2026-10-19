@@ -300,6 +300,8 @@ def process(engine: Engine, row: Any, me: str) -> str:
                     time_limit=float(row.config["time_limit_seconds"]),
                     seed=int(row.config.get("seed", 7)),
                     workers=int(row.config.get("workers", 4)),
+                    # Evaluation mode: reproducible from (input_hash, config); production leaves it unset.
+                    deterministic_time=row.config.get("deterministic_time"),
                 )
         except Exception:  # the job failed; the error is recorded, not raised into the loop
             log.exception("run %s failed", row.id)

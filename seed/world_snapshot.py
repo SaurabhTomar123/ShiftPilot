@@ -29,6 +29,7 @@ def build(
             max_weekly_minutes=2880,
             overtime_allowed=False,
             windows=tuple(Window(*w) for w in world.availability_windows(e)),
+            preferred_weekly_minutes=2250 if e.preferred else None,  # as seed/v2.py stores it
         )
         for e in staff_for(outlet_key, with_bench)
     }

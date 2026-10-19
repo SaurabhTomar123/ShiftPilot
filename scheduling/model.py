@@ -33,6 +33,7 @@ class Employee:
     max_weekly_minutes: int
     overtime_allowed: bool
     windows: tuple[Window, ...] = ()
+    preferred_weekly_minutes: int | None = None  # what the employee would like to work
 
 
 @dataclass(frozen=True)
@@ -131,6 +132,9 @@ class Snapshot:
     # Locked shifts of the base version, by logical id: they must survive unchanged.
     base_locked: dict[UUID, Shift] = field(default_factory=dict)
     templates: tuple[Template, ...] = ()
+    # Unlocked shifts of the base version being regenerated: keeping one costs no disruption and keeps
+    # its logical identity.
+    base: tuple[Shift, ...] = ()
 
     @property
     def outlet(self) -> Outlet:

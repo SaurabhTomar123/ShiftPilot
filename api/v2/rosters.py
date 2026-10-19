@@ -84,17 +84,7 @@ def version_view(session: Session, version: ScheduleVersion, *, record: bool = F
         **_summary(version, tz),  # type: ignore[arg-type]
         input_hash=version.input_hash,
         shifts=[_shift_view(r, tz) for r in rows],
-        metrics=s.Metrics(
-            coverage_ratio=m.coverage_ratio,
-            minimum_deficit_minutes=m.minimum_deficit_minutes,
-            preferred_deficit_minutes=m.preferred_deficit_minutes,
-            labour_cost=s.Money(amount_paise=m.labour_cost_paise),
-            overtime_cost=s.Money(amount_paise=m.overtime_cost_paise),
-            overtime_minutes=m.overtime_minutes,
-            preference_match_ratio=m.preference_match_ratio,
-            open_shifts=m.open_shifts,
-            assigned_minutes=m.assigned_minutes,
-        ),
+        metrics=s.Metrics.model_validate(metrics.as_contract(m)),
         coverage=[
             s.CoverageCell(
                 skill_id=c.skill_id,

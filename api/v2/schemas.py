@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.3.0-p4"
+CONTRACT_VERSION = "3.4.0-p4"
 
 
 class Model(BaseModel):
@@ -341,6 +341,12 @@ class Metrics(Model):
     preference_match_ratio: Ratio | None
     open_shifts: int = Field(ge=0)
     assigned_minutes: Minutes
+    hours_preference_deviation_minutes: Minutes | None = Field(
+        default=None,
+        description="Hours-preference alignment: sum over employees with a preferred weekly total of "
+        "|worked - preferred| minutes. Lower is better. Not a fairness measure. null when nobody states a "
+        "preference, and in metrics stored before contract 3.4.",
+    )
 
 
 class CoverageCell(Model):

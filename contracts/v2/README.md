@@ -23,6 +23,13 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.4.0-p4 (live): profiles and hours-preference alignment
+
+This change is additive (architecture v3 §9).
+
+- **`Metrics.hours_preference_deviation_minutes`:** the sum, over employees with a preferred weekly total, of |worked − preferred| minutes. Lower is better. It is `null` when nobody states a preference, and in metrics stored before 3.4. Label it "hours-preference alignment". It is **not** a fairness measure.
+- **Strategies now use v3's weights.** The four names are unchanged. Balanced trades less cost for coverage than before. When regenerating over a published week, assignments that stay the same keep their `logical_shift_id`, so candidate diffs show genuine changes.
+
 ## What changed in 3.3.0-p4 (live): answers to the 3.1 consumer review
 
 This change is additive.

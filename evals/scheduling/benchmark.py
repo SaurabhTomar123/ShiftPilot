@@ -48,7 +48,11 @@ def summarize(m: metrics.Metrics) -> dict[str, Any]:
     }
 
 
-def run(runs: int, time_limit: float, workers: int) -> dict[str, Any]:
+def run(
+    runs: int, time_limit: float, workers: int, deterministic_time: float | None = None
+) -> dict[str, Any]:
+    """deterministic_time: evaluation mode (v3 section 15). Every run of a case then uses the same seed and
+    the report states whether the rosters were identical."""
     report: dict[str, Any] = {
         "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "hardware": {
@@ -61,6 +65,7 @@ def run(runs: int, time_limit: float, workers: int) -> dict[str, Any]:
             "runs_per_case": runs,
             "time_limit_seconds": time_limit,
             "workers": workers,
+            "deterministic_time": deterministic_time,
             "ortools": version("ortools"),
             "strategy": "balanced",
             "week": world.NEXT_WEEK.isoformat(),
@@ -74,15 +79,22 @@ def run(runs: int, time_limit: float, workers: int) -> dict[str, Any]:
         snap = build(key, with_bench=True)
         baseline_roster = greedy_roster(key)
         latencies, statuses, gaps = [], [], []
+        rosters: set[frozenset[tuple[Any, ...]]] = set()
         best: solver.Candidate | None = None
         for seed in range(1, runs + 1):
             started = time.perf_counter()
             status, cand, stats = solver.solve(
-                snap, "balanced", time_limit=time_limit, seed=seed, workers=workers
+                snap,
+                "balanced",
+                time_limit=time_limit if deterministic_time is None else max(time_limit, 60.0),
+                seed=7 if deterministic_time is not None else seed,
+                workers=workers,
+                deterministic_time=deterministic_time,
             )
             latencies.append((time.perf_counter() - started) * 1000)
             statuses.append(status)
             if cand:
+                rosters.add(frozenset((s.employee_id, s.skill_id, s.start_at) for s in cand.roster))
                 gaps.append((cand.objective - cand.bound) / max(1, cand.objective))
                 best = best or cand
         started = time.perf_counter()
@@ -107,6 +119,8 @@ def run(runs: int, time_limit: float, workers: int) -> dict[str, Any]:
                 "max": round(max(latencies)),
             },
             "statuses": {s: statuses.count(s) for s in sorted(set(statuses))},
+            "distinct_rosters": len(rosters),
+            "reproducible": len(rosters) == 1 if deterministic_time is not None else None,
             "max_relative_gap": round(max(gaps), 6) if gaps else None,
             "three_candidate_generate": {
                 "ms": round(full_ms),
@@ -141,10 +155,17 @@ def main() -> int:
     parser.add_argument("--runs", type=int, default=10)
     parser.add_argument("--time-limit", type=float, default=3.0)
     parser.add_argument("--workers", type=int, default=8)
+    parser.add_argument(
+        "--deterministic-time",
+        type=float,
+        default=None,
+        help="evaluation mode: bound by CP-SAT deterministic time with a fixed seed (v3 section 15)",
+    )
     args = parser.parse_args()
-    report = run(args.runs, args.time_limit, args.workers)
+    report = run(args.runs, args.time_limit, args.workers, args.deterministic_time)
     OUT.mkdir(parents=True, exist_ok=True)
-    path = OUT / f"{report['generated_at'][:10]}-w{args.workers}.json"
+    mode = f"-det{args.deterministic_time:g}" if args.deterministic_time is not None else ""
+    path = OUT / f"{report['generated_at'][:10]}-w{args.workers}{mode}.json"
     path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"written": str(path.relative_to(ROOT)), **report["single_solve_ms_all_outlets"]}))
     return 0

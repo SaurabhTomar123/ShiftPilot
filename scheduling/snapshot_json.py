@@ -80,6 +80,7 @@ def dump(snap: Snapshot) -> dict[str, Any]:
                 "max_weekly_minutes": e.max_weekly_minutes,
                 "overtime_allowed": e.overtime_allowed,
                 "windows": [[w.weekday, w.start_minute, w.end_minute, w.kind] for w in e.windows],
+                "preferred_weekly_minutes": e.preferred_weekly_minutes,
             }
             for e in sorted(snap.employees.values(), key=lambda e: str(e.id))
         ],
@@ -102,6 +103,7 @@ def dump(snap: Snapshot) -> dict[str, Any]:
         "travel_minutes": [[str(a), str(b), m] for (a, b), m in sorted(snap.travel_minutes.items(), key=str)],
         "commitments": [_shift(sh) for sh in snap.commitments],
         "base_locked": [_shift(sh) for sh in snap.base_locked.values()],
+        "base": [_shift(sh) for sh in snap.base],
         "templates": [
             {
                 "id": str(t.id),
@@ -140,6 +142,7 @@ def load(doc: dict[str, Any]) -> Snapshot:
             e["max_weekly_minutes"],
             e["overtime_allowed"],
             tuple(Window(*w) for w in e["windows"]),
+            e.get("preferred_weekly_minutes"),  # absent in snapshots stored before A3.8
         )
         for e in doc["employees"]
     }
@@ -162,6 +165,7 @@ def load(doc: dict[str, Any]) -> Snapshot:
         travel_minutes={(UUID(a), UUID(b)): m for a, b, m in doc["travel_minutes"]},
         commitments=tuple(_shift_back(d) for d in doc["commitments"]),
         base_locked={sh.logical_id: sh for sh in base_locked},
+        base=tuple(_shift_back(d) for d in doc.get("base", [])),  # absent before A3.8
         templates=tuple(
             Template(
                 UUID(t["id"]),
