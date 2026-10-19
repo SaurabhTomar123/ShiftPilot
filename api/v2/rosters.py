@@ -54,10 +54,13 @@ def _summary(v: ScheduleVersion, tz: ZoneInfo) -> dict[str, object]:
         created_at=v.created_at.astimezone(tz),
         published_at=v.published_at.astimezone(tz) if v.published_at else None,
         revision=v.revision,
+        recorded_metrics=v.metrics,
     )
 
 
-def version_view(session: Session, version: ScheduleVersion) -> s.ScheduleVersion:
+def version_view(session: Session, version: ScheduleVersion, *, record: bool = False) -> s.ScheduleVersion:
+    """record=True stores the computed metrics on a draft (v3 section 22): pass it wherever a draft is
+    created or saved."""
     schedule = session.get(Schedule, version.schedule_id)
     assert schedule is not None
     outlet = session.get(OutletRow, schedule.outlet_id)
@@ -74,6 +77,9 @@ def version_view(session: Session, version: ScheduleVersion) -> s.ScheduleVersio
     snap = snapshot_db.load(session, schedule.outlet_id, schedule.week_start, roster, schedule.id)
     result = validator.validate(snap, roster)
     m = metrics.compute(snap, roster)
+    if record and version.status == "draft":
+        version.metrics = metrics.as_contract(m)
+        session.flush()
     return s.ScheduleVersion(
         **_summary(version, tz),  # type: ignore[arg-type]
         input_hash=version.input_hash,

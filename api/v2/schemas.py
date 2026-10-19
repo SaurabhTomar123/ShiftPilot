@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.0.0-p4"
+CONTRACT_VERSION = "3.1.0-p4"
 
 
 class Model(BaseModel):
@@ -372,6 +372,12 @@ class ScheduleVersionSummary(Model):
         ge=1,
         description="Bumped by every applied edit while the version is a draft; send it as "
         "expected_revision. Fixed once published.",
+    )
+    recorded_metrics: Metrics | None = Field(
+        default=None,
+        description="Stored when the draft was last saved and recomputed at publication, then frozen: "
+        "what the version cost and covered when it went live. Cheap to list in history. null for "
+        "versions saved before contract 3.1. ScheduleVersion.metrics is evaluated against current facts.",
     )
 
 

@@ -275,7 +275,7 @@ def create_draft(
                 rows = _rows(session, source_id)
             draft = _new_draft(session, caller, schedule, rows, source="manual", reason="Manager edit")
             _audit(session, caller, "DRAFT_CREATED", "schedule_version", draft.id, None, None)
-            return version_view(session, draft)
+            return version_view(session, draft, record=True)
 
         return s.ScheduleVersion.model_validate(
             idempotent(session, caller, key, "createDraft", body, produce)
@@ -379,7 +379,7 @@ def apply_edits(caller: Caller, version_id: uuid.UUID, body: s.EditRequest) -> s
         except IntegrityError as exc:  # e.g. an employee or skill from another organization
             raise ApiError("validation_failed", "Some edits refer to unknown employees or roles.") from exc
         _audit(session, caller, "SHIFTS_EDITED", "schedule_version", version.id, None, None)
-        return version_view(session, version)
+        return version_view(session, version, record=True)
 
 
 def discard_draft(caller: Caller, version_id: uuid.UUID) -> s.ScheduleVersionSummary:
@@ -415,14 +415,16 @@ def _live_check(
 
 
 def _publish_locked(
-    session: Session, caller: Caller, schedule: Schedule, version: ScheduleVersion
+    session: Session, caller: Caller, schedule: Schedule, version: ScheduleVersion, measured: dict[str, Any]
 ) -> tuple[s.ScheduleVersionSummary, uuid.UUID | None]:
-    """Supersede, publish and move the pointer, with audit and outbox rows (schedule row locked)."""
+    """Supersede, publish and move the pointer, with audit and outbox rows (schedule row locked).
+    `measured` (from _live_check, against current facts) is stored and frozen with the version."""
     previous = schedule.current_version_id
     if previous is not None:
         session.execute(
             text("UPDATE schedule_versions SET status = 'superseded' WHERE id = :v"), {"v": previous}
         )
+    version.metrics = measured
     version.status = "published"
     version.published_at = datetime.now(UTC)
     version.approved_by_user_id = uuid.UUID(caller.user_id)
@@ -465,14 +467,14 @@ def publish(caller: Caller, version_id: uuid.UUID, key: str, body: s.PublishRequ
                     "This draft was changed after you reviewed it. Review it again.",
                     current_revision=version.revision,
                 )
-            hard, _ = _live_check(session, schedule, version)
+            hard, measured = _live_check(session, schedule, version)
             if hard:
                 raise ApiError(
                     "validation_failed",
                     "This draft breaks scheduling rules. Fix them before publishing.",
                     violations=hard,
                 )
-            summary, previous = _publish_locked(session, caller, schedule, version)
+            summary, previous = _publish_locked(session, caller, schedule, version, measured)
             return s.PublishResult(schedule_id=schedule.id, published=summary, superseded_version_id=previous)
 
         return s.PublishResult.model_validate(
@@ -544,7 +546,7 @@ def restore(caller: Caller, version_id: uuid.UUID, key: str, body: s.RestoreRequ
                 reason=f"Restored from version {source.version_number}",
             )
             _audit(session, caller, "SCHEDULE_RESTORED", "schedule_version", draft.id, None, None)
-            return version_view(session, draft)
+            return version_view(session, draft, record=True)
 
         return s.ScheduleVersion.model_validate(
             idempotent(session, caller, key, "restoreVersion", body, produce)

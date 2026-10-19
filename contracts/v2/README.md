@@ -23,6 +23,10 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.1.0-p4 (live): stored version metrics
+
+This change is additive. Every version summary, including history items and publish results, now has **`recorded_metrics`**. The figures are stored when a draft is created, selected, restored or edited, and recomputed against current facts at publication. After that they are frozen with the version, so history can show what each version cost and covered when it went live without recomputing anything. `ScheduleVersion.metrics` is still evaluated against current facts, so the two can differ for an old version. `recorded_metrics` is `null` only for versions saved before 3.1 (architecture v3 §22).
+
 ## Contract 3.0 (architecture v3): breaking changes
 
 `ShiftPilot System Architecture v3` is the governing design. Contract 3.0 changes three shapes the UI depends on.

@@ -247,7 +247,7 @@ def approve(
                     deltas=[s.MetricDelta.model_validate(d) for d in deltas],
                 )
             # 7-8. supersede and publish, mark approved, audit and outbox
-            summary, previous = _publish_locked(session, caller, schedule, draft)
+            summary, previous = _publish_locked(session, caller, schedule, draft, measured)
             _decide(
                 session,
                 caller,

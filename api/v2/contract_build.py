@@ -180,6 +180,7 @@ def version(
 ) -> s.ScheduleVersion:
     metrics, cells, validation = evaluate(week, roster)
     summary.setdefault("revision", 1)
+    summary.setdefault("recorded_metrics", metrics)
     return s.ScheduleVersion(
         id=uid("version", key),
         schedule_id=uid("schedule", f"{outlet_key}:{week}"),
@@ -1226,6 +1227,7 @@ def p3_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
     base = [_to_model(sh) for sh in published.shifts]
 
     def draft(key: str, number: int, roster: list[model.Shift], **summary: Any) -> s.ScheduleVersion:
+        evaluated = _evaluated(roster)
         return s.ScheduleVersion(
             id=uid("version", key),
             schedule_id=published.schedule_id,
@@ -1236,7 +1238,8 @@ def p3_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             published_at=None,
             input_hash="sha256:" + uuid.uuid5(NS, f"input:{key}").hex,
             shifts=[_to_contract(sh, key) for sh in roster],
-            **_evaluated(roster),
+            **evaluated,
+            recorded_metrics=evaluated["metrics"],
             **summary,
         )
 
@@ -1313,6 +1316,7 @@ def p3_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
         created_at=stamp("2026-10-16T18:00:00"),
         published_at=stamp("2026-10-16T18:10:00"),
         revision=1,
+        recorded_metrics=_evaluated(v2_roster)["metrics"],
     )
     v5_key = f"indiranagar:{WEEK}:v5"
     v5 = draft(

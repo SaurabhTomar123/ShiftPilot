@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.0.0-p4"
+    "version": "3.1.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -6317,6 +6317,17 @@
             "title": "Revision",
             "description": "Bumped by every applied edit while the version is a draft; send it as expected_revision. Fixed once published."
           },
+          "recorded_metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Metrics"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Stored when the draft was last saved and recomputed at publication, then frozen: what the version cost and covered when it went live. Cheap to list in history. null for versions saved before contract 3.1. ScheduleVersion.metrics is evaluated against current facts."
+          },
           "input_hash": {
             "type": "string",
             "title": "Input Hash"
@@ -6481,6 +6492,17 @@
             "minimum": 1.0,
             "title": "Revision",
             "description": "Bumped by every applied edit while the version is a draft; send it as expected_revision. Fixed once published."
+          },
+          "recorded_metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Metrics"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Stored when the draft was last saved and recomputed at publication, then frozen: what the version cost and covered when it went live. Cheap to list in history. null for versions saved before contract 3.1. ScheduleVersion.metrics is evaluated against current facts."
           }
         },
         "additionalProperties": false,

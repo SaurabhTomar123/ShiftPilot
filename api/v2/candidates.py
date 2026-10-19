@@ -193,7 +193,7 @@ def select_candidate(caller: Caller, candidate_id: uuid.UUID, key: str) -> s.Sch
                     return version_view(session, existing)
             draft = _materialize(session, caller, candidate, run, schedule)
             _audit(session, caller, "CANDIDATE_SELECTED", "schedule_version", draft.id, None, None)
-            return version_view(session, draft)
+            return version_view(session, draft, record=True)
 
         return s.ScheduleVersion.model_validate(
             idempotent(
