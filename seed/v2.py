@@ -264,6 +264,7 @@ def spice_rows(seed: int) -> Rows:
                     "start_minute": t.start,
                     "duration_minutes": t.end - t.start,
                     "break_minutes": 30 if t.break_start is not None else 0,
+                    "break_offset_minutes": t.break_start - t.start if t.break_start is not None else None,
                     "active": True,
                 }
                 for t in TEMPLATES.values()

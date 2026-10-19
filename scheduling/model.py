@@ -90,6 +90,25 @@ class Requirement:
 
 
 @dataclass(frozen=True)
+class Template:
+    """A shift shape the solver may use (decision 3: configured templates on the policy grid)."""
+
+    id: UUID
+    start_minute: int  # outlet-local, from midnight
+    duration_minutes: int
+    break_minutes: int = 0
+    break_offset_minutes: int | None = None  # None: break at the grid-aligned midpoint
+    skill_id: UUID | None = None  # None: usable for any skill
+
+    def break_offset(self, grid: int) -> int | None:
+        if not self.break_minutes:
+            return None
+        if self.break_offset_minutes is not None:
+            return self.break_offset_minutes
+        return ((self.duration_minutes - self.break_minutes) // 2) // grid * grid
+
+
+@dataclass(frozen=True)
 class Policy:
     min_rest_minutes: int = 600
     grid_minutes: int = 30
@@ -111,6 +130,7 @@ class Snapshot:
     commitments: tuple[Shift, ...] = ()
     # Locked shifts of the base version, by logical id: they must survive unchanged.
     base_locked: dict[UUID, Shift] = field(default_factory=dict)
+    templates: tuple[Template, ...] = ()
 
     @property
     def outlet(self) -> Outlet:

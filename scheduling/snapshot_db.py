@@ -24,12 +24,13 @@ from db.models_v2 import (
     EmployeeSkill,
     Schedule,
     SchedulingPolicy,
+    ShiftTemplate,
     Skill,
     StaffingRequirement,
     TravelTime,
     VersionShift,
 )
-from scheduling.model import Absence, Employee, Outlet, Policy, Requirement, Shift, Snapshot, Window
+from scheduling.model import Absence, Employee, Outlet, Policy, Requirement, Shift, Snapshot, Template, Window
 
 MARGIN = timedelta(days=1)  # adjacent-week commitments that can affect rest and overlap
 
@@ -159,6 +160,16 @@ def load(
     commitments = tuple(
         to_shift(r) for r in live_shifts(session, start - MARGIN, end + MARGIN, schedule_id, roster_ids)
     )
+    templates = tuple(
+        Template(
+            t.id, t.start_minute, t.duration_minutes, t.break_minutes, t.break_offset_minutes, t.skill_id
+        )
+        for t in session.scalars(
+            select(ShiftTemplate)
+            .where(ShiftTemplate.outlet_id == outlet_id, ShiftTemplate.active)
+            .order_by(ShiftTemplate.start_minute, ShiftTemplate.duration_minutes)
+        )
+    )
     return Snapshot(
         outlet_id=outlet_id,
         week_start=week_start,
@@ -170,4 +181,5 @@ def load(
         absences=absences,
         travel_minutes=travel,
         commitments=commitments,
+        templates=templates,
     )
