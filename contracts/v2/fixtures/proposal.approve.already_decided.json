@@ -1,0 +1,33 @@
+{
+  "name": "proposal.approve.already_decided",
+  "operation_id": "approveProposal",
+  "method": "POST",
+  "path": "/v2/proposals/{proposal_id}/approve",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "proposal_id": "d42696ce-fb65-5926-9af6-bbefac1a88dd"
+    },
+    "headers": {
+      "Idempotency-Key": "approve-3a91f7d5"
+    },
+    "body": {
+      "acknowledge_changes": false
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "conflict",
+        "message": "This proposal is already approved.",
+        "retryable": false,
+        "details": {
+          "status": "approved"
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

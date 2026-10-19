@@ -24,6 +24,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from api.v2 import schemas as s
+from api.v2.proposals import STALE_PUBLISHED
 from api.v2.rosters import version_etag
 from api.v2.routes import router
 from scheduling import diff as sched_diff
@@ -509,6 +510,7 @@ def fixtures() -> list[Fixture]:
     return (
         p3_fixtures(published)
         + p4_fixtures(published)
+        + proposal_fixtures(d1)
         + [
             Fixture(
                 "session.demo.manager",
@@ -1655,6 +1657,190 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
                 locked_logical_shift_ids=[str(hit.logical_shift_id)],
             ),
             repair_req,
+        ),
+    ]
+
+
+# ---------------------------------------------------------------- contract 3.0: proposals (v3 section 31)
+
+
+def proposal_fixtures(draft: s.ScheduleVersion) -> list[Fixture]:
+    """Proposal of the selected-candidate draft and each publication outcome of approving it."""
+    manager = uid("user", "manager_indiranagar")
+    proposal = s.Proposal(
+        id=uid("proposal", f"{draft.id}:1"),
+        schedule_id=draft.schedule_id,
+        draft_version_id=draft.id,
+        draft_revision=draft.revision,
+        base_version_id=draft.base_version_id,
+        candidate_id=uid("candidate", "1:OPTIMAL"),
+        status="pending",
+        metrics_at_proposal=draft.metrics,
+        requested_by_user_id=manager,
+        decided_by_user_id=None,
+        created_at=stamp("2026-10-18T19:45:00"),
+        decided_at=None,
+        expires_at=stamp("2026-10-19T19:45:00"),
+    )
+
+    def decided(status: s.ProposalStatus) -> s.Proposal:
+        return proposal.model_copy(
+            update={
+                "status": status,
+                "decided_by_user_id": manager,
+                "decided_at": stamp("2026-10-18T19:52:00"),
+            }
+        )
+
+    shift = next(sh for sh in draft.shifts if sh.employee_id)
+    assert shift.employee_id is not None
+    absent = s.Violation(
+        code="absent",
+        severity="hard",
+        message="This employee has a confirmed absence during this shift.",
+        employee_id=shift.employee_id,
+        logical_shift_ids=[shift.logical_shift_id],
+        facts={"absence_kind": "sick"},
+    )
+    agreed = draft.metrics.model_dump(mode="json")
+    cost = agreed["labour_cost"]["amount_paise"]
+    now = agreed | {"labour_cost": {"amount_paise": cost + max(15_000, cost // 20), "currency": "INR"}}
+    deltas = [s.MetricDelta.model_validate(d) for d in sched_metrics.material_changes(agreed, now)]
+    path = "/v2/proposals/{proposal_id}/approve"
+
+    def approve(key: str, acknowledge: bool = False) -> dict[str, Any]:
+        return {
+            "path_params": {"proposal_id": str(proposal.id)},
+            "headers": {"Idempotency-Key": key},
+            "body": {"acknowledge_changes": acknowledge},
+        }
+
+    published = _summary(
+        draft,
+        status="published",
+        approved_by_user_id=manager,
+        published_at=stamp("2026-10-18T19:52:00"),
+    )
+    return [
+        Fixture(
+            "proposal.create",
+            "createProposal",
+            "POST",
+            "/v2/proposals",
+            "manager_indiranagar",
+            201,
+            proposal,
+            {
+                "headers": {"Idempotency-Key": "propose-61c0d4a8"},
+                "body": {"draft_version_id": str(draft.id), "expected_revision": draft.revision},
+            },
+        ),
+        Fixture(
+            "proposal.get",
+            "getProposal",
+            "GET",
+            "/v2/proposals/{proposal_id}",
+            "manager_indiranagar",
+            200,
+            proposal,
+            {"path_params": {"proposal_id": str(proposal.id)}},
+        ),
+        Fixture(
+            "proposal.approve.published",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            200,
+            s.ProposalDecision(
+                outcome="published",
+                message="Published.",
+                proposal=decided("approved"),
+                published=published,
+                superseded_version_id=None,
+            ),
+            approve("approve-0f3a7b19"),
+        ),
+        Fixture(
+            "proposal.approve.stale",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            200,
+            s.ProposalDecision(
+                outcome="stale",
+                message=STALE_PUBLISHED,
+                proposal=decided("stale"),
+                current_version_id=uid("version", f"indiranagar:{NEXT_WEEK}:other"),
+            ),
+            approve("approve-5d21e8c4"),
+        ),
+        Fixture(
+            "proposal.approve.invalid",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            200,
+            s.ProposalDecision(
+                outcome="invalid",
+                message=f"This recommendation is no longer valid: {absent.message}",
+                proposal=decided("failed"),
+                violations=[absent],
+            ),
+            approve("approve-9b47c2e0"),
+        ),
+        Fixture(
+            "proposal.approve.changed",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            200,
+            s.ProposalDecision(
+                outcome="changed",
+                message=" ".join(d.message for d in deltas) + " Approve again to accept.",
+                proposal=proposal,
+                deltas=deltas,
+            ),
+            approve("approve-2e8f6a13"),
+        ),
+        Fixture(
+            "proposal.approve.acknowledged",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            200,
+            s.ProposalDecision(
+                outcome="published",
+                message="Published.",
+                proposal=decided("approved"),
+                published=published,
+                superseded_version_id=None,
+            ),
+            approve("approve-7c5d0b96", acknowledge=True),
+        ),
+        Fixture(
+            "proposal.approve.already_decided",
+            "approveProposal",
+            "POST",
+            path,
+            "manager_indiranagar",
+            409,
+            error("conflict", "This proposal is already approved.", status="approved"),
+            approve("approve-3a91f7d5"),
+        ),
+        Fixture(
+            "proposal.reject",
+            "rejectProposal",
+            "POST",
+            "/v2/proposals/{proposal_id}/reject",
+            "manager_indiranagar",
+            200,
+            decided("rejected"),
+            {"path_params": {"proposal_id": str(proposal.id)}},
         ),
     ]
 

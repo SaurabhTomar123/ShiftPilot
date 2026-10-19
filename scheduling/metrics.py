@@ -13,6 +13,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 from scheduling.model import Shift, Snapshot
@@ -129,3 +130,59 @@ def as_contract(m: Metrics) -> dict[str, object]:
         "open_shifts": m.open_shifts,
         "assigned_minutes": m.assigned_minutes,
     }
+
+
+# ---------------------------------------------------------------- material change (architecture v3 s31)
+
+COST_TOLERANCE_PAISE = 10_000  # INR 100
+COST_TOLERANCE_SHARE = 0.02
+COVERAGE_TOLERANCE = 0.01
+
+
+def _rupees(paise: int) -> str:
+    return f"INR {abs(paise) // 100:,}"
+
+
+def material_changes(before: dict[str, Any], after: dict[str, Any]) -> list[dict[str, Any]]:
+    """Deltas between two contract Metrics that a manager must acknowledge before publication.
+
+    Cost moving by more than max(INR 100, 2%), coverage moving by a percentage point, or any new
+    minimum-staffing shortfall or open shift. Smaller drift (an unrelated availability edit) passes."""
+    out: list[dict[str, Any]] = []
+    cost_a = int(before["labour_cost"]["amount_paise"])
+    cost_b = int(after["labour_cost"]["amount_paise"])
+    if abs(cost_b - cost_a) > max(COST_TOLERANCE_PAISE, COST_TOLERANCE_SHARE * cost_a):
+        way = "risen" if cost_b > cost_a else "fallen"
+        out.append(
+            {
+                "metric": "labour_cost",
+                "before": cost_a,
+                "after": cost_b,
+                "message": f"Cost has {way} by {_rupees(cost_b - cost_a)} since this plan was proposed.",
+            }
+        )
+    cov_a, cov_b = before.get("coverage_ratio"), after.get("coverage_ratio")
+    if cov_a is not None and cov_b is not None and abs(cov_b - cov_a) >= COVERAGE_TOLERANCE:
+        out.append(
+            {
+                "metric": "coverage_ratio",
+                "before": cov_a,
+                "after": cov_b,
+                "message": f"Coverage moved from {cov_a:.0%} to {cov_b:.0%} since this plan was proposed.",
+            }
+        )
+    for metric, label in (
+        ("minimum_deficit_minutes", "Minimum-staffing shortfall"),
+        ("open_shifts", "Open shifts"),
+    ):
+        a, b = int(before[metric]), int(after[metric])
+        if b > a:
+            out.append(
+                {
+                    "metric": metric,
+                    "before": a,
+                    "after": b,
+                    "message": f"{label} increased from {a} to {b} since this plan was proposed.",
+                }
+            )
+    return out

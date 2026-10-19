@@ -112,8 +112,9 @@ def test_commitments_elsewhere_are_respected() -> None:
 
 def test_single_worker_solves_are_reproducible() -> None:
     snap = build()
-    a = solver.solve(snap, "lowest_cost", time_limit=6.0, workers=1, seed=11)[1]
-    b = solver.solve(snap, "lowest_cost", time_limit=6.0, workers=1, seed=11)[1]
+    # Deterministic work units, not wall time: a loaded machine must not change the answer.
+    a = solver.solve(snap, "lowest_cost", time_limit=120.0, workers=1, seed=11, deterministic_time=1.0)[1]
+    b = solver.solve(snap, "lowest_cost", time_limit=120.0, workers=1, seed=11, deterministic_time=1.0)[1]
     assert a is not None and b is not None
     key = lambda c: sorted((str(s.employee_id), s.start_at, str(s.skill_id)) for s in c.roster)  # noqa: E731
     assert key(a) == key(b) and a.objective == b.objective

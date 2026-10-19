@@ -110,6 +110,60 @@
       "schema": "ErrorResponse"
     },
     {
+      "name": "proposal.create",
+      "operation_id": "createProposal",
+      "status": 201,
+      "schema": "Proposal"
+    },
+    {
+      "name": "proposal.get",
+      "operation_id": "getProposal",
+      "status": 200,
+      "schema": "Proposal"
+    },
+    {
+      "name": "proposal.approve.published",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.stale",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.invalid",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.changed",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.acknowledged",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.already_decided",
+      "operation_id": "approveProposal",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "proposal.reject",
+      "operation_id": "rejectProposal",
+      "status": 200,
+      "schema": "Proposal"
+    },
+    {
       "name": "session.demo.manager",
       "operation_id": "createDemoSession",
       "status": 201,

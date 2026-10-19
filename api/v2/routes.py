@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import AwareDatetime
 
-from api.v2 import absences, candidates, drafts, generation, rosters, service
+from api.v2 import absences, candidates, drafts, generation, proposals, rosters, service
 from api.v2 import auth as v2auth
 from api.v2 import schemas as s
 
@@ -389,6 +389,62 @@ def publish_version(
     version or the draft revision moved; 422 validation_failed with details.violations when the draft has
     hard violations against current facts."""
     return drafts.publish(caller, version_id, idempotency_key, body)
+
+
+ProposalPath = Annotated[UUID, Path(description="A schedule proposal.")]
+
+
+@router.post(
+    "/proposals",
+    operation_id="createProposal",
+    response_model=s.Proposal,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def create_proposal(
+    caller: v2auth.CallerDep, idempotency_key: IdempotencyKey, body: s.CreateProposalRequest
+) -> s.Proposal:
+    """Propose a draft for publication, recording its revision and its metrics against current facts
+    (what the manager agrees to). 409 stale_version when the draft revision moved; 422 validation_failed
+    when it has hard violations."""
+    return proposals.create(caller, idempotency_key, body)
+
+
+@router.get(
+    "/proposals/{proposal_id}",
+    operation_id="getProposal",
+    response_model=s.Proposal,
+    responses=_errors(403, 404, 422),
+)
+def get_proposal(caller: v2auth.CallerDep, proposal_id: ProposalPath) -> s.Proposal:
+    return proposals.get(caller, proposal_id)
+
+
+@router.post(
+    "/proposals/{proposal_id}/approve",
+    operation_id="approveProposal",
+    response_model=s.ProposalDecision,
+    responses=_errors(403, 404, 409, 422),
+)
+def approve_proposal(
+    caller: v2auth.CallerDep,
+    proposal_id: ProposalPath,
+    idempotency_key: IdempotencyKey,
+    body: s.ApproveProposalRequest,
+) -> s.ProposalDecision:
+    """The publication transaction (architecture v3 section 31). Always 200 with an `outcome`: published,
+    stale, invalid or changed. 409 conflict only when the proposal is no longer pending or expired."""
+    return proposals.approve(caller, proposal_id, idempotency_key, body)
+
+
+@router.post(
+    "/proposals/{proposal_id}/reject",
+    operation_id="rejectProposal",
+    response_model=s.Proposal,
+    responses=_errors(403, 404, 409, 422),
+)
+def reject_proposal(caller: v2auth.CallerDep, proposal_id: ProposalPath) -> s.Proposal:
+    return proposals.reject(caller, proposal_id)
 
 
 @router.post(

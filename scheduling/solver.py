@@ -272,9 +272,14 @@ def solve(
     seed: int = 7,
     workers: int = 8,
     max_shortfall_staff_minutes: int | None = None,
+    deterministic_time: float | None = None,
 ) -> tuple[str, Candidate | None, dict[str, Any]]:
     """max_shortfall_staff_minutes caps preferred shortfall (equal shortfall = equal coverage), which
-    gives matched-coverage comparisons: the cheapest roster covering at least as well as a reference."""
+    gives matched-coverage comparisons: the cheapest roster covering at least as well as a reference.
+
+    deterministic_time bounds the search in CP-SAT's deterministic work units instead of wall time, so
+    one worker with a fixed seed returns the same roster however loaded the machine is (evaluation
+    mode; time_limit stays as a wall-clock safety net)."""
     weights = STRATEGIES[strategy]
     cands = slots(snap)
     model = cp_model.CpModel()
@@ -371,6 +376,8 @@ def solve(
     solver.parameters.max_time_in_seconds = time_limit
     solver.parameters.num_workers = workers
     solver.parameters.random_seed = seed
+    if deterministic_time is not None:
+        solver.parameters.max_deterministic_time = deterministic_time
     status = STATUS[solver.solve(model)]
     stats["solver_wall_ms"] = int(solver.wall_time * 1000)
     if status not in ("OPTIMAL", "FEASIBLE"):

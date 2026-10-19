@@ -543,12 +543,18 @@ class ScheduleProposal(Base):
         ),
         one_of("required_role", ("owner", "manager"), "proposal_required_role"),
         CheckConstraint("(status = 'pending') = (decided_at IS NULL)", name="proposal_decided_at"),
+        CheckConstraint(
+            "cardinality(draft_revisions) = cardinality(draft_version_ids)", name="proposal_draft_revisions"
+        ),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
     candidate_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     draft_version_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
     base_version_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
+    # What the manager agreed to (architecture v3 section 31): the draft revisions and their metrics.
+    draft_revisions: Mapped[list[int]] = mapped_column(ARRAY(Integer), server_default=text("'{}'::integer[]"))
+    metrics_at_proposal: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
     input_hash: Mapped[str] = mapped_column(String(80))
     status: Mapped[str] = mapped_column(String(20), default="pending", server_default="pending")
     required_role: Mapped[str] = mapped_column(String(20))

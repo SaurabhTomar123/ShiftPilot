@@ -530,6 +530,79 @@ class PublishResult(Model):
     superseded_version_id: UUID | None
 
 
+ProposalStatus = Literal["pending", "approved", "rejected", "expired", "stale", "failed"]
+PublicationOutcome = Literal["published", "stale", "invalid", "changed"]
+
+
+class CreateProposalRequest(Model):
+    draft_version_id: UUID
+    expected_revision: int = Field(ge=1, description="The draft revision the manager reviewed.")
+
+
+class Proposal(Model):
+    id: UUID
+    schedule_id: UUID
+    draft_version_id: UUID
+    draft_revision: int = Field(ge=1)
+    base_version_id: UUID | None = Field(description="The published version this plan replaces.")
+    candidate_id: UUID | None = Field(description="Set when the draft came from an optimization candidate.")
+    status: ProposalStatus
+    metrics_at_proposal: Metrics = Field(
+        description="What the manager agreed to; Changed is judged against it."
+    )
+    requested_by_user_id: UUID
+    decided_by_user_id: UUID | None
+    created_at: AwareDatetime
+    decided_at: AwareDatetime | None
+    expires_at: AwareDatetime
+
+
+class ApproveProposalRequest(Model):
+    acknowledge_changes: bool = Field(
+        default=False,
+        description="Set after a `changed` outcome to accept the moved metrics and publish.",
+    )
+
+
+class MetricDelta(Model):
+    metric: Literal["labour_cost", "coverage_ratio", "minimum_deficit_minutes", "open_shifts"]
+    before: float | None = Field(description="labour_cost in paise.")
+    after: float | None
+    message: str = Field(description="Deterministic text built from the numbers; safe to show.")
+
+
+class ProposalDecision(Model):
+    """The publication transaction's answer (architecture v3 section 31). Always 200: each outcome is a
+    normal business result, not an error."""
+
+    outcome: PublicationOutcome = Field(
+        description="published: the new version is live. stale: someone published first or the draft "
+        "changed; re-run against current_version_id. invalid: a current fact breaks the plan "
+        "(violations); offer a repair. changed: still valid but metrics moved materially (deltas); "
+        "approve again with acknowledge_changes to accept."
+    )
+    message: str
+    proposal: Proposal
+    published: ScheduleVersionSummary | None = None
+    superseded_version_id: UUID | None = None
+    current_version_id: UUID | None = Field(default=None, description="Set when stale.")
+    violations: list[Violation] = Field(default_factory=list, description="Set when invalid.")
+    deltas: list[MetricDelta] = Field(default_factory=list, description="Set when changed.")
+
+    @model_validator(mode="after")
+    def _consistent(self) -> ProposalDecision:
+        expected = {"published": "approved", "stale": "stale", "invalid": "failed", "changed": "pending"}
+        if self.proposal.status != expected[self.outcome]:
+            raise ValueError(f"outcome {self.outcome} requires proposal status {expected[self.outcome]}")
+        if (self.outcome == "published") != (self.published is not None):
+            raise ValueError("published is set exactly when the outcome is published")
+        if self.outcome == "invalid" and not self.violations:
+            raise ValueError("an invalid outcome lists the violations")
+        if self.outcome == "changed" and not self.deltas:
+            raise ValueError("a changed outcome lists the deltas")
+        return self
+
+
 class RestoreRequest(Model):
     expected_base_version_id: UUID | None = Field(description="The currently published version.")
 

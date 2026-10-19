@@ -31,7 +31,7 @@ The roster in the fixtures is built by a simple rule-respecting script, not the 
 |---|---|
 | **Lightweight candidates** (§23) | **Live in 3.0.0-p4.** |
 | **Versions served with `Cache-Control: private, no-cache`** (§36) | **Live in 3.0.0-p4.** |
-| **Proposals with four publication outcomes** (§31): Published, Stale, Invalid, and Changed (needs acknowledgement) | Next. Hold `publishVersion` integration until it lands. |
+| **Proposals with four publication outcomes** (§31): Published, Stale, Invalid, and Changed (needs acknowledgement) | **Live in 3.0.0-p4.** |
 
 ### Lightweight candidates (live)
 
@@ -46,6 +46,28 @@ A candidate is no longer a version. Runs write **no** `schedule_versions`; a man
 | `selectOptimizationCandidate` `POST /v2/optimization-candidates/{id}/select` | `201` with the materialized draft (`source` `generate` or `repair`, `optimization_run_id` set). Its `base_version_id` is the **run's** base, so publishing after someone else published returns `stale_version`. Selecting again returns the same draft while it is still a draft. Needs `Idempotency-Key` and the `publish` capability. | `candidate.select` |
 
 To preview a candidate, render `diff` over the base version, or select it and use the draft. Logical identity is kept: shifts a repair reassigns appear in `changed` with their existing `logical_shift_id`.
+
+### Proposals and publication outcomes (live)
+
+`candidate --select--> draft --edit (optional)--> proposal --approve--> published version`
+
+| Operation | What it does | Fixture |
+|---|---|---|
+| `createProposal` `POST /v2/proposals` | Body `{draft_version_id, expected_revision}`. Records the draft revision and its `metrics_at_proposal` against current facts; that is what the manager agrees to. `409 stale_version` if the draft revision moved, `422 validation_failed` if it has hard violations. Expires after 24 hours. Needs `Idempotency-Key`. | `proposal.create` |
+| `getProposal` `GET /v2/proposals/{id}` | The proposal and its `status`: `pending`, `approved`, `rejected`, `expired`, `stale` or `failed`. | `proposal.get` |
+| `approveProposal` `POST /v2/proposals/{id}/approve` | The publication transaction. **Always `200` with an `outcome`** (below). Body `{acknowledge_changes}`. Needs `Idempotency-Key`; a double click publishes once. `409 conflict` only if the proposal is no longer pending (`details.status`) or has expired. | `proposal.approve.*` |
+| `rejectProposal` `POST /v2/proposals/{id}/reject` | Marks it `rejected`. Repeating it is harmless. | `proposal.reject` |
+
+| `outcome` | Proposal status | Meaning | What the UI shows |
+|---|---|---|---|
+| `published` | `approved` | Base unchanged, plan valid, metrics unchanged or acknowledged. `published` and `superseded_version_id` are set. | The new version |
+| `stale` | `stale` | Someone published first (`current_version_id`), or the draft was edited after it was proposed. | `message`, then re-run or re-propose against the latest version |
+| `invalid` | `failed` | A current fact breaks the plan, for example a new confirmed absence. `violations` lists them. | "This recommendation is no longer valid" with the reason; offer a repair |
+| `changed` | still `pending` | Valid, but metrics moved materially since the proposal. `deltas` carry `before`, `after` and a ready-to-show `message`. | The deltas; **Approve again** sends `acknowledge_changes: true` |
+
+Material means labour cost moved by more than max(INR 100, 2%), coverage moved by at least one percentage point, or minimum-staffing shortfall or open shifts increased. Smaller drift, such as an unrelated availability edit, does not block publication.
+
+`publishVersion` stays available for a manager's own manual draft (stale `409`, invalid `422`). Use proposals for optimizer and repair results.
 
 ### Version caching (live)
 

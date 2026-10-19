@@ -2250,6 +2250,420 @@
         }
       }
     },
+    "/v2/proposals": {
+      "post": {
+        "summary": "Create Proposal",
+        "description": "Propose a draft for publication, recording its revision and its metrics against current facts\n(what the manager agrees to). 409 stale_version when the draft revision moved; 422 validation_failed\nwhen it has hard violations.",
+        "operationId": "createProposal",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProposalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/proposals/{proposal_id}": {
+      "get": {
+        "summary": "Get Proposal",
+        "operationId": "getProposal",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule proposal.",
+              "title": "Proposal Id"
+            },
+            "description": "A schedule proposal."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/proposals/{proposal_id}/approve": {
+      "post": {
+        "summary": "Approve Proposal",
+        "description": "The publication transaction (architecture v3 section 31). Always 200 with an `outcome`: published,\nstale, invalid or changed. 409 conflict only when the proposal is no longer pending or expired.",
+        "operationId": "approveProposal",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule proposal.",
+              "title": "Proposal Id"
+            },
+            "description": "A schedule proposal."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveProposalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalDecision"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/proposals/{proposal_id}/reject": {
+      "post": {
+        "summary": "Reject Proposal",
+        "operationId": "rejectProposal",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "A schedule proposal.",
+              "title": "Proposal Id"
+            },
+            "description": "A schedule proposal."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Proposal"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
     "/v2/schedule-versions/{version_id}/discard": {
       "post": {
         "summary": "Discard Draft",
@@ -3414,6 +3828,19 @@
         ],
         "title": "AlternativeFact"
       },
+      "ApproveProposalRequest": {
+        "properties": {
+          "acknowledge_changes": {
+            "type": "boolean",
+            "title": "Acknowledge Changes",
+            "description": "Set after a `changed` outcome to accept the moved metrics and publish.",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ApproveProposalRequest"
+      },
       "Availability": {
         "properties": {
           "employee_id": {
@@ -3935,6 +4362,28 @@
           "base_version_id"
         ],
         "title": "CreateDraftRequest"
+      },
+      "CreateProposalRequest": {
+        "properties": {
+          "draft_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Draft Version Id"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "description": "The draft revision the manager reviewed."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "draft_version_id",
+          "expected_revision"
+        ],
+        "title": "CreateProposalRequest"
       },
       "DemoSession": {
         "properties": {
@@ -4767,6 +5216,57 @@
         ],
         "title": "Me"
       },
+      "MetricDelta": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "enum": [
+              "labour_cost",
+              "coverage_ratio",
+              "minimum_deficit_minutes",
+              "open_shifts"
+            ],
+            "title": "Metric"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Before",
+            "description": "labour_cost in paise."
+          },
+          "after": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Deterministic text built from the numbers; safe to show."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric",
+          "before",
+          "after",
+          "message"
+        ],
+        "title": "MetricDelta"
+      },
       "Metrics": {
         "properties": {
           "coverage_ratio": {
@@ -5230,6 +5730,211 @@
           "timezone"
         ],
         "title": "OutletRef"
+      },
+      "Proposal": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "schedule_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Schedule Id"
+          },
+          "draft_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Draft Version Id"
+          },
+          "draft_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Draft Revision"
+          },
+          "base_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Version Id",
+            "description": "The published version this plan replaces."
+          },
+          "candidate_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Id",
+            "description": "Set when the draft came from an optimization candidate."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected",
+              "expired",
+              "stale",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "metrics_at_proposal": {
+            "$ref": "#/components/schemas/Metrics",
+            "description": "What the manager agreed to; Changed is judged against it."
+          },
+          "requested_by_user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Requested By User Id"
+          },
+          "decided_by_user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided By User Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "decided_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "schedule_id",
+          "draft_version_id",
+          "draft_revision",
+          "base_version_id",
+          "candidate_id",
+          "status",
+          "metrics_at_proposal",
+          "requested_by_user_id",
+          "decided_by_user_id",
+          "created_at",
+          "decided_at",
+          "expires_at"
+        ],
+        "title": "Proposal"
+      },
+      "ProposalDecision": {
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "published",
+              "stale",
+              "invalid",
+              "changed"
+            ],
+            "title": "Outcome",
+            "description": "published: the new version is live. stale: someone published first or the draft changed; re-run against current_version_id. invalid: a current fact breaks the plan (violations); offer a repair. changed: still valid but metrics moved materially (deltas); approve again with acknowledge_changes to accept."
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "proposal": {
+            "$ref": "#/components/schemas/Proposal"
+          },
+          "published": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScheduleVersionSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "superseded_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Superseded Version Id"
+          },
+          "current_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Version Id",
+            "description": "Set when stale."
+          },
+          "violations": {
+            "items": {
+              "$ref": "#/components/schemas/Violation"
+            },
+            "type": "array",
+            "title": "Violations",
+            "description": "Set when invalid."
+          },
+          "deltas": {
+            "items": {
+              "$ref": "#/components/schemas/MetricDelta"
+            },
+            "type": "array",
+            "title": "Deltas",
+            "description": "Set when changed."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "outcome",
+          "message",
+          "proposal"
+        ],
+        "title": "ProposalDecision",
+        "description": "The publication transaction's answer (architecture v3 section 31). Always 200: each outcome is a\nnormal business result, not an error."
       },
       "PublishRequest": {
         "properties": {
