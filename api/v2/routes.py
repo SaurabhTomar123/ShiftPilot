@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from api.v2 import auth as v2auth
-from api.v2 import generation, rosters, service
+from api.v2 import drafts, generation, rosters, service
 from api.v2 import schemas as s
 
 bearer = HTTPBearer(auto_error=False)
@@ -321,7 +321,7 @@ def create_draft(
 ) -> s.ScheduleVersion:
     """A new draft copied from the published version (or another version of the same week). 409
     stale_version when base_version_id is no longer the published version."""
-    _stub()
+    return drafts.create_draft(caller, outlet_id, week_start, idempotency_key, body)
 
 
 @router.post(
@@ -332,7 +332,7 @@ def create_draft(
 )
 def preview_edits(caller: v2auth.CallerDep, version_id: VersionPath, body: s.EditRequest) -> s.EditPreview:
     """Validate edits against the draft without writing anything (drag/resize/keyboard previews)."""
-    _stub()
+    return drafts.preview_edits(caller, version_id, body)
 
 
 @router.post(
@@ -345,7 +345,7 @@ def apply_edits(caller: v2auth.CallerDep, version_id: VersionPath, body: s.EditR
     """Apply edits to a draft. 409 stale_version when expected_revision is not current
     (details.current_revision); 409 conflict when the version is not a draft. Edits that break rules
     are applied and reported in validation; publishing is what refuses hard violations."""
-    _stub()
+    return drafts.apply_edits(caller, version_id, body)
 
 
 @router.post(
@@ -360,7 +360,7 @@ def publish_version(
     """Atomically publish a draft and supersede the current version. 409 stale_version when the published
     version or the draft revision moved; 422 validation_failed with details.violations when the draft has
     hard violations against current facts."""
-    _stub()
+    return drafts.publish(caller, version_id, idempotency_key, body)
 
 
 @router.post(
@@ -370,7 +370,7 @@ def publish_version(
     responses=_errors(403, 404, 409, 422),
 )
 def discard_draft(caller: v2auth.CallerDep, version_id: VersionPath) -> s.ScheduleVersionSummary:
-    _stub()
+    return drafts.discard_draft(caller, version_id)
 
 
 @router.get(
@@ -380,7 +380,7 @@ def discard_draft(caller: v2auth.CallerDep, version_id: VersionPath) -> s.Schedu
     responses=_errors(403, 404, 422),
 )
 def list_versions(caller: v2auth.CallerDep, schedule_id: UUID) -> s.VersionHistory:
-    _stub()
+    return drafts.list_versions(caller, schedule_id)
 
 
 @router.get(
@@ -395,7 +395,7 @@ def compare_versions(
     with_version: Annotated[UUID, Query(alias="with", description="The version to compare against.")],
 ) -> s.VersionDiff:
     """Changes from `with` to this version, keyed on logical_shift_id."""
-    _stub()
+    return drafts.compare(caller, version_id, with_version)
 
 
 @router.post(
@@ -410,4 +410,4 @@ def restore_version(
 ) -> s.ScheduleVersion:
     """A new draft with this version's shifts, validated against current facts (an absent employee's
     restored shift shows as a hard violation; it is never revived silently). History is never rewritten."""
-    _stub()
+    return drafts.restore(caller, version_id, idempotency_key, body)

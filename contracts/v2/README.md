@@ -23,7 +23,7 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
-## What changed in 2.3.0-p3 (for review; the backend is in progress)
+## What changed in 2.3.0-p3 (live)
 
 Additive. Everything from 2.2 is unchanged except one new field: **every version summary now has `revision`** (fixed at 1 for published and superseded versions; bumped by each applied draft edit).
 
@@ -48,7 +48,7 @@ Edits are a discriminated union on `op`:
 
 The fixture story: draft v4 copies published v3. The preview reassigns a Tuesday Grill shift to Ravi, who is unavailable on Tuesdays, which gives a hard `unavailable` violation. The apply locks Monday's opening Grill shift (revision 2). Then publish; then restore v2 as draft v5.
 
-These eight operations currently authenticate, then answer `501` until B3.1–B3.3 land. Build against the fixtures.
+These eight operations are live (B3.1–B3.3). Publication runs in one transaction: it locks the schedule, takes advisory locks per rostered employee, re-checks the base and revision, and re-validates against the live organization-wide roster. Integration tests cover idempotent replay, stale races, 422 blocking (including a restored shift for an employee who is now absent), and audit plus outbox rows.
 
 ## What changed in 2.2.0-p1p2
 
