@@ -1,9 +1,15 @@
 """Absence repair (B4.2/B4.3): minimal-disruption re-optimization of a published roster. Pure.
 
-Scope (local first): base shifts on the local days touched by the confirmed absence are variables;
-everything else is fixed and counts as commitments for rest, overlap, travel and weekly limits. Shifts
-of the absent employee during the absence must be reassigned or left open. Locked shifts stay exactly
-as they are unless the manager authorized unlocking them (decision 5).
+Scope: local first, then widen (architecture v3 section 12). Each stage frees more of the published
+roster, and the first stage that keeps minimum staffing wins; every stage tried is recorded:
+  1. same_day         this outlet, the affected days from the absence onward, home staff, no overtime
+  2. adjacent_shifts  the affected days and the day either side
+  3. other_outlets    staff from other outlets too (only when the owner authorized it)
+  4. overtime         overtime up to each employee's cap where their contract allows it
+Shifts outside the stage's scope are fixed and count as commitments for rest, overlap, travel and weekly
+limits. Shifts of the absent employee during the absence must be reassigned or left open. Locked shifts
+stay exactly as they are unless the manager authorized unlocking them (decision 5). A no-overtime stage
+never forbids hours the published roster already gave someone.
 
 Staged objective (decision 6), each stage bounded and recorded:
   1. hard-minimum shortfall (soft here, so a repair always returns its best effort and reports gaps)
@@ -18,7 +24,7 @@ from __future__ import annotations
 import uuid
 from collections import defaultdict
 from dataclasses import dataclass, field, replace
-from datetime import date
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from ortools.sat.python import cp_model
@@ -28,6 +34,57 @@ from scheduling.model import Absence, Employee, Shift, Snapshot
 from scheduling.solver import STATUS, Slot, _conflict, eligible, slots
 
 PROFILES = ("least_disruption", "lowest_cost", "best_coverage")
+STAGES = ("same_day", "adjacent_shifts", "other_outlets", "overtime")
+
+
+@dataclass(frozen=True)
+class Scope:
+    """One widening stage: which base shifts may change, who may take them, and whether overtime may."""
+
+    name: str
+    free_days: frozenset[date]
+    from_instant: datetime | None  # same_day: only shifts still running after the absence starts
+    cross_outlet: bool
+    overtime: bool
+    forced: frozenset[uuid.UUID] = frozenset()  # broken shifts: always free, never kept as they are
+
+
+# Per-shift facts that make a published shift unworkable now (not coverage or weekly totals).
+BROKEN_CODES = frozenset({"absent", "unavailable", "missing_skill"})
+
+
+def broken_shifts(snap: Snapshot, base: list[Shift], unlocked: set[uuid.UUID]) -> list[Shift]:
+    """Published shifts that current facts already break, such as an earlier absence nobody has repaired
+    yet. A repair takes them on too, so every candidate it offers is valid and publishable as a whole.
+    Locked ones need the same explicit authorization as a locked affected shift (decision 5)."""
+    ids = {
+        lid
+        for v in validator.validate(replace(snap, requirements=()), base).violations
+        if v.severity == "hard" and v.code in BROKEN_CODES
+        for lid in v.logical_shift_ids
+    }
+    return [s for s in base if s.logical_id in ids]
+
+
+def scopes(
+    snap: Snapshot,
+    base: list[Shift],
+    absence: Absence,
+    allow_cross_outlet: bool,
+    broken: list[Shift] | None = None,
+) -> list[Scope]:
+    must = [*affected_shifts(base, absence), *(broken or [])]
+    days = frozenset(_days(snap, must))
+    wide = frozenset(d + timedelta(days=k) for d in days for k in (-1, 0, 1))
+    forced = frozenset(s.logical_id for s in must)
+    return [
+        Scope("same_day", days, absence.start_at, False, False, forced),
+        Scope("adjacent_shifts", wide, None, False, False, forced),
+        Scope("other_outlets", wide, None, True, False, forced),
+        Scope("overtime", wide, None, allow_cross_outlet, True, forced),
+    ]
+
+
 DISRUPTION_SLACK = {"least_disruption": 0, "lowest_cost": 2, "best_coverage": 2}
 SHORTFALL_WEIGHT = {"least_disruption": 300, "lowest_cost": 50, "best_coverage": 5000}
 
@@ -71,6 +128,7 @@ class RepairOutcome:
     status: str
     plans: list[Plan] = field(default_factory=list)
     affected: list[Shift] = field(default_factory=list)
+    widening: list[dict[str, Any]] = field(default_factory=list)
     locked_conflicts: list[Shift] = field(default_factory=list)
     stats: dict[str, Any] = field(default_factory=dict)
 
@@ -94,6 +152,29 @@ def _sum(terms: list[Any]) -> Any:
     return cp_model.LinearExpr.sum(terms) if terms else 0
 
 
+def _scope_sets(
+    snap: Snapshot, base: list[Shift], absence: Absence, unlocked: set[uuid.UUID], scope: Scope
+) -> tuple[list[Shift], dict[uuid.UUID, Employee]]:
+    """(base shifts free to change, employees who may take them) for one stage."""
+    tz = snap.outlet.tz
+    affected = {s.logical_id for s in affected_shifts(base, absence)} | scope.forced
+    free = [
+        s
+        for s in base
+        if s.start_at.astimezone(tz).date() in scope.free_days
+        and (not s.locked or s.logical_id in unlocked)
+        and (scope.from_instant is None or s.end_at > scope.from_instant or s.logical_id in affected)
+    ]
+    rostered = {s.employee_id for s in base}
+    pool = {
+        e.id: e
+        for e in snap.employees.values()
+        if e.id != absence.employee_id
+        and (scope.cross_outlet or e.home_outlet_id == snap.outlet_id or e.id in rostered)
+    }
+    return free, pool
+
+
 def _solve_profile(
     snap: Snapshot,
     base: list[Shift],
@@ -101,19 +182,16 @@ def _solve_profile(
     unlocked: set[uuid.UUID],
     profile: str,
     *,
+    scope: Scope,
     time_limit: float,
     workers: int,
     best_minimum: int | None,
     best_disruption: int | None,
 ) -> tuple[str, Plan | None, dict[str, Any]]:
-    days = _days(snap, affected_shifts(base, absence))
+    # Added shifts only on the days where something must change (the absence and broken shifts).
+    days = _days(snap, [s for s in base if s.logical_id in scope.forced] or affected_shifts(base, absence))
     tz = snap.outlet.tz
-    pool = {e.id: e for e in snap.employees.values() if e.id != absence.employee_id}
-    free = [
-        s
-        for s in base
-        if s.start_at.astimezone(tz).date() in days and (not s.locked or s.logical_id in unlocked)
-    ]
+    free, pool = _scope_sets(snap, base, absence, unlocked, scope)
     fixed = [s for s in base if s not in free]
     new_slots = [c for c in slots(snap) if c.day in days]
 
@@ -176,8 +254,15 @@ def _solve_profile(
                 cross_terms.append(v)
         fixed_minutes = sum(f.paid_minutes for f in fixed_by_emp[e_id] if week_start <= f.start_at < week_end)
         var_minutes = [v * int((b - a).total_seconds() // 60) for v, a, b, _ in its]
-        limit = emp.max_weekly_minutes if emp.overtime_allowed else emp.regular_weekly_minutes
-        model.add(_sum(var_minutes) + fixed_minutes <= max(limit, fixed_minutes))
+        limit = (
+            emp.max_weekly_minutes if scope.overtime and emp.overtime_allowed else emp.regular_weekly_minutes
+        )
+        promised = sum(
+            s.paid_minutes
+            for s in [*base, *snap.commitments]
+            if s.employee_id == e_id and week_start <= s.start_at < week_end
+        )
+        model.add(_sum(var_minutes) + fixed_minutes <= max(limit, promised, fixed_minutes))
 
     # Coverage on the affected days.
     min_terms, pref_terms = [], []
@@ -414,6 +499,53 @@ def _facts(
     )
 
 
+def _attempt(
+    snap: Snapshot,
+    base: list[Shift],
+    absence: Absence,
+    unlocked: set[uuid.UUID],
+    scope: Scope,
+    *,
+    time_limit: float,
+    workers: int,
+    profiles: tuple[str, ...],
+) -> tuple[list[Plan], dict[str, Any], int | None]:
+    """All profiles within one stage: (valid distinct plans, stats, best minimum shortfall)."""
+    plans: list[Plan] = []
+    stats: dict[str, Any] = {}
+    best_min = best_dis = None
+    seen = set()
+    for profile in profiles:
+        status, plan, pstats = _solve_profile(
+            snap,
+            base,
+            absence,
+            unlocked,
+            profile,
+            scope=scope,
+            time_limit=time_limit / len(profiles),
+            workers=workers,
+            best_minimum=best_min,
+            best_disruption=best_dis,
+        )
+        stats[profile] = {"status": status, **pstats}
+        if plan is None:
+            continue
+        best_min = pstats.get("best_minimum", best_min)
+        best_dis = pstats.get("best_disruption", best_dis)
+        key = frozenset((s.logical_id, s.employee_id, s.start_at) for s in plan.roster)
+        check = validator.validate(snap, plan.roster)
+        hard = {v.code for v in check.violations if v.severity == "hard"} - {"minimum_coverage"}
+        if hard:
+            stats.setdefault("rejected_by_validator", []).append({"profile": profile, "codes": sorted(hard)})
+            continue
+        if key in seen:
+            continue
+        seen.add(key)
+        plans.append(replace(plan, explanations=explain(snap, base, plan.roster, absence)))
+    return plans, stats, best_min
+
+
 def repair(
     snap: Snapshot,
     base: list[Shift],
@@ -423,7 +555,10 @@ def repair(
     time_limit: float = 3.0,
     workers: int = 8,
     profiles: tuple[str, ...] = PROFILES,
+    allow_cross_outlet: bool = False,
 ) -> RepairOutcome:
+    """Widen stage by stage until minimum staffing holds (v3 section 12). If no stage manages it, the
+    stage with the smallest shortfall (the earliest on a tie) is returned and its gaps are reported."""
     unlocked = unlocked or set()
     affected = affected_shifts(base, absence)
     outcome = RepairOutcome(
@@ -439,37 +574,48 @@ def repair(
         absences=(*snap.absences, absence),
         base_locked={s.logical_id: s for s in base if s.locked and s.logical_id not in unlocked},
     )
-    best_min = best_dis = None
-    seen = set()
-    for profile in profiles:
-        status, plan, stats = _solve_profile(
+    broken = broken_shifts(snap, base, unlocked)
+    outcome.stats["broken_shifts"] = len(broken)
+    outcome.locked_conflicts = [s for s in broken if s.locked and s.logical_id not in unlocked]
+    if outcome.locked_conflicts:  # an earlier absence hit a locked shift that nobody authorized changing
+        outcome.status = "LOCK_CONFLICT"
+        return outcome
+    best: tuple[int, list[Plan], dict[str, Any]] | None = None
+    tried: set[tuple[frozenset[uuid.UUID], frozenset[uuid.UUID], bool]] = set()
+    for scope in scopes(snap, base, absence, allow_cross_outlet, broken):
+        free, pool = _scope_sets(snap, base, absence, unlocked, scope)
+        record: dict[str, Any] = {"stage": scope.name, "free_shifts": len(free), "pool": len(pool)}
+        outcome.widening.append(record)
+        if scope.cross_outlet and not allow_cross_outlet:
+            record |= {"result": "skipped", "reason": "not_authorized"}
+            continue
+        signature = (frozenset(s.logical_id for s in free), frozenset(pool), scope.overtime)
+        if signature in tried:
+            record |= {"result": "skipped", "reason": "same_scope"}
+            continue
+        tried.add(signature)
+        plans, stats, shortfall = _attempt(
             snap,
             base,
             absence,
             unlocked,
-            profile,
-            time_limit=time_limit / len(profiles),
+            scope,
+            time_limit=time_limit,
             workers=workers,
-            best_minimum=best_min,
-            best_disruption=best_dis,
+            profiles=profiles,
         )
-        outcome.stats[profile] = {"status": status, **stats}
-        if plan is None:
+        outcome.stats[scope.name] = stats
+        record["minimum_shortfall_minutes"] = shortfall
+        if not plans or shortfall is None:
+            record["result"] = "no_plan"
             continue
-        best_min = stats.get("best_minimum", best_min)
-        best_dis = stats.get("best_disruption", best_dis)
-        key = frozenset((s.logical_id, s.employee_id, s.start_at) for s in plan.roster)
-        check = validator.validate(snap, plan.roster)
-        hard = {v.code for v in check.violations if v.severity == "hard"} - {"minimum_coverage"}
-        if hard:
-            outcome.stats.setdefault("rejected_by_validator", []).append(
-                {"profile": profile, "codes": sorted(hard)}
-            )
-            continue
-        if key in seen:
-            continue
-        seen.add(key)
-        outcome.plans.append(replace(plan, explanations=explain(snap, base, plan.roster, absence)))
-    if outcome.plans:
+        record["result"] = "insufficient"
+        if best is None or shortfall < best[0]:
+            best = (shortfall, plans, record)
+        if shortfall == 0:
+            break
+    if best is not None:
+        best[2]["result"] = "selected"
+        outcome.plans = best[1]
         outcome.status = outcome.plans[0].status
     return outcome

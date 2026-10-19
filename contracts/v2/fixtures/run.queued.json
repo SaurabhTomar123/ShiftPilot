@@ -31,7 +31,8 @@
       "poll_after_ms": 500,
       "candidates": [],
       "infeasibility": null,
-      "error": null
+      "error": null,
+      "repair_stages": []
     }
   }
 }
