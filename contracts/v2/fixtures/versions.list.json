@@ -1,0 +1,82 @@
+{
+  "name": "versions.list",
+  "operation_id": "listVersions",
+  "method": "GET",
+  "path": "/v2/schedules/{schedule_id}/versions",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "VersionHistory",
+    "body": {
+      "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+      "current_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "items": [
+        {
+          "id": "901473d7-a6b0-5f75-bc42-c7a2c4793d06",
+          "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+          "version_number": 5,
+          "status": "draft",
+          "source": "restore",
+          "reason": "Restored from version 2",
+          "base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+          "optimization_run_id": null,
+          "created_by_user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+          "approved_by_user_id": null,
+          "created_at": "2026-10-18T19:20:00+05:30",
+          "published_at": null,
+          "revision": 1
+        },
+        {
+          "id": "7d932d02-e046-5127-aaff-604dd184d809",
+          "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+          "version_number": 4,
+          "status": "draft",
+          "source": "manual",
+          "reason": "Manager edit",
+          "base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+          "optimization_run_id": null,
+          "created_by_user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+          "approved_by_user_id": null,
+          "created_at": "2026-10-18T19:05:00+05:30",
+          "published_at": null,
+          "revision": 2
+        },
+        {
+          "id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+          "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+          "version_number": 3,
+          "status": "published",
+          "source": "manual",
+          "reason": "Manager manual edit",
+          "base_version_id": "547861e6-b2e0-5750-8217-130b4fca2820",
+          "optimization_run_id": null,
+          "created_by_user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+          "approved_by_user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+          "created_at": "2026-10-17T15:12:00+05:30",
+          "published_at": "2026-10-17T15:14:00+05:30",
+          "revision": 1
+        },
+        {
+          "id": "547861e6-b2e0-5750-8217-130b4fca2820",
+          "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+          "version_number": 2,
+          "status": "superseded",
+          "source": "generate",
+          "reason": "Generated (lowest cost)",
+          "base_version_id": null,
+          "optimization_run_id": null,
+          "created_by_user_id": null,
+          "approved_by_user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+          "created_at": "2026-10-16T18:00:00+05:30",
+          "published_at": "2026-10-16T18:10:00+05:30",
+          "revision": 1
+        }
+      ]
+    }
+  }
+}

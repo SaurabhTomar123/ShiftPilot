@@ -1,0 +1,35 @@
+{
+  "name": "edits.apply.not_draft",
+  "operation_id": "applyEdits",
+  "method": "POST",
+  "path": "/v2/schedule-versions/{version_id}/edits",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef"
+    },
+    "body": {
+      "expected_revision": 1,
+      "edits": [
+        {
+          "op": "lock",
+          "logical_shift_id": "c5d11735-6be2-5b94-8b12-4ae842bbdd74",
+          "reason": "Opening cook confirmed"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "conflict",
+        "message": "Published versions cannot be edited. Create a draft first.",
+        "retryable": false,
+        "details": {},
+        "trace_id": null
+      }
+    }
+  }
+}

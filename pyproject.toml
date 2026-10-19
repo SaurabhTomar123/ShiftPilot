@@ -55,9 +55,10 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 "db/migrations/versions/*" = ["E501"]  # generated table definitions
+"scheduling/worker.py" = ["E501"]  # SQL statements kept readable on one line each
 
 [tool.mypy]
 python_version = "3.14"
 strict = true
-files = ["core", "mcp_server", "api/v2", "db/migrate.py", "db/models_v2.py", "db/init.py", "db/session.py"]
+files = ["core", "mcp_server", "api/v2", "db/migrate.py", "db/models_v2.py", "db/init.py", "db/session.py", "seed/world.py", "seed/v2.py", "seed/world_snapshot.py", "scheduling", "evals/scheduling"]
 ignore_missing_imports = true

@@ -23,6 +23,33 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 2.3.0-p3 (live)
+
+Additive. Everything from 2.2 is unchanged except one new field: **every version summary now has `revision`** (fixed at 1 for published and superseded versions; bumped by each applied draft edit).
+
+| Operation | What it does | Fixture |
+|---|---|---|
+| `createDraft` `POST /v2/outlets/{id}/schedules/{week}/drafts` | Creates a new draft copied from the published version, or from `copy_from_version_id`. Stale `base_version_id` returns 409. Needs `Idempotency-Key`. | `draft.create` |
+| `previewEdits` `POST /v2/schedule-versions/{id}/edits/preview` | Shows what the draft would become: `shifts`, typed `changes`, authoritative `metrics` and `validation`. **Writes nothing.** Use it for drag, resize and keyboard previews. | `edits.preview` |
+| `applyEdits` `POST /v2/schedule-versions/{id}/edits` | Applies edits to a **draft** and bumps `revision`. A stale `expected_revision` returns `409 stale_version` (`details.current_revision`); editing a non-draft returns `409 conflict`. Rule-breaking edits are applied and reported in `validation`. | `edits.apply`, `.stale`, `.not_draft` |
+| `publishVersion` `POST /v2/schedule-versions/{id}/publish` | Publishes the draft and supersedes the current version in one atomic step. A moved base or revision returns `409 stale_version`. **Hard violations against current facts return `422 validation_failed` with `details.violations`.** Needs `Idempotency-Key`. | `publish`, `.blocked`, `.stale_base` |
+| `discardDraft` `POST /v2/schedule-versions/{id}/discard` | Marks a draft `discarded`. | `draft.discard` |
+| `listVersions` `GET /v2/schedules/{schedule_id}/versions` | History, newest first, drafts included. | `versions.list` |
+| `compareVersions` `GET /v2/schedule-versions/{id}/compare?with={other}` | Changes from `with` to `id`, keyed on `logical_shift_id`, plus metrics on both sides. | `versions.compare` |
+| `restoreVersion` `POST /v2/schedule-versions/{id}/restore` | Creates a **new draft** (`source: restore`) with that version's shifts, validated against current facts. A restored shift for someone now absent shows as a hard violation and is never revived silently. History is never rewritten. | `versions.restore` |
+
+Edits are a discriminated union on `op`:
+- `add`: a full shift, optionally open (`employee_id: null`).
+- `update`: move, resize, reassign or change role. Omitted fields are unchanged, and moving the start shifts the break with it.
+- `remove`.
+- `lock` / `unlock`.
+
+`ShiftChange.kinds` uses `added`, `removed`, `reassigned`, `moved`, `resized`, `role_changed`, `lock_changed` and `break_changed`.
+
+The fixture story: draft v4 copies published v3. The preview reassigns a Tuesday Grill shift to Ravi, who is unavailable on Tuesdays, which gives a hard `unavailable` violation. The apply locks Monday's opening Grill shift (revision 2). Then publish; then restore v2 as draft v5.
+
+These eight operations are live (B3.1–B3.3). Publication runs in one transaction: it locks the schedule, takes advisory locks per rostered employee, re-checks the base and revision, and re-validates against the live organization-wide roster. Integration tests cover idempotent replay, stale races, 422 blocking (including a restored shift for an employee who is now absent), and audit plus outbox rows.
+
 ## What changed in 2.2.0-p1p2
 
 This release answers the follow-ups in `web/docs/CONTRACT_REVIEW.md` and adds B0.4 from architecture revision 2. It only adds things; nothing from 2.1 was removed or renamed, and every 2.1 fixture keeps its IDs.
@@ -74,4 +101,25 @@ Fixture files may now include `response.headers`, and `response.schema`/`respons
 
 ## Status
 
-All routes are declared but return `501 not_implemented` until B1.2 and B2.3 land. Build against the fixtures until then. Request missing fields or flows through a handoff note; a contract change bumps `contract_version`.
+**Every declared operation is live.** Nothing returns `501` any more.
+
+- **Data and schedule reads (B1.2):** `validation` and `metrics` come from the independent validator, evaluated against current live facts. A roster published before a confirmed absence shows that absence as a hard violation. `ETag`, `If-None-Match`/304 and `Cache-Control` work as described in 2.2, and authorization always runs first. Coverage cells list only intervals with demand.
+- **Generation (B2.2/B2.3):**
+  - `generateSchedule` queues a run; a worker process solves it.
+  - `run_in_progress` (409, with `details.run_id`), `stale_version`, `idempotency_conflict` and `rate_limited` (429 with `Retry-After`) all behave as specified.
+  - Each candidate is a draft version, checked by the independent validator, and never published automatically.
+  - An impossible week returns `INFEASIBLE` with `infeasibility.shortages` and a plain summary.
+  - Runs are queued on the batch lane, with `poll_after_ms` of 500.
+
+Where the seed and a fixture describe the same data, the live response equals the fixture body; integration tests enforce this. The seed has 20 employees per outlet, while the fixtures have 13, so lists can be longer. Instants come back in the outlet's own offset (`+05:30`).
+
+Run the provider locally (Postgres on the URL in `DATABASE_URL` / `APP_DATABASE_URL`):
+
+```sh
+python -m db.init          # migrate to head
+python -m seed.v2          # demo tenants (Spice Route Kitchens, Northwind Diner)
+DEMO_SESSIONS_ENABLED=true python -m uvicorn api.v2.app:app --port 8000
+python -m scheduling.worker  # in a second terminal: solves queued generation runs
+```
+
+CORS allows `localhost` and `127.0.0.1` on ports 3000 and 3001. Request missing fields or flows through a handoff note; a contract change bumps `contract_version`.

@@ -1,0 +1,49 @@
+{
+  "name": "publish.blocked",
+  "operation_id": "publishVersion",
+  "method": "POST",
+  "path": "/v2/schedule-versions/{version_id}/publish",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "version_id": "7d932d02-e046-5127-aaff-604dd184d809"
+    },
+    "headers": {
+      "Idempotency-Key": "pub-0d44e9c1"
+    },
+    "body": {
+      "expected_base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "expected_revision": 3
+    }
+  },
+  "response": {
+    "status": 422,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "validation_failed",
+        "message": "This draft breaks scheduling rules. Fix them before publishing.",
+        "retryable": false,
+        "details": {
+          "violations": [
+            {
+              "code": "unavailable",
+              "severity": "hard",
+              "message": "Ravi Kumar is not available Tue 20 Oct 10:00-18:00.",
+              "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+              "logical_shift_ids": [
+                "262ce18d-2989-574a-8d2e-ee2cdb9fca72"
+              ],
+              "facts": {
+                "weekday": 1,
+                "start_minute": 600,
+                "end_minute": 1080
+              }
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

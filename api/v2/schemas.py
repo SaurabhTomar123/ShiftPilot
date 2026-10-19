@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "2.2.0-p1p2"
+CONTRACT_VERSION = "2.3.0-p3"
 
 
 class Model(BaseModel):
@@ -368,6 +368,11 @@ class ScheduleVersionSummary(Model):
     approved_by_user_id: UUID | None
     created_at: AwareDatetime
     published_at: AwareDatetime | None
+    revision: int = Field(
+        ge=1,
+        description="Bumped by every applied edit while the version is a draft; send it as "
+        "expected_revision. Fixed once published.",
+    )
 
 
 class ScheduleVersion(ScheduleVersionSummary):
@@ -430,6 +435,116 @@ class MyWeek(Model):
     shifts: list[Shift] = Field(description="Only shifts from current published versions.")
     outlets: list[OutletRef] = Field(description="Outlets referenced by the shifts.")
     skills: list[Skill] = Field(description="Skills referenced by the shifts, for role labels.")
+
+
+# ---------------------------------------------------------------- drafts, edits, publication, history (P3)
+
+ChangeKind = Literal[
+    "added", "removed", "reassigned", "moved", "resized", "role_changed", "lock_changed", "break_changed"
+]
+
+
+class AddShift(Model):
+    op: Literal["add"]
+    employee_id: UUID | None = Field(description="null adds an open (unfilled) shift.")
+    skill_id: UUID
+    start_at: AwareDatetime
+    end_at: AwareDatetime
+    break_start_at: AwareDatetime | None = None
+    break_minutes: Minutes = 0
+    locked: bool = False
+
+
+class UpdateShift(Model):
+    """Move, resize, reassign or change role. Omitted fields keep their value; employee_id may be
+    null to unassign."""
+
+    op: Literal["update"]
+    logical_shift_id: UUID
+    employee_id: UUID | None = None
+    skill_id: UUID | None = None
+    start_at: AwareDatetime | None = None
+    end_at: AwareDatetime | None = None
+    break_start_at: AwareDatetime | None = None
+    break_minutes: Minutes | None = None
+
+
+class RemoveShift(Model):
+    op: Literal["remove"]
+    logical_shift_id: UUID
+
+
+class SetLock(Model):
+    op: Literal["lock", "unlock"]
+    logical_shift_id: UUID
+    reason: str | None = Field(default=None, max_length=200)
+
+
+ShiftEdit = Annotated[AddShift | UpdateShift | RemoveShift | SetLock, Field(discriminator="op")]
+
+
+class EditRequest(Model):
+    expected_revision: int = Field(ge=1, description="The draft revision the edits were made against.")
+    edits: list[ShiftEdit] = Field(min_length=1, max_length=200)
+
+
+class ShiftChange(Model):
+    logical_shift_id: UUID
+    kinds: list[ChangeKind]
+    before: Shift | None
+    after: Shift | None
+
+
+class EditPreview(Model):
+    """What the draft would look like after the edits. Nothing is written; the server is the only
+    authority on validity, cost and coverage."""
+
+    version_id: UUID
+    expected_revision: int
+    shifts: list[Shift]
+    changes: list[ShiftChange]
+    metrics: Metrics
+    validation: ValidationResult
+
+
+class CreateDraftRequest(Model):
+    base_version_id: UUID | None = Field(
+        description="The currently published version (null for an empty week). Stale -> 409."
+    )
+    copy_from_version_id: UUID | None = Field(
+        default=None,
+        description="Version whose shifts start the draft; "
+        "defaults to base_version_id (empty when both are null).",
+    )
+
+
+class PublishRequest(Model):
+    expected_base_version_id: UUID | None = Field(description="The published version this draft replaces.")
+    expected_revision: int = Field(ge=1)
+
+
+class PublishResult(Model):
+    schedule_id: UUID
+    published: ScheduleVersionSummary
+    superseded_version_id: UUID | None
+
+
+class RestoreRequest(Model):
+    expected_base_version_id: UUID | None = Field(description="The currently published version.")
+
+
+class VersionHistory(Model):
+    schedule_id: UUID
+    current_version_id: UUID | None
+    items: list[ScheduleVersionSummary] = Field(description="Newest first; drafts included.")
+
+
+class VersionDiff(Model):
+    from_version_id: UUID
+    to_version_id: UUID
+    changes: list[ShiftChange]
+    metrics_from: Metrics
+    metrics_to: Metrics
 
 
 # ---------------------------------------------------------------- optimization

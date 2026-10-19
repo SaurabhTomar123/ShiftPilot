@@ -196,6 +196,11 @@ class ShiftTemplate(Base):
         CheckConstraint("start_minute BETWEEN 0 AND 1439", name="template_start"),
         CheckConstraint("duration_minutes > 0 AND duration_minutes <= 960", name="template_duration"),
         CheckConstraint("break_minutes >= 0 AND break_minutes < duration_minutes", name="template_break"),
+        CheckConstraint(
+            "break_offset_minutes IS NULL OR (break_offset_minutes >= 0 "
+            "AND break_offset_minutes + break_minutes <= duration_minutes)",
+            name="template_break_offset",
+        ),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
@@ -205,6 +210,8 @@ class ShiftTemplate(Base):
     start_minute: Mapped[int] = mapped_column(SmallInteger)
     duration_minutes: Mapped[int] = mapped_column(SmallInteger)
     break_minutes: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
+    # Minutes from shift start to break start; null = no fixed position (placed at the midpoint).
+    break_offset_minutes: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
 
 
@@ -337,6 +344,7 @@ class ScheduleVersion(Base):
             "(status IN ('published', 'superseded')) = (published_at IS NOT NULL)",
             name="version_published_at",
         ),
+        CheckConstraint("revision >= 1", name="version_revision"),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
@@ -352,6 +360,7 @@ class ScheduleVersion(Base):
     created_at: Mapped[datetime] = created_at()
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     input_hash: Mapped[str] = mapped_column(String(80))
+    revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
 
 
 class LogicalShift(Base):
@@ -604,6 +613,22 @@ class NotificationDelivery(Base):
     delivered_at: Mapped[datetime] = created_at()
 
 
+class IdempotencyKey(Base):
+    """Stored result of a mutating request, replayed when the same key is sent again. A different
+    request body under the same key is a 409 idempotency_conflict."""
+
+    __tablename__ = "idempotency_keys"
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("organizations.id"), primary_key=True
+    )
+    key: Mapped[str] = mapped_column(String(80), primary_key=True)
+    operation: Mapped[str] = mapped_column(String(80))
+    request_hash: Mapped[str] = mapped_column(String(80))
+    status_code: Mapped[int] = mapped_column(SmallInteger)
+    response: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = created_at()
+
+
 V2_TENANT_TABLES = [
     "skills",
     "employee_skills",
@@ -627,4 +652,5 @@ V2_TENANT_TABLES = [
     "schedule_run_slots",
     "outbox_events",
     "notification_deliveries",
+    "idempotency_keys",
 ]

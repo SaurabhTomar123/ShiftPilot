@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -101,12 +102,27 @@ def test_published_fixture_has_no_hard_violations_and_honest_coverage() -> None:
     assert version["metrics"]["coverage_ratio"] == round(covered / target, 4)
 
 
-def test_stub_routes_answer_with_the_error_envelope() -> None:
+def test_every_operation_rejects_missing_credentials_with_the_envelope() -> None:
+    """No route is a stub any more, and auth runs before any database access."""
     app = FastAPI()
     install(app)
-    response = TestClient(app).get("/v2/me")
-    assert response.status_code == 501
-    assert schemas.ErrorResponse.model_validate(response.json()).error.code == "not_implemented"
+    client = TestClient(app)
+    ids = {
+        "outlet_id": uuid.uuid4(),
+        "employee_id": uuid.uuid4(),
+        "version_id": uuid.uuid4(),
+        "run_id": uuid.uuid4(),
+        "schedule_id": uuid.uuid4(),
+        "week_start": "2026-10-19",
+    }
+    for path, ops in OPENAPI["paths"].items():
+        for method, op in ops.items():
+            url = path.format(**ids)
+            response = client.request(method.upper(), url, params={"week_start": "2026-10-19"}, json={})
+            if op["operationId"] == "createDemoSession":
+                continue  # public by design; covered by the API integration tests
+            assert response.status_code == 401, (op["operationId"], response.status_code)
+            assert schemas.ErrorResponse.model_validate(response.json()).error.code == "unauthenticated"
 
 
 def run_body(**changes: Any) -> dict[str, Any]:

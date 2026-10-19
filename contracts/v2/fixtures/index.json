@@ -1,6 +1,78 @@
 {
-  "contract_version": "2.2.0-p1p2",
+  "contract_version": "2.3.0-p3",
   "fixtures": [
+    {
+      "name": "draft.create",
+      "operation_id": "createDraft",
+      "status": 201,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "edits.preview",
+      "operation_id": "previewEdits",
+      "status": 200,
+      "schema": "EditPreview"
+    },
+    {
+      "name": "edits.apply",
+      "operation_id": "applyEdits",
+      "status": 200,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "edits.apply.stale",
+      "operation_id": "applyEdits",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "edits.apply.not_draft",
+      "operation_id": "applyEdits",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "publish",
+      "operation_id": "publishVersion",
+      "status": 200,
+      "schema": "PublishResult"
+    },
+    {
+      "name": "publish.blocked",
+      "operation_id": "publishVersion",
+      "status": 422,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "publish.stale_base",
+      "operation_id": "publishVersion",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "draft.discard",
+      "operation_id": "discardDraft",
+      "status": 200,
+      "schema": "ScheduleVersionSummary"
+    },
+    {
+      "name": "versions.list",
+      "operation_id": "listVersions",
+      "status": 200,
+      "schema": "VersionHistory"
+    },
+    {
+      "name": "versions.compare",
+      "operation_id": "compareVersions",
+      "status": 200,
+      "schema": "VersionDiff"
+    },
+    {
+      "name": "versions.restore",
+      "operation_id": "restoreVersion",
+      "status": 201,
+      "schema": "ScheduleVersion"
+    },
     {
       "name": "session.demo.manager",
       "operation_id": "createDemoSession",

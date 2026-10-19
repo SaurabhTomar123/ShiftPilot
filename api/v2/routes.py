@@ -11,10 +11,12 @@ from datetime import date
 from typing import Annotated, Any, NoReturn
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, FastAPI, Header, Query, status
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, FastAPI, Header, Path, Query, status
+from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from api.v2 import auth as v2auth
+from api.v2 import drafts, generation, rosters, service
 from api.v2 import schemas as s
 
 bearer = HTTPBearer(auto_error=False)
@@ -79,8 +81,11 @@ router = APIRouter(prefix="/v2")
 
 
 def install(app: FastAPI) -> None:
+    from api.v2 import errors
+
     app.include_router(router)
     app.add_exception_handler(NotImplementedYet, lambda _req, _exc: not_implemented_response())
+    errors.install(app)
 
 
 @router.post(
@@ -93,36 +98,36 @@ def install(app: FastAPI) -> None:
 def create_demo_session(body: s.DemoSessionRequest) -> s.DemoSession:
     """Public synthetic demo only: issues a short-lived token for an isolated demo org (B6.2).
     403 permission_denied when the deployment is private."""
-    _stub()
+    return v2auth.demo_session(body.persona)
 
 
 @router.get("/me", operation_id="getMe", response_model=s.Me, responses=_errors())
-def get_me(auth: Auth) -> s.Me:
-    _stub()
+def get_me(caller: v2auth.CallerDep) -> s.Me:
+    return v2auth.me(caller)
 
 
 @router.get("/me/shifts", operation_id="getMyWeek", response_model=s.MyWeek, responses=_errors(403, 422))
-def get_my_week(auth: Auth, week_start: WeekStart) -> s.MyWeek:
+def get_my_week(caller: v2auth.CallerDep, week_start: WeekStart) -> s.MyWeek:
     """Staff only: the caller's own published shifts."""
-    _stub()
+    return rosters.my_week(caller, week_start)
 
 
 @router.get("/outlets", operation_id="listOutlets", response_model=s.OutletList, responses=_errors())
-def list_outlets(auth: Auth) -> s.OutletList:
+def list_outlets(caller: v2auth.CallerDep) -> s.OutletList:
     """Owners see every outlet; managers and staff see their own."""
-    _stub()
+    return service.list_outlets(caller)
 
 
 @router.get("/skills", operation_id="listSkills", response_model=s.SkillList, responses=_errors())
-def list_skills(auth: Auth) -> s.SkillList:
-    _stub()
+def list_skills(caller: v2auth.CallerDep) -> s.SkillList:
+    return service.list_skills(caller)
 
 
 @router.get(
     "/employees", operation_id="listEmployees", response_model=s.EmployeeList, responses=_errors(403, 422)
 )
 def list_employees(
-    auth: Auth,
+    caller: v2auth.CallerDep,
     outlet_id: Annotated[
         UUID | None, Query(description="Home outlet filter; required for managers' own outlet only.")
     ] = None,
@@ -130,7 +135,7 @@ def list_employees(
     cursor: str | None = None,
     limit: Annotated[int, Query(ge=1, le=200)] = 100,
 ) -> s.EmployeeList:
-    _stub()
+    return service.list_employees(caller, outlet_id, status_filter, cursor, limit)
 
 
 @router.post(
@@ -140,8 +145,10 @@ def list_employees(
     status_code=status.HTTP_201_CREATED,
     responses=_errors(403, 409, 422),
 )
-def create_employee(auth: Auth, idempotency_key: IdempotencyKey, body: s.EmployeeCreate) -> s.Employee:
-    _stub()
+def create_employee(
+    caller: v2auth.CallerDep, idempotency_key: IdempotencyKey, body: s.EmployeeCreate
+) -> s.Employee:
+    return service.create_employee(caller, idempotency_key, body)
 
 
 @router.get(
@@ -150,8 +157,8 @@ def create_employee(auth: Auth, idempotency_key: IdempotencyKey, body: s.Employe
     response_model=s.Employee,
     responses=_errors(403, 404, 422),
 )
-def get_employee(auth: Auth, employee_id: UUID) -> s.Employee:
-    _stub()
+def get_employee(caller: v2auth.CallerDep, employee_id: UUID) -> s.Employee:
+    return service.get_employee(caller, employee_id)
 
 
 @router.patch(
@@ -160,9 +167,9 @@ def get_employee(auth: Auth, employee_id: UUID) -> s.Employee:
     response_model=s.Employee,
     responses=_errors(403, 404, 409, 422),
 )
-def update_employee(auth: Auth, employee_id: UUID, body: s.EmployeeUpdate) -> s.Employee:
+def update_employee(caller: v2auth.CallerDep, employee_id: UUID, body: s.EmployeeUpdate) -> s.Employee:
     """409 stale_version when base_revision is not current; details.current_revision is set."""
-    _stub()
+    return service.update_employee(caller, employee_id, body)
 
 
 @router.get(
@@ -171,8 +178,8 @@ def update_employee(auth: Auth, employee_id: UUID, body: s.EmployeeUpdate) -> s.
     response_model=s.Availability,
     responses=_errors(403, 404, 422),
 )
-def get_availability(auth: Auth, employee_id: UUID) -> s.Availability:
-    _stub()
+def get_availability(caller: v2auth.CallerDep, employee_id: UUID) -> s.Availability:
+    return service.get_availability(caller, employee_id)
 
 
 @router.put(
@@ -181,8 +188,10 @@ def get_availability(auth: Auth, employee_id: UUID) -> s.Availability:
     response_model=s.Availability,
     responses=_errors(403, 404, 409, 422),
 )
-def put_availability(auth: Auth, employee_id: UUID, body: s.AvailabilityUpdate) -> s.Availability:
-    _stub()
+def put_availability(
+    caller: v2auth.CallerDep, employee_id: UUID, body: s.AvailabilityUpdate
+) -> s.Availability:
+    return service.put_availability(caller, employee_id, body)
 
 
 @router.get(
@@ -191,8 +200,10 @@ def put_availability(auth: Auth, employee_id: UUID, body: s.AvailabilityUpdate) 
     response_model=s.StaffingRequirements,
     responses=_errors(403, 404, 422),
 )
-def get_staffing_requirements(auth: Auth, outlet_id: UUID, week_start: WeekStart) -> s.StaffingRequirements:
-    _stub()
+def get_staffing_requirements(
+    caller: v2auth.CallerDep, outlet_id: UUID, week_start: WeekStart
+) -> s.StaffingRequirements:
+    return service.get_staffing(caller, outlet_id, week_start)
 
 
 @router.put(
@@ -202,9 +213,9 @@ def get_staffing_requirements(auth: Auth, outlet_id: UUID, week_start: WeekStart
     responses=_errors(403, 404, 409, 422),
 )
 def put_staffing_requirements(
-    auth: Auth, outlet_id: UUID, week_start: WeekStart, body: s.StaffingRequirementsUpdate
+    caller: v2auth.CallerDep, outlet_id: UUID, week_start: WeekStart, body: s.StaffingRequirementsUpdate
 ) -> s.StaffingRequirements:
-    _stub()
+    return service.put_staffing(caller, outlet_id, week_start, body)
 
 
 @router.get(
@@ -218,10 +229,13 @@ def put_staffing_requirements(
     },
 )
 def get_schedule_week(
-    auth: Auth, outlet_id: UUID, week_start: date, if_none_match: IfNoneMatch = None
-) -> s.ScheduleWeek:
+    caller: v2auth.CallerDep, outlet_id: UUID, week_start: date, if_none_match: IfNoneMatch = None
+) -> Response:
     """200 with schedule_id null when the week has no schedule yet; 404 only for unknown outlets."""
-    _stub()
+    etag, body = rosters.schedule_week(caller, outlet_id, week_start, if_none_match)
+    if body is None:
+        return Response(status_code=304, headers={"ETag": etag})
+    return JSONResponse(body.model_dump(mode="json"), headers={"ETag": etag})
 
 
 @router.get(
@@ -235,9 +249,12 @@ def get_schedule_week(
     },
 )
 def get_schedule_version(
-    auth: Auth, version_id: UUID, if_none_match: IfNoneMatch = None
-) -> s.ScheduleVersion:
-    _stub()
+    caller: v2auth.CallerDep, version_id: UUID, if_none_match: IfNoneMatch = None
+) -> Response:
+    etag, cache, body = rosters.schedule_version(caller, version_id, if_none_match)
+    if body is None:
+        return Response(status_code=304, headers={"ETag": etag, "Cache-Control": cache})
+    return JSONResponse(body.model_dump(mode="json"), headers={"ETag": etag, "Cache-Control": cache})
 
 
 @router.post(
@@ -261,11 +278,15 @@ def get_schedule_version(
     },
 )
 def generate_schedule(
-    auth: Auth, outlet_id: UUID, week_start: date, idempotency_key: IdempotencyKey, body: s.GenerateRequest
+    caller: v2auth.CallerDep,
+    outlet_id: UUID,
+    week_start: date,
+    idempotency_key: IdempotencyKey,
+    body: s.GenerateRequest,
 ) -> s.OptimizationRun:
     """Queues a run and returns it (job_state queued). Poll getOptimizationRun. 409 stale_version
     when base_version_id is no longer the published version."""
-    _stub()
+    return generation.enqueue(caller, outlet_id, week_start, idempotency_key, body)
 
 
 @router.get(
@@ -274,5 +295,119 @@ def generate_schedule(
     response_model=s.OptimizationRun,
     responses=_errors(403, 404, 422),
 )
-def get_optimization_run(auth: Auth, run_id: UUID) -> s.OptimizationRun:
-    _stub()
+def get_optimization_run(caller: v2auth.CallerDep, run_id: UUID) -> s.OptimizationRun:
+    return generation.get_run(caller, run_id)
+
+
+# ---------------------------------------------------------------- P3: drafts, edits, publication, history
+# Declared in contract 2.3; implemented in B3.1-B3.3. Authentication runs before the 501.
+
+VersionPath = Annotated[UUID, Path(description="A schedule version (draft, published or superseded).")]
+
+
+@router.post(
+    "/outlets/{outlet_id}/schedules/{week_start}/drafts",
+    operation_id="createDraft",
+    response_model=s.ScheduleVersion,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def create_draft(
+    caller: v2auth.CallerDep,
+    outlet_id: UUID,
+    week_start: date,
+    idempotency_key: IdempotencyKey,
+    body: s.CreateDraftRequest,
+) -> s.ScheduleVersion:
+    """A new draft copied from the published version (or another version of the same week). 409
+    stale_version when base_version_id is no longer the published version."""
+    return drafts.create_draft(caller, outlet_id, week_start, idempotency_key, body)
+
+
+@router.post(
+    "/schedule-versions/{version_id}/edits/preview",
+    operation_id="previewEdits",
+    response_model=s.EditPreview,
+    responses=_errors(403, 404, 409, 422),
+)
+def preview_edits(caller: v2auth.CallerDep, version_id: VersionPath, body: s.EditRequest) -> s.EditPreview:
+    """Validate edits against the draft without writing anything (drag/resize/keyboard previews)."""
+    return drafts.preview_edits(caller, version_id, body)
+
+
+@router.post(
+    "/schedule-versions/{version_id}/edits",
+    operation_id="applyEdits",
+    response_model=s.ScheduleVersion,
+    responses=_errors(403, 404, 409, 422),
+)
+def apply_edits(caller: v2auth.CallerDep, version_id: VersionPath, body: s.EditRequest) -> s.ScheduleVersion:
+    """Apply edits to a draft. 409 stale_version when expected_revision is not current
+    (details.current_revision); 409 conflict when the version is not a draft. Edits that break rules
+    are applied and reported in validation; publishing is what refuses hard violations."""
+    return drafts.apply_edits(caller, version_id, body)
+
+
+@router.post(
+    "/schedule-versions/{version_id}/publish",
+    operation_id="publishVersion",
+    response_model=s.PublishResult,
+    responses=_errors(403, 404, 409, 422),
+)
+def publish_version(
+    caller: v2auth.CallerDep, version_id: VersionPath, idempotency_key: IdempotencyKey, body: s.PublishRequest
+) -> s.PublishResult:
+    """Atomically publish a draft and supersede the current version. 409 stale_version when the published
+    version or the draft revision moved; 422 validation_failed with details.violations when the draft has
+    hard violations against current facts."""
+    return drafts.publish(caller, version_id, idempotency_key, body)
+
+
+@router.post(
+    "/schedule-versions/{version_id}/discard",
+    operation_id="discardDraft",
+    response_model=s.ScheduleVersionSummary,
+    responses=_errors(403, 404, 409, 422),
+)
+def discard_draft(caller: v2auth.CallerDep, version_id: VersionPath) -> s.ScheduleVersionSummary:
+    return drafts.discard_draft(caller, version_id)
+
+
+@router.get(
+    "/schedules/{schedule_id}/versions",
+    operation_id="listVersions",
+    response_model=s.VersionHistory,
+    responses=_errors(403, 404, 422),
+)
+def list_versions(caller: v2auth.CallerDep, schedule_id: UUID) -> s.VersionHistory:
+    return drafts.list_versions(caller, schedule_id)
+
+
+@router.get(
+    "/schedule-versions/{version_id}/compare",
+    operation_id="compareVersions",
+    response_model=s.VersionDiff,
+    responses=_errors(403, 404, 422),
+)
+def compare_versions(
+    caller: v2auth.CallerDep,
+    version_id: VersionPath,
+    with_version: Annotated[UUID, Query(alias="with", description="The version to compare against.")],
+) -> s.VersionDiff:
+    """Changes from `with` to this version, keyed on logical_shift_id."""
+    return drafts.compare(caller, version_id, with_version)
+
+
+@router.post(
+    "/schedule-versions/{version_id}/restore",
+    operation_id="restoreVersion",
+    response_model=s.ScheduleVersion,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def restore_version(
+    caller: v2auth.CallerDep, version_id: VersionPath, idempotency_key: IdempotencyKey, body: s.RestoreRequest
+) -> s.ScheduleVersion:
+    """A new draft with this version's shifts, validated against current facts (an absent employee's
+    restored shift shows as a hard violation; it is never revived silently). History is never rewritten."""
+    return drafts.restore(caller, version_id, idempotency_key, body)
