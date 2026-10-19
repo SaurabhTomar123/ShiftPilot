@@ -1,0 +1,38 @@
+{
+  "name": "absence.report.requested",
+  "operation_id": "reportAbsence",
+  "method": "POST",
+  "path": "/v2/absences",
+  "persona": "staff_ravi",
+  "request": {
+    "headers": {
+      "Idempotency-Key": "absence-77b2d1f0"
+    },
+    "body": {
+      "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+      "start_at": "2026-10-23T00:00:00+05:30",
+      "end_at": "2026-10-24T00:00:00+05:30",
+      "kind": "leave",
+      "status": "requested",
+      "reason": "Family function"
+    }
+  },
+  "response": {
+    "status": 201,
+    "schema": "AbsenceReport",
+    "body": {
+      "absence": {
+        "id": "95307313-914e-59f4-b097-05e0b85f1a8d",
+        "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+        "start_at": "2026-10-23T00:00:00+05:30",
+        "end_at": "2026-10-24T00:00:00+05:30",
+        "kind": "leave",
+        "status": "requested"
+      },
+      "affected": [],
+      "lock_conflicts": [],
+      "repair_suggested": false,
+      "repair_run_ids": []
+    }
+  }
+}

@@ -23,6 +23,33 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## Heading for contract 3.0 (architecture v3)
+
+The user has set `ShiftPilot System Architecture v3` as the governing design. It changes three shapes the UI depends on, so they will ship together as **contract 3.0**:
+
+| Change | Detail |
+|---|---|
+| **Lightweight candidates** (§23) | A candidate becomes a diff against its base. `POST /v2/optimization-candidates/{id}/select` materializes a draft. |
+| **Proposals with four publication outcomes** (§31) | Published, Stale, Invalid, and Changed (needs acknowledgement). |
+| **Versions served with `Cache-Control: private, no-cache`** (§36) | Replaces `immutable`. |
+
+**Hold UI integration of candidate drafts and `publishVersion` until 3.0 lands.** Absences, generation status and edits are unaffected.
+
+## What changed in 2.4.0-p4 (live): absences and repair
+
+| Operation | What it does | Fixture |
+|---|---|---|
+| `reportAbsence` `POST /v2/absences` | Records the absence as a fact first. A **confirmed** absence then enqueues a repair run per affected schedule (`repair_run_ids`). Locked affected shifts are listed in `lock_conflicts` and get no automatic repair. Staff may only send `requested` absences for themselves. | `absence.report`, `.requested` |
+| `listAbsences` `GET /v2/absences?outlet_id&from&to` | Lists absences, including `rejected` and `cancelled`. | `absences.list` |
+| `updateAbsence` `PATCH /v2/absences/{id}` | Managers confirm, reject or cancel. Confirming enqueues repairs like `reportAbsence`. | `absence.update.confirm` |
+| `repairSchedule` `POST /v2/outlets/{id}/schedules/{week}/repair` | Explicit repair, typically after authorizing locked shifts (`unlock_logical_shift_ids`). Without authorization it returns `409 conflict` with `details.locked_logical_shift_ids`. An active repair for the same absence is returned unchanged. | `repair.accepted`, `.locked` |
+
+Repair runs follow v3 admission:
+- They have `kind: repair` and `absence_id`, and are claimed **before** batch work. They are **never blocked by an active generate run**, and `poll_after_ms` is 300.
+- Candidates use the repair profiles `least_disruption`, `lowest_cost` and `best_coverage`.
+- Each candidate adds `disruption` (`changed_shifts`, `added_shifts`, `cross_outlet_moves`, `open_shifts`) and `explanations`. Per changed shift, these give the chosen person's facts and the alternatives, each either `rejected` with its blocking rule or `eligible_not_selected`, never an inferred reason.
+- A repair that cannot keep minimum staffing is reported as `INFEASIBLE` with shortages, not offered as a candidate.
+
 ## What changed in 2.3.0-p3 (live)
 
 Additive. Everything from 2.2 is unchanged except one new field: **every version summary now has `revision`** (fixed at 1 for published and superseded versions; bumped by each applied draft edit).

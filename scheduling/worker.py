@@ -1,7 +1,11 @@
-"""Optimization worker (B2.3; architecture sections 7-11).
+"""Optimization worker (B2.3; architecture v3 sections 27-30).
 
-    python -m scheduling.worker                  # serve interactive, then batch, forever
+    python -m scheduling.worker                  # process pool of 2; slot 0 only takes repairs
+    python -m scheduling.worker --processes 3
     python -m scheduling.worker --once           # process at most one run, then exit (tests, cron)
+
+Claims by priority (repairs first) and kind. With N processes at most N-1 take batch work, so one slot is
+always free for an absence repair; physically separate pools are a scaling option, not an MVP need.
 
 Claims runs with SKIP LOCKED leases (database clock only), renews the lease while solving, and writes
 results in one transaction fenced by (lease_owner, attempts, job_state='running'): a worker that lost its
@@ -17,24 +21,28 @@ import argparse
 import hashlib
 import json
 import logging
+import multiprocessing
 import os
 import socket
 import threading
 import time
 import uuid
+from dataclasses import replace
+from datetime import timedelta
 from typing import Any
 
 from sqlalchemy import Engine, text
 
 from db.session import admin_engine
-from scheduling import metrics, snapshot_json, solver, validator
+from scheduling import metrics, repair, snapshot_json, solver, validator
 from scheduling.model import Snapshot
 
 log = logging.getLogger("shiftpilot.worker")
 LEASE_SECONDS = 30
 RENEW_SECONDS = 10
 MAX_ATTEMPTS = 3
-LANES = ("interactive", "batch")
+ALL_KINDS = ("repair", "generate", "optimize")
+REPAIR_ONLY = ("repair",)
 
 CLAIM = text("""
     UPDATE optimization_runs r
@@ -42,13 +50,13 @@ CLAIM = text("""
            attempts = r.attempts + 1, started_at = coalesce(r.started_at, now())
      WHERE r.id = (
              SELECT id FROM optimization_runs
-              WHERE lane = :lane
+              WHERE kind = ANY(:kinds)
                 AND (job_state = 'queued' OR (job_state = 'running' AND lease_until < now()))
                 AND attempts < :max_attempts
               ORDER BY priority, queued_at
               FOR UPDATE SKIP LOCKED
               LIMIT 1)
- RETURNING r.id, r.org_id, r.attempts, r.input_snapshot, r.config, r.strategy, r.base_version_ids, r.input_hash
+ RETURNING r.id, r.org_id, r.kind, r.attempts, r.input_snapshot, r.config, r.strategy, r.base_version_ids, r.input_hash
 """)
 RENEW = text("""UPDATE optimization_runs SET lease_until = now() + make_interval(secs => :lease)
                  WHERE id = :id AND lease_owner = :me AND attempts = :attempt AND job_state = 'running'""")
@@ -108,7 +116,6 @@ def sweep(engine: Engine) -> int:
 
 
 def _release(conn: Any, run_id: uuid.UUID, org_id: uuid.UUID, state: str) -> None:
-    conn.execute(text("DELETE FROM schedule_run_slots WHERE run_id = :id"), {"id": run_id})
     conn.execute(
         text("""INSERT INTO outbox_events (id, org_id, topic, aggregate_type, aggregate_id, payload)
                          VALUES (:id, :org, 'run.finished', 'optimization_run', :run, CAST(:payload AS jsonb))"""),
@@ -116,7 +123,14 @@ def _release(conn: Any, run_id: uuid.UUID, org_id: uuid.UUID, state: str) -> Non
     )
 
 
-def _persist_candidates(conn: Any, row: Any, snap: Snapshot, outcome: solver.Outcome) -> None:
+def _persist_candidates(
+    conn: Any,
+    row: Any,
+    snap: Snapshot,
+    outcome: solver.Outcome,
+    extras: dict[int, dict[str, Any]] | None = None,
+) -> None:
+    """extras: per-rank repair data ({'disruption': ..., 'explanations': [...]})."""
     schedule_id = uuid.UUID(row.config["schedule_id"])
     conn.execute(text("SELECT id FROM schedules WHERE id = :s FOR UPDATE"), {"s": schedule_id})
     number = conn.execute(
@@ -153,11 +167,13 @@ def _persist_candidates(conn: Any, row: Any, snap: Snapshot, outcome: solver.Out
                 "hash": row.input_hash,
             },
         )
-        new_logical = [sh for sh in cand.roster if sh.logical_id not in snap.base_locked]
+        # Logical identity spans all versions of a schedule: existing ids (base shifts kept by a repair)
+        # are reused, new ones are created.
+        new_logical = list(cand.roster)
         if new_logical:
             conn.execute(
                 text("""INSERT INTO logical_shifts (id, org_id, schedule_id, created_in_version_id)
-                                 VALUES (:id, :org, :s, :v)"""),
+                                 VALUES (:id, :org, :s, :v) ON CONFLICT (id) DO NOTHING"""),
                 [
                     {"id": sh.logical_id, "org": row.org_id, "s": schedule_id, "v": version_id}
                     for sh in new_logical
@@ -200,7 +216,7 @@ def _persist_candidates(conn: Any, row: Any, snap: Snapshot, outcome: solver.Out
                                  explanation_facts, dedup_hash)
                              VALUES (:id, :org, :run, :rank, :strategy, :status, :optimal, CAST(:components AS jsonb),
                                      CAST(:metrics AS jsonb), CAST(:diff AS jsonb), :v, CAST(:validation AS jsonb),
-                                     '{}'::jsonb, :hash)
+                                     CAST(:facts AS jsonb), :hash)
                              ON CONFLICT (run_id, dedup_hash) DO NOTHING"""),
             {
                 "id": uuid.uuid7(),
@@ -212,7 +228,15 @@ def _persist_candidates(conn: Any, row: Any, snap: Snapshot, outcome: solver.Out
                 "optimal": cand.proven_optimal,
                 "components": json.dumps(cand.components),
                 "metrics": json.dumps(metrics.as_contract(metrics.compute(snap, cand.roster))),
-                "diff": json.dumps({"changed_shifts": changed}),
+                "diff": json.dumps(
+                    {
+                        "changed_shifts": changed,
+                        **({"disruption": extras[rank]["disruption"]} if extras and rank in extras else {}),
+                    }
+                ),
+                "facts": json.dumps(
+                    {"explanations": extras[rank]["explanations"]} if extras and rank in extras else {}
+                ),
                 "v": version_id,
                 "validation": json.dumps(validator.as_contract(result)),
                 "hash": hashlib.sha256(json.dumps(key).encode()).hexdigest(),
@@ -220,21 +244,114 @@ def _persist_candidates(conn: Any, row: Any, snap: Snapshot, outcome: solver.Out
         )
 
 
+def _explanations_json(plan: repair.Plan) -> list[dict[str, Any]]:
+    def reason(r: repair.Reason) -> dict[str, Any]:
+        return {"code": r.code, "ok": r.ok, "message": r.message, "facts": r.facts}
+
+    return [
+        {
+            "logical_shift_id": str(e.logical_id),
+            "chosen_employee_id": str(e.chosen_employee_id) if e.chosen_employee_id else None,
+            "reasons": [reason(r) for r in e.chosen],
+            "alternatives": [
+                {
+                    "employee_id": str(a.employee_id),
+                    "name": a.name,
+                    "status": a.status,
+                    "reasons": [reason(r) for r in a.reasons],
+                }
+                for a in e.alternatives
+            ],
+        }
+        for e in plan.explanations
+    ]
+
+
+def _run_repair(snap: Snapshot, row: Any) -> tuple[solver.Outcome, dict[int, dict[str, Any]]]:
+    """Run absence repair and present it as an Outcome, so persistence and the run view are shared.
+
+    A plan that cannot keep minimum staffing is not offered as a candidate: the run is INFEASIBLE and
+    reports the remaining shortages (decision 1: partial rosters must visibly report their gaps)."""
+    doc = row.input_snapshot["repair"]
+    base = [snapshot_json.shift_from_doc(d) for d in doc["base"]]
+    absence = snapshot_json.absence_from_doc(doc["absence"])
+    result = repair.repair(
+        snap,
+        base,
+        absence,
+        unlocked={uuid.UUID(u) for u in doc["unlocked"]},
+        time_limit=float(row.config["time_limit_seconds"]),
+        workers=int(row.config.get("workers", 8)),
+    )
+    outcome = solver.Outcome(status=result.status, stats={"repair": result.stats})
+    if result.status == "LOCK_CONFLICT":
+        outcome.stats["lock_conflict"] = {
+            "locked_logical_shift_ids": [str(s.logical_id) for s in result.locked_conflicts]
+        }
+        return outcome, {}
+    with_absence = replace(snap, absences=(*snap.absences, absence))
+    extras: dict[int, dict[str, Any]] = {}
+    for plan in result.plans:
+        if metrics.compute(with_absence, list(plan.roster)).minimum_deficit_minutes:
+            continue
+        outcome.candidates.append(
+            solver.Candidate(
+                plan.profile,
+                plan.status,
+                plan.roster,
+                0,
+                0,
+                {k: v.get("value") or 0 for k, v in plan.stages.items()},
+            )
+        )
+        extras[len(outcome.candidates)] = {
+            "disruption": plan.disruption,
+            "explanations": _explanations_json(plan),
+        }
+    if result.plans and not outcome.candidates:
+        best = metrics.compute(with_absence, list(result.plans[0].roster))
+        merged: list[solver.Shortage] = []
+        for c in (c for c in best.cells if c.scheduled < c.minimum_required):
+            end = c.interval_start + timedelta(minutes=30)
+            last = merged[-1] if merged else None
+            if last and last.skill_id == c.skill_id and last.interval_end == c.interval_start:
+                merged[-1] = replace(last, interval_end=end)
+            else:
+                merged.append(
+                    solver.Shortage(c.skill_id, c.interval_start, end, c.minimum_required, c.scheduled)
+                )
+        outcome.status = "INFEASIBLE"
+        outcome.shortages = merged
+        outcome.summary = (
+            solver.describe(snap, outcome.shortages[0]).replace("qualified employee", "available employee")
+            if outcome.shortages
+            else "No replacement keeps minimum staffing."
+        )
+    elif outcome.candidates:
+        outcome.status = outcome.candidates[0].status
+    return outcome, extras
+
+
 def process(engine: Engine, row: Any, me: str) -> str:
     """Solve one claimed run and write its result if this worker still holds the lease."""
     error: dict[str, Any] | None = None
     outcome: solver.Outcome | None = None
     snap: Snapshot | None = None
+    extras: dict[int, dict[str, Any]] | None = None
     with Lease(engine, row.id, me, row.attempts):
         try:
             snap = snapshot_json.load(row.input_snapshot)
-            outcome = solver.generate(
-                snap,
-                row.strategy,
-                time_limit=float(row.config["time_limit_seconds"]),
-                seed=int(row.config.get("seed", 7)),
-                workers=int(row.config.get("workers", 4)),
-            )
+            if row.kind == "repair":
+                outcome, extras = _run_repair(snap, row)
+            else:
+                extras = None
+                outcome = solver.generate(
+                    snap,
+                    row.strategy,
+                    time_limit=float(row.config["time_limit_seconds"]),
+                    seed=int(row.config.get("seed", 7)),
+                    workers=int(row.config.get("workers", 4)),
+                )
         except Exception:  # the job failed; the error is recorded, not raised into the loop
             log.exception("run %s failed", row.id)
             error = {
@@ -244,7 +361,15 @@ def process(engine: Engine, row: Any, me: str) -> str:
                 "details": {},
             }
     with engine.begin() as conn:
-        if outcome is None or snap is None or outcome.status == "MODEL_INVALID":
+        if outcome is not None and outcome.status == "LOCK_CONFLICT":
+            state, status, stats = "failed", None, dict(outcome.stats)
+            error = {
+                "code": "conflict",
+                "retryable": False,
+                "details": stats.get("lock_conflict", {}),
+                "message": "A locked shift is affected. Authorize changing it and repair again.",
+            }
+        elif outcome is None or snap is None or outcome.status == "MODEL_INVALID":
             state, status, stats = "failed", outcome.status if outcome else None, {}
             error = error or {
                 "code": "internal",
@@ -291,46 +416,58 @@ def process(engine: Engine, row: Any, me: str) -> str:
             log.warning("run %s: lease lost; discarding this attempt's output", row.id)
             return "lost_lease"
         if state == "succeeded" and outcome and snap and outcome.candidates:
-            _persist_candidates(conn, row, snap, outcome)
+            _persist_candidates(conn, row, snap, outcome, extras)
         _release(conn, row.id, row.org_id, state)
     return state
 
 
 def run_once(
-    engine: Engine | None = None, me: str | None = None, lanes: tuple[str, ...] = LANES
+    engine: Engine | None = None, me: str | None = None, kinds: tuple[str, ...] = ALL_KINDS
 ) -> uuid.UUID | None:
     engine = engine or admin_engine()
     me = me or worker_id()
     sweep(engine)
-    for lane in lanes:
-        with engine.begin() as conn:
-            row = conn.execute(
-                CLAIM, {"me": me, "lease": LEASE_SECONDS, "lane": lane, "max_attempts": MAX_ATTEMPTS}
-            ).first()
-        if row is not None:
-            process(engine, row, me)
-            claimed: uuid.UUID = row.id
-            return claimed
-    return None
+    with engine.begin() as conn:
+        row = conn.execute(
+            CLAIM, {"me": me, "lease": LEASE_SECONDS, "kinds": list(kinds), "max_attempts": MAX_ATTEMPTS}
+        ).first()
+    if row is None:
+        return None
+    process(engine, row, me)
+    claimed: uuid.UUID = row.id
+    return claimed
+
+
+def serve(kinds: tuple[str, ...]) -> None:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    me = worker_id()
+    log.info("worker %s claiming %s", me, ",".join(kinds))
+    while True:
+        if run_once(me=me, kinds=kinds) is None:
+            time.sleep(1.0)  # NOTIFY is only a wake-up hint; polling bounds the delay to ~1 s
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--once", action="store_true")
-    parser.add_argument(
-        "--lanes", default=",".join(LANES), help="claim order, e.g. interactive or interactive,batch"
-    )
+    parser.add_argument("--processes", type=int, default=2, help="pool size; at least 2 in deployments")
     args = parser.parse_args()
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    lanes = tuple(x for x in args.lanes.split(",") if x)
-    me = worker_id()
     if args.once:
-        run_once(me=me, lanes=lanes)
+        logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+        run_once()
         return 0
-    log.info("worker %s serving lanes %s", me, lanes)
-    while True:
-        if run_once(me=me, lanes=lanes) is None:
-            time.sleep(1.0)  # NOTIFY is only a wake-up hint; polling bounds the delay to ~1 s
+    if args.processes < 2:
+        serve(ALL_KINDS)
+        return 0
+    procs = [
+        multiprocessing.Process(target=serve, args=(REPAIR_ONLY if i == 0 else ALL_KINDS,), daemon=True)
+        for i in range(args.processes)
+    ]
+    for proc in procs:
+        proc.start()
+    for proc in procs:
+        proc.join()
+    return 0
 
 
 if __name__ == "__main__":

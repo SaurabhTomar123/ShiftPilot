@@ -180,3 +180,29 @@ def digest(doc: dict[str, Any]) -> str:
         "sha256:"
         + hashlib.sha256(json.dumps(doc, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     )
+
+
+def shift_doc(sh: Shift) -> dict[str, Any]:
+    return _shift(sh)
+
+
+def shift_from_doc(d: dict[str, Any]) -> Shift:
+    return _shift_back(d)
+
+
+def absence_doc(a: Absence) -> dict[str, Any]:
+    return {
+        "employee_id": str(a.employee_id),
+        "start_at": a.start_at.isoformat(),
+        "end_at": a.end_at.isoformat(),
+        "status": a.status,
+    }
+
+
+def absence_from_doc(d: dict[str, Any]) -> Absence:
+    return Absence(
+        UUID(d["employee_id"]),
+        datetime.fromisoformat(d["start_at"]),
+        datetime.fromisoformat(d["end_at"]),
+        d["status"],
+    )

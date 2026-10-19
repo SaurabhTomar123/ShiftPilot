@@ -14,9 +14,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, FastAPI, Header, Path, Query, status
 from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import AwareDatetime
 
+from api.v2 import absences, drafts, generation, rosters, service
 from api.v2 import auth as v2auth
-from api.v2 import drafts, generation, rosters, service
 from api.v2 import schemas as s
 
 bearer = HTTPBearer(auto_error=False)
@@ -411,3 +412,69 @@ def restore_version(
     """A new draft with this version's shifts, validated against current facts (an absent employee's
     restored shift shows as a hard violation; it is never revived silently). History is never rewritten."""
     return drafts.restore(caller, version_id, idempotency_key, body)
+
+
+# ---------------------------------------------------------------- P4: absences and repair (contract 2.4)
+
+
+@router.post(
+    "/absences",
+    operation_id="reportAbsence",
+    response_model=s.AbsenceReport,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def report_absence(
+    caller: v2auth.CallerDep, idempotency_key: IdempotencyKey, body: s.ReportAbsenceRequest
+) -> s.AbsenceReport:
+    """Records the absence as a fact first (it stands whether or not a repair succeeds). A confirmed
+    absence then enqueues a repair run per affected schedule (repair_run_ids); locked affected shifts are
+    listed in lock_conflicts and need explicit authorization through repairSchedule."""
+    return absences.report(caller, idempotency_key, body)
+
+
+@router.get(
+    "/absences", operation_id="listAbsences", response_model=s.AbsenceList, responses=_errors(403, 422)
+)
+def list_absences(
+    caller: v2auth.CallerDep,
+    outlet_id: UUID | None = None,
+    start: Annotated[AwareDatetime | None, Query(alias="from")] = None,
+    end: Annotated[AwareDatetime | None, Query(alias="to")] = None,
+) -> s.AbsenceList:
+    return absences.list_absences(caller, outlet_id, start, end)
+
+
+@router.patch(
+    "/absences/{absence_id}",
+    operation_id="updateAbsence",
+    response_model=s.AbsenceReport,
+    responses=_errors(403, 404, 409, 422),
+)
+def update_absence(
+    caller: v2auth.CallerDep, absence_id: UUID, body: s.UpdateAbsenceRequest
+) -> s.AbsenceReport:
+    """Managers confirm, reject or cancel. Confirming enqueues repairs exactly as reportAbsence does."""
+    return absences.update(caller, absence_id, body)
+
+
+@router.post(
+    "/outlets/{outlet_id}/schedules/{week_start}/repair",
+    operation_id="repairSchedule",
+    response_model=s.OptimizationRun,
+    status_code=status.HTTP_202_ACCEPTED,
+    responses={
+        **_errors(403, 404, 409, 422),
+        429: {"model": s.ErrorResponse, "headers": {"Retry-After": _header("Seconds to wait.")}},
+    },
+)
+def repair_schedule(
+    caller: v2auth.CallerDep,
+    outlet_id: UUID,
+    week_start: date,
+    idempotency_key: IdempotencyKey,
+    body: s.RepairRequest,
+) -> s.OptimizationRun:
+    """Repair runs are claimed before batch work and never blocked by it. An active repair for the same
+    absence is returned (idempotent). 409 conflict lists locked affected shifts without authorization."""
+    return generation.enqueue_repair(caller, outlet_id, week_start, idempotency_key, body)

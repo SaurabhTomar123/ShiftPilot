@@ -1,0 +1,51 @@
+{
+  "name": "absence.report",
+  "operation_id": "reportAbsence",
+  "method": "POST",
+  "path": "/v2/absences",
+  "persona": "manager_indiranagar",
+  "request": {
+    "headers": {
+      "Idempotency-Key": "absence-5a1e09c3"
+    },
+    "body": {
+      "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+      "start_at": "2026-10-21T00:00:00+05:30",
+      "end_at": "2026-10-22T00:00:00+05:30",
+      "kind": "sick",
+      "status": "confirmed",
+      "reason": null
+    }
+  },
+  "response": {
+    "status": 201,
+    "schema": "AbsenceReport",
+    "body": {
+      "absence": {
+        "id": "a423d626-bfbf-5cd0-9360-c602bcc87519",
+        "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+        "start_at": "2026-10-21T00:00:00+05:30",
+        "end_at": "2026-10-22T00:00:00+05:30",
+        "kind": "sick",
+        "status": "confirmed"
+      },
+      "affected": [
+        {
+          "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+          "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+          "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "start_at": "2026-10-21T10:00:00+05:30",
+          "end_at": "2026-10-21T18:00:00+05:30",
+          "locked": false
+        }
+      ],
+      "lock_conflicts": [],
+      "repair_suggested": true,
+      "repair_run_ids": [
+        "f81791b4-7109-5853-8a74-970ff95c17b6"
+      ]
+    }
+  }
+}

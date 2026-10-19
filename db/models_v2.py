@@ -120,6 +120,7 @@ class Absence(Base):
         one_of("status", ("requested", "confirmed", "rejected", "cancelled"), "absence_status"),
         one_of("source", ("manager", "employee", "import"), "absence_source"),
         Index("ix_absences_lookup", "org_id", "employee_id", "start_at"),
+        UniqueConstraint("org_id", "id"),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
@@ -428,7 +429,6 @@ class VersionShift(Base):
 
 # ---------------------------------------------------------------- runs, candidates, proposals
 
-LANES = ("interactive", "batch")
 JOB_STATES = ("queued", "running", "succeeded", "failed", "cancelled")
 SOLVER_STATUSES = ("OPTIMAL", "FEASIBLE", "INFEASIBLE", "MODEL_INVALID", "UNKNOWN")
 
@@ -445,22 +445,37 @@ class OptimizationRun(Base):
             f"solver_status IS NULL OR solver_status IN {SOLVER_STATUSES}", name="run_solver_status"
         ),
         CheckConstraint("attempts >= 0", name="run_attempts"),
-        one_of("lane", LANES, "run_lane"),
+        ref("schedule_id", "schedules", name="optimization_runs_schedule_fkey"),
+        ref("trigger_absence_id", "absences", name="optimization_runs_absence_fkey"),
         Index(
             "ix_optimization_runs_claim",
-            "lane",
             "priority",
             "queued_at",
             postgresql_where=text("job_state = 'queued'"),
+        ),
+        Index(
+            "ux_optimization_runs_active_batch",
+            "org_id",
+            "schedule_id",
+            unique=True,
+            postgresql_where=text("kind IN ('generate', 'optimize') AND job_state IN ('queued', 'running')"),
+        ),
+        Index(
+            "ux_optimization_runs_active_repair",
+            "org_id",
+            "trigger_absence_id",
+            unique=True,
+            postgresql_where=text("job_state IN ('queued', 'running')"),
         ),
         Index("ix_optimization_runs_lease", "lease_until", postgresql_where=text("job_state = 'running'")),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
     kind: Mapped[str] = mapped_column(String(20))
-    lane: Mapped[str] = mapped_column(String(20), default="batch", server_default="batch")
     priority: Mapped[int] = mapped_column(SmallInteger, default=100, server_default="100")
     strategy: Mapped[str] = mapped_column(String(20))
+    schedule_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    trigger_absence_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     outlet_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
     base_version_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
     requested_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
@@ -483,20 +498,6 @@ class OptimizationRun(Base):
     stats: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     error: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     traceparent: Mapped[str | None] = mapped_column(String(80), nullable=True)
-
-
-class ScheduleRunSlot(Base):
-    """Admission guard: at most one active run per schedule (architecture §11). Inserted in the
-    enqueue transaction, deleted in the transaction that makes the run terminal."""
-
-    __tablename__ = "schedule_run_slots"
-    __table_args__ = (ref("schedule_id", "schedules"), ref("run_id", "optimization_runs"))
-    org_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("organizations.id"), primary_key=True
-    )
-    schedule_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
-    run_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), index=True)
-    created_at: Mapped[datetime] = created_at()
 
 
 class OptimizationCandidate(Base):
@@ -649,7 +650,6 @@ V2_TENANT_TABLES = [
     "optimization_runs",
     "optimization_candidates",
     "schedule_proposals",
-    "schedule_run_slots",
     "outbox_events",
     "notification_deliveries",
     "idempotency_keys",

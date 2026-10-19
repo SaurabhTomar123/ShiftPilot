@@ -353,36 +353,64 @@ def test_app_role_cannot_delete_versions_or_rewrite_audit(db: str) -> None:
             assert sqlstate(exc) == "42501", stmt
 
 
-# ---------------------------------------------------------------- durable work (0004, architecture rev 2)
+# ---------------------------------------------------------------- durable work (0004 + 0008, architecture v3)
 
 
-def queue_run(conn: Connection, t: dict[str, uuid.UUID], key: str, lane: str = "batch") -> uuid.UUID:
+def queue_run(
+    conn: Connection,
+    t: dict[str, uuid.UUID],
+    key: str,
+    kind: str = "generate",
+    schedule: uuid.UUID | None = None,
+    absence: uuid.UUID | None = None,
+) -> uuid.UUID:
     run = uuid.uuid7()
     conn.execute(
         text(
-            "INSERT INTO optimization_runs (id, org_id, kind, lane, strategy, outlet_ids, base_version_ids, "
-            "idempotency_key, request_hash, input_hash, input_snapshot, config) "
-            "VALUES (:id, :org, 'generate', "
-            ":lane, 'balanced', ARRAY[CAST(:outlet AS uuid)], '{}', :key, 'r', 'i', '{}', '{}')"
+            "INSERT INTO optimization_runs (id, org_id, kind, priority, schedule_id, trigger_absence_id, "
+            "strategy, outlet_ids, base_version_ids, idempotency_key, request_hash, input_hash, "
+            "input_snapshot, config) VALUES (:id, :org, :kind, :priority, :schedule, :absence, 'balanced', "
+            "ARRAY[CAST(:outlet AS uuid)], '{}', :key, 'r', 'i', '{}', '{}')"
         ),
-        {"id": run, "org": t["org"], "outlet": t["outlet"], "key": key, "lane": lane},
+        {
+            "id": run,
+            "org": t["org"],
+            "outlet": t["outlet"],
+            "key": key,
+            "kind": kind,
+            "priority": 1 if kind == "repair" else 5,
+            "schedule": schedule,
+            "absence": absence,
+        },
     )
     return run
 
 
-def test_one_active_run_per_schedule(db: str) -> None:
+def test_admission_indexes_follow_v3(db: str) -> None:
+    """One active batch run per schedule; repairs run alongside it; one active repair per absence."""
     migrate.upgrade(db)
     with admin(db) as conn:
         t = tenant(conn, "A")
         ids = draft_with_shift(conn, t)
-        first, second = queue_run(conn, t, "k1"), queue_run(conn, t, "k2")
-        slot = "INSERT INTO schedule_run_slots (org_id, schedule_id, run_id) VALUES (:org, :schedule, :run)"
-        conn.execute(text(slot), {**ids, "run": first})
+        first = queue_run(conn, t, "k1", schedule=ids["schedule"])
         with pytest.raises(DBAPIError) as exc:
-            conn.execute(text(slot), {**ids, "run": second})
-        assert sqlstate(exc) == "23505"  # unique_violation -> API answers 409 with the active run
-        conn.execute(text("DELETE FROM schedule_run_slots WHERE run_id = :run"), {"run": first})
-        conn.execute(text(slot), {**ids, "run": second})
+            queue_run(conn, t, "k2", schedule=ids["schedule"])
+        assert sqlstate(exc) == "23505"  # the API answers 409 run_in_progress with the active run
+        absence = uuid.uuid4()
+        conn.execute(
+            text(
+                "INSERT INTO absences (id, org_id, employee_id, start_at, end_at, kind, status, source) "
+                "VALUES (:id, :org, :e, now(), now() + interval '8 hours', 'sick', 'confirmed', 'manager')"
+            ),
+            {"id": absence, "org": t["org"], "e": t["employee"]},
+        )
+        queue_run(
+            conn, t, "r1", kind="repair", schedule=ids["schedule"], absence=absence
+        )  # not blocked by batch
+        with pytest.raises(DBAPIError):
+            queue_run(conn, t, "r2", kind="repair", schedule=ids["schedule"], absence=absence)
+        conn.execute(text("UPDATE optimization_runs SET job_state = 'succeeded' WHERE id = :r"), {"r": first})
+        queue_run(conn, t, "k3", schedule=ids["schedule"])  # finished runs free the schedule again
 
 
 def test_outbox_is_tenant_scoped_and_append_only_for_the_app(db: str) -> None:
@@ -415,13 +443,13 @@ def test_worker_claim_query_can_use_its_partial_index(db: str) -> None:
     with admin(db) as conn:
         t = tenant(conn, "A")
         for i in range(3):
-            queue_run(conn, t, f"k{i}", lane="interactive" if i else "batch")
+            queue_run(conn, t, f"k{i}")
         conn.execute(text("SET enable_seqscan = off"))
-        plan = "\n".join(
+        plan = chr(10).join(
             conn.execute(
                 text(
-                    "EXPLAIN SELECT id FROM optimization_runs "
-                    "WHERE lane = 'interactive' AND job_state = 'queued' "
+                    "EXPLAIN SELECT id FROM optimization_runs WHERE job_state = 'queued' "
+                    "AND kind = ANY(ARRAY['repair', 'generate']) "
                     "ORDER BY priority, queued_at FOR UPDATE SKIP LOCKED LIMIT 1"
                 )
             ).scalars()

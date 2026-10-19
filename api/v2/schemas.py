@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "2.3.0-p3"
+CONTRACT_VERSION = "2.4.0-p4"
 
 
 class Model(BaseModel):
@@ -416,8 +416,9 @@ class AbsenceMark(Model):
     start_at: AwareDatetime
     end_at: AwareDatetime
     kind: Literal["leave", "sick", "other"]
-    status: Literal["requested", "confirmed"] = Field(
-        description="Only confirmed absences make an overlapping shift invalid."
+    status: Literal["requested", "confirmed", "rejected", "cancelled"] = Field(
+        description="Only confirmed absences make an overlapping shift invalid. Rosters list only "
+        "requested and confirmed absences; rejected and cancelled appear in absence management (2.4)."
     )
 
 
@@ -547,9 +548,77 @@ class VersionDiff(Model):
     metrics_to: Metrics
 
 
+# ---------------------------------------------------------------- absences and repair (P4)
+
+
+class ReportAbsenceRequest(Model):
+    employee_id: UUID
+    start_at: AwareDatetime
+    end_at: AwareDatetime
+    kind: Literal["leave", "sick", "other"]
+    status: Literal["requested", "confirmed"] = Field(
+        description="Managers may report confirmed absences; staff may only request for themselves."
+    )
+    reason: str | None = Field(default=None, max_length=500)
+
+    @model_validator(mode="after")
+    def _ordered(self) -> ReportAbsenceRequest:
+        if self.end_at <= self.start_at:
+            raise ValueError("end_at must be after start_at")
+        return self
+
+
+class AffectedShift(Model):
+    schedule_id: UUID
+    version_id: UUID
+    logical_shift_id: UUID
+    outlet_id: UUID
+    skill_id: UUID
+    start_at: AwareDatetime
+    end_at: AwareDatetime
+    locked: bool
+
+
+class AbsenceReport(Model):
+    absence: AbsenceMark
+    affected: list[AffectedShift] = Field(
+        description="Live published shifts the absence overlaps, all outlets."
+    )
+    lock_conflicts: list[UUID] = Field(
+        description="Logical ids of affected shifts that are locked; repairing them "
+        "needs explicit unlock authorization."
+    )
+    repair_suggested: bool
+    repair_run_ids: list[UUID] = Field(
+        default_factory=list,
+        description="Repair runs enqueued automatically for this confirmed absence (one per affected "
+        "schedule without unauthorized lock conflicts). Poll them like any run.",
+    )
+
+
+class AbsenceList(Model):
+    items: list[AbsenceMark]
+
+
+class UpdateAbsenceRequest(Model):
+    status: Literal["confirmed", "rejected", "cancelled"]
+
+
+class RepairRequest(Model):
+    absence_id: UUID
+    base_version_id: UUID = Field(description="The published version being repaired. Stale -> 409.")
+    unlock_logical_shift_ids: list[UUID] = Field(
+        default_factory=list,
+        description="Locked affected shifts the manager authorizes to change (decision 5).",
+    )
+    time_limit_seconds: int = Field(default=3, ge=1, le=10)
+
+
 # ---------------------------------------------------------------- optimization
 
 Strategy = Literal["balanced", "lowest_cost", "staff_friendly", "max_coverage"]
+# Repair profiles (2.4): candidates of a repair run use these names.
+RepairProfile = Literal["least_disruption", "lowest_cost", "best_coverage"]
 JobState = Literal["queued", "running", "succeeded", "failed", "cancelled"]
 SolverStatus = Literal["OPTIMAL", "FEASIBLE", "INFEASIBLE", "MODEL_INVALID", "UNKNOWN"]
 
@@ -563,10 +632,41 @@ class GenerateRequest(Model):
     time_limit_seconds: int = Field(default=10, ge=1, le=30)
 
 
+class ExplanationFact(Model):
+    code: Literal["skill", "available", "no_conflict", "weekly_hours", "travel"]
+    ok: bool
+    message: str = Field(description="Deterministic text built from facts; safe to show.")
+    facts: dict[str, Any] = Field(default_factory=dict)
+
+
+class AlternativeFact(Model):
+    employee_id: UUID
+    name: str
+    status: Literal["rejected", "eligible_not_selected"] = Field(
+        description="rejected: a concrete rule blocks this person (see reasons). eligible_not_selected: "
+        "allowed, but this plan chose someone else; never presented as a rejection."
+    )
+    reasons: list[ExplanationFact]
+
+
+class ShiftExplanation(Model):
+    logical_shift_id: UUID
+    chosen_employee_id: UUID | None = Field(description="null = the shift was left open.")
+    reasons: list[ExplanationFact] = Field(description="Facts about the chosen employee.")
+    alternatives: list[AlternativeFact] = Field(description="Other qualified people (bounded list).")
+
+
+class Disruption(Model):
+    changed_shifts: Minutes
+    added_shifts: Minutes
+    cross_outlet_moves: Minutes
+    open_shifts: Minutes
+
+
 class Candidate(Model):
     id: UUID
     rank: int = Field(ge=1)
-    strategy: Strategy
+    strategy: Strategy | RepairProfile
     solver_status: Literal["OPTIMAL", "FEASIBLE"]
     proven_optimal: bool = Field(
         description="False when the time limit ended the search with a valid but unproven schedule."
@@ -576,6 +676,10 @@ class Candidate(Model):
     changed_shifts: int = Field(ge=0, description="Logical shifts differing from the base version.")
     validation: ValidationResult = Field(
         description="Independent validator result. A candidate with hard violations is never returned."
+    )
+    disruption: Disruption | None = Field(default=None, description="Repair runs only.")
+    explanations: list[ShiftExplanation] = Field(
+        default_factory=list, description="Repair runs: one per changed shift."
     )
 
     @model_validator(mode="after")
@@ -606,7 +710,8 @@ class OptimizationRun(Model):
     kind: Literal["generate", "optimize", "repair"]
     outlet_ids: list[UUID]
     base_version_ids: list[UUID]
-    strategy: Strategy
+    strategy: Strategy | RepairProfile
+    absence_id: UUID | None = Field(default=None, description="Repair runs: the absence being repaired.")
     job_state: JobState
     solver_status: SolverStatus | None = Field(
         description="Set once solving ends. UNKNOWN means no "

@@ -72,7 +72,7 @@ def test_enqueue_is_idempotent_and_guarded(client: TestClient) -> None:
         body = draft.json()
         assert body["status"] == "draft" and body["source"] == "generate"
         assert body["validation"]["hard_violations"] == 0 and body["metrics"] == cand["metrics"]
-    assert sql("SELECT count(*) FROM schedule_run_slots")[0][0] == 0
+    assert sql("SELECT count(*) FROM optimization_runs WHERE job_state IN ('queued', 'running')")[0][0] == 0
     assert (
         sql(
             "SELECT count(*) FROM outbox_events WHERE topic = 'run.finished' AND aggregate_id = :r", r=run.id
@@ -116,7 +116,10 @@ def test_regeneration_keeps_locked_shifts_and_never_touches_the_published_week(c
 
 def claim(me: str) -> Any:
     with admin_engine().begin() as conn:
-        return conn.execute(worker.CLAIM, {"me": me, "lease": 30, "lane": "batch", "max_attempts": 3}).first()
+        return conn.execute(
+            worker.CLAIM,
+            {"me": me, "lease": 30, "kinds": ["repair", "generate", "optimize"], "max_attempts": 3},
+        ).first()
 
 
 def test_a_worker_that_lost_its_lease_writes_nothing(client: TestClient) -> None:
@@ -147,7 +150,7 @@ def test_exhausted_attempts_are_failed_by_the_sweeper(client: TestClient) -> Non
     assert worker.sweep(admin_engine()) == 1
     run = client.get(f"/v2/optimization-runs/{run_id}", headers=OWNER).json()
     assert run["job_state"] == "failed" and run["error"]["details"]["reason"] == "ATTEMPTS_EXHAUSTED"
-    assert sql("SELECT count(*) FROM schedule_run_slots WHERE run_id = :r", r=run_id)[0][0] == 0
+    assert sql("SELECT job_state FROM optimization_runs WHERE id = :r", r=run_id)[0][0] == "failed"
 
 
 def test_impossible_demand_is_reported_as_infeasible(client: TestClient) -> None:

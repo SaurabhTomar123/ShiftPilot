@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "2.3.0-p3"
+    "version": "2.4.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -2457,10 +2457,503 @@
           }
         }
       }
+    },
+    "/v2/absences": {
+      "post": {
+        "summary": "Report Absence",
+        "description": "Records the absence as a fact first (it stands whether or not a repair succeeds). A confirmed\nabsence then enqueues a repair run per affected schedule (repair_run_ids); locked affected shifts are\nlisted in lock_conflicts and need explicit authorization through repairSchedule.",
+        "operationId": "reportAbsence",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportAbsenceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbsenceReport"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      },
+      "get": {
+        "summary": "List Absences",
+        "operationId": "listAbsences",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outlet_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Outlet Id"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbsenceList"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/absences/{absence_id}": {
+      "patch": {
+        "summary": "Update Absence",
+        "description": "Managers confirm, reject or cancel. Confirming enqueues repairs exactly as reportAbsence does.",
+        "operationId": "updateAbsence",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "absence_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Absence Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAbsenceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbsenceReport"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/outlets/{outlet_id}/schedules/{week_start}/repair": {
+      "post": {
+        "summary": "Repair Schedule",
+        "description": "Repair runs are claimed before batch work and never blocked by it. An active repair for the same\nabsence is returned (idempotent). 409 conflict lists locked affected shifts without authorization.",
+        "operationId": "repairSchedule",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outlet_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Outlet Id"
+            }
+          },
+          {
+            "name": "week_start",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Week Start"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepairRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptimizationRun"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "429": {
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AbsenceList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AbsenceMark"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "AbsenceList"
+      },
       "AbsenceMark": {
         "properties": {
           "id": {
@@ -2496,10 +2989,12 @@
             "type": "string",
             "enum": [
               "requested",
-              "confirmed"
+              "confirmed",
+              "rejected",
+              "cancelled"
             ],
             "title": "Status",
-            "description": "Only confirmed absences make an overlapping shift invalid."
+            "description": "Only confirmed absences make an overlapping shift invalid. Rosters list only requested and confirmed absences; rejected and cancelled appear in absence management (2.4)."
           }
         },
         "additionalProperties": false,
@@ -2513,6 +3008,52 @@
           "status"
         ],
         "title": "AbsenceMark"
+      },
+      "AbsenceReport": {
+        "properties": {
+          "absence": {
+            "$ref": "#/components/schemas/AbsenceMark"
+          },
+          "affected": {
+            "items": {
+              "$ref": "#/components/schemas/AffectedShift"
+            },
+            "type": "array",
+            "title": "Affected",
+            "description": "Live published shifts the absence overlaps, all outlets."
+          },
+          "lock_conflicts": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Lock Conflicts",
+            "description": "Logical ids of affected shifts that are locked; repairing them needs explicit unlock authorization."
+          },
+          "repair_suggested": {
+            "type": "boolean",
+            "title": "Repair Suggested"
+          },
+          "repair_run_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Repair Run Ids",
+            "description": "Repair runs enqueued automatically for this confirmed absence (one per affected schedule without unauthorized lock conflicts). Poll them like any run."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "absence",
+          "affected",
+          "lock_conflicts",
+          "repair_suggested"
+        ],
+        "title": "AbsenceReport"
       },
       "AddShift": {
         "properties": {
@@ -2583,6 +3124,100 @@
           "end_at"
         ],
         "title": "AddShift"
+      },
+      "AffectedShift": {
+        "properties": {
+          "schedule_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Schedule Id"
+          },
+          "version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Version Id"
+          },
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id"
+          },
+          "outlet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Outlet Id"
+          },
+          "skill_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Skill Id"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start At"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End At"
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schedule_id",
+          "version_id",
+          "logical_shift_id",
+          "outlet_id",
+          "skill_id",
+          "start_at",
+          "end_at",
+          "locked"
+        ],
+        "title": "AffectedShift"
+      },
+      "AlternativeFact": {
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Employee Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "rejected",
+              "eligible_not_selected"
+            ],
+            "title": "Status",
+            "description": "rejected: a concrete rule blocks this person (see reasons). eligible_not_selected: allowed, but this plan chose someone else; never presented as a rejection."
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ExplanationFact"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "employee_id",
+          "name",
+          "status",
+          "reasons"
+        ],
+        "title": "AlternativeFact"
       },
       "Availability": {
         "properties": {
@@ -2692,12 +3327,24 @@
             "title": "Rank"
           },
           "strategy": {
-            "type": "string",
-            "enum": [
-              "balanced",
-              "lowest_cost",
-              "staff_friendly",
-              "max_coverage"
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "balanced",
+                  "lowest_cost",
+                  "staff_friendly",
+                  "max_coverage"
+                ]
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "least_disruption",
+                  "lowest_cost",
+                  "best_coverage"
+                ]
+              }
             ],
             "title": "Strategy"
           },
@@ -2732,6 +3379,25 @@
           "validation": {
             "$ref": "#/components/schemas/ValidationResult",
             "description": "Independent validator result. A candidate with hard violations is never returned."
+          },
+          "disruption": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Disruption"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Repair runs only."
+          },
+          "explanations": {
+            "items": {
+              "$ref": "#/components/schemas/ShiftExplanation"
+            },
+            "type": "array",
+            "title": "Explanations",
+            "description": "Repair runs: one per changed shift."
           }
         },
         "additionalProperties": false,
@@ -2872,6 +3538,39 @@
           "persona"
         ],
         "title": "DemoSessionRequest"
+      },
+      "Disruption": {
+        "properties": {
+          "changed_shifts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Changed Shifts"
+          },
+          "added_shifts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Added Shifts"
+          },
+          "cross_outlet_moves": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Cross Outlet Moves"
+          },
+          "open_shifts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Open Shifts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "changed_shifts",
+          "added_shifts",
+          "cross_outlet_moves",
+          "open_shifts"
+        ],
+        "title": "Disruption"
       },
       "EditPreview": {
         "properties": {
@@ -3428,6 +4127,43 @@
         ],
         "title": "ErrorResponse"
       },
+      "ExplanationFact": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "skill",
+              "available",
+              "no_conflict",
+              "weekly_hours",
+              "travel"
+            ],
+            "title": "Code"
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Deterministic text built from facts; safe to show."
+          },
+          "facts": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Facts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "ok",
+          "message"
+        ],
+        "title": "ExplanationFact"
+      },
       "GenerateRequest": {
         "properties": {
           "strategy": {
@@ -3796,14 +4532,39 @@
             "title": "Base Version Ids"
           },
           "strategy": {
-            "type": "string",
-            "enum": [
-              "balanced",
-              "lowest_cost",
-              "staff_friendly",
-              "max_coverage"
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "balanced",
+                  "lowest_cost",
+                  "staff_friendly",
+                  "max_coverage"
+                ]
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "least_disruption",
+                  "lowest_cost",
+                  "best_coverage"
+                ]
+              }
             ],
             "title": "Strategy"
+          },
+          "absence_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Absence Id",
+            "description": "Repair runs: the absence being repaired."
           },
           "job_state": {
             "type": "string",
@@ -4103,6 +4864,103 @@
           "logical_shift_id"
         ],
         "title": "RemoveShift"
+      },
+      "RepairRequest": {
+        "properties": {
+          "absence_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Absence Id"
+          },
+          "base_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Base Version Id",
+            "description": "The published version being repaired. Stale -> 409."
+          },
+          "unlock_logical_shift_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Unlock Logical Shift Ids",
+            "description": "Locked affected shifts the manager authorizes to change (decision 5)."
+          },
+          "time_limit_seconds": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Time Limit Seconds",
+            "default": 3
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "absence_id",
+          "base_version_id"
+        ],
+        "title": "RepairRequest"
+      },
+      "ReportAbsenceRequest": {
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Employee Id"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start At"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End At"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "leave",
+              "sick",
+              "other"
+            ],
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "requested",
+              "confirmed"
+            ],
+            "title": "Status",
+            "description": "Managers may report confirmed absences; staff may only request for themselves."
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "employee_id",
+          "start_at",
+          "end_at",
+          "kind",
+          "status"
+        ],
+        "title": "ReportAbsenceRequest"
       },
       "RestoreRequest": {
         "properties": {
@@ -4758,6 +5616,53 @@
         ],
         "title": "ShiftChange"
       },
+      "ShiftExplanation": {
+        "properties": {
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id"
+          },
+          "chosen_employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chosen Employee Id",
+            "description": "null = the shift was left open."
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ExplanationFact"
+            },
+            "type": "array",
+            "title": "Reasons",
+            "description": "Facts about the chosen employee."
+          },
+          "alternatives": {
+            "items": {
+              "$ref": "#/components/schemas/AlternativeFact"
+            },
+            "type": "array",
+            "title": "Alternatives",
+            "description": "Other qualified people (bounded list)."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "logical_shift_id",
+          "chosen_employee_id",
+          "reasons",
+          "alternatives"
+        ],
+        "title": "ShiftExplanation"
+      },
       "Shortage": {
         "properties": {
           "outlet_id": {
@@ -4953,6 +5858,25 @@
           "intervals"
         ],
         "title": "StaffingRequirementsUpdate"
+      },
+      "UpdateAbsenceRequest": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "rejected",
+              "cancelled"
+            ],
+            "title": "Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "UpdateAbsenceRequest"
       },
       "UpdateShift": {
         "properties": {
