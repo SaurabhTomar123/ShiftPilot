@@ -35,7 +35,7 @@ from sqlalchemy import Engine, text
 
 from db.session import admin_engine
 from scheduling import metrics, repair, snapshot_json, solver, validator
-from scheduling.model import Snapshot
+from scheduling.model import Shift, Snapshot
 
 log = logging.getLogger("shiftpilot.worker")
 LEASE_SECONDS = 30
@@ -130,92 +130,44 @@ def _persist_candidates(
     outcome: solver.Outcome,
     extras: dict[int, dict[str, Any]] | None = None,
 ) -> None:
-    """extras: per-rank repair data ({'disruption': ..., 'explanations': [...]})."""
-    schedule_id = uuid.UUID(row.config["schedule_id"])
-    conn.execute(text("SELECT id FROM schedules WHERE id = :s FOR UPDATE"), {"s": schedule_id})
-    number = conn.execute(
-        text("SELECT coalesce(max(version_number), 0) FROM schedule_versions WHERE schedule_id = :s"),
-        {"s": schedule_id},
-    ).scalar_one()
+    """Store candidates as diffs against the base version (architecture v3 section 23).
+
+    Nothing is written to schedule_versions or logical_shifts here: selecting a candidate materializes
+    it into a draft. extras: per-rank repair data ({'disruption': ..., 'explanations': [...]})."""
     base_id = row.base_version_ids[0] if row.base_version_ids else None
-    base_keys: set[tuple[Any, ...]] = set()
+    base: list[Shift] = []
     if base_id:
-        base_keys = {
-            tuple(r)
+        base = [
+            Shift(
+                r.logical_shift_id,
+                r.outlet_id,
+                r.employee_id,
+                r.skill_id,
+                r.start_at,
+                r.end_at,
+                r.break_minutes,
+                r.break_start_at,
+                r.locked,
+            )
             for r in conn.execute(
-                text(
-                    "SELECT logical_shift_id, employee_id, skill_id, start_at, end_at FROM version_shifts WHERE version_id = :v"
-                ),
+                text("""SELECT logical_shift_id, outlet_id, employee_id, skill_id, start_at, end_at,
+                               break_minutes, break_start_at, locked
+                          FROM version_shifts WHERE version_id = :v"""),
                 {"v": base_id},
             )
-        }
+        ]
     for rank, cand in enumerate(outcome.candidates, start=1):
-        number += 1
-        version_id = uuid.uuid7()
-        conn.execute(
-            text("""INSERT INTO schedule_versions (id, org_id, schedule_id, version_number, status, source,
-                                 reason, base_version_id, optimization_run_id, input_hash)
-                             VALUES (:id, :org, :s, :n, 'draft', 'generate', :reason, :base, :run, :hash)"""),
-            {
-                "id": version_id,
-                "org": row.org_id,
-                "s": schedule_id,
-                "n": number,
-                "base": base_id,
-                "reason": f"Generated ({cand.strategy.replace('_', ' ')})",
-                "run": row.id,
-                "hash": row.input_hash,
-            },
-        )
-        # Logical identity spans all versions of a schedule: existing ids (base shifts kept by a repair)
-        # are reused, new ones are created.
-        new_logical = list(cand.roster)
-        if new_logical:
-            conn.execute(
-                text("""INSERT INTO logical_shifts (id, org_id, schedule_id, created_in_version_id)
-                                 VALUES (:id, :org, :s, :v) ON CONFLICT (id) DO NOTHING"""),
-                [
-                    {"id": sh.logical_id, "org": row.org_id, "s": schedule_id, "v": version_id}
-                    for sh in new_logical
-                ],
-            )
-        conn.execute(
-            text("""INSERT INTO version_shifts (id, org_id, schedule_id, version_id, logical_shift_id, outlet_id,
-                                 employee_id, skill_id, start_at, end_at, break_start_at, break_minutes, locked, lock_reason)
-                             VALUES (:id, :org, :s, :v, :l, :o, :e, :k, :a, :b, :bs, :bm, :locked, :reason)"""),
-            [
-                {
-                    "id": uuid.uuid7(),
-                    "org": row.org_id,
-                    "s": schedule_id,
-                    "v": version_id,
-                    "l": sh.logical_id,
-                    "o": sh.outlet_id,
-                    "e": sh.employee_id,
-                    "k": sh.skill_id,
-                    "a": sh.start_at,
-                    "b": sh.end_at,
-                    "bs": sh.break_start_at,
-                    "bm": sh.break_minutes,
-                    "locked": sh.locked,
-                    "reason": "Locked by manager" if sh.locked else None,
-                }
-                for sh in cand.roster
-            ],
-        )
-        result = validator.validate(snap, cand.roster)
-        changed = sum(
-            1
-            for sh in cand.roster
-            if (sh.logical_id, sh.employee_id, sh.skill_id, sh.start_at, sh.end_at) not in base_keys
-        )
+        doc = snapshot_json.candidate_diff(base, cand.roster)
+        changed = len(doc["added"]) + len(doc["changed"]) + len(doc["removed"])
+        if extras and rank in extras:
+            doc["disruption"] = extras[rank]["disruption"]
         key = sorted((str(sh.employee_id), sh.start_at.isoformat(), str(sh.skill_id)) for sh in cand.roster)
         conn.execute(
             text("""INSERT INTO optimization_candidates (id, org_id, run_id, rank, strategy, solver_status,
-                                 proven_optimal, objective_components, metrics, diff, draft_version_id, validation,
+                                 proven_optimal, objective_components, metrics, diff, validation,
                                  explanation_facts, dedup_hash)
                              VALUES (:id, :org, :run, :rank, :strategy, :status, :optimal, CAST(:components AS jsonb),
-                                     CAST(:metrics AS jsonb), CAST(:diff AS jsonb), :v, CAST(:validation AS jsonb),
+                                     CAST(:metrics AS jsonb), CAST(:diff AS jsonb), CAST(:validation AS jsonb),
                                      CAST(:facts AS jsonb), :hash)
                              ON CONFLICT (run_id, dedup_hash) DO NOTHING"""),
             {
@@ -228,17 +180,11 @@ def _persist_candidates(
                 "optimal": cand.proven_optimal,
                 "components": json.dumps(cand.components),
                 "metrics": json.dumps(metrics.as_contract(metrics.compute(snap, cand.roster))),
-                "diff": json.dumps(
-                    {
-                        "changed_shifts": changed,
-                        **({"disruption": extras[rank]["disruption"]} if extras and rank in extras else {}),
-                    }
-                ),
+                "diff": json.dumps({"changed_shifts": changed, **doc}),
                 "facts": json.dumps(
                     {"explanations": extras[rank]["explanations"]} if extras and rank in extras else {}
                 ),
-                "v": version_id,
-                "validation": json.dumps(validator.as_contract(result)),
+                "validation": json.dumps(validator.as_contract(validator.validate(snap, cand.roster))),
                 "hash": hashlib.sha256(json.dumps(key).encode()).hexdigest(),
             },
         )

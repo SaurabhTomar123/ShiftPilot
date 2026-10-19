@@ -232,6 +232,11 @@ def schedule_week(
         return etag, body
 
 
+def version_etag(version_id: uuid.UUID, status: str, revision: int) -> str:
+    """Changes when the status (published -> superseded) or a draft's revision changes."""
+    return f'"{version_id}:{status}:{revision}"'
+
+
 def schedule_version(
     caller: Caller, version_id: uuid.UUID, if_none_match: str | None = None
 ) -> tuple[str, str, s.ScheduleVersion | None]:
@@ -245,9 +250,8 @@ def schedule_version(
         schedule = session.get(Schedule, version.schedule_id)
         assert schedule is not None
         assert_outlet(caller, str(schedule.outlet_id))
-        immutable = version.status in ("published", "superseded")
-        cache = "private, max-age=31536000, immutable" if immutable else "private, no-cache"
-        etag = f'"{version.id}"'
+        cache = "private, no-cache"  # status is mutable (published -> superseded); v3 section 35
+        etag = version_etag(version.id, version.status, version.revision)
         if if_none_match == etag:
             return etag, cache, None
         return etag, cache, version_view(session, version)

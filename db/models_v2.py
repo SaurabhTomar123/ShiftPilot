@@ -504,7 +504,7 @@ class OptimizationCandidate(Base):
     __tablename__ = "optimization_candidates"
     __table_args__ = (
         ref("run_id", "optimization_runs"),
-        ref("draft_version_id", "schedule_versions"),
+        ref("materialized_version_id", "schedule_versions"),
         UniqueConstraint("run_id", "dedup_hash"),
         UniqueConstraint("run_id", "rank"),
         UniqueConstraint("org_id", "id"),
@@ -522,7 +522,8 @@ class OptimizationCandidate(Base):
     objective_components: Mapped[dict[str, Any]] = mapped_column(JSONB)
     metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
     diff: Mapped[dict[str, Any]] = mapped_column(JSONB)
-    draft_version_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    # Null until a manager selects the candidate (architecture v3 section 23).
+    materialized_version_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     validation: Mapped[dict[str, Any]] = mapped_column(JSONB)
     explanation_facts: Mapped[dict[str, Any]] = mapped_column(
         JSONB, default=dict, server_default=text("'{}'::jsonb")

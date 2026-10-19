@@ -13,8 +13,8 @@
     "status": 200,
     "schema": "ScheduleVersion",
     "headers": {
-      "ETag": "\"59ddec56-dd6f-5ac4-871a-01119338a0ef\"",
-      "Cache-Control": "private, max-age=31536000, immutable"
+      "ETag": "\"59ddec56-dd6f-5ac4-871a-01119338a0ef:published:1\"",
+      "Cache-Control": "private, no-cache"
     },
     "body": {
       "id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",

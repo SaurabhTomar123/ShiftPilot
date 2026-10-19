@@ -345,12 +345,13 @@ def test_empty_week_and_staff_denial(client: TestClient) -> None:
     assert client.get(f"/v2/outlets/{IND}/schedules/{WEEK}", headers=STAFF).status_code == 403
 
 
-def test_published_versions_are_immutably_cacheable(client: TestClient) -> None:
+def test_versions_revalidate_because_status_is_mutable(client: TestClient) -> None:
     week = client.get(f"/v2/outlets/{IND}/schedules/{WEEK}", headers=MANAGER).json()
     version_id = week["current_version"]["id"]
     r = client.get(f"/v2/schedule-versions/{version_id}", headers=MANAGER)
     assert r.status_code == 200 and r.json() == week["current_version"]
-    assert r.headers["Cache-Control"] == "private, max-age=31536000, immutable"
+    assert r.headers["Cache-Control"] == "private, no-cache"  # published -> superseded later (v3 s35)
+    assert r.headers["ETag"] == f'"{version_id}:published:1"'
     assert (
         client.get(
             f"/v2/schedule-versions/{version_id}", headers=MANAGER | {"If-None-Match": r.headers["ETag"]}

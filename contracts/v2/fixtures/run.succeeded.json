@@ -36,7 +36,7 @@
           "strategy": "balanced",
           "solver_status": "OPTIMAL",
           "proven_optimal": true,
-          "draft_version_id": "89d25c7e-d0ac-5664-a7ac-7981d26fd847",
+          "materialized_version_id": null,
           "metrics": {
             "coverage_ratio": 0.7714,
             "minimum_deficit_minutes": 0,
@@ -346,7 +346,7 @@
           "strategy": "lowest_cost",
           "solver_status": "OPTIMAL",
           "proven_optimal": true,
-          "draft_version_id": "cf2f79e3-a264-541e-bba7-4b02ed234df3",
+          "materialized_version_id": null,
           "metrics": {
             "coverage_ratio": 0.738,
             "minimum_deficit_minutes": 0,

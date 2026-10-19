@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import AwareDatetime
 
-from api.v2 import absences, drafts, generation, rosters, service
+from api.v2 import absences, candidates, drafts, generation, rosters, service
 from api.v2 import auth as v2auth
 from api.v2 import schemas as s
 
@@ -45,8 +45,8 @@ def _header(description: str) -> dict[str, Any]:
 
 ETAG = _header("Opaque validator. Send it back as If-None-Match to get 304 when nothing changed.")
 IMMUTABLE = _header(
-    "`private, max-age=31536000, immutable` for published and superseded versions (they never "
-    "change); `private, no-cache` for drafts."
+    "Always `private, no-cache`: shift content never changes, but status does (published later becomes "
+    "superseded), so clients revalidate with If-None-Match and get 304 when nothing changed."
 )
 NOT_MODIFIED: dict[int | str, dict[str, Any]] = {
     304: {
@@ -298,6 +298,33 @@ def generate_schedule(
 )
 def get_optimization_run(caller: v2auth.CallerDep, run_id: UUID) -> s.OptimizationRun:
     return generation.get_run(caller, run_id)
+
+
+@router.get(
+    "/optimization-candidates/{candidate_id}",
+    operation_id="getOptimizationCandidate",
+    response_model=s.CandidateDetail,
+    responses=_errors(403, 404, 422),
+)
+def get_optimization_candidate(caller: v2auth.CallerDep, candidate_id: UUID) -> s.CandidateDetail:
+    """The candidate's diff against its base version. Candidates are not versions until selected."""
+    return candidates.get_candidate(caller, candidate_id)
+
+
+@router.post(
+    "/optimization-candidates/{candidate_id}/select",
+    operation_id="selectOptimizationCandidate",
+    response_model=s.ScheduleVersion,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def select_optimization_candidate(
+    caller: v2auth.CallerDep, candidate_id: UUID, idempotency_key: IdempotencyKey
+) -> s.ScheduleVersion:
+    """Materializes the candidate into a draft (its base_version_id is the run's base, so publishing it
+    after someone else published returns stale_version). Selecting again returns the same draft while it
+    is still a draft."""
+    return candidates.select_candidate(caller, candidate_id, idempotency_key)
 
 
 # ---------------------------------------------------------------- P3: drafts, edits, publication, history

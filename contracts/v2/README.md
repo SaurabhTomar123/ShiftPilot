@@ -23,17 +23,33 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
-## Heading for contract 3.0 (architecture v3)
+## Contract 3.0 (architecture v3): breaking changes
 
-The user has set `ShiftPilot System Architecture v3` as the governing design. It changes three shapes the UI depends on, so they will ship together as **contract 3.0**:
+`ShiftPilot System Architecture v3` is the governing design. Contract 3.0 changes three shapes the UI depends on.
 
-| Change | Detail |
+| Change | Status |
 |---|---|
-| **Lightweight candidates** (§23) | A candidate becomes a diff against its base. `POST /v2/optimization-candidates/{id}/select` materializes a draft. |
-| **Proposals with four publication outcomes** (§31) | Published, Stale, Invalid, and Changed (needs acknowledgement). |
-| **Versions served with `Cache-Control: private, no-cache`** (§36) | Replaces `immutable`. |
+| **Lightweight candidates** (§23) | **Live in 3.0.0-p4.** |
+| **Versions served with `Cache-Control: private, no-cache`** (§36) | **Live in 3.0.0-p4.** |
+| **Proposals with four publication outcomes** (§31): Published, Stale, Invalid, and Changed (needs acknowledgement) | Next. Hold `publishVersion` integration until it lands. |
 
-**Hold UI integration of candidate drafts and `publishVersion` until 3.0 lands.** Absences, generation status and edits are unaffected.
+### Lightweight candidates (live)
+
+A candidate is no longer a version. Runs write **no** `schedule_versions`; a manager's selection does:
+
+`candidate --select--> draft --edit (optional)--> publish`
+
+| Operation | What it does | Fixture |
+|---|---|---|
+| `getOptimizationRun` | `Candidate.draft_version_id` is **removed**. `materialized_version_id` is `null` until the candidate is selected, then it holds the draft it became. | `run.succeeded` |
+| `getOptimizationCandidate` `GET /v2/optimization-candidates/{id}` | Returns the candidate with `base_version_id` and its `diff` against that base: `added` and `changed` hold `CandidateShift`s (no row `id` yet), `removed` holds logical shift ids. For generation without a base, every shift is `added`. | `candidate.detail` |
+| `selectOptimizationCandidate` `POST /v2/optimization-candidates/{id}/select` | `201` with the materialized draft (`source` `generate` or `repair`, `optimization_run_id` set). Its `base_version_id` is the **run's** base, so publishing after someone else published returns `stale_version`. Selecting again returns the same draft while it is still a draft. Needs `Idempotency-Key` and the `publish` capability. | `candidate.select` |
+
+To preview a candidate, render `diff` over the base version, or select it and use the draft. Logical identity is kept: shifts a repair reassigns appear in `changed` with their existing `logical_shift_id`.
+
+### Version caching (live)
+
+`getScheduleVersion` always sends `Cache-Control: private, no-cache`. Shift content never changes, but status does (published becomes superseded). The `ETag` is now `"{id}:{status}:{revision}"`, so it changes on supersession and on every applied draft edit. Send it back as `If-None-Match` to get `304`.
 
 ## What changed in 2.4.0-p4 (live): absences and repair
 
@@ -85,7 +101,7 @@ This release answers the follow-ups in `web/docs/CONTRACT_REVIEW.md` and adds B0
 |---|---|
 | New error code `409 run_in_progress` on generate, with `details.run_id` (fixture `generate.run_in_progress`) | **Attach to that run and poll it.** Do not show an error. This happens when someone else, or another tab, already started a run for this week. |
 | `Retry-After` header (seconds) on `429` (fixture `generate.rate_limited`) | Wait at least that long before allowing a retry. |
-| `ETag` on `getScheduleWeek`, and `ETag` plus `Cache-Control` on `getScheduleVersion`. `If-None-Match` returns `304` with no body (fixtures `*.not_modified`). | Published and superseded versions are `immutable`, so cache them indefinitely. Drafts are `no-cache`. Revalidate the week with `If-None-Match`; a changed week `ETag` means a new publication. |
+| `ETag` on `getScheduleWeek`, and `ETag` plus `Cache-Control` on `getScheduleVersion`. `If-None-Match` returns `304` with no body (fixtures `*.not_modified`). | Since 3.0 every version is `no-cache` (status is mutable); revalidate with its `ETag`. Revalidate the week with `If-None-Match`; a changed week `ETag` means a new publication. |
 | `schedule_version.draft.lowest_cost` | The full draft of `run.succeeded`'s second candidate. |
 | `schedule_week.owner.koramangala` / `.hsr`, `employees.list.owner.*` | Owner rosters for the other two outlets, each with 13 employees and its own published week. |
 | `MyWeek.skills` | Skill names for the skill IDs in the employee's shifts. |
@@ -118,7 +134,7 @@ Fixture files may now include `response.headers`, and `response.schema`/`respons
   | `succeeded` | `UNKNOWN` | No solution found in time. This does **not** mean the roster is impossible; say so |
   | `failed` | (any) | `error` |
   
-- A candidate never has hard violations. Its full roster is `GET /v2/schedule-versions/{draft_version_id}`.
+- A candidate never has hard violations. Its diff is `GET /v2/optimization-candidates/{id}`; selecting it materializes a draft (contract 3.0).
 - **Coverage**: `coverage_ratio` measures cover against **preferred** staffing and can't be inflated by overstaffing. It is `null` when there is no demand. Hard-minimum shortfall is reported separately as `minimum_deficit_minutes`.
 - **Time and money**:
   - Instants are ISO 8601 with offset. Display them in the outlet's `timezone`.

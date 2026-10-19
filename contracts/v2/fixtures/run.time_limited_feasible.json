@@ -36,7 +36,7 @@
           "strategy": "balanced",
           "solver_status": "FEASIBLE",
           "proven_optimal": false,
-          "draft_version_id": "89d25c7e-d0ac-5664-a7ac-7981d26fd847",
+          "materialized_version_id": null,
           "metrics": {
             "coverage_ratio": 0.7714,
             "minimum_deficit_minutes": 0,

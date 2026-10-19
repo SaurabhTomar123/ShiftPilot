@@ -13,6 +13,7 @@ from datetime import date, datetime
 from typing import Any
 from uuid import UUID
 
+from scheduling import diff as sched_diff
 from scheduling.model import Absence, Employee, Outlet, Policy, Requirement, Shift, Snapshot, Template, Window
 
 SCHEMA_VERSION = 1
@@ -206,3 +207,27 @@ def absence_from_doc(d: dict[str, Any]) -> Absence:
         datetime.fromisoformat(d["end_at"]),
         d["status"],
     )
+
+
+# ---------------------------------------------------------------- candidate diffs (architecture v3 s23)
+
+
+def candidate_diff(
+    base: list[Shift] | tuple[Shift, ...], after: list[Shift] | tuple[Shift, ...]
+) -> dict[str, Any]:
+    """A candidate stored as a diff against its base version, keyed on logical shift identity."""
+    changes = sched_diff.diff(base, after)
+    return {
+        "added": [_shift(c.after) for c in changes if c.before is None and c.after is not None],
+        "changed": [_shift(c.after) for c in changes if c.before is not None and c.after is not None],
+        "removed": [str(c.logical_id) for c in changes if c.after is None],
+    }
+
+
+def apply_candidate_diff(base: list[Shift] | tuple[Shift, ...], doc: dict[str, Any]) -> list[Shift]:
+    """The candidate's full roster: base shifts with the diff applied, ordered by start time."""
+    removed = {UUID(x) for x in doc.get("removed", [])}
+    replaced = {sh.logical_id: sh for sh in map(_shift_back, doc.get("changed", []))}
+    roster = [replaced.get(sh.logical_id, sh) for sh in base if sh.logical_id not in removed]
+    roster += [_shift_back(d) for d in doc.get("added", [])]
+    return sorted(roster, key=lambda sh: (sh.start_at, str(sh.logical_id)))

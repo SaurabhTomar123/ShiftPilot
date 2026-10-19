@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "2.4.0-p4"
+    "version": "3.0.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -1286,7 +1286,7 @@
                 }
               },
               "Cache-Control": {
-                "description": "`private, max-age=31536000, immutable` for published and superseded versions (they never change); `private, no-cache` for drafts.",
+                "description": "Always `private, no-cache`: shift content never changes, but status does (published later becomes superseded), so clients revalidate with If-None-Match and get 304 when nothing changed.",
                 "schema": {
                   "type": "string"
                 }
@@ -1575,6 +1575,201 @@
               }
             },
             "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/optimization-candidates/{candidate_id}": {
+      "get": {
+        "summary": "Get Optimization Candidate",
+        "description": "The candidate's diff against its base version. Candidates are not versions until selected.",
+        "operationId": "getOptimizationCandidate",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "candidate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Candidate Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/optimization-candidates/{candidate_id}/select": {
+      "post": {
+        "summary": "Select Optimization Candidate",
+        "description": "Materializes the candidate into a draft (its base_version_id is the run's base, so publishing it\nafter someone else published returns stale_version). Selecting again returns the same draft while it\nis still a draft.",
+        "operationId": "selectOptimizationCandidate",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "candidate_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Candidate Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleVersion"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
           },
           "422": {
             "content": {
@@ -3361,11 +3556,18 @@
             "title": "Proven Optimal",
             "description": "False when the time limit ended the search with a valid but unproven schedule."
           },
-          "draft_version_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Draft Version Id",
-            "description": "Fetch with GET /v2/schedule-versions/{id}."
+          "materialized_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Materialized Version Id",
+            "description": "null until a manager selects this candidate (POST /v2/optimization-candidates/{id}/select); then the draft it became."
           },
           "metrics": {
             "$ref": "#/components/schemas/Metrics"
@@ -3408,12 +3610,258 @@
           "strategy",
           "solver_status",
           "proven_optimal",
-          "draft_version_id",
           "metrics",
           "changed_shifts",
           "validation"
         ],
         "title": "Candidate"
+      },
+      "CandidateDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Rank"
+          },
+          "strategy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "balanced",
+                  "lowest_cost",
+                  "staff_friendly",
+                  "max_coverage"
+                ]
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "least_disruption",
+                  "lowest_cost",
+                  "best_coverage"
+                ]
+              }
+            ],
+            "title": "Strategy"
+          },
+          "solver_status": {
+            "type": "string",
+            "enum": [
+              "OPTIMAL",
+              "FEASIBLE"
+            ],
+            "title": "Solver Status"
+          },
+          "proven_optimal": {
+            "type": "boolean",
+            "title": "Proven Optimal",
+            "description": "False when the time limit ended the search with a valid but unproven schedule."
+          },
+          "materialized_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Materialized Version Id",
+            "description": "null until a manager selects this candidate (POST /v2/optimization-candidates/{id}/select); then the draft it became."
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/Metrics"
+          },
+          "changed_shifts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Changed Shifts",
+            "description": "Logical shifts differing from the base version."
+          },
+          "validation": {
+            "$ref": "#/components/schemas/ValidationResult",
+            "description": "Independent validator result. A candidate with hard violations is never returned."
+          },
+          "disruption": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Disruption"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Repair runs only."
+          },
+          "explanations": {
+            "items": {
+              "$ref": "#/components/schemas/ShiftExplanation"
+            },
+            "type": "array",
+            "title": "Explanations",
+            "description": "Repair runs: one per changed shift."
+          },
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          },
+          "base_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Version Id",
+            "description": "The version this diff applies to; null = empty week."
+          },
+          "diff": {
+            "$ref": "#/components/schemas/CandidateDiff"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "rank",
+          "strategy",
+          "solver_status",
+          "proven_optimal",
+          "metrics",
+          "changed_shifts",
+          "validation",
+          "run_id",
+          "base_version_id",
+          "diff"
+        ],
+        "title": "CandidateDetail"
+      },
+      "CandidateDiff": {
+        "properties": {
+          "added": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateShift"
+            },
+            "type": "array",
+            "title": "Added"
+          },
+          "changed": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateShift"
+            },
+            "type": "array",
+            "title": "Changed",
+            "description": "The new state of shifts that exist in the base."
+          },
+          "removed": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Removed",
+            "description": "Logical shift ids of base shifts the candidate drops."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "added",
+          "changed",
+          "removed"
+        ],
+        "title": "CandidateDiff",
+        "description": "The candidate against its base version. For generation without a base, every shift is added."
+      },
+      "CandidateShift": {
+        "properties": {
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id",
+            "description": "Existing ids keep their identity; new shifts get new ids."
+          },
+          "outlet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Outlet Id"
+          },
+          "employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Id",
+            "description": "null = open (unfilled) shift."
+          },
+          "skill_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Skill Id"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start At"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End At"
+          },
+          "break_start_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Break Start At"
+          },
+          "break_minutes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Break Minutes"
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "logical_shift_id",
+          "outlet_id",
+          "employee_id",
+          "skill_id",
+          "start_at",
+          "end_at",
+          "break_start_at",
+          "break_minutes",
+          "locked"
+        ],
+        "title": "CandidateShift",
+        "description": "A shift as a candidate proposes it. It has no row id until the candidate is selected."
       },
       "CoverageCell": {
         "properties": {

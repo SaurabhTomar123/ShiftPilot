@@ -95,8 +95,14 @@ def test_confirmed_absence_is_a_fact_and_triggers_a_repair(client: TestClient) -
         assert alt["status"] in ("rejected", "eligible_not_selected")
         if alt["status"] == "rejected":
             assert any(not reason["ok"] for reason in alt["reasons"])
-    draft = client.get(f"/v2/schedule-versions/{first['draft_version_id']}", headers=MANAGER).json()
+    detail = client.get(f"/v2/optimization-candidates/{first['id']}", headers=MANAGER).json()
+    assert detail["base_version_id"] == version["id"] and detail["diff"]["removed"] == []
+    assert target["logical_shift_id"] in {sh["logical_shift_id"] for sh in detail["diff"]["changed"]}
+    draft = client.post(f"/v2/optimization-candidates/{first['id']}/select", headers=MANAGER | key()).json()
+    assert draft["source"] == "repair" and draft["base_version_id"] == version["id"]
     assert draft["validation"]["hard_violations"] == 0
+    kept = {sh["logical_shift_id"] for sh in version["shifts"]}
+    assert kept == {sh["logical_shift_id"] for sh in draft["shifts"]}  # repair keeps logical identity
     assert current(client)["id"] == version["id"]  # the published roster is never edited by a repair
 
 

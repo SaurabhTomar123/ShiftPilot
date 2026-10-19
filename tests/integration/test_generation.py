@@ -65,13 +65,37 @@ def test_enqueue_is_idempotent_and_guarded(client: TestClient) -> None:
     done = client.get(f"/v2/optimization-runs/{run.id}", headers=MANAGER).json()
     assert done["job_state"] == "succeeded" and done["solver_status"] in ("OPTIMAL", "FEASIBLE")
     assert done["poll_after_ms"] is None and done["candidates"]
+    # Candidates are lightweight (v3 section 23): no version exists until a manager selects one.
+    assert sql("SELECT count(*) FROM schedule_versions WHERE optimization_run_id = :r", r=run.id)[0][0] == 0
     for cand in done["candidates"]:
-        assert cand["validation"]["hard_violations"] == 0
-        draft = client.get(f"/v2/schedule-versions/{cand['draft_version_id']}", headers=MANAGER)
-        assert draft.status_code == 200 and draft.headers["Cache-Control"] == "private, no-cache"
-        body = draft.json()
-        assert body["status"] == "draft" and body["source"] == "generate"
-        assert body["validation"]["hard_violations"] == 0 and body["metrics"] == cand["metrics"]
+        assert cand["validation"]["hard_violations"] == 0 and cand["materialized_version_id"] is None
+        detail = client.get(f"/v2/optimization-candidates/{cand['id']}", headers=MANAGER).json()
+        assert (
+            detail["base_version_id"] is None and detail["diff"]["changed"] == detail["diff"]["removed"] == []
+        )
+        assert len(detail["diff"]["added"]) == cand["changed_shifts"] > 0
+    first = done["candidates"][0]
+    k2 = key()
+    selected = client.post(f"/v2/optimization-candidates/{first['id']}/select", headers=MANAGER | k2)
+    assert selected.status_code == 201, selected.text
+    body = selected.json()
+    assert (
+        body["status"] == "draft"
+        and body["source"] == "generate"
+        and body["optimization_run_id"] == str(run.id)
+    )
+    assert body["validation"]["hard_violations"] == 0 and body["metrics"] == first["metrics"]
+    assert len(body["shifts"]) == first["changed_shifts"]
+    replay = client.post(f"/v2/optimization-candidates/{first['id']}/select", headers=MANAGER | k2)
+    assert replay.json()["id"] == body["id"]
+    again = client.post(f"/v2/optimization-candidates/{first['id']}/select", headers=MANAGER | key())
+    assert again.json()["id"] == body["id"]  # still a draft: the same one
+    polled = client.get(f"/v2/optimization-runs/{run.id}", headers=MANAGER).json()
+    assert polled["candidates"][0]["materialized_version_id"] == body["id"]
+    assert client.get(f"/v2/optimization-candidates/{first['id']}", headers=STAFF).status_code == 403
+    staff_select = client.post(f"/v2/optimization-candidates/{first['id']}/select", headers=STAFF | key())
+    assert staff_select.status_code == 403
+    assert client.get(f"/v2/optimization-candidates/{uuid.uuid4()}", headers=MANAGER).status_code == 404
     assert sql("SELECT count(*) FROM optimization_runs WHERE job_state IN ('queued', 'running')")[0][0] == 0
     assert (
         sql(
@@ -104,14 +128,17 @@ def test_regeneration_keeps_locked_shifts_and_never_touches_the_published_week(c
     worker.run_once()
     run = client.get(f"/v2/optimization-runs/{r.json()['id']}", headers=MANAGER).json()
     assert run["job_state"] == "succeeded" and run["base_version_ids"] == [current["id"]]
-    draft = client.get(
-        f"/v2/schedule-versions/{run['candidates'][0]['draft_version_id']}", headers=MANAGER
+    detail = client.get(f"/v2/optimization-candidates/{run['candidates'][0]['id']}", headers=MANAGER).json()
+    assert detail["base_version_id"] == current["id"]
+    assert not locked & set(detail["diff"]["removed"])  # locked shifts are kept
+    draft = client.post(
+        f"/v2/optimization-candidates/{run['candidates'][0]['id']}/select", headers=MANAGER | key()
     ).json()
     assert locked <= {sh["logical_shift_id"] for sh in draft["shifts"]}
     assert draft["base_version_id"] == current["id"] and draft["version_number"] > current["version_number"]
     after = client.get(f"/v2/outlets/{IND}/schedules/{WEEK}", headers=MANAGER).json()
     assert after["current_version"]["id"] == current["id"]
-    assert {d["id"] for d in after["drafts"]} >= {c["draft_version_id"] for c in run["candidates"]}
+    assert draft["id"] in {d["id"] for d in after["drafts"]}
 
 
 def claim(me: str) -> Any:

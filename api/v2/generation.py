@@ -48,6 +48,23 @@ def _request_hash(outlet_id: uuid.UUID, week_start: date, body: BaseModel) -> st
     return "sha256:" + hashlib.sha256(raw.encode()).hexdigest()
 
 
+def candidate_fields(c: OptimizationCandidate) -> dict[str, Any]:
+    """The contract Candidate (summary) fields; the full diff is served by getOptimizationCandidate."""
+    return {
+        "id": c.id,
+        "rank": c.rank,
+        "strategy": c.strategy,
+        "solver_status": c.solver_status,
+        "proven_optimal": c.proven_optimal,
+        "materialized_version_id": c.materialized_version_id,
+        "metrics": c.metrics,
+        "changed_shifts": c.diff.get("changed_shifts", 0),
+        "validation": c.validation,
+        "disruption": c.diff.get("disruption"),
+        "explanations": (c.explanation_facts or {}).get("explanations", []),
+    }
+
+
 def run_view(session: Session, run: OptimizationRun) -> s.OptimizationRun:
     outlet = session.get(Outlet, run.outlet_ids[0])
     tz = ZoneInfo(outlet.timezone if outlet else "UTC")
@@ -75,22 +92,7 @@ def run_view(session: Session, run: OptimizationRun) -> s.OptimizationRun:
             "finished_at": run.finished_at.astimezone(tz) if run.finished_at else None,
             "solver_wall_ms": run.solver_wall_ms,
             "poll_after_ms": (300 if run.kind == "repair" else 500) if run.job_state in ACTIVE else None,
-            "candidates": [
-                {
-                    "id": c.id,
-                    "rank": c.rank,
-                    "strategy": c.strategy,
-                    "solver_status": c.solver_status,
-                    "proven_optimal": c.proven_optimal,
-                    "draft_version_id": c.draft_version_id,
-                    "metrics": c.metrics,
-                    "changed_shifts": c.diff.get("changed_shifts", 0),
-                    "validation": c.validation,
-                    "disruption": c.diff.get("disruption"),
-                    "explanations": (c.explanation_facts or {}).get("explanations", []),
-                }
-                for c in candidates
-            ],
+            "candidates": [candidate_fields(c) for c in candidates],
             "infeasibility": infeasibility,
             "error": run.error,
         }

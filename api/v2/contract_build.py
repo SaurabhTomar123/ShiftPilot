@@ -24,6 +24,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from api.v2 import schemas as s
+from api.v2.rosters import version_etag
 from api.v2.routes import router
 from scheduling import diff as sched_diff
 from scheduling import edits as sched_edits
@@ -411,6 +412,7 @@ def fixtures() -> list[Fixture]:
     run_id = uid("run", f"generate:{NEXT_WEEK}")
 
     def draft(key: str, number: int, roster: list[PlannedShift], strategy: str) -> s.ScheduleVersion:
+        """The draft a manager gets by selecting candidate `number` (candidates are not versions)."""
         return version(
             f"indiranagar:{NEXT_WEEK}:{key}",
             NEXT_WEEK,
@@ -418,10 +420,10 @@ def fixtures() -> list[Fixture]:
             version_number=number,
             status="draft",
             source="generate",
-            reason=f"Generated ({strategy})",
+            reason=f"Selected option {number} ({strategy.replace('_', ' ')})",
             base_version_id=None,
             optimization_run_id=run_id,
-            created_by_user_id=None,
+            created_by_user_id=uid("user", "manager_indiranagar"),
             approved_by_user_id=None,
             created_at=stamp("2026-10-18T19:40:02"),
             published_at=None,
@@ -442,10 +444,23 @@ def fixtures() -> list[Fixture]:
             strategy=strategy,
             solver_status=status,
             proven_optimal=status == "OPTIMAL",
-            draft_version_id=v.id,
+            materialized_version_id=None,
             metrics=v.metrics,
             changed_shifts=len(v.shifts),
             validation=v.validation,
+        )
+
+    def candidate_detail(c: s.Candidate, v: s.ScheduleVersion) -> s.CandidateDetail:
+        added = [
+            s.CandidateShift.model_validate(sh.model_dump(exclude={"id", "lock_reason"})) for sh in v.shifts
+        ]
+        return s.CandidateDetail.model_validate(
+            c.model_dump()
+            | {
+                "run_id": run_id,
+                "base_version_id": None,
+                "diff": {"added": added, "changed": [], "removed": []},
+            }
         )
 
     done = dict(
@@ -464,7 +479,11 @@ def fixtures() -> list[Fixture]:
     run_req = {"path_params": {"run_id": str(run_id)}}
     stale_emp = employee(EMP["ravi"]).model_copy(update={"revision": 2})
     week_etag = {"ETag": f'"week-{published.id}"'}
-    immutable = {"Cache-Control": "private, max-age=31536000, immutable"}
+    no_cache = {"Cache-Control": "private, no-cache"}
+
+    def vtag(v: s.ScheduleVersion) -> str:
+        return version_etag(v.id, v.status, v.revision)
+
     ravi_skill_ids = {sh.skill_id for sh in published.shifts if sh.employee_id == uid("employee", "ravi")}
 
     def other_outlet_week(key: str) -> s.ScheduleVersion:
@@ -970,6 +989,29 @@ def fixtures() -> list[Fixture]:
                 run_req,
             ),
             Fixture(
+                "candidate.detail",
+                "getOptimizationCandidate",
+                "GET",
+                "/v2/optimization-candidates/{candidate_id}",
+                "manager_indiranagar",
+                200,
+                candidate_detail(candidate(1, d1, "balanced"), d1),
+                {"path_params": {"candidate_id": str(candidate(1, d1, "balanced").id)}},
+            ),
+            Fixture(
+                "candidate.select",
+                "selectOptimizationCandidate",
+                "POST",
+                "/v2/optimization-candidates/{candidate_id}/select",
+                "manager_indiranagar",
+                201,
+                d1,
+                {
+                    "path_params": {"candidate_id": str(candidate(1, d1, "balanced").id)},
+                    "headers": {"Idempotency-Key": "select-3b8e51d2"},
+                },
+            ),
+            Fixture(
                 "schedule_version.draft",
                 "getScheduleVersion",
                 "GET",
@@ -978,7 +1020,7 @@ def fixtures() -> list[Fixture]:
                 200,
                 d1,
                 {"path_params": {"version_id": str(d1.id)}},
-                {"ETag": f'"{d1.id}"', "Cache-Control": "private, no-cache"},
+                {"ETag": vtag(d1), **no_cache},
             ),
             Fixture(
                 "schedule_version.draft.lowest_cost",
@@ -989,7 +1031,7 @@ def fixtures() -> list[Fixture]:
                 200,
                 d2,
                 {"path_params": {"version_id": str(d2.id)}},
-                {"ETag": f'"{d2.id}"', "Cache-Control": "private, no-cache"},
+                {"ETag": vtag(d2), **no_cache},
             ),
             Fixture(
                 "schedule_version.published",
@@ -1000,7 +1042,7 @@ def fixtures() -> list[Fixture]:
                 200,
                 published,
                 {"path_params": {"version_id": str(published.id)}},
-                {"ETag": f'"{published.id}"', **immutable},
+                {"ETag": vtag(published), **no_cache},
             ),
             Fixture(
                 "schedule_version.not_modified",
@@ -1012,9 +1054,9 @@ def fixtures() -> list[Fixture]:
                 None,
                 {
                     "path_params": {"version_id": str(published.id)},
-                    "headers": {"If-None-Match": f'"{published.id}"'},
+                    "headers": {"If-None-Match": vtag(published)},
                 },
-                {"ETag": f'"{published.id}"'},
+                {"ETag": vtag(published)},
             ),
             Fixture(
                 "schedule_week.not_modified",

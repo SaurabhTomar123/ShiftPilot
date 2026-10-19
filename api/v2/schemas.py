@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "2.4.0-p4"
+CONTRACT_VERSION = "3.0.0-p4"
 
 
 class Model(BaseModel):
@@ -671,7 +671,11 @@ class Candidate(Model):
     proven_optimal: bool = Field(
         description="False when the time limit ended the search with a valid but unproven schedule."
     )
-    draft_version_id: UUID = Field(description="Fetch with GET /v2/schedule-versions/{id}.")
+    materialized_version_id: UUID | None = Field(
+        default=None,
+        description="null until a manager selects this candidate "
+        "(POST /v2/optimization-candidates/{id}/select); then the draft it became.",
+    )
     metrics: Metrics
     changed_shifts: int = Field(ge=0, description="Logical shifts differing from the base version.")
     validation: ValidationResult = Field(
@@ -689,6 +693,34 @@ class Candidate(Model):
         if self.proven_optimal and self.solver_status != "OPTIMAL":
             raise ValueError("proven_optimal requires solver_status OPTIMAL")
         return self
+
+
+class CandidateShift(Model):
+    """A shift as a candidate proposes it. It has no row id until the candidate is selected."""
+
+    logical_shift_id: UUID = Field(description="Existing ids keep their identity; new shifts get new ids.")
+    outlet_id: UUID
+    employee_id: UUID | None = Field(description="null = open (unfilled) shift.")
+    skill_id: UUID
+    start_at: AwareDatetime
+    end_at: AwareDatetime
+    break_start_at: AwareDatetime | None
+    break_minutes: Minutes
+    locked: bool
+
+
+class CandidateDiff(Model):
+    """The candidate against its base version. For generation without a base, every shift is added."""
+
+    added: list[CandidateShift]
+    changed: list[CandidateShift] = Field(description="The new state of shifts that exist in the base.")
+    removed: list[UUID] = Field(description="Logical shift ids of base shifts the candidate drops.")
+
+
+class CandidateDetail(Candidate):
+    run_id: UUID
+    base_version_id: UUID | None = Field(description="The version this diff applies to; null = empty week.")
+    diff: CandidateDiff
 
 
 class Shortage(Model):

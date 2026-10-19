@@ -1,5 +1,5 @@
 {
-  "contract_version": "2.4.0-p4",
+  "contract_version": "3.0.0-p4",
   "fixtures": [
     {
       "name": "draft.create",
@@ -336,6 +336,18 @@
       "operation_id": "getOptimizationRun",
       "status": 200,
       "schema": "OptimizationRun"
+    },
+    {
+      "name": "candidate.detail",
+      "operation_id": "getOptimizationCandidate",
+      "status": 200,
+      "schema": "CandidateDetail"
+    },
+    {
+      "name": "candidate.select",
+      "operation_id": "selectOptimizationCandidate",
+      "status": 201,
+      "schema": "ScheduleVersion"
     },
     {
       "name": "schedule_version.draft",
