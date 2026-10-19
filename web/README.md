@@ -1,6 +1,6 @@
 # ShiftPilot web
 
-Codex owns `web/`; Claude owns backend/database contracts. **Architecture v3 is governing.** This branch currently consumes provider contract **2.3.0-p3** for tested data/roster compatibility. The revised candidate/proposal/template contracts must be reviewed before those v3 flows are connected.
+Codex owns `web/`; Claude owns backend/database contracts. **Architecture v3 is governing.** This branch currently consumes provider contract **3.1.0-p4**. Candidate review/selection and proposal approval now use the v3 contract; staffing templates and absence repair remain upcoming integrations.
 
 ## Run
 
@@ -18,7 +18,7 @@ Open http://127.0.0.1:3001. The UI uses Next.js 16, React 19, TypeScript, TanSta
 - Appearance: three type treatments, three palettes, and slide/dissolve/fold sidebar transitions. Desktop collapses to a labelled icon rail; mobile has Escape, focus restoration, a backdrop and reduced-motion support.
 - `/sandbox`: earlier local editing/dragging/repair/publication prototype. Its browser-local data and Geist palette remain separate.
 
-The generated registry has 61 approved-provider fixtures, 13 employees per outlet and two candidate drafts. The real seed has 60 employees across three outlets. Unsupported fixture requests return an explicit error. No default UI action publishes a real schedule.
+The generated registry has 78 provider fixtures, 13 employees per outlet and two lightweight candidate summaries. Only Balanced has a detailed diff/select fixture; other options return an explicit missing-fixture message. Balanced selection creates a synthetic draft; proposal approval can demonstrate Published, Stale, Invalid and Changed, with explicit metric acknowledgment. Synthetic publication updates this preview session only. The real seed has 60 employees across three outlets. Unsupported fixture requests return an explicit error. No default UI action publishes a real schedule.
 
 ## Checks
 
@@ -45,10 +45,11 @@ Fixture scenario/session headers are never sent to a configured real API. There 
 ## Architecture and handoffs
 
 - [Architecture v3 alignment](docs/ARCHITECTURE_V3_ALIGNMENT.md)
-- [Current delivery handoff](docs/UI_HANDOFF_2026-10-19.md)
+- [Current v3 review handoff](docs/UI_HANDOFF_V3_REVIEW.md)
+- [Previous forms/design delivery](docs/UI_HANDOFF_2026-10-19.md)
 - [Design system](DESIGN.md)
 - [Contract reviews](docs/CONTRACT_REVIEW.md)
 
-Upcoming work follows v3: staffing templates and preserved manual overrides, lightweight candidate selection, proposals with Published/Stale/Invalid/Changed outcomes, absence-triggered repair, fixed-template CSV onboarding, rules, history and validated restore. The old sandbox is not evidence that those server workflows are delivered.
+Upcoming work follows v3: manual edits, staffing templates and preserved manual overrides, absence-triggered repair, fixed-template CSV onboarding, rules, history and validated restore. The old sandbox is not evidence that those server workflows are delivered.
 
 Design skills are local development tools, not runtime dependencies. Current work uses the requested [taste redesign guidance](https://github.com/Leonxlnx/taste-skill/tree/main/skills/redesign-skill), [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design), and [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill). [improve-animations](https://github.com/emilkowalski/skills/tree/main/skills/improve-animations) supplies read-only audit/planning criteria; implementation remains the authorized repository task.

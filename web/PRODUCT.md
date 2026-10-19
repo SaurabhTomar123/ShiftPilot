@@ -24,7 +24,7 @@ Schedule-first interaction. No core action requires a prompt. Authoritative vali
 
 ## Evidence on Hand
 
-Provider contract 2.3 data APIs and seed are delivered; the UI has a fixture preview and isolated compatibility smoke checks. Architecture v3 supersedes older behavior where it differs; revised candidates, proposals, staffing templates and other v3 contracts require consumer review before integration. The fixture preview remains explicit.
+Provider contract 3.1 is consumed. The UI supports candidate diffs, explicit selection and proposal approval with four publication outcomes. An isolated real API/worker check generated candidates without drafts, then selected, proposed and published a 71-shift week with zero reported hard violations. Default mode remains a labelled synthetic preview. Staffing templates, absence repair, manual edits, History and release/tenant acceptance gates remain separate work.
 
 ## Product Principles
 

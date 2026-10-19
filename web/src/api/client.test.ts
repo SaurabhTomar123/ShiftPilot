@@ -100,7 +100,7 @@ describe('contract client', () => {
 
 describe('solver status and presentation', () => {
   it.each([
-    ['run.succeeded', 'Drafts ready'], ['run.time_limited_feasible', 'room to improve'],
+    ['run.succeeded', 'Options ready'], ['run.time_limited_feasible', 'room to improve'],
     ['run.infeasible', 'cannot all be met'], ['run.no_solution_in_time', 'time limit'], ['run.failed', 'could not finish'],
   ])('explains %s without equating a time limit with infeasibility', (name, title) => {
     expect(runMessage(fixture(name)).title).toContain(title);
@@ -164,7 +164,7 @@ describe('contract 2.2 admission and private caching', () => {
     expect(requests.at(-1)?.headers.get('If-None-Match')).toBeTruthy();
     const version = await client.version(week.current_version!.id);
     expect(await client.version(version.id)).toEqual(version);
-    expect(requests.at(-1)?.headers.get('If-None-Match')).toBe(`"${version.id}"`);
+    expect(requests.at(-1)?.headers.get('If-None-Match')).toBe(`"${version.id}:${version.status}:${version.revision}"`);
     await client.signIn('staff');
     await expect(client.schedule(me.outlet_id!, '2026-10-19')).rejects.toMatchObject({ status: 403 });
     expect(requests.at(-1)?.headers.has('If-None-Match')).toBe(false);
@@ -218,5 +218,48 @@ describe('management forms transport and synthetic isolation', () => {
     const demand = await client.saveStaffing(me.outlet_id!, staffing.week_start, { base_demand_revision: staffing.demand_revision, intervals });
     expect(demand.intervals).toEqual(intervals);
     expect(demand.demand_revision).toBe(staffing.demand_revision + 1);
+  });
+});
+
+describe('v3 candidate selection and proposals', () => {
+  it('reviews with GET, creates a draft only on selection, and replays selection safely', async () => {
+    const { client, requests } = setup(); await client.signIn('manager');
+    const candidate = await client.candidate(fixture<{ id: string }>('candidate.detail').id);
+    expect(candidate.materialized_version_id).toBeNull();
+    expect(requests.filter(r => r.method === 'POST')).toHaveLength(1);
+    const selected = await client.selectCandidate(candidate.id, 'select-once');
+    expect(selected.status).toBe('draft');
+    expect(await client.selectCandidate(candidate.id, 'select-once')).toEqual(selected);
+    expect((await client.candidate(candidate.id)).materialized_version_id).toBe(selected.id);
+    expect(requests.at(-2)?.headers.get('Idempotency-Key')).toBe('select-once');
+  });
+
+  it.each(['changed', 'stale', 'invalid'] as const)('returns %s as a business outcome without publishing or retrying', async outcome => {
+    const { client, requests } = setup(); const me = await client.signIn('manager');
+    const selected = await client.selectCandidate(fixture<{ id: string }>('candidate.detail').id, 'select');
+    const proposal = await client.createProposal({ draft_version_id: selected.id, expected_revision: selected.revision }, 'propose');
+    client.setFixtureApprovalOutcome(outcome);
+    const result = await client.approveProposal(proposal.id, { acknowledge_changes: false }, 'approve');
+    expect(result.outcome).toBe(outcome); expect(result.published).toBeNull();
+    expect((await client.schedule(me.outlet_id!, '2026-10-26')).current_version).toBeNull();
+    expect(requests.filter(r => r.url.endsWith('/approve'))).toHaveLength(1);
+    if (outcome === 'changed') {
+      expect(await client.approveProposal(proposal.id, { acknowledge_changes: false }, 'approve')).toEqual(result);
+      const published = await client.approveProposal(proposal.id, { acknowledge_changes: true }, 'accept-changes');
+      expect(published.outcome).toBe('published');
+      expect((await client.schedule(me.outlet_id!, '2026-10-26')).current_version?.id).toBe(selected.id);
+    }
+  });
+
+  it('keeps synthetic proposal state scoped to a session and never sends outcome headers to a real API', async () => {
+    const { client } = setup(); await client.signIn('manager');
+    const selected = await client.selectCandidate(fixture<{ id: string }>('candidate.detail').id, 'select');
+    const proposal = await client.createProposal({ draft_version_id: selected.id, expected_revision: selected.revision }, 'propose');
+    await client.signIn('manager');
+    await expect(client.proposal(proposal.id)).rejects.toMatchObject({ status: 404 });
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(Response.json(fixture('proposal.approve.published')));
+    const real = new SchedulingClient({ baseUrl: 'https://api.example.test', fetcher, fixtureApprovalOutcome: 'invalid' });
+    await real.approveProposal(proposal.id, { acknowledge_changes: false }, 'approve');
+    expect(new Headers(fetcher.mock.calls[0][1]?.headers).has('X-ShiftPilot-Approval-Outcome')).toBe(false);
   });
 });

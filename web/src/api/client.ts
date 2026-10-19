@@ -12,6 +12,7 @@ export type ClientOptions = {
   fetcher?: typeof fetch;
   onUnauthorized?: () => void;
   fixtureScenario?: Scenario;
+  fixtureApprovalOutcome?: 'published' | 'changed' | 'stale' | 'invalid';
 };
 
 /** Session credentials exist only in this instance; never persisted to browser storage. */
@@ -27,6 +28,7 @@ export class SchedulingClient {
 
   clearSession() { this.token = null; this.generation += 1; this.previewSession = crypto.randomUUID(); this.reads.clear(); this.queryClient.clear(); }
   setFixtureScenario(scenario: Scenario) { this.options.fixtureScenario = scenario; }
+  setFixtureApprovalOutcome(outcome: NonNullable<ClientOptions['fixtureApprovalOutcome']>) { this.options.fixtureApprovalOutcome = outcome; }
 
   private async request<T>(path: string, init: RequestInit = {}, idempotencyKey?: string): Promise<T> {
     if ((init.method ?? 'GET') !== 'GET') return this.transport<T>(path, init, idempotencyKey);
@@ -52,6 +54,7 @@ export class SchedulingClient {
     // Scenario headers are strictly confined to the same-origin fixture gateway.
     if (this.options.baseUrl === '/api/fixture' && this.options.fixtureScenario) headers.set('X-ShiftPilot-Scenario', this.options.fixtureScenario);
     if (this.options.baseUrl === '/api/fixture') headers.set('X-ShiftPilot-Preview-Session', this.previewSession);
+    if (this.options.baseUrl === '/api/fixture' && this.options.fixtureApprovalOutcome) headers.set('X-ShiftPilot-Approval-Outcome', this.options.fixtureApprovalOutcome);
     const response = await this.fetcher(`${this.options.baseUrl.replace(/\/$/, '')}${path}`, { ...init, headers, cache: 'no-store', credentials: 'omit' });
     if (generation !== this.generation || init.signal?.aborted) throw new DOMException('Session was replaced', 'AbortError');
     if (response.status === 304 && cached) return structuredClone(cached.payload) as T;
@@ -104,8 +107,16 @@ export class SchedulingClient {
     return this.request<Schema['OptimizationRun']>(`/v2/outlets/${encodeURIComponent(outletId)}/schedules/${encodeURIComponent(week)}/generate`, { method: 'POST', body: JSON.stringify(input), signal }, idempotencyKey);
   }
   run(runId: string, signal?: AbortSignal) { return this.request<Schema['OptimizationRun']>(`/v2/optimization-runs/${encodeURIComponent(runId)}`, { signal }); }
+  candidate(id: string, signal?: AbortSignal) { return this.request<Schema['CandidateDetail']>(`/v2/optimization-candidates/${encodeURIComponent(id)}`, { signal }); }
+  selectCandidate(id: string, key: string, signal?: AbortSignal) { return this.request<Schema['ScheduleVersion']>(`/v2/optimization-candidates/${encodeURIComponent(id)}/select`, { method: 'POST', signal }, requiredKey(key)); }
+  createProposal(input: Schema['CreateProposalRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['Proposal']>('/v2/proposals', { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
+  proposal(id: string, signal?: AbortSignal) { return this.request<Schema['Proposal']>(`/v2/proposals/${encodeURIComponent(id)}`, { signal }); }
+  approveProposal(id: string, input: Schema['ApproveProposalRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['ProposalDecision']>(`/v2/proposals/${encodeURIComponent(id)}/approve`, { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
+  rejectProposal(id: string, key: string, signal?: AbortSignal) { return this.request<Schema['Proposal']>(`/v2/proposals/${encodeURIComponent(id)}/reject`, { method: 'POST', signal }, requiredKey(key)); }
   version(versionId: string, signal?: AbortSignal) { return this.request<Schema['ScheduleVersion']>(`/v2/schedule-versions/${encodeURIComponent(versionId)}`, { signal }); }
 }
+
+function requiredKey(key: string) { if (!key) throw new Error('This action requires a stable idempotency key.'); return key; }
 
 function isErrorEnvelope(value: unknown): value is { error: ApiErrorBody } {
   if (!value || typeof value !== 'object' || !('error' in value)) return false;

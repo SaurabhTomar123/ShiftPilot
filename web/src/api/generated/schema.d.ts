@@ -244,6 +244,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/optimization-candidates/{candidate_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Optimization Candidate
+         * @description The candidate's diff against its base version. Candidates are not versions until selected.
+         */
+        get: operations["getOptimizationCandidate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/optimization-candidates/{candidate_id}/select": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Select Optimization Candidate
+         * @description Materializes the candidate into a draft (its base_version_id is the run's base, so publishing it
+         *     after someone else published returns stale_version). Selecting again returns the same draft while it
+         *     is still a draft.
+         */
+        post: operations["selectOptimizationCandidate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v2/outlets/{outlet_id}/schedules/{week_start}/drafts": {
         parameters: {
             query?: never;
@@ -329,6 +371,83 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/proposals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Proposal
+         * @description Propose a draft for publication, recording its revision and its metrics against current facts
+         *     (what the manager agrees to). 409 stale_version when the draft revision moved; 422 validation_failed
+         *     when it has hard violations.
+         */
+        post: operations["createProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/proposals/{proposal_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Proposal */
+        get: operations["getProposal"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/proposals/{proposal_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve Proposal
+         * @description The publication transaction (architecture v3 section 31). Always 200 with an `outcome`: published,
+         *     stale, invalid or changed. 409 conflict only when the proposal is no longer pending or expired.
+         */
+        post: operations["approveProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/proposals/{proposal_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject Proposal */
+        post: operations["rejectProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v2/schedule-versions/{version_id}/discard": {
         parameters: {
             query?: never;
@@ -404,10 +523,79 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/absences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Absences */
+        get: operations["listAbsences"];
+        put?: never;
+        /**
+         * Report Absence
+         * @description Records the absence as a fact first (it stands whether or not a repair succeeds). A confirmed
+         *     absence then enqueues a repair run per affected schedule (repair_run_ids); locked affected shifts are
+         *     listed in lock_conflicts and need explicit authorization through repairSchedule.
+         */
+        post: operations["reportAbsence"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/absences/{absence_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Absence
+         * @description Managers confirm, reject or cancel. Confirming enqueues repairs exactly as reportAbsence does.
+         */
+        patch: operations["updateAbsence"];
+        trace?: never;
+    };
+    "/v2/outlets/{outlet_id}/schedules/{week_start}/repair": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Repair Schedule
+         * @description Repair runs are claimed before batch work and never blocked by it. An active repair for the same
+         *     absence is returned (idempotent). 409 conflict lists locked affected shifts without authorization.
+         */
+        post: operations["repairSchedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AbsenceList */
+        AbsenceList: {
+            /** Items */
+            items: components["schemas"]["AbsenceMark"][];
+        };
         /** AbsenceMark */
         AbsenceMark: {
             /**
@@ -437,10 +625,31 @@ export interface components {
             kind: "leave" | "sick" | "other";
             /**
              * Status
-             * @description Only confirmed absences make an overlapping shift invalid.
+             * @description Only confirmed absences make an overlapping shift invalid. Rosters list only requested and confirmed absences; rejected and cancelled appear in absence management (2.4).
              * @enum {string}
              */
-            status: "requested" | "confirmed";
+            status: "requested" | "confirmed" | "rejected" | "cancelled";
+        };
+        /** AbsenceReport */
+        AbsenceReport: {
+            absence: components["schemas"]["AbsenceMark"];
+            /**
+             * Affected
+             * @description Live published shifts the absence overlaps, all outlets.
+             */
+            affected: components["schemas"]["AffectedShift"][];
+            /**
+             * Lock Conflicts
+             * @description Logical ids of affected shifts that are locked; repairing them needs explicit unlock authorization.
+             */
+            lock_conflicts: string[];
+            /** Repair Suggested */
+            repair_suggested: boolean;
+            /**
+             * Repair Run Ids
+             * @description Repair runs enqueued automatically for this confirmed absence (one per affected schedule without unauthorized lock conflicts). Poll them like any run.
+             */
+            repair_run_ids?: string[];
         };
         /** AddShift */
         AddShift: {
@@ -481,6 +690,73 @@ export interface components {
              * @default false
              */
             locked: boolean;
+        };
+        /** AffectedShift */
+        AffectedShift: {
+            /**
+             * Schedule Id
+             * Format: uuid
+             */
+            schedule_id: string;
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+            /**
+             * Logical Shift Id
+             * Format: uuid
+             */
+            logical_shift_id: string;
+            /**
+             * Outlet Id
+             * Format: uuid
+             */
+            outlet_id: string;
+            /**
+             * Skill Id
+             * Format: uuid
+             */
+            skill_id: string;
+            /**
+             * Start At
+             * Format: date-time
+             */
+            start_at: string;
+            /**
+             * End At
+             * Format: date-time
+             */
+            end_at: string;
+            /** Locked */
+            locked: boolean;
+        };
+        /** AlternativeFact */
+        AlternativeFact: {
+            /**
+             * Employee Id
+             * Format: uuid
+             */
+            employee_id: string;
+            /** Name */
+            name: string;
+            /**
+             * Status
+             * @description rejected: a concrete rule blocks this person (see reasons). eligible_not_selected: allowed, but this plan chose someone else; never presented as a rejection.
+             * @enum {string}
+             */
+            status: "rejected" | "eligible_not_selected";
+            /** Reasons */
+            reasons: components["schemas"]["ExplanationFact"][];
+        };
+        /** ApproveProposalRequest */
+        ApproveProposalRequest: {
+            /**
+             * Acknowledge Changes
+             * @description Set after a `changed` outcome to accept the moved metrics and publish.
+             * @default false
+             */
+            acknowledge_changes: boolean;
         };
         /** Availability */
         Availability: {
@@ -533,11 +809,8 @@ export interface components {
             id: string;
             /** Rank */
             rank: number;
-            /**
-             * Strategy
-             * @enum {string}
-             */
-            strategy: "balanced" | "lowest_cost" | "staff_friendly" | "max_coverage";
+            /** Strategy */
+            strategy: ("balanced" | "lowest_cost" | "staff_friendly" | "max_coverage") | ("least_disruption" | "lowest_cost" | "best_coverage");
             /**
              * Solver Status
              * @enum {string}
@@ -549,11 +822,10 @@ export interface components {
              */
             proven_optimal: boolean;
             /**
-             * Draft Version Id
-             * Format: uuid
-             * @description Fetch with GET /v2/schedule-versions/{id}.
+             * Materialized Version Id
+             * @description null until a manager selects this candidate (POST /v2/optimization-candidates/{id}/select); then the draft it became.
              */
-            draft_version_id: string;
+            materialized_version_id?: string | null;
             metrics: components["schemas"]["Metrics"];
             /**
              * Changed Shifts
@@ -562,6 +834,127 @@ export interface components {
             changed_shifts: number;
             /** @description Independent validator result. A candidate with hard violations is never returned. */
             validation: components["schemas"]["ValidationResult"];
+            /** @description Repair runs only. */
+            disruption?: components["schemas"]["Disruption"] | null;
+            /**
+             * Explanations
+             * @description Repair runs: one per changed shift.
+             */
+            explanations?: components["schemas"]["ShiftExplanation"][];
+        };
+        /** CandidateDetail */
+        CandidateDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Rank */
+            rank: number;
+            /** Strategy */
+            strategy: ("balanced" | "lowest_cost" | "staff_friendly" | "max_coverage") | ("least_disruption" | "lowest_cost" | "best_coverage");
+            /**
+             * Solver Status
+             * @enum {string}
+             */
+            solver_status: "OPTIMAL" | "FEASIBLE";
+            /**
+             * Proven Optimal
+             * @description False when the time limit ended the search with a valid but unproven schedule.
+             */
+            proven_optimal: boolean;
+            /**
+             * Materialized Version Id
+             * @description null until a manager selects this candidate (POST /v2/optimization-candidates/{id}/select); then the draft it became.
+             */
+            materialized_version_id?: string | null;
+            metrics: components["schemas"]["Metrics"];
+            /**
+             * Changed Shifts
+             * @description Logical shifts differing from the base version.
+             */
+            changed_shifts: number;
+            /** @description Independent validator result. A candidate with hard violations is never returned. */
+            validation: components["schemas"]["ValidationResult"];
+            /** @description Repair runs only. */
+            disruption?: components["schemas"]["Disruption"] | null;
+            /**
+             * Explanations
+             * @description Repair runs: one per changed shift.
+             */
+            explanations?: components["schemas"]["ShiftExplanation"][];
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            /**
+             * Base Version Id
+             * @description The version this diff applies to; null = empty week.
+             */
+            base_version_id: string | null;
+            diff: components["schemas"]["CandidateDiff"];
+        };
+        /**
+         * CandidateDiff
+         * @description The candidate against its base version. For generation without a base, every shift is added.
+         */
+        CandidateDiff: {
+            /** Added */
+            added: components["schemas"]["CandidateShift"][];
+            /**
+             * Changed
+             * @description The new state of shifts that exist in the base.
+             */
+            changed: components["schemas"]["CandidateShift"][];
+            /**
+             * Removed
+             * @description Logical shift ids of base shifts the candidate drops.
+             */
+            removed: string[];
+        };
+        /**
+         * CandidateShift
+         * @description A shift as a candidate proposes it. It has no row id until the candidate is selected.
+         */
+        CandidateShift: {
+            /**
+             * Logical Shift Id
+             * Format: uuid
+             * @description Existing ids keep their identity; new shifts get new ids.
+             */
+            logical_shift_id: string;
+            /**
+             * Outlet Id
+             * Format: uuid
+             */
+            outlet_id: string;
+            /**
+             * Employee Id
+             * @description null = open (unfilled) shift.
+             */
+            employee_id: string | null;
+            /**
+             * Skill Id
+             * Format: uuid
+             */
+            skill_id: string;
+            /**
+             * Start At
+             * Format: date-time
+             */
+            start_at: string;
+            /**
+             * End At
+             * Format: date-time
+             */
+            end_at: string;
+            /** Break Start At */
+            break_start_at: string | null;
+            /** Break Minutes */
+            break_minutes: number;
+            /** Locked */
+            locked: boolean;
         };
         /** CoverageCell */
         CoverageCell: {
@@ -598,6 +991,19 @@ export interface components {
              */
             copy_from_version_id?: string | null;
         };
+        /** CreateProposalRequest */
+        CreateProposalRequest: {
+            /**
+             * Draft Version Id
+             * Format: uuid
+             */
+            draft_version_id: string;
+            /**
+             * Expected Revision
+             * @description The draft revision the manager reviewed.
+             */
+            expected_revision: number;
+        };
         /**
          * DemoSession
          * @description Synthetic public demo only; private deployments never expose this endpoint.
@@ -628,6 +1034,17 @@ export interface components {
              * @enum {string}
              */
             persona: "owner" | "manager" | "staff";
+        };
+        /** Disruption */
+        Disruption: {
+            /** Changed Shifts */
+            changed_shifts: number;
+            /** Added Shifts */
+            added_shifts: number;
+            /** Cross Outlet Moves */
+            cross_outlet_moves: number;
+            /** Open Shifts */
+            open_shifts: number;
         };
         /**
          * EditPreview
@@ -820,6 +1237,25 @@ export interface components {
         ErrorResponse: {
             error: components["schemas"]["ErrorBody"];
         };
+        /** ExplanationFact */
+        ExplanationFact: {
+            /**
+             * Code
+             * @enum {string}
+             */
+            code: "skill" | "available" | "no_conflict" | "weekly_hours" | "travel";
+            /** Ok */
+            ok: boolean;
+            /**
+             * Message
+             * @description Deterministic text built from facts; safe to show.
+             */
+            message: string;
+            /** Facts */
+            facts?: {
+                [key: string]: unknown;
+            };
+        };
         /** GenerateRequest */
         GenerateRequest: {
             /**
@@ -887,6 +1323,26 @@ export interface components {
              * @description What this caller may do. Use it to show or hide controls; the server still enforces every action.
              */
             capabilities: ("view_all_outlets" | "manage_employees" | "edit_demand" | "generate" | "publish" | "view_costs" | "approve_cross_outlet" | "view_own_schedule" | "report_own_absence")[];
+        };
+        /** MetricDelta */
+        MetricDelta: {
+            /**
+             * Metric
+             * @enum {string}
+             */
+            metric: "labour_cost" | "coverage_ratio" | "minimum_deficit_minutes" | "open_shifts";
+            /**
+             * Before
+             * @description labour_cost in paise.
+             */
+            before: number | null;
+            /** After */
+            after: number | null;
+            /**
+             * Message
+             * @description Deterministic text built from the numbers; safe to show.
+             */
+            message: string;
         };
         /** Metrics */
         Metrics: {
@@ -990,11 +1446,13 @@ export interface components {
             outlet_ids: string[];
             /** Base Version Ids */
             base_version_ids: string[];
+            /** Strategy */
+            strategy: ("balanced" | "lowest_cost" | "staff_friendly" | "max_coverage") | ("least_disruption" | "lowest_cost" | "best_coverage");
             /**
-             * Strategy
-             * @enum {string}
+             * Absence Id
+             * @description Repair runs: the absence being repaired.
              */
-            strategy: "balanced" | "lowest_cost" | "staff_friendly" | "max_coverage";
+            absence_id?: string | null;
             /**
              * Job State
              * @enum {string}
@@ -1062,6 +1520,96 @@ export interface components {
             /** Timezone */
             timezone: string;
         };
+        /** Proposal */
+        Proposal: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Schedule Id
+             * Format: uuid
+             */
+            schedule_id: string;
+            /**
+             * Draft Version Id
+             * Format: uuid
+             */
+            draft_version_id: string;
+            /** Draft Revision */
+            draft_revision: number;
+            /**
+             * Base Version Id
+             * @description The published version this plan replaces.
+             */
+            base_version_id: string | null;
+            /**
+             * Candidate Id
+             * @description Set when the draft came from an optimization candidate.
+             */
+            candidate_id: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "approved" | "rejected" | "expired" | "stale" | "failed";
+            /** @description What the manager agreed to; Changed is judged against it. */
+            metrics_at_proposal: components["schemas"]["Metrics"];
+            /**
+             * Requested By User Id
+             * Format: uuid
+             */
+            requested_by_user_id: string;
+            /** Decided By User Id */
+            decided_by_user_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Decided At */
+            decided_at: string | null;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+        };
+        /**
+         * ProposalDecision
+         * @description The publication transaction's answer (architecture v3 section 31). Always 200: each outcome is a
+         *     normal business result, not an error.
+         */
+        ProposalDecision: {
+            /**
+             * Outcome
+             * @description published: the new version is live. stale: someone published first or the draft changed; re-run against current_version_id. invalid: a current fact breaks the plan (violations); offer a repair. changed: still valid but metrics moved materially (deltas); approve again with acknowledge_changes to accept.
+             * @enum {string}
+             */
+            outcome: "published" | "stale" | "invalid" | "changed";
+            /** Message */
+            message: string;
+            proposal: components["schemas"]["Proposal"];
+            published?: components["schemas"]["ScheduleVersionSummary"] | null;
+            /** Superseded Version Id */
+            superseded_version_id?: string | null;
+            /**
+             * Current Version Id
+             * @description Set when stale.
+             */
+            current_version_id?: string | null;
+            /**
+             * Violations
+             * @description Set when invalid.
+             */
+            violations?: components["schemas"]["Violation"][];
+            /**
+             * Deltas
+             * @description Set when changed.
+             */
+            deltas?: components["schemas"]["MetricDelta"][];
+        };
         /** PublishRequest */
         PublishRequest: {
             /**
@@ -1095,6 +1643,61 @@ export interface components {
              * Format: uuid
              */
             logical_shift_id: string;
+        };
+        /** RepairRequest */
+        RepairRequest: {
+            /**
+             * Absence Id
+             * Format: uuid
+             */
+            absence_id: string;
+            /**
+             * Base Version Id
+             * Format: uuid
+             * @description The published version being repaired. Stale -> 409.
+             */
+            base_version_id: string;
+            /**
+             * Unlock Logical Shift Ids
+             * @description Locked affected shifts the manager authorizes to change (decision 5).
+             */
+            unlock_logical_shift_ids?: string[];
+            /**
+             * Time Limit Seconds
+             * @default 3
+             */
+            time_limit_seconds: number;
+        };
+        /** ReportAbsenceRequest */
+        ReportAbsenceRequest: {
+            /**
+             * Employee Id
+             * Format: uuid
+             */
+            employee_id: string;
+            /**
+             * Start At
+             * Format: date-time
+             */
+            start_at: string;
+            /**
+             * End At
+             * Format: date-time
+             */
+            end_at: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "leave" | "sick" | "other";
+            /**
+             * Status
+             * @description Managers may report confirmed absences; staff may only request for themselves.
+             * @enum {string}
+             */
+            status: "requested" | "confirmed";
+            /** Reason */
+            reason?: string | null;
         };
         /** RestoreRequest */
         RestoreRequest: {
@@ -1184,6 +1787,8 @@ export interface components {
              * @description Bumped by every applied edit while the version is a draft; send it as expected_revision. Fixed once published.
              */
             revision: number;
+            /** @description Stored when the draft was last saved and recomputed at publication, then frozen: what the version cost and covered when it went live. Cheap to list in history. null for versions saved before contract 3.1. ScheduleVersion.metrics is evaluated against current facts. */
+            recorded_metrics?: components["schemas"]["Metrics"] | null;
             /** Input Hash */
             input_hash: string;
             /** Shifts */
@@ -1242,6 +1847,8 @@ export interface components {
              * @description Bumped by every applied edit while the version is a draft; send it as expected_revision. Fixed once published.
              */
             revision: number;
+            /** @description Stored when the draft was last saved and recomputed at publication, then frozen: what the version cost and covered when it went live. Cheap to list in history. null for versions saved before contract 3.1. ScheduleVersion.metrics is evaluated against current facts. */
+            recorded_metrics?: components["schemas"]["Metrics"] | null;
         };
         /** ScheduleWeek */
         ScheduleWeek: {
@@ -1353,6 +1960,29 @@ export interface components {
             before: components["schemas"]["Shift"] | null;
             after: components["schemas"]["Shift"] | null;
         };
+        /** ShiftExplanation */
+        ShiftExplanation: {
+            /**
+             * Logical Shift Id
+             * Format: uuid
+             */
+            logical_shift_id: string;
+            /**
+             * Chosen Employee Id
+             * @description null = the shift was left open.
+             */
+            chosen_employee_id: string | null;
+            /**
+             * Reasons
+             * @description Facts about the chosen employee.
+             */
+            reasons: components["schemas"]["ExplanationFact"][];
+            /**
+             * Alternatives
+             * @description Other qualified people (bounded list).
+             */
+            alternatives: components["schemas"]["AlternativeFact"][];
+        };
         /** Shortage */
         Shortage: {
             /**
@@ -1459,6 +2089,14 @@ export interface components {
             base_demand_revision: number;
             /** Intervals */
             intervals: components["schemas"]["StaffingInterval"][];
+        };
+        /** UpdateAbsenceRequest */
+        UpdateAbsenceRequest: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "confirmed" | "rejected" | "cancelled";
         };
         /**
          * UpdateShift
@@ -2483,7 +3121,7 @@ export interface operations {
                 headers: {
                     /** @description Opaque validator. Send it back as If-None-Match to get 304 when nothing changed. */
                     ETag?: string;
-                    /** @description `private, max-age=31536000, immutable` for published and superseded versions (they never change); `private, no-cache` for drafts. */
+                    /** @description Always `private, no-cache`: shift content never changes, but status does (published later becomes superseded), so clients revalidate with If-None-Match and get 304 when nothing changed. */
                     "Cache-Control"?: string;
                     [name: string]: unknown;
                 };
@@ -2682,6 +3320,152 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getOptimizationCandidate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                candidate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateDetail"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    selectOptimizationCandidate: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                candidate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleVersion"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3039,6 +3823,316 @@ export interface operations {
             };
         };
     };
+    createProposal: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateProposalRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Proposal"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A schedule proposal. */
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Proposal"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    approveProposal: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                /** @description A schedule proposal. */
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveProposalRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalDecision"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    rejectProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A schedule proposal. */
+                proposal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Proposal"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     discardDraft: {
         parameters: {
             query?: never;
@@ -3321,6 +4415,322 @@ export interface operations {
             /** @description Unprocessable Content */
             422: {
                 headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listAbsences: {
+        parameters: {
+            query?: {
+                outlet_id?: string | null;
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AbsenceList"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reportAbsence: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportAbsenceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AbsenceReport"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateAbsence: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                absence_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAbsenceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AbsenceReport"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    repairSchedule: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                outlet_id: string;
+                week_start: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RepairRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OptimizationRun"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    /** @description Seconds to wait. */
+                    "Retry-After"?: string;
                     [name: string]: unknown;
                 };
                 content: {

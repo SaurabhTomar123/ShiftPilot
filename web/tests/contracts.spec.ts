@@ -20,9 +20,12 @@ test('generation preview stays unpublished', async ({ page }) => {
   await page.getByRole('button', { name: 'Next week' }).click();
   await expect(page.getByRole('heading', { name: 'A fresh week, ready to plan.' })).toBeVisible();
   await page.getByRole('button', { name: 'Generate draft' }).click();
-  await expect(page.getByRole('heading', { name: 'Drafts ready for a closer look.' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Preview draft' })).toHaveCount(2);
-  await page.getByRole('button', { name: 'Preview draft' }).first().click();
+  await expect(page.getByRole('heading', { name: 'Options ready for a closer look.' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Review option' })).toHaveCount(2);
+  await page.getByRole('button', { name: 'Review option' }).first().click();
+  await expect(page.getByRole('heading', { name: 'Review this option' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Proposed roster' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Select option and create draft' }).click();
   await expect(page.getByText('Draft preview · not published', { exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Proposed roster' })).toBeVisible();
   await expect(page.getByRole('row').filter({ hasText: 'Ravi Kumar' })).toContainText('27.5h in this draft');
@@ -31,13 +34,13 @@ test('generation preview stays unpublished', async ({ page }) => {
 
 test('keeps feasible, timeout and infeasible results distinct', async ({ page }) => {
   await page.getByRole('button', { name: 'Next week' }).click();
-  for (const [scenario, title] of [['feasible', 'A valid draft, with room to improve.'], ['timeout', 'No solution found within the time limit.'], ['infeasible', 'These requirements cannot all be met.']]) {
+  for (const [scenario, title] of [['feasible', 'A valid option, with room to improve.'], ['timeout', 'No solution found within the time limit.'], ['infeasible', 'These requirements cannot all be met.']]) {
     await page.getByLabel('Demo outcome', { exact: true }).selectOption(scenario);
     await page.getByRole('button', { name: 'Generate draft' }).click();
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
     if (scenario === 'timeout') {
       await expect(page.getByText('This does not mean the schedule is impossible.', { exact: false })).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Preview draft' })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: 'Review option' })).toHaveCount(0);
     }
   }
 });
@@ -93,17 +96,18 @@ test('contract roster is accessible and fits desktop/mobile', async ({ page }, i
   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([]);
 });
 
-test('joins an existing run with one write and previews the second candidate', async ({ page }) => {
+test('joins an existing run once and reports missing provider detail for the second option', async ({ page }) => {
   let writes = 0;
   page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/generate')) writes += 1; });
   await page.getByRole('button', { name: 'Next week' }).click();
   await page.getByLabel('Demo outcome', { exact: true }).selectOption('active');
   await page.getByRole('button', { name: 'Generate draft' }).click();
-  await expect(page.getByRole('heading', { name: 'Drafts ready for a closer look.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Options ready for a closer look.' })).toBeVisible();
   expect(writes).toBe(1);
   await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Preview draft' }).last().click();
-  await expect(page.getByRole('heading', { name: 'Proposed roster' })).toBeVisible();
+  await page.getByRole('button', { name: 'Review option' }).last().click();
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('A detailed provider fixture is not available');
+  await expect(page.getByRole('heading', { name: 'Proposed roster' })).toHaveCount(0);
   expect(writes).toBe(1);
 });
 

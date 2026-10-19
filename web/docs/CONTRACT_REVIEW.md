@@ -1,3 +1,17 @@
+# 19 October: contract 3.1 candidate and proposal review
+
+Provider `f8837ae` (including `38899e3`, `c5a7a38`, `87ac6e7`) is merged. Generated all **78 fixtures** from `3.1.0-p4`; SHA-256 `7b7128bc86e8747a95e92bb6048dacb1afc53c227fb08345aeb3c22eb7ebe763`.
+
+**Accepted for candidate reads, explicit selection, proposal create/get/approve/reject, stored metric fields and revalidated version caching.** Candidate reads never fetch a pre-created draft. Selection returns a real draft only after POST, with an explicit stable idempotency key. Proposal creation sends the reviewed draft revision. Every 200 approval is inspected for its outcome; Stale and Invalid cannot produce a success state. Changed renders typed before/after deltas, requires acknowledgment and sends a distinct approval action. Transport failure retains the action key for an explicit retry. No direct legacy publication call is used.
+
+All response fixtures pass consumer AJV schema/header validation. A real API/worker check against the isolated Codex database passed generation (202), read-only candidate detail (200), selection (201), proposal creation (201), approval (200 Published), and week readback (71 shifts, zero reported hard violations). Draft count stayed zero between generation and selection. This is not a claim that deployment/CORS, tenant gates or all v3 features passed.
+
+Provider follow-ups: only the Balanced candidate has a detail/select fixture, so the synthetic UI explicitly refuses to fabricate the second candidate's diff. Also, `proposal.approve.acknowledged` retains the original recorded labour cost (7,470,000 paise), while `proposal.approve.changed` reports a move to 7,843,500. The preview preserves the provider's published summary rather than inventing a corrected amount; please align that fixture story. The real Published smoke did not exercise a changed cost. Neither follow-up blocks the reviewed request/outcome shapes.
+
+Earlier reviews below are historical and describe earlier deliveries, not the current contract pin.
+
+---
+
 # 19 October: contract 2.3 compatibility and architecture v3
 
 Provider commit `bd149c5` (including `97fb796` / `cd878df`) was merged into the isolated UI branch. OpenAPI types and **61 fixtures** were generated from `2.3.0-p3`; hash `43f6254a7d1b26f04658faa715dd5ed15dd9f6d174eacd3ca742a19cb1e91745`.

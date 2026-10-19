@@ -16,7 +16,7 @@ export function runMessage(run: Schema['OptimizationRun']) {
   if (run.job_state === 'failed') return { title: 'The optimizer could not finish.', body: run.error?.message ?? 'Check the run details before starting another request.', tone: 'warning' };
   if (run.solver_status === 'INFEASIBLE') return { title: 'These requirements cannot all be met.', body: run.infeasibility?.summary ?? 'Review staffing requirements and the constraints below.', tone: 'warning' };
   if (run.solver_status === 'UNKNOWN') return { title: 'No solution found within the time limit.', body: 'This does not mean the schedule is impossible. You can try a longer solve after reviewing this run.', tone: 'warning' };
-  if (run.solver_status === 'FEASIBLE') return { title: 'A valid draft, with room to improve.', body: 'The search reached its time limit before optimality was proven.', tone: 'neutral' };
-  if (run.solver_status === 'OPTIMAL') return { title: 'Drafts ready for a closer look.', body: 'Optimality is reported by this fixture for its configured objective. Nothing has been published.', tone: 'neutral' };
+  if (run.solver_status === 'FEASIBLE') return { title: 'A valid option, with room to improve.', body: 'The search reached its time limit before optimality was proven.', tone: 'neutral' };
+  if (run.solver_status === 'OPTIMAL') return { title: 'Options ready for a closer look.', body: 'Optimality applies to each configured objective. Review an option before selecting a draft. Nothing has been published.', tone: 'neutral' };
   return { title: 'No usable result is available.', body: 'Review the run status before trying again.', tone: 'warning' };
 }

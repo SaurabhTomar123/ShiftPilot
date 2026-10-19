@@ -12,6 +12,7 @@ import { Avatar, Empty } from './ui';
 import { AppearanceControls, WorkspaceNavigation, type SidebarMotion, type WorkspaceSection } from './workspace-navigation';
 import { Button } from './primitives/button';
 import { DemandScreen, TeamScreen } from './management';
+import { CandidateReview, ProposalReview, strategyName } from './candidate-review';
 
 type Session = { me: Schema['Me']; outlets: Schema['Outlet'][]; skills: Schema['Skill'][] };
 type Resource<T> = { data: T; error?: never } | { error: Error; data?: never };
@@ -75,6 +76,8 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState<Schema['ScheduleVersion'] | null>(null);
   const [draftBusy, setDraftBusy] = useState(false);
+  const [candidateId, setCandidateId] = useState<string | null>(null);
+  const [publication, setPublication] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [selectedSkill, setSelectedSkill] = useState('all');
   const operation = useRef<AbortController | null>(null);
@@ -93,7 +96,7 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
   async function generate() {
     operation.current?.abort();
     const controller = new AbortController(); operation.current = controller;
-    setBusy(true); setError(null); setRun(null); setDraft(null);
+    setBusy(true); setError(null); setRun(null); setDraft(null); setCandidateId(null); setPublication(null);
     try {
       const initial = await generateOrAttach(client, outletId, week, { strategy: 'balanced', base_version_id: schedule.current_version?.id ?? null, time_limit_seconds: 10 }, crypto.randomUUID(), controller.signal);
       await watchRun(client, initial, { signal: controller.signal, onUpdate: setRun });
@@ -101,15 +104,18 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
     finally { if (!controller.signal.aborted) setBusy(false); }
   }
 
-  async function preview(versionId: string) {
+  async function openDraft(versionId: string) {
     operation.current?.abort(); const controller = new AbortController(); operation.current = controller;
     setError(null); setDraftBusy(true);
-    try { const value = await client.version(versionId, controller.signal); if (!controller.signal.aborted) setDraft(value); }
+    try { const value = await client.version(versionId, controller.signal); if (!controller.signal.aborted) { setDraft(value.status === 'draft' ? value : null); if (value.status !== 'draft') setError(new Error('This version is no longer a draft. Reload the latest week.')); } }
     catch (error) { if (!controller.signal.aborted) setError(asError(error)); }
     finally { if (!controller.signal.aborted) setDraftBusy(false); }
   }
 
+  function reloadLatest() { operation.current?.abort(); setResource(null); setRun(null); setDraft(null); setCandidateId(null); setError(null); setReload(r => r + 1); }
+
   return <>
+    {publication && <p className="save-notice" role="status">{publication}</p>}
     <section className={`week-state ${draft ? 'draft' : schedule.current_version ? 'published' : 'unplanned'}`} aria-label="Week status">
       <div className="week-state-icon">{draft ? <ListChecksIcon size={25} /> : schedule.current_version ? <CheckCircleIcon size={25} weight="duotone" /> : <CalendarBlankIcon size={25} />}</div>
       <div className="week-state-copy"><strong>{draft ? 'Draft preview · not published' : schedule.current_version ? `Published version ${schedule.current_version.version_number}` : 'No published schedule'}</strong><p>{draft ? 'Review assignments and coverage before approving any changes.' : schedule.current_version ? 'This is the published roster. Drafts are reviewed separately.' : 'Start with a draft built from team availability, skills and staffing needs.'}</p></div>
@@ -121,16 +127,19 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
       <MetricStrip metrics={version.metrics} showCosts={canSeeCosts} />
     </>}
     {error && <ErrorNotice error={error} onReload={error instanceof ApiError && error.detail.code === 'stale_version' ? () => { setResource(null); setRun(null); setDraft(null); setError(null); setReload(r => r + 1); } : undefined} />}
-    {run && <RunResult {...{ run, skills: session.skills, canSeeCosts, draftBusy, preview }} />}
+    {run && <RunResult {...{ run, skills: session.skills, canSeeCosts }} review={id => setCandidateId(id)} />}
+    {candidateId && <CandidateReview key={candidateId} {...{ client, timezone }} candidateId={candidateId} employees={schedule.employees} skills={session.skills} canSelect={session.me.capabilities.includes('publish')} showCosts={canSeeCosts} onSelected={value => { setDraft(value); setCandidateId(null); }} onClose={() => setCandidateId(null)} />}
+    {!draft && schedule.drafts.length > 0 && <section className="existing-drafts" aria-label="Saved drafts"><h2>Saved drafts</h2>{schedule.drafts.map(value => <Button key={value.id} disabled={draftBusy} onClick={() => openDraft(value.id)}>Open draft {value.version_number} (revision {value.revision})</Button>)}</section>}
+    {draft && session.me.capabilities.includes('publish') && <ProposalReview key={`${draft.id}:${draft.revision}`} {...{ client, draft, timezone, fixtureMode }} showCosts={canSeeCosts} onReload={reloadLatest} onPublished={result => { setPublication(`Published version ${result.published!.version_number}. ${fixtureMode ? 'This is a synthetic preview; no real schedule was changed.' : 'The scheduling service confirmed publication.'}`); reloadLatest(); }} />}
     {version && <>
-      <div className="contract-roster-heading"><div><h2>{draft ? 'Proposed roster' : 'Published roster'}</h2><p>Expand a shift for break times and lock details. Scroll across to see all seven days.</p></div>{draft && <Button onClick={() => setDraft(null)}>Back to published week</Button>}<label className="search-field"><span className="sr-only">Find a teammate</span><input aria-label="Find a teammate" placeholder="Find a teammate…" value={query} onChange={e => setQuery(e.target.value)} /></label></div>
+      <div className="contract-roster-heading"><div><h2>{draft ? 'Proposed roster' : 'Published roster'}</h2><p>Expand a shift for break times and lock details. Scroll across to see all seven days.</p></div>{draft && <Button onClick={() => { setDraft(null); setCandidateId(null); }}>Back to published week</Button>}<label className="search-field"><span className="sr-only">Find a teammate</span><input aria-label="Find a teammate" placeholder="Find a teammate…" value={query} onChange={e => setQuery(e.target.value)} /></label></div>
       <div className="skill-filter" aria-label="Filter team by skill"><span>Team skills</span><button type="button" aria-pressed={selectedSkill === 'all'} onClick={() => setSelectedSkill('all')}>All skills</button>{session.skills.map(skill => <button type="button" key={skill.id} className={`role-key ${skillColor(skill.name)}`} aria-pressed={selectedSkill === skill.id} onClick={() => setSelectedSkill(selectedSkill === skill.id ? 'all' : skill.id)}><span aria-hidden="true" />{skill.name}</button>)}</div>
       <ContractRoster version={version} employees={schedule.employees.filter(e => e.name.toLowerCase().includes(query.toLowerCase()) && (selectedSkill === 'all' || e.skill_ids.includes(selectedSkill)))} skills={session.skills} week={week} timezone={timezone} absences={schedule.absences} />
       <div className="contract-validation"><strong className={version.validation.hard_violations ? 'has-violations' : ''}><CheckCircleIcon size={17} />{version.validation.hard_violations} hard violations reported</strong><span>{version.validation.soft_violations} preferences to review</span><span>{version.metrics.open_shifts} open shifts</span></div>
       <WeekReview version={version} skills={session.skills} timezone={timezone} />
     </>}
     {!version && <Empty title="A fresh week, ready to plan." description="Generate a draft from this week’s employees, staffing requirements and rules. Your published roster will remain unchanged." />}
-    <p className="contract-note">{fixtureMode ? 'All values are synthetic provider fixtures, not a live solve. ' : ''}Editing, repair and publication controls will be connected when their contracts are available.</p>
+    <p className="contract-note">{fixtureMode ? 'All values are synthetic provider fixtures, not a live solve. ' : ''}Selecting creates a draft. Proposal approval checks current facts before publishing. Manual edits and absence repair are the next integrations.</p>
   </>;
 }
 
@@ -162,9 +171,9 @@ function ContractRoster({ version, employees, skills, week, timezone, absences }
   return <section className="roster-section"><div className="roster-scroll"><table className="roster contract-roster"><caption className="sr-only">Weekly roster. Times shown in {timezone}. Shift details include template break duration and locks.</caption><thead><tr><th scope="col">Team member<small>{version.status === 'draft' ? 'Hours in this draft' : 'Hours across all outlets'}</small></th>{days.map((day, index) => <th scope="col" key={day}><span>{day}</span><strong>{formatDate(addDays(week, index), { day: 'numeric' })}</strong><small>{version.shifts.filter(shift => localDate(shift.start_at, timezone) === addDays(week, index)).length} shifts</small></th>)}</tr></thead><tbody>{employees.map(employee => <tr key={employee.id}><th scope="row"><div className="employee-cell"><Avatar initials={employee.name.split(' ').map(n => n[0]).slice(0, 2).join('')} color="sage" /><div><strong>{employee.name}</strong><span>{employeeHours(employee)}</span><small>{employee.skill_ids.map(skillLabel).join(' · ')}</small></div></div></th>{days.map((day, index) => { const shifts = version.shifts.filter(s => s.employee_id === employee.id && localDate(s.start_at, timezone) === addDays(week, index)); return <td key={day}>{shifts.length ? shifts.map(shift => <details className={`shift contract-shift ${skillClass(shift.skill_id)}`} key={shift.logical_shift_id}><summary>{localTime(shift.start_at, timezone)} – {localTime(shift.end_at, timezone)}{localDate(shift.end_at, timezone) !== localDate(shift.start_at, timezone) && ' (+1 day)'}{shift.locked && <LockSimpleIcon size={12} weight="fill" />}<small>{skillLabel(shift.skill_id)}</small><span className="shift-meta">{shift.break_minutes ? `${shift.break_minutes}m break` : 'No break'}{shift.locked && ' · Locked'}</span></summary><p>{shift.break_minutes ? `${shift.break_minutes}-minute break${shift.break_start_at ? ` at ${localTime(shift.break_start_at, timezone)}` : ''}` : 'No scheduled break'}</p>{shift.locked && <p>{shift.lock_reason ?? 'Locked assignment'}</p>}{absences.some(a => a.employee_id === employee.id && a.status === 'confirmed' && Date.parse(a.start_at) < Date.parse(shift.end_at) && Date.parse(a.end_at) > Date.parse(shift.start_at)) && <p>Confirmed absence overlaps this shift.</p>}</details>) : <span className="contract-day-off">Day off</span>}</td>; })}</tr>)}</tbody></table></div>{employees.length === 0 && <p className="roster-no-results" role="status">No teammates match these filters. Try another name or select All skills.</p>}{open.length > 0 && <div className="surface-note"><strong>Unfilled assignments</strong>{open.map(shift => <p key={shift.logical_shift_id}>{skillLabel(shift.skill_id)} · {localDate(shift.start_at, timezone)} · {localTime(shift.start_at, timezone)}–{localTime(shift.end_at, timezone)}</p>)}</div>}</section>;
 }
 
-function RunResult({ run, skills, canSeeCosts, draftBusy, preview }: { run: Schema['OptimizationRun']; skills: Schema['Skill'][]; canSeeCosts: boolean; draftBusy: boolean; preview: (versionId: string) => void }) {
+function RunResult({ run, skills, canSeeCosts, review }: { run: Schema['OptimizationRun']; skills: Schema['Skill'][]; canSeeCosts: boolean; review: (candidateId: string) => void }) {
   const message = runMessage(run);
-  return <section className={`run-result ${message.tone}`} aria-label="Optimization result"><div role="status" aria-live="polite"><h2>{message.title}</h2><p>{message.body}</p></div><p className="contract-run-id">Run {run.id} · {run.job_state}{run.solver_status && ` · ${run.solver_status}`}</p>{run.error?.trace_id && <p>Support trace: {run.error.trace_id}</p>}{run.infeasibility?.shortages.map((shortage, i) => <p key={i}>{skills.find(s => s.id === shortage.skill_id)?.name ?? 'Required skill'}: minimum {shortage.minimum_required}, at most {shortage.max_assignable} eligible.</p>)}{run.candidates.map(candidate => <article className="contract-candidate" key={candidate.id}><div><h3>{candidate.strategy.replaceAll('_', ' ')}</h3><p>{candidate.proven_optimal ? 'Proven optimal for its configured objective' : 'Feasible; optimality not proven'} · {candidate.changed_shifts} changed shifts</p><span>Preferred coverage {percent(candidate.metrics.coverage_ratio)}{canSeeCosts && ` · ${formatMoney(candidate.metrics.labour_cost)}`}</span></div><Button disabled={draftBusy} onClick={() => preview(candidate.draft_version_id)}>Preview draft<ArrowRightIcon size={14} /></Button></article>)}</section>;
+  return <section className={`run-result ${message.tone}`} aria-label="Optimization result"><div role="status" aria-live="polite"><h2>{message.title}</h2><p>{message.body}</p></div><p className="contract-run-id">Run {run.id} · {run.job_state}{run.solver_status && ` · ${run.solver_status}`}</p>{run.error?.trace_id && <p>Support trace: {run.error.trace_id}</p>}{run.infeasibility?.shortages.map((shortage, i) => <p key={i}>{skills.find(s => s.id === shortage.skill_id)?.name ?? 'Required skill'}: minimum {shortage.minimum_required}, at most {shortage.max_assignable} eligible.</p>)}{run.candidates.map(candidate => <article className="contract-candidate" key={candidate.id}><div><h3>{strategyName(candidate.strategy)}</h3><p>{candidate.proven_optimal ? 'Proven optimal for its configured objective' : 'Feasible; optimality not proven'} · {candidate.changed_shifts} changed shifts</p><span>Preferred coverage {percent(candidate.metrics.coverage_ratio)}{canSeeCosts && ` · ${formatMoney(candidate.metrics.labour_cost)}`}</span></div><Button onClick={() => review(candidate.id)}>Review option<ArrowRightIcon size={14} /></Button></article>)}</section>;
 }
 
 function EmployeeWeek({ client }: { client: SchedulingClient }) {
