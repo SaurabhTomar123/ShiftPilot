@@ -13,6 +13,7 @@ import { AppearanceControls, WorkspaceNavigation, type SidebarMotion, type Works
 import { Button } from './primitives/button';
 import { DemandScreen, TeamScreen } from './management';
 import { CandidateReview, ProposalReview, strategyName } from './candidate-review';
+import { DraftEditor } from './draft-editor';
 
 type Session = { me: Schema['Me']; outlets: Schema['Outlet'][]; skills: Schema['Skill'][] };
 type Resource<T> = { data: T; error?: never } | { error: Error; data?: never };
@@ -78,6 +79,10 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
   const [draftBusy, setDraftBusy] = useState(false);
   const [candidateId, setCandidateId] = useState<string | null>(null);
   const [publication, setPublication] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [draftNotice, setDraftNotice] = useState<string | null>(null);
+  const createKeys = useRef(new Map<string, string>());
+  const editTrigger = useRef<HTMLButtonElement>(null);
   const [query, setQuery] = useState('');
   const [selectedSkill, setSelectedSkill] = useState('all');
   const operation = useRef<AbortController | null>(null);
@@ -96,7 +101,7 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
   async function generate() {
     operation.current?.abort();
     const controller = new AbortController(); operation.current = controller;
-    setBusy(true); setError(null); setRun(null); setDraft(null); setCandidateId(null); setPublication(null);
+    setBusy(true); setError(null); setRun(null); setDraft(null); setEditing(false); setDraftNotice(null); setCandidateId(null); setPublication(null);
     try {
       const initial = await generateOrAttach(client, outletId, week, { strategy: 'balanced', base_version_id: schedule.current_version?.id ?? null, time_limit_seconds: 10 }, crypto.randomUUID(), controller.signal);
       await watchRun(client, initial, { signal: controller.signal, onUpdate: setRun });
@@ -112,10 +117,22 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
     finally { if (!controller.signal.aborted) setDraftBusy(false); }
   }
 
-  function reloadLatest() { operation.current?.abort(); setResource(null); setRun(null); setDraft(null); setCandidateId(null); setError(null); setReload(r => r + 1); }
+  function reloadLatest() { operation.current?.abort(); setResource(null); setRun(null); setDraft(null); setEditing(false); setDraftNotice(null); setCandidateId(null); setError(null); setReload(r => r + 1); }
+  function closeEditor() { setEditing(false); requestAnimationFrame(() => editTrigger.current?.focus()); }
+  async function createEditingDraft() {
+    if (draftBusy) return;
+    operation.current?.abort(); const controller = new AbortController(); operation.current = controller;
+    setDraftBusy(true); setError(null); setDraftNotice(null);
+    const key = schedule.current_version?.id ?? 'empty';
+    if (!createKeys.current.has(key)) createKeys.current.set(key, crypto.randomUUID());
+    try { const value = await client.createDraft(outletId, week, { base_version_id: schedule.current_version?.id ?? null, copy_from_version_id: null }, createKeys.current.get(key)!, controller.signal); if (!controller.signal.aborted) { createKeys.current.delete(key); setDraft(value); setRun(null); setCandidateId(null); setEditing(true); } }
+    catch (error) { if (!controller.signal.aborted) setError(asError(error)); }
+    finally { if (!controller.signal.aborted) setDraftBusy(false); }
+  }
 
   return <>
     {publication && <p className="save-notice" role="status">{publication}</p>}
+    {draftNotice && <p className="save-notice" role="status">{draftNotice}</p>}
     <section className={`week-state ${draft ? 'draft' : schedule.current_version ? 'published' : 'unplanned'}`} aria-label="Week status">
       <div className="week-state-icon">{draft ? <ListChecksIcon size={25} /> : schedule.current_version ? <CheckCircleIcon size={25} weight="duotone" /> : <CalendarBlankIcon size={25} />}</div>
       <div className="week-state-copy"><strong>{draft ? 'Draft preview · not published' : schedule.current_version ? `Published version ${schedule.current_version.version_number}` : 'No published schedule'}</strong><p>{draft ? 'Review assignments and coverage before approving any changes.' : schedule.current_version ? 'This is the published roster. Drafts are reviewed separately.' : 'Start with a draft built from team availability, skills and staffing needs.'}</p></div>
@@ -128,18 +145,20 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
     </>}
     {error && <ErrorNotice error={error} onReload={error instanceof ApiError && error.detail.code === 'stale_version' ? () => { setResource(null); setRun(null); setDraft(null); setError(null); setReload(r => r + 1); } : undefined} />}
     {run && <RunResult {...{ run, skills: session.skills, canSeeCosts }} review={id => setCandidateId(id)} />}
-    {candidateId && <CandidateReview key={candidateId} {...{ client, timezone }} candidateId={candidateId} employees={schedule.employees} skills={session.skills} canSelect={session.me.capabilities.includes('publish')} showCosts={canSeeCosts} onSelected={value => { setDraft(value); setCandidateId(null); }} onClose={() => setCandidateId(null)} />}
+    {candidateId && <CandidateReview key={candidateId} {...{ client, timezone }} candidateId={candidateId} employees={schedule.employees} skills={session.skills} canSelect={session.me.capabilities.includes('publish')} showCosts={canSeeCosts} onSelected={value => { setDraft(value); setEditing(false); setDraftNotice(null); setCandidateId(null); }} onClose={() => setCandidateId(null)} />}
     {!draft && schedule.drafts.length > 0 && <section className="existing-drafts" aria-label="Saved drafts"><h2>Saved drafts</h2>{schedule.drafts.map(value => <Button key={value.id} disabled={draftBusy} onClick={() => openDraft(value.id)}>Open draft {value.version_number} (revision {value.revision})</Button>)}</section>}
-    {draft && session.me.capabilities.includes('publish') && <ProposalReview key={`${draft.id}:${draft.revision}`} {...{ client, draft, timezone, fixtureMode }} showCosts={canSeeCosts} onReload={reloadLatest} onPublished={result => { setPublication(`Published version ${result.published!.version_number}. ${fixtureMode ? 'This is a synthetic preview; no real schedule was changed.' : 'The scheduling service confirmed publication.'}`); reloadLatest(); }} />}
+    {session.me.capabilities.includes('publish') && <div className="draft-edit-actions">{!draft && schedule.current_version && <Button disabled={draftBusy || busy} onClick={createEditingDraft}>{draftBusy ? 'Creating editing draft…' : 'Create editing draft'}</Button>}{draft && !editing && <Button ref={editTrigger} onClick={() => { setDraftNotice(null); setEditing(true); }}>Edit draft assignments</Button>}</div>}
+    {draft && editing && <DraftEditor key={`${draft.id}:${draft.revision}`} {...{ client, draft, timezone, fixtureMode }} employees={schedule.employees} skills={session.skills} showCosts={canSeeCosts} onClose={closeEditor} onUpdated={(value, notice) => { setDraft(value); setDraftNotice(notice); closeEditor(); }} />}
+    {draft && session.me.capabilities.includes('publish') && <div hidden={editing}><ProposalReview key={`${draft.id}:${draft.revision}`} {...{ client, draft, timezone, fixtureMode }} showCosts={canSeeCosts} onReload={reloadLatest} onPublished={result => { setPublication(`Published version ${result.published!.version_number}. ${fixtureMode ? 'This is a synthetic preview; no real schedule was changed.' : 'The scheduling service confirmed publication.'}`); reloadLatest(); }} /></div>}
     {version && <>
-      <div className="contract-roster-heading"><div><h2>{draft ? 'Proposed roster' : 'Published roster'}</h2><p>Expand a shift for break times and lock details. Scroll across to see all seven days.</p></div>{draft && <Button onClick={() => { setDraft(null); setCandidateId(null); }}>Back to published week</Button>}<label className="search-field"><span className="sr-only">Find a teammate</span><input aria-label="Find a teammate" placeholder="Find a teammate…" value={query} onChange={e => setQuery(e.target.value)} /></label></div>
+      <div className="contract-roster-heading"><div><h2>{draft ? 'Proposed roster' : 'Published roster'}</h2><p>Expand a shift for break times and lock details. Scroll across to see all seven days.</p></div>{draft && <Button onClick={() => { setDraft(null); setEditing(false); setCandidateId(null); }}>Back to published week</Button>}<label className="search-field"><span className="sr-only">Find a teammate</span><input aria-label="Find a teammate" placeholder="Find a teammate…" value={query} onChange={e => setQuery(e.target.value)} /></label></div>
       <div className="skill-filter" aria-label="Filter team by skill"><span>Team skills</span><button type="button" aria-pressed={selectedSkill === 'all'} onClick={() => setSelectedSkill('all')}>All skills</button>{session.skills.map(skill => <button type="button" key={skill.id} className={`role-key ${skillColor(skill.name)}`} aria-pressed={selectedSkill === skill.id} onClick={() => setSelectedSkill(selectedSkill === skill.id ? 'all' : skill.id)}><span aria-hidden="true" />{skill.name}</button>)}</div>
       <ContractRoster version={version} employees={schedule.employees.filter(e => e.name.toLowerCase().includes(query.toLowerCase()) && (selectedSkill === 'all' || e.skill_ids.includes(selectedSkill)))} skills={session.skills} week={week} timezone={timezone} absences={schedule.absences} />
       <div className="contract-validation"><strong className={version.validation.hard_violations ? 'has-violations' : ''}><CheckCircleIcon size={17} />{version.validation.hard_violations} hard violations reported</strong><span>{version.validation.soft_violations} preferences to review</span><span>{version.metrics.open_shifts} open shifts</span></div>
       <WeekReview version={version} skills={session.skills} timezone={timezone} />
     </>}
     {!version && <Empty title="A fresh week, ready to plan." description="Generate a draft from this week’s employees, staffing requirements and rules. Your published roster will remain unchanged." />}
-    <p className="contract-note">{fixtureMode ? 'All values are synthetic provider fixtures, not a live solve. ' : ''}Selecting creates a draft. Proposal approval checks current facts before publishing. Manual edits and absence repair are the next integrations.</p>
+    <p className="contract-note">{fixtureMode ? 'All values are synthetic provider fixtures, not a live solve. ' : ''}Selecting creates a draft. Proposal approval checks current facts before publishing. Assignment edits use server previews. Absence repair is an upcoming integration.</p>
   </>;
 }
 

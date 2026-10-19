@@ -1,6 +1,6 @@
 # ShiftPilot web
 
-Codex owns `web/`; Claude owns backend/database contracts. **Architecture v3 is governing.** This branch currently consumes provider contract **3.1.0-p4**. Candidate review/selection and proposal approval now use the v3 contract; staffing templates and absence repair remain upcoming integrations.
+Codex owns `web/`; Claude owns backend/database contracts. **Architecture v3 is governing.** This branch currently consumes provider contract **3.1.0-p4**. Candidate review/selection, manual draft edits and proposal approval now use the v3 contract; staffing templates and absence repair remain upcoming integrations.
 
 ## Run
 
@@ -15,6 +15,7 @@ Open http://127.0.0.1:3001. The UI uses Next.js 16, React 19, TypeScript, TanSta
 ## Current surfaces
 
 - `/`: provider fixture preview, with separate owner/manager/employee sessions. Use Schedule, Employees and Staffing navigation. Employee/skill/availability and date-specific staffing forms have validation, explicit save results and stale-edit recovery. Synthetic edits exist only in a bounded, expiring preview session. Persona changes/server restarts reset them; fixed roster/solver fixtures do not change with input edits.
+- Manual drafts: copy the published week, choose an assignment, change its teammate/role/time or lock state, preview server validation, then apply the reviewed request. Removing an assignment also requires preview. Input changes invalidate the preview. Stale or uncertain saves require explicit reload; they never retry automatically. The synthetic preview supports the opening-cook lock and conflicting-reassignment examples only.
 - Appearance: three type treatments, three palettes, and slide/dissolve/fold sidebar transitions. Desktop collapses to a labelled icon rail; mobile has Escape, focus restoration, a backdrop and reduced-motion support.
 - `/sandbox`: earlier local editing/dragging/repair/publication prototype. Its browser-local data and Geist palette remain separate.
 
@@ -45,11 +46,12 @@ Fixture scenario/session headers are never sent to a configured real API. There 
 ## Architecture and handoffs
 
 - [Architecture v3 alignment](docs/ARCHITECTURE_V3_ALIGNMENT.md)
-- [Current v3 review handoff](docs/UI_HANDOFF_V3_REVIEW.md)
+- [Current manual-edit handoff](docs/UI_HANDOFF_MANUAL_EDITS.md)
+- [Previous v3 review handoff](docs/UI_HANDOFF_V3_REVIEW.md)
 - [Previous forms/design delivery](docs/UI_HANDOFF_2026-10-19.md)
 - [Design system](DESIGN.md)
 - [Contract reviews](docs/CONTRACT_REVIEW.md)
 
-Upcoming work follows v3: manual edits, staffing templates and preserved manual overrides, absence-triggered repair, fixed-template CSV onboarding, rules, history and validated restore. The old sandbox is not evidence that those server workflows are delivered.
+Upcoming work follows v3: template-based assignment creation, drag interactions, staffing templates and preserved manual overrides, absence-triggered repair, fixed-template CSV onboarding, rules, history and validated restore. The old sandbox is not evidence that those server workflows are delivered.
 
 Design skills are local development tools, not runtime dependencies. Current work uses the requested [taste redesign guidance](https://github.com/Leonxlnx/taste-skill/tree/main/skills/redesign-skill), [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design), and [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill). [improve-animations](https://github.com/emilkowalski/skills/tree/main/skills/improve-animations) supplies read-only audit/planning criteria; implementation remains the authorized repository task.

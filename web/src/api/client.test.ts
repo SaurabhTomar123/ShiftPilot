@@ -3,6 +3,8 @@ import { ApiError, SchedulingClient, generateOrAttach, watchRun } from './client
 import { fixture, fixtureResponse } from './fixture-gateway';
 import { formatMoney, localDate, localTime, percent, runMessage } from './presentation';
 import type { Scenario } from './types';
+import examples from './generated/edit-examples.json';
+import type { Schema } from './types';
 
 function setup(scenario: Scenario = 'optimal') {
   const requests: Request[] = [];
@@ -261,5 +263,41 @@ describe('v3 candidate selection and proposals', () => {
     const real = new SchedulingClient({ baseUrl: 'https://api.example.test', fetcher, fixtureApprovalOutcome: 'invalid' });
     await real.approveProposal(proposal.id, { acknowledge_changes: false }, 'approve');
     expect(new Headers(fetcher.mock.calls[0][1]?.headers).has('X-ShiftPilot-Approval-Outcome')).toBe(false);
+  });
+});
+
+describe('manual draft edit transport', () => {
+  it('creates once per key, previews without a mutation, and fences repeated applies by revision', async () => {
+    const { client, requests } = setup(); const me = await client.signIn('manager');
+    const published = await client.schedule(me.outlet_id!, '2026-10-19');
+    const input = { base_version_id: published.current_version!.id, copy_from_version_id: null };
+    const draft = await client.createDraft(me.outlet_id!, '2026-10-19', input, 'create-manual-once');
+    expect((await client.candidate(fixture<{ id: string }>('candidate.detail').id)).materialized_version_id).toBeNull();
+    const beforeEdit = await client.createProposal({ draft_version_id: draft.id, expected_revision: 1 }, 'propose-before-edit');
+    expect(await client.createDraft(me.outlet_id!, '2026-10-19', input, 'create-manual-once')).toEqual(draft);
+    const edit = examples.openingLock as Schema['EditRequest'];
+    const preview = await client.previewEdits(draft.id, edit);
+    expect(preview.validation.hard_violations).toBe(0);
+    expect((await client.version(draft.id)).revision).toBe(1);
+    const saved = await client.applyEdits(draft.id, edit, 'save-lock'); expect(saved.revision).toBe(2);
+    await expect(client.applyEdits(draft.id, edit, 'save-lock')).rejects.toMatchObject({ status: 409, detail: { code: 'stale_version' } });
+    expect((await client.version(draft.id)).revision).toBe(2);
+    expect((await client.schedule(me.outlet_id!, '2026-10-19')).current_version!.id).toBe(published.current_version!.id);
+    expect(requests.filter(r => /\/edits$/.test(r.url))).toHaveLength(2);
+    const proposal = await client.createProposal({ draft_version_id: saved.id, expected_revision: saved.revision }, 'propose-edited');
+    expect(proposal.draft_revision).toBe(2);
+    expect(proposal.id).not.toBe(beforeEdit.id);
+    await client.approveProposal(proposal.id, { acknowledge_changes: false }, 'publish-edited');
+    const week = await client.schedule(me.outlet_id!, '2026-10-19');
+    expect(week.current_version!.id).toBe(draft.id); expect(week.current_version!.revision).toBe(2);
+  });
+  it('returns authoritative invalid previews and refuses unsupported synthetic edits', async () => {
+    const { client } = setup(); const me = await client.signIn('manager');
+    const week = await client.schedule(me.outlet_id!, '2026-10-19');
+    const draft = await client.createDraft(me.outlet_id!, '2026-10-19', { base_version_id: week.current_version!.id }, 'create-manual-once');
+    const preview = await client.previewEdits(draft.id, examples.invalidReassignment as Schema['EditRequest']);
+    expect(preview.validation.hard_violations).toBe(1);
+    await expect(client.previewEdits(draft.id, { expected_revision: 1, edits: [{ op: 'remove', logical_shift_id: draft.shifts[0].logical_shift_id }] })).rejects.toMatchObject({ status: 501 });
+    expect((await client.version(draft.id)).revision).toBe(1);
   });
 });

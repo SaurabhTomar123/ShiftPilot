@@ -1,3 +1,17 @@
+# 19 October: manual draft edit consumer review (3.1)
+
+**Accepted for createDraft, previewEdits and applyEdits request/response shapes.** Provider version and hash remain 3.1.0-p4 / `7b7128bc86e8747a95e92bb6048dacb1afc53c227fb08345aeb3c22eb7ebe763`. Request examples are generated from provider fixture metadata; response records and backend source were not edited.
+
+The UI sends the reviewed expected_revision and edits unchanged. Omitted update fields remain untouched; explicit null unassigns a teammate. Local time conversion preserves unchanged ambiguous instants and rejects newly chosen skipped/repeated clock times. Preview is non-mutating; only an apply response replaces accepted draft data. Hard-invalid previews cannot be applied through this UI. Revision or input changes invalidate the prior preview.
+
+Provider follow-up: applyEdits/discardDraft do not declare or implement idempotent replay, despite the broader v3 mutating-request convention. The SDK sends an Idempotency-Key on apply, but the consumer makes no replay guarantee. A save error pauses editing and requires reload; this was checked against an actual committed save whose response was replaced with 503 in the browser bridge. Please align the provider convention in a future contract revision. Preview POST is read-only and does not need replay handling.
+
+The isolated real API passed create/resume draft, preview lock, apply lock (revision 2), preview/apply unlock and reload after a lost success response (revision 3). The published pointer stayed unchanged. Additional real API previews for unassignment, role change, move and removal returned their typed changes and hard violations without changing revision or assignments. General assignment creation is not exposed until template selection is contracted; the legacy AddShift shape alone does not provide a v3 template picker.
+
+Earlier review entries below describe previous slices.
+
+---
+
 # 19 October: contract 3.1 candidate and proposal review
 
 Provider `f8837ae` (including `38899e3`, `c5a7a38`, `87ac6e7`) is merged. Generated all **78 fixtures** from `3.1.0-p4`; SHA-256 `7b7128bc86e8747a95e92bb6048dacb1afc53c227fb08345aeb3c22eb7ebe763`.

@@ -1,0 +1,22 @@
+{
+  "invalidReassignment": {
+    "expected_revision": 1,
+    "edits": [
+      {
+        "op": "update",
+        "logical_shift_id": "262ce18d-2989-574a-8d2e-ee2cdb9fca72",
+        "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd"
+      }
+    ]
+  },
+  "openingLock": {
+    "expected_revision": 1,
+    "edits": [
+      {
+        "op": "lock",
+        "logical_shift_id": "c5d11735-6be2-5b94-8b12-4ae842bbdd74",
+        "reason": "Opening cook confirmed"
+      }
+    ]
+  }
+}

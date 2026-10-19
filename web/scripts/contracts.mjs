@@ -19,6 +19,7 @@ for (const entry of index.fixtures) {
 const files = {
   'schema.d.ts': astToString(await openapiTS(JSON.parse(source))),
   'fixtures.json': JSON.stringify(fixtures, null, 2) + '\n',
+  'edit-examples.json': JSON.stringify({ invalidReassignment: fixtures['edits.preview'].request.body, openingLock: fixtures['edits.apply'].request.body }, null, 2) + '\n',
   'manifest.json': JSON.stringify({ version: index.contract_version, sha256: hash.digest('hex'), fixtureCount: index.fixtures.length }, null, 2) + '\n',
 };
 await mkdir(target, { recursive: true });

@@ -114,6 +114,10 @@ export class SchedulingClient {
   approveProposal(id: string, input: Schema['ApproveProposalRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['ProposalDecision']>(`/v2/proposals/${encodeURIComponent(id)}/approve`, { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
   rejectProposal(id: string, key: string, signal?: AbortSignal) { return this.request<Schema['Proposal']>(`/v2/proposals/${encodeURIComponent(id)}/reject`, { method: 'POST', signal }, requiredKey(key)); }
   version(versionId: string, signal?: AbortSignal) { return this.request<Schema['ScheduleVersion']>(`/v2/schedule-versions/${encodeURIComponent(versionId)}`, { signal }); }
+  createDraft(outletId: string, week: string, input: Schema['CreateDraftRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['ScheduleVersion']>(`/v2/outlets/${encodeURIComponent(outletId)}/schedules/${encodeURIComponent(week)}/drafts`, { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
+  previewEdits(id: string, input: Schema['EditRequest'], signal?: AbortSignal) { return this.request<Schema['EditPreview']>(`/v2/schedule-versions/${encodeURIComponent(id)}/edits/preview`, { method: 'POST', body: JSON.stringify(input), signal }); }
+  // Provider apply is revision-fenced, not idempotently replayable. Never retry automatically.
+  applyEdits(id: string, input: Schema['EditRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['ScheduleVersion']>(`/v2/schedule-versions/${encodeURIComponent(id)}/edits`, { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
 }
 
 function requiredKey(key: string) { if (!key) throw new Error('This action requires a stable idempotency key.'); return key; }

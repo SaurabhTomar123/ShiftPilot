@@ -901,3 +901,33 @@ input::placeholder, textarea::placeholder { color: #75806e; opacity: 1; }
   .contract-app .review-actions .button { width: 100%; }
   .contract-app .proposal-outcome { padding: 12px; }
 }
+.contract-app .draft-editor { margin: 22px 0; padding: 24px; border: 1px solid var(--line); border-left: 4px solid var(--green); border-radius: 10px; background: var(--surface); }
+.contract-app .draft-editor p { line-height: 1.6; max-width: 80ch; }
+.contract-app .draft-editor fieldset { border: 0; padding: 0; margin: 20px 0; min-width: 0; }
+.contract-app .assignment-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-bottom: 22px; }
+.contract-app .assignment-fields label { display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 500; }
+.contract-app .assignment-fields input, .contract-app .assignment-fields select { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); font: inherit; }
+.contract-app .assignment-picker { grid-column: 1 / -1; }
+.contract-app .edit-examples { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.contract-app .edit-examples p { color: var(--muted); font-size: 13px; }
+.contract-app .edit-examples .button { margin: 4px 8px 4px 0; }
+.contract-app .edit-preview { margin-top: 24px; padding-top: 18px; border-top: 2px solid var(--line); }
+.contract-app .edit-preview h3 { margin-top: 0; }
+.contract-app .edit-change-list { margin: 18px 0; }
+.contract-app .edit-change-list > div { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.contract-app .edit-change-list dt { font-weight: 600; margin-bottom: 8px; text-transform: capitalize; }
+.contract-app .edit-change-list dd { margin: 0; line-height: 1.65; font-size: 14px; }
+.contract-app .edit-metrics { display: flex; flex-wrap: wrap; gap: 18px 30px; margin: 20px 0; }
+.contract-app .edit-metrics dt { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+.contract-app .edit-metrics dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.contract-app .edit-preview li { margin: 8px 0; line-height: 1.55; }
+.contract-app .edit-reload-notice { border-left: 4px solid #94651e; padding: 12px 16px; }
+.contract-app .draft-edit-actions { margin: 18px 0; }
+@media (max-width: 600px) {
+  .contract-app .draft-editor { padding: 16px; }
+  .contract-app .assignment-fields { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .contract-app .edit-examples .button { width: 100%; }
+  .contract-app .edit-preview > .button { width: 100%; }
+}
+.contract-app .edit-soft-issues { margin: 18px 0; }
+.contract-app .edit-soft-issues summary { cursor: pointer; font-weight: 500; padding: 12px 0; }
