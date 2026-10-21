@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.11.0-p4",
+  "contract_version": "3.12.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -237,6 +237,12 @@
     },
     {
       "name": "session.demo.manager",
+      "operation_id": "createDemoSession",
+      "status": 201,
+      "schema": "DemoSession"
+    },
+    {
+      "name": "session.demo.switch_persona",
       "operation_id": "createDemoSession",
       "status": 201,
       "schema": "DemoSession"

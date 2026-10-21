@@ -23,6 +23,10 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.12.0-p4 (live): private demo sandboxes
+
+This change is additive (B6.2). Each `createDemoSession` without a `sandbox_id` now gives the visitor a **private copy** of the synthetic organization. The response's `sandbox_id` and `sandbox_expires_at` (2 hours) describe it. Send `sandbox_id` back with another `persona` to switch persona inside the same sandbox; once it has expired, that request returns `404`. What visitors change is visible to nobody else, and the whole sandbox is deleted when it expires (the token never outlives it). Sandboxes allow 2 active optimization runs (`429` beyond that), and the number of live sandboxes is capped (`429` with `Retry-After: 60`). Fixtures: `session.demo.manager`, `session.demo.switch_persona`.
+
 ## What changed in 3.11.0-p4 (live): in-app notifications
 
 This change is additive (architecture v3 §40). A separate relay process (`python -m jobs.outbox_relay`) turns committed events into in-app notifications. A failing notification can never fail the change that caused it.

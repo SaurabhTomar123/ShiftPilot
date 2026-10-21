@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.11.0-p4"
+    "version": "3.12.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -5620,6 +5620,31 @@
           },
           "me": {
             "$ref": "#/components/schemas/Me"
+          },
+          "sandbox_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sandbox Id",
+            "description": "This visitor's private copy of the synthetic organization; send it back to switch persona. Changes are visible to nobody else and disappear at sandbox_expires_at."
+          },
+          "sandbox_expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sandbox Expires At"
           }
         },
         "additionalProperties": false,
@@ -5642,6 +5667,19 @@
               "staff"
             ],
             "title": "Persona"
+          },
+          "sandbox_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sandbox Id",
+            "description": "Switch persona inside an existing sandbox; omit to start a fresh one (B6.2)."
           }
         },
         "additionalProperties": false,

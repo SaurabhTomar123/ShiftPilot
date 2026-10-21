@@ -120,7 +120,7 @@ def install(app: FastAPI) -> None:
 def create_demo_session(body: s.DemoSessionRequest) -> s.DemoSession:
     """Public synthetic demo only: issues a short-lived token for an isolated demo org (B6.2).
     403 permission_denied when the deployment is private."""
-    return v2auth.demo_session(body.persona)
+    return v2auth.demo_session(body.persona, body.sandbox_id)
 
 
 @router.get("/me", operation_id="getMe", response_model=s.Me, responses=_errors())

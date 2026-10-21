@@ -762,3 +762,17 @@ class ImportRow(Base):
     data: Mapped[dict[str, Any]] = mapped_column(JSONB)
     errors: Mapped[list[dict[str, str]]] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
     employee_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+
+
+class DemoSandbox(Base):
+    """One public demo session's isolated copy of the synthetic org (B6.2). Admin-only registry."""
+
+    __tablename__ = "demo_sandboxes"
+    __table_args__ = (Index("ix_demo_sandboxes_expires_at", "expires_at"),)
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("organizations.id"), primary_key=True
+    )
+    template_org_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    salt: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = created_at()
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

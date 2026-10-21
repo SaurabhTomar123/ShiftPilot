@@ -3,20 +3,22 @@
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 import jwt
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy import select
+from sqlalchemy import func, select, text
 
 from api.v2 import schemas as s
 from api.v2.errors import ApiError
 from core.auth import Caller, Role
 from core.config import settings
 from core.tokens import ALGORITHM, issue, verify
+from db import sandbox
 from db.models import Organization, User
+from db.models_v2 import DemoSandbox
 from db.session import admin_session, tenant_session
 from seed.world import uid
 
@@ -76,20 +78,59 @@ def me(caller: Caller) -> s.Me:
         )
 
 
-def demo_session(persona: str) -> s.DemoSession:
-    """Synthetic demo only. The user is looked up by its deterministic seed ID inside the demo org,
-    so this can never issue a token for another tenant's user."""
+SANDBOX_TTL = timedelta(hours=2)
+MAX_SANDBOXES = 200  # live public sandboxes; beyond this new visitors wait (429)
+
+
+def demo_session(persona: str, sandbox_id: uuid.UUID | None = None) -> s.DemoSession:
+    """Synthetic demo only (B6.2). Each visitor gets an isolated copy of the template org (a sandbox,
+    purged by the retention job after SANDBOX_TTL); sending sandbox_id back switches persona inside it.
+    The user is looked up by its mapped seed ID inside that sandbox, so this can never issue a token for
+    another tenant's user."""
     if not settings().demo_sessions_enabled:
         raise ApiError("permission_denied", "Demo sessions are not available on this deployment.")
-    demo_org = uid("org", settings().demo_org_key)
+    template = uid("org", settings().demo_org_key)
     with admin_session() as session:
+        now = session.execute(text("SELECT now()")).scalar_one()
+        if sandbox_id is not None:
+            box = session.get(DemoSandbox, sandbox_id)
+            if box is None or box.expires_at <= now:
+                raise ApiError("not_found", "This demo has expired. Start a new one.")
+        else:
+            session.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('demo-sandboxes', 0))"))
+            live = session.scalar(
+                select(func.count()).select_from(DemoSandbox).where(DemoSandbox.expires_at > now)
+            )
+            if (live or 0) >= MAX_SANDBOXES:
+                raise ApiError(
+                    "rate_limited",
+                    "The demo is busy right now. Try again in a minute.",
+                    retryable=True,
+                    headers={"Retry-After": "60"},
+                )
+            if session.get(Organization, template) is None:
+                raise ApiError("not_found", "The demo organization is not loaded. Run python -m seed.v2.")
+            org_id = uuid.uuid7()
+            sandbox.clone(session.connection(), template, org_id, org_id.hex)
+            box = DemoSandbox(
+                org_id=org_id,
+                template_org_id=template,
+                salt=org_id.hex,
+                created_at=now,
+                expires_at=now + SANDBOX_TTL,
+            )
+            session.add(box)
+            session.flush()
         user = session.scalars(
             select(User).where(
-                User.id == uid("user", DEMO_PERSONAS[persona]), User.org_id == demo_org, User.is_active
+                User.id == sandbox.mapped(box.salt, uid("user", DEMO_PERSONAS[persona])),
+                User.org_id == box.org_id,
+                User.is_active,
             )
         ).first()
         if user is None:
             raise ApiError("not_found", "The demo organization is not loaded. Run python -m seed.v2.")
+        sandbox_expires = box.expires_at
         caller = Caller(
             user_id=str(user.id),
             org_id=str(user.org_id),
@@ -97,6 +138,12 @@ def demo_session(persona: str) -> s.DemoSession:
             outlet_id=str(user.outlet_id) if user.outlet_id else None,
             employee_id=str(user.employee_id) if user.employee_id else None,
         )
-    token = issue(caller)
+    token = issue(caller, not_after=sandbox_expires)
     exp = jwt.decode(token, settings().jwt_secret, algorithms=[ALGORITHM])["exp"]
-    return s.DemoSession(access_token=token, expires_at=datetime.fromtimestamp(exp, UTC), me=me(caller))
+    return s.DemoSession(
+        access_token=token,
+        expires_at=datetime.fromtimestamp(exp, UTC),
+        me=me(caller),
+        sandbox_id=uuid.UUID(caller.org_id),
+        sandbox_expires_at=sandbox_expires,
+    )

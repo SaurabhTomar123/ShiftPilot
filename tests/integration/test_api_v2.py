@@ -20,7 +20,7 @@ from api.v2 import schemas
 from core import config
 from core.auth import Caller, Role
 from core.tokens import issue
-from db import migrate, session
+from db import migrate, sandbox, session
 from seed import v2, world
 from seed.world import uid
 
@@ -111,7 +111,14 @@ def test_demo_session_issues_a_working_token(client: TestClient) -> None:
     assert r.status_code == 201, r.text
     session_body = schemas.DemoSession.model_validate(r.json())
     me = client.get("/v2/me", headers={"Authorization": f"Bearer {session_body.access_token}"}).json()
-    assert me == fixture("me.manager")
+    seeded = fixture("me.manager")
+    # B6.2: the visitor is the seeded manager inside their own sandbox copy, with sandbox-mapped ids.
+    same = ("display_name", "role", "timezone", "capabilities")
+    assert {k: me[k] for k in same} == {k: seeded[k] for k in same}
+    assert me["org_id"] == str(session_body.sandbox_id) != seeded["org_id"]
+    salt = uuid.UUID(me["org_id"]).hex
+    assert me["user_id"] == str(sandbox.mapped(salt, uuid.UUID(seeded["user_id"])))
+    assert me["outlet_id"] == str(sandbox.mapped(salt, uuid.UUID(seeded["outlet_id"])))
 
 
 def test_me_matches_the_fixture_for_each_persona(client: TestClient) -> None:

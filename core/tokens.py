@@ -10,7 +10,8 @@ from core.config import settings
 ALGORITHM = "HS256"
 
 
-def issue(caller: Caller) -> str:
+def issue(caller: Caller, not_after: datetime | None = None) -> str:
+    """not_after caps the expiry, e.g. at a demo sandbox's end."""
     now = datetime.now(UTC)
     claims = {
         "sub": caller.user_id,
@@ -19,7 +20,9 @@ def issue(caller: Caller) -> str:
         "outlet": caller.outlet_id,
         "emp": caller.employee_id,
         "iat": now,
-        "exp": now + timedelta(minutes=settings().jwt_ttl_minutes),
+        "exp": min(
+            now + timedelta(minutes=settings().jwt_ttl_minutes), not_after or datetime.max.replace(tzinfo=UTC)
+        ),
     }
     return jwt.encode(claims, settings().jwt_secret, algorithm=ALGORITHM)
 

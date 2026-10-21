@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.11.0-p4"
+CONTRACT_VERSION = "3.12.0-p4"
 
 
 class Model(BaseModel):
@@ -108,6 +108,10 @@ class Me(Model):
 
 class DemoSessionRequest(Model):
     persona: Literal["owner", "manager", "staff"]
+    sandbox_id: UUID | None = Field(
+        default=None,
+        description="Switch persona inside an existing sandbox; omit to start a fresh one (B6.2).",
+    )
 
 
 class DemoSession(Model):
@@ -117,6 +121,12 @@ class DemoSession(Model):
     token_type: Literal["bearer"] = "bearer"
     expires_at: AwareDatetime
     me: Me
+    sandbox_id: UUID | None = Field(
+        default=None,
+        description="This visitor's private copy of the synthetic organization; send it back to switch "
+        "persona. Changes are visible to nobody else and disappear at sandbox_expires_at.",
+    )
+    sandbox_expires_at: AwareDatetime | None = None
 
 
 class OperatingWindow(Model):

@@ -16,6 +16,7 @@ Every derived artifact has an explicit lifetime:
     published and superseded         kept (MVP); audit log kept (MVP)
     staged or invalid CSV imports    rows deleted 24 hours after upload; the job row 30 days later
     delivered outbox events          7 days
+    public demo sandboxes            the whole sandbox org when it expires (2 hours, B6.2)
 
 Runs in one transaction across tenants with the admin connection, like the worker.
 """
@@ -30,6 +31,7 @@ from typing import Any
 
 from sqlalchemy import Connection, Engine, text
 
+from db import sandbox
 from db.session import admin_engine
 
 log = logging.getLogger("shiftpilot.retention")
@@ -161,6 +163,7 @@ def run(
         tx = conn.begin()
         try:
             counts = _apply(conn, now)
+            counts["sandboxes_purged"] = sandbox.purge_expired(conn, now)
         except Exception:
             tx.rollback()
             raise

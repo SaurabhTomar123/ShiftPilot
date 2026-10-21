@@ -26,7 +26,7 @@ from api.v2.auth import require
 from api.v2.errors import ApiError, not_found
 from api.v2.service import _audit, _outlet, week_bounds
 from core.auth import Caller, Role, assert_outlet
-from db.models import Outlet
+from db.models import Organization, Outlet
 from db.models_v2 import Absence as AbsenceRow
 from db.models_v2 import OptimizationCandidate, OptimizationRun, Schedule, VersionShift
 from db.session import tenant_session
@@ -35,7 +35,8 @@ from scheduling.model import Absence, Shift
 
 ACTIVE = ("queued", "running")
 BATCH_PRIORITY, REPAIR_PRIORITY = 5, 1  # lower is claimed first (v3 section 28)
-ORG_ACTIVE_CAP = 10  # architecture v3 section 28 (lower for demo organizations later)
+ORG_ACTIVE_CAP = 10  # architecture v3 section 28
+SANDBOX_ACTIVE_CAP = 2  # public demo sandboxes share the worker pool (B6.2)
 RETRY_AFTER_SECONDS = 3
 SOLVER_WORKERS = 8  # 4 workers lack the bound-improving strategies; see docs/runbooks/solver-benchmark.md
 
@@ -134,7 +135,12 @@ def _admit(
         )
         or 0
     )
-    if active >= ORG_ACTIVE_CAP:
+    cap = (
+        SANDBOX_ACTIVE_CAP
+        if (organization := session.get(Organization, org)) and organization.plan == "sandbox"
+        else ORG_ACTIVE_CAP
+    )
+    if active >= cap:
         raise ApiError(
             "rate_limited",
             "Too many optimizations are running. Try again shortly.",

@@ -32,7 +32,9 @@
           "publish",
           "view_costs"
         ]
-      }
+      },
+      "sandbox_id": "08e18c92-b99a-55f6-97b0-394840dd4d1f",
+      "sandbox_expires_at": "2026-10-18T21:40:00+05:30"
     }
   }
 }

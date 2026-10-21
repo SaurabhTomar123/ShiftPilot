@@ -539,6 +539,14 @@ def fixtures() -> list[Fixture]:
         )
 
     owner_weeks = {key: other_outlet_week(key) for key in ("koramangala", "hsr")}
+    # A public demo session: a private 2-hour sandbox copy of the synthetic org (B6.2).
+    demo_manager = s.DemoSession(
+        access_token="demo.synthetic.token.not-a-real-jwt",
+        expires_at=stamp("2026-10-18T21:40:00"),
+        me=me("manager_indiranagar"),
+        sandbox_id=uid("org", "sandbox:example"),
+        sandbox_expires_at=stamp("2026-10-18T21:40:00"),
+    )
     # Saturday dinner needs a second grill cook at minimum and a fourth preferred.
     template = staffing_templates()
     saturday_rush = template.model_copy(
@@ -566,12 +574,18 @@ def fixtures() -> list[Fixture]:
                 "/v2/session/demo",
                 None,
                 201,
-                s.DemoSession(
-                    access_token="demo.synthetic.token.not-a-real-jwt",
-                    expires_at=stamp("2026-10-18T21:40:00"),
-                    me=me("manager_indiranagar"),
-                ),
+                demo_manager,
                 {"body": {"persona": "manager"}},
+            ),
+            Fixture(
+                "session.demo.switch_persona",
+                "createDemoSession",
+                "POST",
+                "/v2/session/demo",
+                None,
+                201,
+                demo_manager.model_copy(update={"me": me("staff_ravi")}),
+                {"body": {"persona": "staff", "sandbox_id": str(demo_manager.sandbox_id)}},
             ),
             Fixture(
                 "session.demo.disabled",
