@@ -225,3 +225,24 @@ def test_other_tenants_cannot_see_runs(client: TestClient) -> None:
     run_id = sql("SELECT id FROM optimization_runs LIMIT 1")[0][0]
     nw = token(f"{v2.NORTHWIND}:owner", Role.OWNER, org=v2.NORTHWIND)
     assert client.get(f"/v2/optimization-runs/{run_id}", headers=nw).status_code == 404
+
+
+def test_the_worker_role_is_least_privilege(client: TestClient) -> None:
+    """B6.3: the worker crosses tenants but touches only runs, base shifts, candidates and the outbox."""
+    from sqlalchemy.exc import ProgrammingError
+
+    from db.session import worker_engine
+
+    engine = worker_engine()
+    assert engine.url.username == "shiftpilot_worker"
+    with engine.connect() as conn:
+        assert conn.execute(text("SELECT count(*) FROM optimization_runs")).scalar_one() >= 1  # all tenants
+    for statement in (
+        "SELECT name, hourly_rate FROM employees",
+        "SELECT * FROM absences",
+        "DELETE FROM optimization_runs",
+        "UPDATE schedule_versions SET reason = 'x'",
+        "INSERT INTO audit_log (id) VALUES (gen_random_uuid())",
+    ):
+        with engine.connect() as conn, pytest.raises(ProgrammingError, match="permission denied"):
+            conn.execute(text(statement))

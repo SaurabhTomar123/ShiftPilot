@@ -11,8 +11,8 @@ Claims runs with SKIP LOCKED leases (database clock only), renews the lease whil
 results in one transaction fenced by (lease_owner, attempts, job_state='running'): a worker that lost its
 lease discards its output and writes nothing. Exhausted retries are failed by the sweeper.
 
-Uses the admin connection because it works across tenants; a dedicated least-privilege worker role is a
-deployment follow-up (B6.3).
+Connects as the least-privilege shiftpilot_worker role (WORKER_DATABASE_URL, migration 0015): it bypasses
+row-level security to work across tenants but can only touch runs, base shifts, candidates and the outbox.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ from typing import Any
 
 from sqlalchemy import Engine, text
 
-from db.session import admin_engine
+from db.session import worker_engine
 from scheduling import metrics, repair, snapshot_json, solver, validator
 from scheduling.model import Shift, Snapshot
 
@@ -397,7 +397,7 @@ def process(engine: Engine, row: Any, me: str) -> str:
 def run_once(
     engine: Engine | None = None, me: str | None = None, kinds: tuple[str, ...] = ALL_KINDS
 ) -> uuid.UUID | None:
-    engine = engine or admin_engine()
+    engine = engine or worker_engine()
     me = me or worker_id()
     sweep(engine)
     with engine.begin() as conn:

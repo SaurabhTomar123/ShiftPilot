@@ -47,8 +47,14 @@ def client() -> Iterator[TestClient]:
         mp = pytest.MonkeyPatch()
         mp.setenv("DATABASE_URL", url)
         mp.setenv("APP_DATABASE_URL", app_url)
+        # The worker runs as its least-privilege role in every integration test (B6.3).
+        prefix = url.split("@")[0]
+        worker_url = url.replace(
+            prefix, prefix.split("//")[0] + "//shiftpilot_worker:" + base.worker_db_password, 1
+        )
+        mp.setenv("WORKER_DATABASE_URL", worker_url)
         mp.setenv("DEMO_SESSIONS_ENABLED", "true")
-        for cached in (config.settings, session.admin_engine, session.app_engine):
+        for cached in (config.settings, session.admin_engine, session.app_engine, session.worker_engine):
             cached.cache_clear()
         from api.v2.app import create_app
 
@@ -57,7 +63,9 @@ def client() -> Iterator[TestClient]:
         finally:
             session.admin_engine().dispose()
             session.app_engine().dispose()
+            session.worker_engine().dispose()
             mp.undo()
+            session.worker_engine.cache_clear()
             for cached in (config.settings, session.admin_engine, session.app_engine):
                 cached.cache_clear()
 

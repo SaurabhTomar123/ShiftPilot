@@ -10,10 +10,12 @@ class Settings(BaseSettings):
     # Admin connection (superuser): migrations, seeding, RLS setup. Superusers BYPASS RLS.
     database_url: str = "postgresql+psycopg://shiftpilot:shiftpilot@localhost:5433/shiftpilot"
     # Runtime connection as the non-superuser app role, so RLS actually applies.
-    app_database_url: str = (
-        "postgresql+psycopg://shiftpilot_app:shiftpilot_app@localhost:5433/shiftpilot"
-    )
+    app_database_url: str = "postgresql+psycopg://shiftpilot_app:shiftpilot_app@localhost:5433/shiftpilot"
     app_db_password: str = "shiftpilot_app"
+    # The optimization worker's least-privilege role (migration 0015). Unset: the worker falls back to
+    # database_url, which is fine for local development only.
+    worker_database_url: str | None = None
+    worker_db_password: str = "shiftpilot_worker"
     redis_url: str = "redis://localhost:6380/0"
 
     jwt_secret: str = "change-me-in-.env"
@@ -23,7 +25,9 @@ class Settings(BaseSettings):
     # Must be false on any deployment holding real (imported) data.
     demo_sessions_enabled: bool = False
     demo_org_key: str = "spice-route"
-    cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
+    cors_origins: str = (
+        "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001"
+    )
 
     # Model routing (LiteLLM model strings)
     router_model: str = "anthropic/claude-haiku-5-5"

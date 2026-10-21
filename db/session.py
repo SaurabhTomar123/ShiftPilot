@@ -24,6 +24,13 @@ def admin_engine() -> Engine:
 
 
 @lru_cache
+def worker_engine() -> Engine:
+    """The optimization worker's connection: the shiftpilot_worker role when configured (B6.3)."""
+    url = settings().worker_database_url or settings().database_url
+    return create_engine(url, pool_pre_ping=True)
+
+
+@lru_cache
 def app_engine() -> Engine:
     return create_engine(settings().app_database_url, pool_pre_ping=True)
 
