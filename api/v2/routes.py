@@ -663,6 +663,19 @@ def report_absence(
 
 
 @router.get(
+    "/me/absences", operation_id="getMyAbsences", response_model=s.AbsenceList, responses=_errors(403, 422)
+)
+def get_my_absences(
+    caller: v2auth.CallerDep,
+    start: Annotated[AwareDatetime | None, Query(alias="from")] = None,
+    end: Annotated[AwareDatetime | None, Query(alias="to")] = None,
+) -> s.AbsenceList:
+    """The employee's own absences and requests, any status. Withdraw a pending request with
+    updateAbsence status=cancelled."""
+    return absences.my_absences(caller, start, end)
+
+
+@router.get(
     "/absences", operation_id="listAbsences", response_model=s.AbsenceList, responses=_errors(403, 422)
 )
 def list_absences(

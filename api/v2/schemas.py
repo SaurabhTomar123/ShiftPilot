@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.9.0-p4"
+CONTRACT_VERSION = "3.10.0-p4"
 
 
 class Model(BaseModel):
@@ -537,6 +537,10 @@ class MyWeek(Model):
     shifts: list[Shift] = Field(description="Only shifts from current published versions.")
     outlets: list[OutletRef] = Field(description="Outlets referenced by the shifts.")
     skills: list[Skill] = Field(description="Skills referenced by the shifts, for role labels.")
+    absences: list[AbsenceMark] = Field(
+        default_factory=list,
+        description="The employee's own absences overlapping the week, any status (v3 section 20).",
+    )
 
 
 # ---------------------------------------------------------------- drafts, edits, publication, history (P3)

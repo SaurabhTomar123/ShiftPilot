@@ -199,16 +199,30 @@ def list_absences(
         return s.AbsenceList(items=[_mark(a, _tz(session, e)) for a, e in session.execute(query)])
 
 
+def my_absences(caller: Caller, start: datetime | None, end: datetime | None) -> s.AbsenceList:
+    if caller.role is not Role.STAFF or not caller.employee_id:
+        raise ApiError("permission_denied", "This view is for employees.")
+    return list_absences(caller, None, start, end)
+
+
 def update(caller: Caller, absence_id: uuid.UUID, body: s.UpdateAbsenceRequest) -> s.AbsenceReport:
-    if caller.role is Role.STAFF:
+    """Managers confirm, reject or cancel. An employee may only withdraw (cancel) their own request
+    while it is still requested (v3 section 20: employee self-report)."""
+    staff = caller.role is Role.STAFF
+    if staff and body.status != "cancelled":
         raise ApiError("permission_denied", "Only managers can confirm or reject absences.")
     with tenant_session(caller) as session:
         absence = session.scalars(select(Absence).where(Absence.id == absence_id).with_for_update()).first()
-        if absence is None:
+        if absence is None or (staff and str(absence.employee_id) != caller.employee_id):
             raise not_found("Absence")
+        if staff and absence.status != "requested":
+            raise ApiError(
+                "conflict", "Only a request that is still waiting can be withdrawn. Ask your manager."
+            )
         employee = session.get(Employee, absence.employee_id)
         assert employee is not None
-        assert_outlet(caller, str(employee.outlet_id))
+        if not staff:
+            assert_outlet(caller, str(employee.outlet_id))
         if absence.status in ("rejected", "cancelled"):
             raise ApiError("conflict", f"This absence was already {absence.status}.")
         absence.status = body.status

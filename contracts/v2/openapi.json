@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.9.0-p4"
+    "version": "3.10.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -4203,6 +4203,106 @@
         }
       }
     },
+    "/v2/me/absences": {
+      "get": {
+        "summary": "Get My Absences",
+        "description": "The employee's own absences and requests, any status. Withdraw a pending request with\nupdateAbsence status=cancelled.",
+        "operationId": "getMyAbsences",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "From"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AbsenceList"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
     "/v2/absences/{absence_id}": {
       "patch": {
         "summary": "Update Absence",
@@ -6620,6 +6720,14 @@
             "type": "array",
             "title": "Skills",
             "description": "Skills referenced by the shifts, for role labels."
+          },
+          "absences": {
+            "items": {
+              "$ref": "#/components/schemas/AbsenceMark"
+            },
+            "type": "array",
+            "title": "Absences",
+            "description": "The employee's own absences overlapping the week, any status (v3 section 20)."
           }
         },
         "additionalProperties": false,

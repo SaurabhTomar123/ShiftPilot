@@ -1848,6 +1848,16 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             },
         ),
         Fixture(
+            "me.absences",
+            "getMyAbsences",
+            "GET",
+            "/v2/me/absences",
+            "staff_ravi",
+            200,
+            s.AbsenceList(items=[requested]),
+            {"query": {"from": WEEK.isoformat() + "T00:00:00+05:30"}},
+        ),
+        Fixture(
             "absences.list",
             "listAbsences",
             "GET",

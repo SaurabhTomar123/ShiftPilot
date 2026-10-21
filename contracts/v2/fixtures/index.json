@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.9.0-p4",
+  "contract_version": "3.10.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -90,6 +90,12 @@
       "operation_id": "reportAbsence",
       "status": 201,
       "schema": "AbsenceReport"
+    },
+    {
+      "name": "me.absences",
+      "operation_id": "getMyAbsences",
+      "status": 200,
+      "schema": "AbsenceList"
     },
     {
       "name": "absences.list",

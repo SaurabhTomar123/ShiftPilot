@@ -257,3 +257,34 @@ def test_generation_never_schedules_someone_with_a_confirmed_absence(client: Tes
     for cand in run["candidates"]:
         detail = client.get(f"/v2/optimization-candidates/{cand['id']}", headers=MANAGER).json()
         assert ravi not in {sh["employee_id"] for sh in detail["diff"]["added"]}
+
+
+def test_employees_see_and_withdraw_their_own_requests(client: TestClient) -> None:
+    """B5.3 as architecture v3 section 20 scopes it: employee self-report closes the loop."""
+    version = current(client)
+    ravi = str(uid("employee", "ravi"))
+    mine = next(s for s in version["shifts"] if s["employee_id"] == ravi and not s["locked"])
+    asked = report(client, mine, status="requested", as_=STAFF).json()["absence"]
+    listed = client.get("/v2/me/absences", headers=STAFF).json()["items"]
+    assert asked["id"] in {a["id"] for a in listed} and {a["employee_id"] for a in listed} == {ravi}
+    week = client.get("/v2/me/shifts", params={"week_start": WEEK}, headers=STAFF).json()
+    assert asked["id"] in {a["id"] for a in week["absences"]}
+    assert client.get("/v2/me/absences", headers=MANAGER).status_code == 403
+
+    url = f"/v2/absences/{asked['id']}"
+    assert client.patch(url, headers=STAFF, json={"status": "confirmed"}).status_code == 403
+    withdrawn = client.patch(url, headers=STAFF, json={"status": "cancelled"})
+    assert withdrawn.status_code == 200 and withdrawn.json()["absence"]["status"] == "cancelled"
+    assert withdrawn.json()["repair_run_ids"] == []
+
+    other = next(s for s in version["shifts"] if s["employee_id"] not in (ravi, None))
+    theirs = report(client, other, status="requested").json()["absence"]  # filed by the manager
+    assert (
+        client.patch(f"/v2/absences/{theirs['id']}", headers=STAFF, json={"status": "cancelled"}).status_code
+        == 404
+    )
+    again = report(client, mine, status="requested", as_=STAFF).json()["absence"]
+    client.patch(f"/v2/absences/{again['id']}", headers=MANAGER, json={"status": "rejected"})
+    late = client.patch(f"/v2/absences/{again['id']}", headers=STAFF, json={"status": "cancelled"})
+    assert late.status_code == 409 and error_code(late) == "conflict"
+    client.patch(f"/v2/absences/{theirs['id']}", headers=MANAGER, json={"status": "cancelled"})

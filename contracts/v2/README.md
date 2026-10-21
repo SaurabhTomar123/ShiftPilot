@@ -23,6 +23,14 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.10.0-p4 (live): employee self-report
+
+This change is additive. Architecture v3 §20 scopes employee requests for the MVP to self-report; leave balances, swaps and availability-change requests come later.
+
+- **`getMyAbsences` `GET /v2/me/absences?from&to`:** the employee's own absences and requests, any status. Staff only. Fixture: `me.absences`.
+- **`MyWeek.absences`:** the employee's own absences overlapping the week, shown next to their shifts.
+- **Withdrawing a request:** `updateAbsence` with `{"status": "cancelled"}` now lets an employee withdraw their **own** request while it is still `requested`. A request that was confirmed or rejected is `409`; another person's is `404`. Confirming and rejecting stay manager-only.
+
 ## What changed in 3.9.0-p4 (live): employee CSV onboarding
 
 This change is additive (architecture v3 §19). The flow is upload → row-level errors → fix and upload again → commit in one transaction.

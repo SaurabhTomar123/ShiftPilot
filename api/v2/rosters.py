@@ -277,9 +277,28 @@ def my_week(caller: Caller, week_start: date) -> s.MyWeek:
         skills = {
             k.id: k for k in session.scalars(select(Skill).where(Skill.id.in_({r.skill_id for r in rows})))
         }
+        own = session.scalars(
+            select(Absence)
+            .where(Absence.employee_id == employee_id, Absence.start_at < end, Absence.end_at > start)
+            .order_by(Absence.start_at)
+        )
+        local = ZoneInfo(home.timezone)
         return s.MyWeek(
             employee_id=employee_id,
             week_start=week_start,
+            absences=[
+                s.AbsenceMark.model_validate(
+                    {
+                        "id": a.id,
+                        "employee_id": a.employee_id,
+                        "start_at": a.start_at.astimezone(local),
+                        "end_at": a.end_at.astimezone(local),
+                        "kind": a.kind,
+                        "status": a.status,
+                    }
+                )
+                for a in own
+            ],
             shifts=[_shift_view(r, ZoneInfo(outlets[r.outlet_id].timezone)) for r in rows],
             outlets=[
                 s.OutletRef(id=o.id, name=o.name, timezone=o.timezone)
