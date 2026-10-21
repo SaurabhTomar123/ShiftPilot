@@ -1,0 +1,82 @@
+{
+  "name": "rules.preview.conflict",
+  "operation_id": "previewRule",
+  "method": "POST",
+  "path": "/v2/rules/preview",
+  "persona": "owner",
+  "request": {
+    "body": {
+      "rule_type": "max_shift_end_time",
+      "scope_level": "employee",
+      "scope": {
+        "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710"
+      },
+      "parameters": {
+        "latest_end_minute": 1380,
+        "weekdays": [
+          4
+        ]
+      },
+      "hard": true,
+      "overrides_rule_id": null,
+      "source_text": "Rohit can work until 11 PM on Fridays"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "RulePreview",
+    "body": {
+      "rule": {
+        "rule_type": "max_shift_end_time",
+        "scope_level": "employee",
+        "scope": {
+          "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710"
+        },
+        "parameters": {
+          "latest_end_minute": 1380,
+          "weekdays": [
+            4
+          ]
+        },
+        "hard": true,
+        "overrides_rule_id": null,
+        "source_text": "Rohit can work until 11 PM on Fridays"
+      },
+      "summary": "No shift ends after 23:00 on Friday",
+      "valid": false,
+      "affected": [
+        {
+          "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710",
+          "name": "Rohit Verma"
+        }
+      ],
+      "conflicts": [
+        {
+          "rule_id": "12e29aad-3e55-5c4f-a883-9659b4ac8dcc",
+          "rule_name": "Students must finish by 9 PM on weekdays",
+          "employees": [
+            "Rohit Verma"
+          ],
+          "message": "This conflicts with \"Students must finish by 9 PM on weekdays\". Rohit Verma is covered by both.",
+          "suggested_exception": {
+            "rule_type": "max_shift_end_time",
+            "scope_level": "employee",
+            "scope": {
+              "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710"
+            },
+            "parameters": {
+              "latest_end_minute": 1380,
+              "weekdays": [
+                4
+              ]
+            },
+            "hard": true,
+            "overrides_rule_id": "12e29aad-3e55-5c4f-a883-9659b4ac8dcc",
+            "source_text": "Rohit can work until 11 PM on Fridays"
+          }
+        }
+      ],
+      "impact": []
+    }
+  }
+}

@@ -23,6 +23,17 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.13.0-p4 (live): scheduling rules
+
+This change is additive (architecture v3 §21). Rules are made in forms now; the language shortcut comes next.
+
+- **Rule types:** `max_shift_end_time` `{latest_end_minute, weekdays}` and `max_days_per_week` `{days}`. Every rule is hard. Unsupported types are a `422`.
+- **Scope:** `organization`, `outlet` `{outlet_id}`, `tag` `{tag}` (e.g. `student`) or `employee` `{employee_id}`. There is **no numeric priority**: a more specific rule replaces another only when it names it in `overrides_rule_id`. Facts beat rules: availability and absences are never overridden.
+- **`previewRule` `POST /v2/rules/preview`:** writes nothing. Returns `summary`, `affected` people, `conflicts` (in business terms, each with a `suggested_exception` when one person is in both) and `impact` (upcoming published shifts the rule would break). Fixtures: `rules.preview`, `rules.preview.conflict`.
+- **`createRule` `POST /v2/rules`:** activates the rule. A conflicting rule is `409 conflict` with `details.conflicts`. Offer "Keep the existing rule" or "Create an exception for <name>" by sending `suggested_exception`. Organization and tag rules are owner-only; managers set rules for their outlet or its employees.
+- **`listRules`** and **`archiveRule`**.
+- **Enforcement:** active rules bind generation and repair, and the validator reports them as violation code `rule` (with `facts.rule_id`), including on published weeks evaluated against current facts. Published versions are not changed.
+
 ## What changed in 3.12.0-p4 (live): private demo sandboxes
 
 This change is additive (B6.2). Each `createDemoSession` without a `sandbox_id` now gives the visitor a **private copy** of the synthetic organization. The response's `sandbox_id` and `sandbox_expires_at` (2 hours) describe it. Send `sandbox_id` back with another `persona` to switch persona inside the same sandbox; once it has expired, that request returns `404`. What visitors change is visible to nobody else, and the whole sandbox is deleted when it expires (the token never outlives it). Sandboxes allow 2 active optimization runs (`429` beyond that), and the number of live sandboxes is capped (`429` with `Retry-After: 60`). Fixtures: `session.demo.manager`, `session.demo.switch_persona`.

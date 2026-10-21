@@ -25,6 +25,7 @@ from api.v2 import (
     notifications,
     proposals,
     rosters,
+    rules,
     service,
     staffing,
 )
@@ -671,6 +672,48 @@ def report_absence(
     absence then enqueues a repair run per affected schedule (repair_run_ids); locked affected shifts are
     listed in lock_conflicts and need explicit authorization through repairSchedule."""
     return absences.report(caller, idempotency_key, body)
+
+
+@router.post(
+    "/rules/preview",
+    operation_id="previewRule",
+    response_model=s.RulePreview,
+    responses=_errors(403, 422),
+)
+def preview_rule(caller: v2auth.CallerDep, body: s.RuleDefinition) -> s.RulePreview:
+    """Who the rule affects, conflicts with active rules (in business terms, with a suggested exception)
+    and upcoming published shifts it would break. Writes nothing (architecture v3 section 21)."""
+    return rules.preview(caller, body)
+
+
+@router.post(
+    "/rules",
+    operation_id="createRule",
+    response_model=s.SchedulingRule,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 409, 422),
+)
+def create_rule(
+    caller: v2auth.CallerDep, idempotency_key: IdempotencyKey, body: s.RuleDefinition
+) -> s.SchedulingRule:
+    """Activates the rule. 409 conflict with details.conflicts when it disagrees with an active rule
+    for someone both cover and is not an explicit exception (overrides_rule_id)."""
+    return rules.create(caller, idempotency_key, body)
+
+
+@router.get("/rules", operation_id="listRules", response_model=s.RuleList, responses=_errors(403, 422))
+def list_rules(caller: v2auth.CallerDep, include_archived: bool = False) -> s.RuleList:
+    return rules.list_rules(caller, include_archived)
+
+
+@router.post(
+    "/rules/{rule_id}/archive",
+    operation_id="archiveRule",
+    response_model=s.SchedulingRule,
+    responses=_errors(403, 404, 422),
+)
+def archive_rule(caller: v2auth.CallerDep, rule_id: UUID) -> s.SchedulingRule:
+    return rules.archive(caller, rule_id)
 
 
 @router.get(

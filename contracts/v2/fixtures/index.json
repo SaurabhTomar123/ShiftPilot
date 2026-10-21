@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.12.0-p4",
+  "contract_version": "3.13.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -234,6 +234,36 @@
       "operation_id": "commitImport",
       "status": 200,
       "schema": "ImportJob"
+    },
+    {
+      "name": "rules.preview",
+      "operation_id": "previewRule",
+      "status": 200,
+      "schema": "RulePreview"
+    },
+    {
+      "name": "rules.preview.conflict",
+      "operation_id": "previewRule",
+      "status": 200,
+      "schema": "RulePreview"
+    },
+    {
+      "name": "rules.create",
+      "operation_id": "createRule",
+      "status": 201,
+      "schema": "SchedulingRule"
+    },
+    {
+      "name": "rules.list",
+      "operation_id": "listRules",
+      "status": 200,
+      "schema": "RuleList"
+    },
+    {
+      "name": "rules.archive",
+      "operation_id": "archiveRule",
+      "status": 200,
+      "schema": "SchedulingRule"
     },
     {
       "name": "session.demo.manager",

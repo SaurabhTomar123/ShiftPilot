@@ -12,6 +12,8 @@ from datetime import date, datetime, timedelta
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
+from scheduling.rules import Rule
+
 
 @dataclass(frozen=True)
 class Window:
@@ -34,6 +36,7 @@ class Employee:
     overtime_allowed: bool
     windows: tuple[Window, ...] = ()
     preferred_weekly_minutes: int | None = None  # what the employee would like to work
+    tags: frozenset[str] = frozenset()  # e.g. student; rules can be scoped to a tag
 
 
 @dataclass(frozen=True)
@@ -135,6 +138,8 @@ class Snapshot:
     # Unlocked shifts of the base version being regenerated: keeping one costs no disruption and keeps
     # its logical identity.
     base: tuple[Shift, ...] = ()
+    # Active scheduling rules after precedence, per employee (scheduling.rules.effective).
+    rules: dict[UUID, tuple[Rule, ...]] = field(default_factory=dict)
 
     @property
     def outlet(self) -> Outlet:

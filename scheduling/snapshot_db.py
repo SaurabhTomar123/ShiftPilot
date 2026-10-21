@@ -25,12 +25,14 @@ from db.models_v2 import (
     EmployeeSkill,
     Schedule,
     SchedulingPolicy,
+    SchedulingRule,
     ShiftTemplate,
     Skill,
     StaffingRequirement,
     TravelTime,
     VersionShift,
 )
+from scheduling import rules
 from scheduling.model import Absence, Employee, Outlet, Policy, Requirement, Shift, Snapshot, Template, Window
 
 MARGIN = timedelta(days=1)  # adjacent-week commitments that can affect rest and overlap
@@ -121,6 +123,7 @@ def load(
             max_weekly_minutes=r.max_weekly_minutes,
             overtime_allowed=r.overtime_allowed,
             windows=tuple(windows[r.id]),
+            tags=frozenset(r.tags or ()),
         )
         for r in rows
     }
@@ -189,7 +192,39 @@ def load(
         travel_minutes=travel,
         commitments=commitments,
         templates=templates,
+        rules=effective_rules(session, employees.values()),
     )
+
+
+def active_rules(session: Session) -> list[rules.Rule]:
+    return [
+        rules.Rule(
+            r.id,
+            r.rule_type,
+            r.scope_level,
+            r.scope,
+            r.parameters,
+            r.hard,
+            r.overrides_rule_id,
+            r.source_text or "",
+        )
+        for r in session.scalars(select(SchedulingRule).where(SchedulingRule.status == "active"))
+    ]
+
+
+def effective_rules(
+    session: Session, employees: Iterable[Employee]
+) -> dict[uuid.UUID, tuple[rules.Rule, ...]]:
+    """Each employee's active rules after precedence (architecture v3 section 21)."""
+    active = active_rules(session)
+    if not active:
+        return {}
+    out = {}
+    for e in employees:
+        mine = rules.effective(active, rules.Person(e.id, e.name, e.home_outlet_id, e.tags))
+        if mine:
+            out[e.id] = tuple(mine)
+    return out
 
 
 def with_base_locks(snap: Snapshot, locked: list[Shift], base: list[Shift] | None = None) -> Snapshot:

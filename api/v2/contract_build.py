@@ -566,6 +566,7 @@ def fixtures() -> list[Fixture]:
         + p4_fixtures(published)
         + proposal_fixtures(d1)
         + import_fixtures()
+        + rule_fixtures()
         + [
             Fixture(
                 "session.demo.manager",
@@ -2295,6 +2296,105 @@ def import_fixtures() -> list[Fixture]:
             200,
             committed,
             {"path_params": {"import_id": str(job_id)}, "headers": {"Idempotency-Key": "commit-9a7e3b10"}},
+        ),
+    ]
+
+
+# ---------------------------------------------------------------- B5.2: rules and precedence (v3 s21)
+
+
+def rule_fixtures() -> list[Fixture]:
+    students = s.RuleDefinition(
+        rule_type="max_shift_end_time",
+        scope_level="tag",
+        scope={"tag": "student"},
+        parameters={"latest_end_minute": 1260, "weekdays": [0, 1, 2, 3, 4]},
+        source_text="Students must finish by 9 PM on weekdays",
+    )
+    rohit = uid("employee", "rohit")
+    friday = s.RuleDefinition(
+        rule_type="max_shift_end_time",
+        scope_level="employee",
+        scope={"employee_id": str(rohit)},
+        parameters={"latest_end_minute": 1380, "weekdays": [4]},
+        source_text="Rohit can work until 11 PM on Fridays",
+    )
+    rule_id = uid("rule", "students")
+    stored = s.SchedulingRule(
+        **students.model_dump(),
+        id=rule_id,
+        summary="No shift ends after 21:00 on weekdays",
+        status="active",
+        created_at=stamp("2026-10-21T11:00:00"),
+    )
+    affected = [
+        s.RuleEmployee(employee_id=uid("employee", k), name=n)
+        for k, n in sorted(
+            (("rohit", "Rohit Verma"), ("kabir", "Kabir Malhotra"), ("yash", "Yash Chawla")),
+            key=lambda t: t[1],
+        )
+    ]
+    clean = s.RulePreview(
+        rule=students, summary=stored.summary, valid=True, affected=affected, conflicts=[], impact=[]
+    )
+    clash = s.RulePreview(
+        rule=friday,
+        summary="No shift ends after 23:00 on Friday",
+        valid=False,
+        affected=[s.RuleEmployee(employee_id=rohit, name="Rohit Verma")],
+        conflicts=[
+            s.RuleConflict(
+                rule_id=rule_id,
+                rule_name="Students must finish by 9 PM on weekdays",
+                employees=["Rohit Verma"],
+                message='This conflicts with "Students must finish by 9 PM on weekdays". '
+                "Rohit Verma is covered by both.",
+                suggested_exception=friday.model_copy(update={"overrides_rule_id": rule_id}),
+            )
+        ],
+        impact=[],
+    )
+    return [
+        Fixture(
+            "rules.preview",
+            "previewRule",
+            "POST",
+            "/v2/rules/preview",
+            "owner",
+            200,
+            clean,
+            {"body": students.model_dump(mode="json")},
+        ),
+        Fixture(
+            "rules.preview.conflict",
+            "previewRule",
+            "POST",
+            "/v2/rules/preview",
+            "owner",
+            200,
+            clash,
+            {"body": friday.model_dump(mode="json")},
+        ),
+        Fixture(
+            "rules.create",
+            "createRule",
+            "POST",
+            "/v2/rules",
+            "owner",
+            201,
+            stored,
+            {"headers": {"Idempotency-Key": "rule-4c1d7e20"}, "body": students.model_dump(mode="json")},
+        ),
+        Fixture("rules.list", "listRules", "GET", "/v2/rules", "owner", 200, s.RuleList(items=[stored]), {}),
+        Fixture(
+            "rules.archive",
+            "archiveRule",
+            "POST",
+            "/v2/rules/{rule_id}/archive",
+            "owner",
+            200,
+            stored.model_copy(update={"status": "archived"}),
+            {"path_params": {"rule_id": str(rule_id)}},
         ),
     ]
 

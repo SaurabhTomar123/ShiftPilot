@@ -65,6 +65,8 @@ AUDIT_ACTIONS = frozenset(
         "EMPLOYEE_UPDATED",
         "IMPORT_STAGED",
         "IMPORT_COMMITTED",
+        "RULE_CREATED",
+        "RULE_ARCHIVED",
         "OPTIMIZATION_REQUESTED",
         "PROPOSAL_APPROVED",
         "PROPOSAL_CREATED",

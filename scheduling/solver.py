@@ -20,7 +20,7 @@ from typing import Any
 
 from ortools.sat.python import cp_model
 
-from scheduling import validator
+from scheduling import rules, validator
 from scheduling.model import Employee, Shift, Snapshot
 
 STATUS = {
@@ -182,6 +182,8 @@ def slots(snap: Snapshot) -> list[Slot]:
 def eligible(snap: Snapshot, emp: Employee, slot: Slot) -> bool:
     if emp.status != "active" or slot.skill_id not in emp.skill_ids:
         return False
+    if rules.end_allowed(snap.rules.get(emp.id, ()), slot.start, slot.end, snap.outlet.tz) is not None:
+        return False  # a scheduling rule (v3 section 21); facts are checked below
     local = slot.start.astimezone(snap.outlet.tz)
     s = local.hour * 60 + local.minute
     e = s + int((slot.end - slot.start).total_seconds() // 60)
@@ -387,6 +389,23 @@ def solve(
             model.add(gap >= total - emp.preferred_weekly_minutes)
             model.add(gap >= emp.preferred_weekly_minutes - total)
             align_terms.append(gap)
+        cap = rules.max_days(snap.rules.get(emp_id, ()))
+        if cap is not None:  # at most N working days this week, counting days already fixed
+            tz = snap.outlet.tz
+            fixed_days = {
+                sh.start_at.astimezone(tz).date()
+                for sh in fixed_by_emp[emp_id]
+                if week_start <= sh.start_at < week_end
+            }
+            open_days = sorted({cands[i].day for i in idx} - fixed_days)
+            works = []
+            for day in open_days:
+                on = model.new_bool_var(f"day_{emp_id.hex[:6]}_{day}")
+                for i in idx:
+                    if cands[i].day == day:
+                        model.add(x[emp_id, i] <= on)
+                works.append(on)
+            model.add(sum(works) + len(fixed_days) <= max(cap.parameters["days"], len(fixed_days)))
         has_prefs = any(w.kind == "preferred" for w in emp.windows)
         for i in idx:
             cost_terms.append(x[emp_id, i] * ((cands[i].paid_minutes * emp.rate_paise_per_hour + 30) // 60))

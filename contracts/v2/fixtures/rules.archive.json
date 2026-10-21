@@ -1,0 +1,40 @@
+{
+  "name": "rules.archive",
+  "operation_id": "archiveRule",
+  "method": "POST",
+  "path": "/v2/rules/{rule_id}/archive",
+  "persona": "owner",
+  "request": {
+    "path_params": {
+      "rule_id": "12e29aad-3e55-5c4f-a883-9659b4ac8dcc"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "SchedulingRule",
+    "body": {
+      "rule_type": "max_shift_end_time",
+      "scope_level": "tag",
+      "scope": {
+        "tag": "student"
+      },
+      "parameters": {
+        "latest_end_minute": 1260,
+        "weekdays": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "hard": true,
+      "overrides_rule_id": null,
+      "source_text": "Students must finish by 9 PM on weekdays",
+      "id": "12e29aad-3e55-5c4f-a883-9659b4ac8dcc",
+      "summary": "No shift ends after 21:00 on weekdays",
+      "status": "archived",
+      "created_at": "2026-10-21T11:00:00+05:30"
+    }
+  }
+}

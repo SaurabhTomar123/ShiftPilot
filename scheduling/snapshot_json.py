@@ -15,6 +15,7 @@ from uuid import UUID
 
 from scheduling import diff as sched_diff
 from scheduling.model import Absence, Employee, Outlet, Policy, Requirement, Shift, Snapshot, Template, Window
+from scheduling.rules import Rule
 
 SCHEMA_VERSION = 1
 
@@ -31,6 +32,32 @@ def _shift(sh: Shift) -> dict[str, Any]:
         "break_start_at": sh.break_start_at.isoformat() if sh.break_start_at else None,
         "locked": sh.locked,
     }
+
+
+def _rule(r: Rule) -> dict[str, Any]:
+    return {
+        "id": str(r.id),
+        "rule_type": r.rule_type,
+        "scope_level": r.scope_level,
+        "scope": {k: str(v) for k, v in r.scope.items()},
+        "parameters": r.parameters,
+        "hard": r.hard,
+        "overrides_rule_id": str(r.overrides_rule_id) if r.overrides_rule_id else None,
+        "name": r.name,
+    }
+
+
+def _rule_back(d: dict[str, Any]) -> Rule:
+    return Rule(
+        UUID(d["id"]),
+        d["rule_type"],
+        d["scope_level"],
+        d["scope"],
+        d["parameters"],
+        d["hard"],
+        UUID(d["overrides_rule_id"]) if d["overrides_rule_id"] else None,
+        d["name"],
+    )
 
 
 def _shift_back(d: dict[str, Any]) -> Shift:
@@ -81,6 +108,7 @@ def dump(snap: Snapshot) -> dict[str, Any]:
                 "overtime_allowed": e.overtime_allowed,
                 "windows": [[w.weekday, w.start_minute, w.end_minute, w.kind] for w in e.windows],
                 "preferred_weekly_minutes": e.preferred_weekly_minutes,
+                "tags": sorted(e.tags),
             }
             for e in sorted(snap.employees.values(), key=lambda e: str(e.id))
         ],
@@ -104,6 +132,10 @@ def dump(snap: Snapshot) -> dict[str, Any]:
         "commitments": [_shift(sh) for sh in snap.commitments],
         "base_locked": [_shift(sh) for sh in snap.base_locked.values()],
         "base": [_shift(sh) for sh in snap.base],
+        "rules": {
+            str(emp): [_rule(r) for r in rules]
+            for emp, rules in sorted(snap.rules.items(), key=lambda kv: str(kv[0]))
+        },
         "templates": [
             {
                 "id": str(t.id),
@@ -143,6 +175,7 @@ def load(doc: dict[str, Any]) -> Snapshot:
             e["overtime_allowed"],
             tuple(Window(*w) for w in e["windows"]),
             e.get("preferred_weekly_minutes"),  # absent in snapshots stored before A3.8
+            frozenset(e.get("tags", [])),
         )
         for e in doc["employees"]
     }
@@ -166,6 +199,7 @@ def load(doc: dict[str, Any]) -> Snapshot:
         commitments=tuple(_shift_back(d) for d in doc["commitments"]),
         base_locked={sh.logical_id: sh for sh in base_locked},
         base=tuple(_shift_back(d) for d in doc.get("base", [])),  # absent before A3.8
+        rules={UUID(k): tuple(_rule_back(r) for r in v) for k, v in doc.get("rules", {}).items()},
         templates=tuple(
             Template(
                 UUID(t["id"]),

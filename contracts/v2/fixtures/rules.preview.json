@@ -1,0 +1,73 @@
+{
+  "name": "rules.preview",
+  "operation_id": "previewRule",
+  "method": "POST",
+  "path": "/v2/rules/preview",
+  "persona": "owner",
+  "request": {
+    "body": {
+      "rule_type": "max_shift_end_time",
+      "scope_level": "tag",
+      "scope": {
+        "tag": "student"
+      },
+      "parameters": {
+        "latest_end_minute": 1260,
+        "weekdays": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "hard": true,
+      "overrides_rule_id": null,
+      "source_text": "Students must finish by 9 PM on weekdays"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "RulePreview",
+    "body": {
+      "rule": {
+        "rule_type": "max_shift_end_time",
+        "scope_level": "tag",
+        "scope": {
+          "tag": "student"
+        },
+        "parameters": {
+          "latest_end_minute": 1260,
+          "weekdays": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "hard": true,
+        "overrides_rule_id": null,
+        "source_text": "Students must finish by 9 PM on weekdays"
+      },
+      "summary": "No shift ends after 21:00 on weekdays",
+      "valid": true,
+      "affected": [
+        {
+          "employee_id": "f1f94dd2-ae23-5967-8719-328d1bf60e80",
+          "name": "Kabir Malhotra"
+        },
+        {
+          "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710",
+          "name": "Rohit Verma"
+        },
+        {
+          "employee_id": "6be20d13-060a-5425-9aad-4263a8aeba3b",
+          "name": "Yash Chawla"
+        }
+      ],
+      "conflicts": [],
+      "impact": []
+    }
+  }
+}

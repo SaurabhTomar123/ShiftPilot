@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.12.0-p4"
+CONTRACT_VERSION = "3.13.0-p4"
 
 
 class Model(BaseModel):
@@ -228,6 +228,78 @@ class EmployeeUpdate(Model):
         return self
 
 
+RuleType = Literal["max_shift_end_time", "max_days_per_week"]
+ScopeLevel = Literal["organization", "outlet", "tag", "employee"]
+
+
+class RuleDefinition(Model):
+    """A scheduling rule (architecture v3 section 21). Precedence is by scope, never by number: a more
+    specific rule replaces another only when it names it in overrides_rule_id.
+
+    parameters by rule_type: max_shift_end_time {latest_end_minute (0-1440, half-hour), weekdays
+    [0=Monday..6]}; max_days_per_week {days (1-7)}."""
+
+    rule_type: RuleType
+    scope_level: ScopeLevel
+    scope: dict[str, str] = Field(
+        description="{} for organization; {outlet_id}; {tag} (e.g. student); {employee_id}."
+    )
+    parameters: dict[str, Any]
+    hard: bool = Field(default=True, description="Only hard rules are supported in the MVP.")
+    overrides_rule_id: UUID | None = Field(default=None, description="The rule this one is an exception to.")
+    source_text: str | None = Field(default=None, max_length=500, description="How a person phrased it.")
+
+
+class RuleEmployee(Model):
+    employee_id: UUID
+    name: str
+
+
+class RuleConflict(Model):
+    rule_id: UUID
+    rule_name: str
+    employees: list[str] = Field(description="Names of the people both rules apply to.")
+    message: str = Field(description='E.g. This conflicts with "Students must finish by 9 PM". ...')
+    suggested_exception: RuleDefinition | None = Field(
+        description="When one person is in both: the same rule scoped to them, overriding the existing "
+        "rule. Offer it as 'Create an exception for <name>'; otherwise keep the existing rule."
+    )
+
+
+class RuleImpact(Model):
+    employee_id: UUID
+    name: str
+    logical_shift_id: UUID
+    start_at: AwareDatetime
+    end_at: AwareDatetime
+    message: str
+
+
+class RulePreview(Model):
+    """What saving the rule would mean. Writes nothing."""
+
+    rule: RuleDefinition
+    summary: str = Field(description="Deterministic description, e.g. No shift ends after 21:00 on weekdays.")
+    valid: bool = Field(description="false when it conflicts with an active rule; saving would be 409.")
+    affected: list[RuleEmployee]
+    conflicts: list[RuleConflict]
+    impact: list[RuleImpact] = Field(
+        description="Upcoming published shifts this rule would break (at most 50). They stay published; "
+        "the next generation or repair respects the rule."
+    )
+
+
+class SchedulingRule(RuleDefinition):
+    id: UUID
+    summary: str
+    status: Literal["draft", "active", "archived"]
+    created_at: AwareDatetime
+
+
+class RuleList(Model):
+    items: list[SchedulingRule]
+
+
 class Notification(Model):
     """An in-app notification (architecture v3 section 40)."""
 
@@ -424,6 +496,7 @@ ViolationCode = Literal[
     "outside_grid",
     "outside_operating_hours",
     "inactive_employee",
+    "rule",
 ]
 
 

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.12.0-p4"
+    "version": "3.13.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -4203,6 +4203,337 @@
         }
       }
     },
+    "/v2/rules/preview": {
+      "post": {
+        "summary": "Preview Rule",
+        "description": "Who the rule affects, conflicts with active rules (in business terms, with a suggested exception)\nand upcoming published shifts it would break. Writes nothing (architecture v3 section 21).",
+        "operationId": "previewRule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleDefinition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RulePreview"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not Implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v2/rules": {
+      "post": {
+        "summary": "Create Rule",
+        "description": "Activates the rule. 409 conflict with details.conflicts when it disagrees with an active rule\nfor someone both cover and is not an explicit exception (overrides_rule_id).",
+        "operationId": "createRule",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleDefinition"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchedulingRule"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      },
+      "get": {
+        "summary": "List Rules",
+        "operationId": "listRules",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "include_archived",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Archived"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuleList"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/rules/{rule_id}/archive": {
+      "post": {
+        "summary": "Archive Rule",
+        "operationId": "archiveRule",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "rule_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Rule Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchedulingRule"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
     "/v2/me/notifications": {
       "get": {
         "summary": "Get My Notifications",
@@ -7971,6 +8302,261 @@
         ],
         "title": "RosterEmployee"
       },
+      "RuleConflict": {
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Rule Id"
+          },
+          "rule_name": {
+            "type": "string",
+            "title": "Rule Name"
+          },
+          "employees": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Employees",
+            "description": "Names of the people both rules apply to."
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "E.g. This conflicts with \"Students must finish by 9 PM\". ..."
+          },
+          "suggested_exception": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RuleDefinition"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "When one person is in both: the same rule scoped to them, overriding the existing rule. Offer it as 'Create an exception for <name>'; otherwise keep the existing rule."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rule_id",
+          "rule_name",
+          "employees",
+          "message",
+          "suggested_exception"
+        ],
+        "title": "RuleConflict"
+      },
+      "RuleDefinition": {
+        "properties": {
+          "rule_type": {
+            "type": "string",
+            "enum": [
+              "max_shift_end_time",
+              "max_days_per_week"
+            ],
+            "title": "Rule Type"
+          },
+          "scope_level": {
+            "type": "string",
+            "enum": [
+              "organization",
+              "outlet",
+              "tag",
+              "employee"
+            ],
+            "title": "Scope Level"
+          },
+          "scope": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Scope",
+            "description": "{} for organization; {outlet_id}; {tag} (e.g. student); {employee_id}."
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters"
+          },
+          "hard": {
+            "type": "boolean",
+            "title": "Hard",
+            "description": "Only hard rules are supported in the MVP.",
+            "default": true
+          },
+          "overrides_rule_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overrides Rule Id",
+            "description": "The rule this one is an exception to."
+          },
+          "source_text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Text",
+            "description": "How a person phrased it."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rule_type",
+          "scope_level",
+          "scope",
+          "parameters"
+        ],
+        "title": "RuleDefinition",
+        "description": "A scheduling rule (architecture v3 section 21). Precedence is by scope, never by number: a more\nspecific rule replaces another only when it names it in overrides_rule_id.\n\nparameters by rule_type: max_shift_end_time {latest_end_minute (0-1440, half-hour), weekdays\n[0=Monday..6]}; max_days_per_week {days (1-7)}."
+      },
+      "RuleEmployee": {
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Employee Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "employee_id",
+          "name"
+        ],
+        "title": "RuleEmployee"
+      },
+      "RuleImpact": {
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Employee Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start At"
+          },
+          "end_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End At"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "employee_id",
+          "name",
+          "logical_shift_id",
+          "start_at",
+          "end_at",
+          "message"
+        ],
+        "title": "RuleImpact"
+      },
+      "RuleList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SchedulingRule"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "RuleList"
+      },
+      "RulePreview": {
+        "properties": {
+          "rule": {
+            "$ref": "#/components/schemas/RuleDefinition"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "description": "Deterministic description, e.g. No shift ends after 21:00 on weekdays."
+          },
+          "valid": {
+            "type": "boolean",
+            "title": "Valid",
+            "description": "false when it conflicts with an active rule; saving would be 409."
+          },
+          "affected": {
+            "items": {
+              "$ref": "#/components/schemas/RuleEmployee"
+            },
+            "type": "array",
+            "title": "Affected"
+          },
+          "conflicts": {
+            "items": {
+              "$ref": "#/components/schemas/RuleConflict"
+            },
+            "type": "array",
+            "title": "Conflicts"
+          },
+          "impact": {
+            "items": {
+              "$ref": "#/components/schemas/RuleImpact"
+            },
+            "type": "array",
+            "title": "Impact",
+            "description": "Upcoming published shifts this rule would break (at most 50). They stay published; the next generation or repair respects the rule."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rule",
+          "summary",
+          "valid",
+          "affected",
+          "conflicts",
+          "impact"
+        ],
+        "title": "RulePreview",
+        "description": "What saving the rule would mean. Writes nothing."
+      },
       "ScheduleVersion": {
         "properties": {
           "id": {
@@ -8372,6 +8958,109 @@
           "absences"
         ],
         "title": "ScheduleWeek"
+      },
+      "SchedulingRule": {
+        "properties": {
+          "rule_type": {
+            "type": "string",
+            "enum": [
+              "max_shift_end_time",
+              "max_days_per_week"
+            ],
+            "title": "Rule Type"
+          },
+          "scope_level": {
+            "type": "string",
+            "enum": [
+              "organization",
+              "outlet",
+              "tag",
+              "employee"
+            ],
+            "title": "Scope Level"
+          },
+          "scope": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Scope",
+            "description": "{} for organization; {outlet_id}; {tag} (e.g. student); {employee_id}."
+          },
+          "parameters": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parameters"
+          },
+          "hard": {
+            "type": "boolean",
+            "title": "Hard",
+            "description": "Only hard rules are supported in the MVP.",
+            "default": true
+          },
+          "overrides_rule_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overrides Rule Id",
+            "description": "The rule this one is an exception to."
+          },
+          "source_text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Text",
+            "description": "How a person phrased it."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "active",
+              "archived"
+            ],
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rule_type",
+          "scope_level",
+          "scope",
+          "parameters",
+          "id",
+          "summary",
+          "status",
+          "created_at"
+        ],
+        "title": "SchedulingRule"
       },
       "SetLock": {
         "properties": {
@@ -9264,7 +9953,8 @@
               "locked_changed",
               "outside_grid",
               "outside_operating_hours",
-              "inactive_employee"
+              "inactive_employee",
+              "rule"
             ],
             "title": "Code"
           },

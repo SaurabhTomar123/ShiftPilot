@@ -329,15 +329,20 @@ class SchedulingRule(Base):
     __tablename__ = "scheduling_rules"
     __table_args__ = (
         ref("created_by_user_id", "users"),
+        ref("overrides_rule_id", "scheduling_rules", name="scheduling_rules_overrides_fkey"),
+        UniqueConstraint("org_id", "id"),
         one_of("status", ("draft", "active", "archived"), "rule_status"),
+        one_of("scope_level", ("organization", "outlet", "tag", "employee"), "rule_scope_level"),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
+    # Precedence by scope, never by number (architecture v3 section 21).
+    scope_level: Mapped[str] = mapped_column(String(20), server_default="organization")
     scope: Mapped[dict[str, Any]] = mapped_column(JSONB)
     rule_type: Mapped[str] = mapped_column(String(60))
     parameters: Mapped[dict[str, Any]] = mapped_column(JSONB)
     hard: Mapped[bool] = mapped_column(Boolean)
-    priority: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
+    overrides_rule_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     source_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String(20))
     created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)

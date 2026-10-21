@@ -23,6 +23,7 @@ from datetime import date, datetime
 from typing import Any
 from uuid import UUID
 
+from scheduling import rules
 from scheduling.model import Employee, Outlet, Shift, Snapshot
 
 HARD, SOFT = "hard", "soft"
@@ -115,6 +116,16 @@ def _per_shift(snap: Snapshot, shift: Shift) -> Iterable[Violation]:
             emp.id,
             ids,
             {"weekday": day.weekday(), "start_minute": s, "end_minute": e},
+        )
+    broken = rules.end_allowed(snap.rules.get(emp.id, ()), shift.start_at, shift.end_at, outlet.tz)
+    if broken is not None:
+        yield Violation(
+            "rule",
+            HARD,
+            f"{who}: {broken.name or rules.describe(broken)} ({when}).",
+            emp.id,
+            ids,
+            {"rule_id": str(broken.id), "rule_type": broken.rule_type, **broken.parameters},
         )
     for absence in snap.absences:
         if (
@@ -224,6 +235,18 @@ def _per_employee(snap: Snapshot, roster: list[Shift]) -> Iterable[Violation]:
         if emp is None:
             continue
         week = [sh for sh in shifts if week_start <= sh.start_at < week_end]
+        cap = rules.max_days(snap.rules.get(emp_id, ()))
+        if cap is not None:
+            days = {sh.start_at.astimezone(snap.outlet.tz).date() for sh in week}
+            if len(days) > cap.parameters["days"]:
+                yield Violation(
+                    "rule",
+                    HARD,
+                    f"{name} would work {len(days)} days this week: {cap.name or rules.describe(cap)}.",
+                    emp_id,
+                    tuple(sh.logical_id for sh in week if id(sh) in in_roster),
+                    {"rule_id": str(cap.id), "rule_type": cap.rule_type, "days": len(days), **cap.parameters},
+                )
         total = sum(sh.paid_minutes for sh in week)
         week_ids = tuple(sh.logical_id for sh in week if id(sh) in in_roster)
         facts = {
