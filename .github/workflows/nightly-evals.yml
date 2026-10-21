@@ -47,3 +47,28 @@ jobs:
         with:
           name: eval-${{ strategy.job-index }}
           path: evals/reports/*.json
+
+  v2:
+    # B6.1: scheduling scenarios plus language and security cases. The report is tied to the commit and
+    # a configuration hash (solver weights, repair profiles, prompts, model, OR-Tools, contract).
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      LANGUAGE_MODEL: anthropic/claude-haiku-5-5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - run: pip install --require-hashes -r requirements.lock && pip install --no-deps -e .
+      - name: offline (solver + scripted language model)
+        run: python -m evals.v2 --gate
+      - name: live language model
+        if: ${{ env.ANTHROPIC_API_KEY != '' }}
+        run: python -m evals.v2 --suite language --live
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v2-eval-reports
+          path: docs/runbooks/evals/*.json

@@ -55,7 +55,11 @@ class ScriptedModel:
     def _command(self, text: str, today: date) -> dict[str, Any]:
         m = re.match(
             r"(?:give )?(?P<who>[a-z .]+?)(?: is)? (?:the day )?off (?:on )?(?P<when>.+)", text
-        ) or re.match(r"give (?P<who>[a-z .]+?) (?P<when>.+?) off", text)
+        ) or re.match(
+            r"give (?P<who>[a-z .]+?) (?P<when>(?:next |this )?(?:monday|tuesday|wednesday|thursday|friday|"
+            r"saturday|sunday|today|tomorrow|\d{4}-\d{2}-\d{2})) off",
+            text,
+        )
         if m:
             return {
                 "intent": "give_time_off",
