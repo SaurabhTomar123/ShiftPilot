@@ -43,7 +43,10 @@ packages = ["core", "db", "mcp_server", "agent", "api", "rag", "jobs", "importer
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-markers = ["integration: needs a running Postgres (DATABASE_URL / APP_DATABASE_URL)"]
+markers = [
+    "integration: needs a running Postgres (DATABASE_URL / APP_DATABASE_URL)",
+    "faults: fault injection (lost leases, crashes, concurrent writers); run as its own CI step",
+]
 addopts = "-m 'not integration'"
 
 [tool.ruff]

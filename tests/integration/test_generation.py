@@ -149,6 +149,7 @@ def claim(me: str) -> Any:
         ).first()
 
 
+@pytest.mark.faults
 def test_a_worker_that_lost_its_lease_writes_nothing(client: TestClient) -> None:
     run_id = generate(client, HSR, NEXT).json()["id"]
     row = claim("zombie")
@@ -167,6 +168,7 @@ def test_a_worker_that_lost_its_lease_writes_nothing(client: TestClient) -> None
     assert final[0] == "succeeded" and final[1] == 3
 
 
+@pytest.mark.faults
 def test_exhausted_attempts_are_failed_by_the_sweeper(client: TestClient) -> None:
     run_id = generate(client, KOR, NEXT).json()["id"]
     sql(
@@ -246,3 +248,29 @@ def test_the_worker_role_is_least_privilege(client: TestClient) -> None:
     ):
         with engine.connect() as conn, pytest.raises(ProgrammingError, match="permission denied"):
             conn.execute(text(statement))
+
+
+@pytest.mark.faults
+def test_concurrent_generation_requests_admit_exactly_one_run(client: TestClient) -> None:
+    """v3 section 28 under real concurrency: the partial unique index admits one active batch run."""
+    import threading
+
+    barrier = threading.Barrier(2)
+    codes: list[int] = []
+    errors: list[str] = []
+
+    def go() -> None:
+        barrier.wait()
+        try:
+            codes.append(generate(client, HSR, "2026-11-16").status_code)
+        except Exception as exc:  # surfaced below
+            codes.append(-1)
+            errors.append(repr(exc)[:600])
+
+    threads = [threading.Thread(target=go) for _ in range(2)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=60)
+    assert sorted(codes) == [202, 409], errors
+    worker.run_once()

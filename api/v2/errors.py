@@ -7,6 +7,8 @@ from typing import Any
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from psycopg import errors as pg
+from sqlalchemy.exc import OperationalError
 
 from api.v2 import schemas as s
 from core.auth import PermissionDenied
@@ -78,6 +80,18 @@ def install(app: FastAPI) -> None:
         ]
         return response(ApiError("validation_failed", "Some fields need attention.", fields=fields))
 
+    async def on_operational(_request: Request, exc: Exception) -> JSONResponse:
+        """A transaction that lost a race (snapshot isolation or a deadlock) is a retryable conflict,
+        not a server error: nothing was written and the same request can simply be sent again."""
+        assert isinstance(exc, OperationalError)
+        if isinstance(exc.orig, (pg.SerializationFailure, pg.DeadlockDetected)):
+            err = ApiError(
+                "conflict", "Someone else changed this at the same moment. Try again.", retryable=True
+            )
+            return response(err, {"Retry-After": "1"})
+        raise exc
+
     app.add_exception_handler(ApiError, on_api_error)
+    app.add_exception_handler(OperationalError, on_operational)
     app.add_exception_handler(PermissionDenied, on_permission)
     app.add_exception_handler(RequestValidationError, on_validation)

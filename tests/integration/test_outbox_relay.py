@@ -35,6 +35,7 @@ def drain() -> None:
     outbox_relay.relay_once()  # earlier events (the seed's and other tests') out of the way
 
 
+@pytest.mark.faults
 def test_publication_notifies_rostered_staff_exactly_once(client: TestClient) -> None:
     drain()
     current = client.get(WEEK_URL, headers=MANAGER).json()["current_version"]
@@ -100,6 +101,7 @@ def test_a_finished_repair_reaches_the_outlets_managers(client: TestClient) -> N
     assert reported["repair_run_ids"]
 
 
+@pytest.mark.faults
 def test_a_failing_event_backs_off_without_blocking_others(client: TestClient) -> None:
     drain()
     org = sql("SELECT org_id FROM outbox_events LIMIT 1")[0][0]
@@ -107,7 +109,7 @@ def test_a_failing_event_backs_off_without_blocking_others(client: TestClient) -
     sql(
         "INSERT INTO outbox_events (id, org_id, topic, aggregate_type, aggregate_id, payload) "
         "VALUES (:id, :org, 'schedule.published', 'schedule_version', :id, "
-        "'{\"schedule_id\": \"nope\"}'::jsonb)",
+        '\'{"schedule_id": "nope"}\'::jsonb)',
         id=bad,
         org=org,
     )

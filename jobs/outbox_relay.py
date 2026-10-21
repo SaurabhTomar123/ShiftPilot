@@ -20,7 +20,7 @@ import logging
 import time
 import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from sqlalchemy import Connection, Engine, text
@@ -144,9 +144,11 @@ def _deliver(conn: Connection, event: Any, now: datetime) -> int:
 def relay_once(engine: Engine | None = None, *, now: datetime | None = None) -> dict[str, int]:
     """Deliver one batch. Each event commits or retries on its own (savepoints)."""
     engine = engine or relay_engine()
-    now = now or datetime.now(UTC)
     counts = {"events": 0, "deliveries": 0, "failed": 0}
     with engine.begin() as conn:
+        # The database clock, as the worker uses: events are stamped by it (next_attempt_at defaults to
+        # now()), so a host clock running slightly behind would skip events that are already due.
+        now = now or conn.execute(text("SELECT now()")).scalar_one()
         for event in conn.execute(CLAIM, {"now": now, "batch": BATCH}).all():
             counts["events"] += 1
             savepoint = conn.begin_nested()

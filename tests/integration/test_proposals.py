@@ -198,3 +198,26 @@ def test_proposals_can_be_found_again_and_expire(client: TestClient) -> None:
     assert client.get(f"/v2/proposals/{second['id']}", headers=MANAGER).json()["status"] == "expired"
     late = approve(client, second)
     assert late.status_code == 409 and late.json()["error"]["details"]["status"] == "expired"
+
+
+@pytest.mark.faults
+def test_two_managers_approving_at_once_publish_exactly_one_plan(client: TestClient) -> None:
+    """v3 section 31 under real concurrency: the schedule row lock serializes publication."""
+    import threading
+
+    first, second = propose(client, draft(client)), propose(client, draft(client))
+    barrier = threading.Barrier(2)
+    outcomes: list[str] = []
+
+    def go(p: dict[str, Any]) -> None:
+        barrier.wait()
+        outcomes.append(approve(client, p).json()["outcome"])
+
+    threads = [threading.Thread(target=go, args=(p,)) for p in (first, second)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=60)
+    assert sorted(outcomes) == ["published", "stale"]
+    published = first if current(client)["id"] == first["draft_version_id"] else second
+    assert current(client)["id"] == published["draft_version_id"]

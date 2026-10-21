@@ -21,5 +21,69 @@ services:
     ports:
       - "6380:6379"
 
+  # ---------------------------------------------------------------- backend (docker compose --profile app up)
+  # The schema is migrated once by a one-shot job; the API, worker and relay start only after it succeeds
+  # and each connects with its own least-privilege role.
+
+  migrate:
+    profiles: ["app"]
+    build: ..
+    command: ["python", "-m", "db.migrate", "upgrade"]
+    environment: &db
+      DATABASE_URL: postgresql+psycopg://shiftpilot:shiftpilot@postgres:5432/shiftpilot
+      APP_DATABASE_URL: postgresql+psycopg://shiftpilot_app:${APP_DB_PASSWORD:-shiftpilot_app}@postgres:5432/shiftpilot
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:-shiftpilot_app}
+      WORKER_DATABASE_URL: postgresql+psycopg://shiftpilot_worker:${WORKER_DB_PASSWORD:-shiftpilot_worker}@postgres:5432/shiftpilot
+      WORKER_DB_PASSWORD: ${WORKER_DB_PASSWORD:-shiftpilot_worker}
+      RELAY_DATABASE_URL: postgresql+psycopg://shiftpilot_relay:${RELAY_DB_PASSWORD:-shiftpilot_relay}@postgres:5432/shiftpilot
+      RELAY_DB_PASSWORD: ${RELAY_DB_PASSWORD:-shiftpilot_relay}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET}
+      DEMO_SESSIONS_ENABLED: ${DEMO_SESSIONS_ENABLED:-false}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    profiles: ["app"]
+    build: ..
+    environment: *db
+    ports:
+      - "8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  worker:
+    profiles: ["app"]
+    build: ..
+    command: ["python", "-m", "scheduling.worker", "--processes", "2"]
+    environment: *db
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped  # an interrupted solve is reclaimed when its lease expires
+
+  relay:
+    profiles: ["app"]
+    build: ..
+    command: ["python", "-m", "jobs.outbox_relay"]
+    environment: *db
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  retention:  # daily: docker compose --profile jobs run --rm retention
+    profiles: ["jobs"]
+    build: ..
+    command: ["python", "-m", "jobs.retention"]
+    environment: *db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
 volumes:
   pgdata:
