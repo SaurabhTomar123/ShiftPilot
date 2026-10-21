@@ -11,10 +11,11 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from pydantic import BaseModel
 from sqlalchemy import delete, func, select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError
@@ -25,14 +26,15 @@ from api.v2.auth import require
 from api.v2.errors import ApiError, not_found
 from api.v2.rosters import _summary, version_view
 from api.v2.service import _audit, _outlet, idempotent, week_bounds
-from core.auth import Caller, assert_outlet
+from core.auth import Caller, Role, assert_outlet
 from db.models import Outlet
-from db.models_v2 import LogicalShift, OutboxEvent, Schedule, ScheduleVersion, VersionShift
+from db.models_v2 import LogicalShift, OutboxEvent, Schedule, ScheduleVersion, SchedulingPolicy, VersionShift
+from db.models_v2 import ShiftTemplate as ShiftTemplateRow
 from db.session import tenant_session
 from scheduling import diff as sched_diff
 from scheduling import edits as sched_edits
 from scheduling import metrics, snapshot_db, validator
-from scheduling.model import Shift
+from scheduling.model import Policy, Shift, Template
 
 DEFAULT_LOCK_REASON = "Locked by manager"
 
@@ -158,6 +160,109 @@ def _new_draft(
     return draft
 
 
+def _grid(session: Session) -> int:
+    row = session.scalars(
+        select(SchedulingPolicy)
+        .where(SchedulingPolicy.outlet_id.is_(None))
+        .order_by(SchedulingPolicy.revision.desc())
+    ).first()
+    return row.grid_minutes if row else Policy().grid_minutes
+
+
+def _resolve_templates(session: Session, schedule: Schedule, body: s.EditRequest) -> s.EditRequest:
+    """Turn add_from_template edits into plain adds, placing the break exactly as the solver does."""
+    if not any(isinstance(e, s.AddFromTemplate) for e in body.edits):
+        return body
+    tz = _tz(session, schedule)
+    out: list[Any] = []
+    for i, e in enumerate(body.edits):
+        if not isinstance(e, s.AddFromTemplate):
+            out.append(e)
+            continue
+
+        def bad(field: str, message: str, index: int = i) -> ApiError:
+            return ApiError(
+                "validation_failed",
+                "Some edits could not be applied.",
+                fields=[{"path": ["edits", index, field], "message": message}],
+            )
+
+        row = session.get(ShiftTemplateRow, e.template_id)
+        if row is None or row.outlet_id != schedule.outlet_id or not row.active:
+            raise bad("template_id", "Not an active shift template of this outlet.")
+        if not 0 <= (e.day - schedule.week_start).days < 7:
+            raise bad("day", "The date must be in this draft's week.")
+        skill = e.skill_id or row.skill_id
+        if skill is None:
+            raise bad("skill_id", "This template allows any role; choose one.")
+        if row.skill_id is not None and skill != row.skill_id:
+            raise bad("skill_id", "This template is for another role.")
+        shape = Template(
+            row.id,
+            row.start_minute,
+            row.duration_minutes,
+            row.break_minutes,
+            row.break_offset_minutes,
+            row.skill_id,
+        )
+        start = datetime(e.day.year, e.day.month, e.day.day, tzinfo=tz) + timedelta(minutes=row.start_minute)
+        offset = shape.break_offset(_grid(session))
+        out.append(
+            s.AddShift(
+                op="add",
+                employee_id=e.employee_id,
+                skill_id=skill,
+                start_at=start,
+                end_at=start + timedelta(minutes=row.duration_minutes),
+                break_start_at=start + timedelta(minutes=offset) if offset is not None else None,
+                break_minutes=row.break_minutes,
+                locked=e.locked,
+            )
+        )
+    return s.EditRequest(expected_revision=body.expected_revision, edits=out)
+
+
+def template_view(row: ShiftTemplateRow, grid: int) -> s.ShiftTemplate:
+    shape = Template(
+        row.id,
+        row.start_minute,
+        row.duration_minutes,
+        row.break_minutes,
+        row.break_offset_minutes,
+        row.skill_id,
+    )
+    return s.ShiftTemplate(
+        id=row.id,
+        name=row.name,
+        skill_id=row.skill_id,
+        start_minute=row.start_minute,
+        duration_minutes=row.duration_minutes,
+        break_minutes=row.break_minutes,
+        break_start_minute=shape.break_offset(grid),
+    )
+
+
+def list_shift_templates(caller: Caller, outlet_id: uuid.UUID) -> s.ShiftTemplateList:
+    if caller.role is Role.STAFF:
+        raise ApiError("permission_denied", "You do not have permission to do this.")
+    with tenant_session(caller) as session:
+        _outlet(session, caller, outlet_id)
+        grid = _grid(session)
+        rows = session.scalars(
+            select(ShiftTemplateRow)
+            .where(ShiftTemplateRow.outlet_id == outlet_id, ShiftTemplateRow.active)
+            .order_by(ShiftTemplateRow.start_minute, ShiftTemplateRow.duration_minutes, ShiftTemplateRow.name)
+        )
+        return s.ShiftTemplateList(outlet_id=outlet_id, items=[template_view(r, grid) for r in rows])
+
+
+class _Keyed(BaseModel):
+    """What an Idempotency-Key is bound to for applyEdits/discardDraft: the version and the body."""
+
+    version_id: uuid.UUID
+    body: dict[str, Any] | None = None
+
+
 def _to_edits(body: s.EditRequest) -> list[sched_edits.Edit]:
     out = []
     for e in body.edits:
@@ -168,8 +273,10 @@ def _to_edits(body: s.EditRequest) -> list[sched_edits.Edit]:
             out.append(sched_edits.Edit("update", e.logical_shift_id, fields))
         elif isinstance(e, s.RemoveShift):
             out.append(sched_edits.Edit("remove", e.logical_shift_id))
-        else:
+        elif isinstance(e, s.SetLock):
             out.append(sched_edits.Edit(e.op, e.logical_shift_id))
+        else:  # add_from_template is resolved to a plain add first (_resolve_templates)
+            raise AssertionError(f"unresolved edit {e.op}")
     return out
 
 
@@ -293,6 +400,7 @@ def preview_edits(caller: Caller, version_id: uuid.UUID, body: s.EditRequest) ->
                 "This draft was changed by someone else. Reload and try again.",
                 current_revision=version.revision,
             )
+        body = _resolve_templates(session, schedule, body)
         rows = _rows(session, version.id)
         before = [snapshot_db.to_shift(r) for r in rows]
         after = _edited(before, body, schedule.outlet_id)
@@ -315,84 +423,114 @@ def preview_edits(caller: Caller, version_id: uuid.UUID, body: s.EditRequest) ->
         )
 
 
-def apply_edits(caller: Caller, version_id: uuid.UUID, body: s.EditRequest) -> s.ScheduleVersion:
+def apply_edits(
+    caller: Caller, version_id: uuid.UUID, body: s.EditRequest, key: str | None = None
+) -> s.ScheduleVersion:
+    """With an Idempotency-Key, a repeat returns the stored result (after authorization, before the
+    revision check), so a save whose response was lost can be retried safely."""
     require(caller, "publish")
     with tenant_session(caller) as session:
-        version, schedule = _version(session, caller, version_id, for_update=True)
-        _require_draft(version)
-        if body.expected_revision != version.revision:
-            raise ApiError(
-                "stale_version",
-                "This draft was changed by someone else. Reload and try again.",
-                current_revision=version.revision,
+        if key is None:
+            return _apply_edits(session, caller, version_id, body)
+        keyed = _Keyed(version_id=version_id, body=body.model_dump(mode="json"))
+        return s.ScheduleVersion.model_validate(
+            idempotent(
+                session,
+                caller,
+                key,
+                "applyEdits",
+                keyed,
+                lambda: _apply_edits(session, caller, version_id, body),
             )
-        rows = _rows(session, version.id)
-        before = [snapshot_db.to_shift(r) for r in rows]
-        after = _edited(before, body, schedule.outlet_id)
-        reasons = {r.logical_shift_id: r.lock_reason for r in rows}
-        templates = {r.logical_shift_id: r.template_id for r in rows}
-        for e in body.edits:
-            if isinstance(e, s.SetLock):
-                reasons[e.logical_shift_id] = e.reason if e.op == "lock" else None
-        existing = set(
-            session.scalars(select(LogicalShift.id).where(LogicalShift.schedule_id == schedule.id))
         )
-        session.execute(delete(VersionShift).where(VersionShift.version_id == version.id))
-        session.add_all(
-            [
-                LogicalShift(
-                    id=sh.logical_id,
-                    org_id=schedule.org_id,
-                    schedule_id=schedule.id,
-                    created_in_version_id=version.id,
-                )
-                for sh in after
-                if sh.logical_id not in existing
-            ]
+
+
+def _apply_edits(
+    session: Session, caller: Caller, version_id: uuid.UUID, body: s.EditRequest
+) -> s.ScheduleVersion:
+    version, schedule = _version(session, caller, version_id, for_update=True)
+    _require_draft(version)
+    if body.expected_revision != version.revision:
+        raise ApiError(
+            "stale_version",
+            "This draft was changed by someone else. Reload and try again.",
+            current_revision=version.revision,
         )
+    body = _resolve_templates(session, schedule, body)
+    rows = _rows(session, version.id)
+    before = [snapshot_db.to_shift(r) for r in rows]
+    after = _edited(before, body, schedule.outlet_id)
+    reasons = {r.logical_shift_id: r.lock_reason for r in rows}
+    templates = {r.logical_shift_id: r.template_id for r in rows}
+    for e in body.edits:
+        if isinstance(e, s.SetLock):
+            reasons[e.logical_shift_id] = e.reason if e.op == "lock" else None
+    existing = set(session.scalars(select(LogicalShift.id).where(LogicalShift.schedule_id == schedule.id)))
+    session.execute(delete(VersionShift).where(VersionShift.version_id == version.id))
+    session.add_all(
+        [
+            LogicalShift(
+                id=sh.logical_id,
+                org_id=schedule.org_id,
+                schedule_id=schedule.id,
+                created_in_version_id=version.id,
+            )
+            for sh in after
+            if sh.logical_id not in existing
+        ]
+    )
+    session.flush()
+    session.add_all(
+        [
+            VersionShift(
+                id=uuid.uuid7(),
+                org_id=schedule.org_id,
+                schedule_id=schedule.id,
+                version_id=version.id,
+                logical_shift_id=sh.logical_id,
+                outlet_id=sh.outlet_id,
+                employee_id=sh.employee_id,
+                skill_id=sh.skill_id,
+                start_at=sh.start_at,
+                end_at=sh.end_at,
+                break_start_at=sh.break_start_at,
+                break_minutes=sh.break_minutes,
+                locked=sh.locked,
+                lock_reason=(reasons.get(sh.logical_id) or DEFAULT_LOCK_REASON) if sh.locked else None,
+                template_id=templates.get(sh.logical_id),
+            )
+            for sh in after
+        ]
+    )
+    version.revision += 1
+    try:
         session.flush()
-        session.add_all(
-            [
-                VersionShift(
-                    id=uuid.uuid7(),
-                    org_id=schedule.org_id,
-                    schedule_id=schedule.id,
-                    version_id=version.id,
-                    logical_shift_id=sh.logical_id,
-                    outlet_id=sh.outlet_id,
-                    employee_id=sh.employee_id,
-                    skill_id=sh.skill_id,
-                    start_at=sh.start_at,
-                    end_at=sh.end_at,
-                    break_start_at=sh.break_start_at,
-                    break_minutes=sh.break_minutes,
-                    locked=sh.locked,
-                    lock_reason=(reasons.get(sh.logical_id) or DEFAULT_LOCK_REASON) if sh.locked else None,
-                    template_id=templates.get(sh.logical_id),
-                )
-                for sh in after
-            ]
-        )
-        version.revision += 1
-        try:
-            session.flush()
-        except IntegrityError as exc:  # e.g. an employee or skill from another organization
-            raise ApiError("validation_failed", "Some edits refer to unknown employees or roles.") from exc
-        _audit(session, caller, "SHIFTS_EDITED", "schedule_version", version.id, None, None)
-        return version_view(session, version, record=True)
+    except IntegrityError as exc:  # e.g. an employee or skill from another organization
+        raise ApiError("validation_failed", "Some edits refer to unknown employees or roles.") from exc
+    _audit(session, caller, "SHIFTS_EDITED", "schedule_version", version.id, None, None)
+    return version_view(session, version, record=True)
 
 
-def discard_draft(caller: Caller, version_id: uuid.UUID) -> s.ScheduleVersionSummary:
+def discard_draft(caller: Caller, version_id: uuid.UUID, key: str | None = None) -> s.ScheduleVersionSummary:
     require(caller, "publish")
     with tenant_session(caller) as session:
-        version, schedule = _version(session, caller, version_id, for_update=True)
-        _require_draft(version)
-        version.status = "discarded"
-        session.flush()
-        _audit(session, caller, "DRAFT_DISCARDED", "schedule_version", version.id, None, None)
-        view = version_view(session, version)
+
+        def produce() -> s.ScheduleVersionSummary:
+            version, schedule = _version(session, caller, version_id, for_update=True)
+            _require_draft(version)
+            version.status = "discarded"
+            session.flush()
+            _audit(session, caller, "DRAFT_DISCARDED", "schedule_version", version.id, None, None)
+            view = version_view(session, version)
+            return s.ScheduleVersionSummary.model_validate(
+                view.model_dump(include=set(s.ScheduleVersionSummary.model_fields))
+            )
+
+        if key is None:
+            return produce()
+        keyed = _Keyed(version_id=version_id)
         return s.ScheduleVersionSummary.model_validate(
-            view.model_dump(include=set(s.ScheduleVersionSummary.model_fields))
+            idempotent(session, caller, key, "discardDraft", keyed, produce)
         )
 
 

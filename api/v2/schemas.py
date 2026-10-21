@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.4.0-p4"
+CONTRACT_VERSION = "3.5.0-p4"
 
 
 class Model(BaseModel):
@@ -493,7 +493,41 @@ class SetLock(Model):
     reason: str | None = Field(default=None, max_length=200)
 
 
-ShiftEdit = Annotated[AddShift | UpdateShift | RemoveShift | SetLock, Field(discriminator="op")]
+class AddFromTemplate(Model):
+    """Add a shift shaped by one of the outlet's shift templates (listShiftTemplates). Start, end and
+    break come from the template, so no client chooses a break policy."""
+
+    op: Literal["add_from_template"]
+    template_id: UUID
+    day: date = Field(description="Outlet-local date the shift starts on; must be in the draft's week.")
+    employee_id: UUID | None = Field(default=None, description="null adds an open (unfilled) shift.")
+    skill_id: UUID | None = Field(
+        default=None, description="Required when the template allows any skill; must match it otherwise."
+    )
+    locked: bool = False
+
+
+ShiftEdit = Annotated[
+    AddShift | AddFromTemplate | UpdateShift | RemoveShift | SetLock, Field(discriminator="op")
+]
+
+
+class ShiftTemplate(Model):
+    id: UUID
+    name: str
+    skill_id: UUID | None = Field(description="null: usable for any skill.")
+    start_minute: int = Field(ge=0, le=1439, description="Outlet-local minutes from midnight.")
+    duration_minutes: Minutes
+    break_minutes: Minutes
+    break_start_minute: int | None = Field(
+        description="Where the break starts, in minutes from shift start (the server's placement); null "
+        "when the template has no break."
+    )
+
+
+class ShiftTemplateList(Model):
+    outlet_id: UUID
+    items: list[ShiftTemplate] = Field(description="Active templates, by start time.")
 
 
 class EditRequest(Model):

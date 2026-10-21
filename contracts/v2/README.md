@@ -23,6 +23,15 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.5.0-p4 (live): answers to the manual-edit review
+
+This change is additive.
+
+- **`listShiftTemplates` `GET /v2/outlets/{id}/shift-templates`:** the outlet's active shift shapes: `start_minute`, `duration_minutes`, `break_minutes` and `break_start_minute`, which is where the server places the break. Fixture: `shift_templates.list`. Staff get `403`.
+- **New edit `add_from_template`:** `{op, template_id, day, employee_id?, skill_id?, locked?}`. The server derives start, end and break from the template, the same way the solver does, so no client chooses a break policy. `day` is outlet-local and must fall in the draft's week. `skill_id` is required when the template allows any role. Errors are field-level `422`s at `edits[i].template_id`, `.day` or `.skill_id`. It works in both `previewEdits` and `applyEdits`.
+- **Replay on `applyEdits` and `discardDraft`:** these now accept an optional `Idempotency-Key`. With a key, a repeat returns the stored result after authorization and before the revision check, so a save whose response was lost can be retried safely. The same key with a different body is `409 idempotency_conflict`. Without a key, only revision fencing applies. Always send one; it will become required in 4.0.
+- **Several corrections at once:** a single `EditRequest` already takes up to 200 edits. They are previewed and applied together, and validated as a whole, so a draft that needs several simultaneous fixes doesn't need one valid intermediate state per edit.
+
 ## What changed in 3.4.0-p4 (live): profiles and hours-preference alignment
 
 This change is additive (architecture v3 §9).

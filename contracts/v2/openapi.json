@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.4.0-p4"
+    "version": "3.5.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -870,6 +870,92 @@
               }
             },
             "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/outlets/{outlet_id}/shift-templates": {
+      "get": {
+        "summary": "List Shift Templates",
+        "description": "The outlet's active shift shapes, for add_from_template edits. Read-only here.",
+        "operationId": "listShiftTemplates",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outlet_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Outlet Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShiftTemplateList"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
           },
           "422": {
             "content": {
@@ -2043,6 +2129,26 @@
               "title": "Version Id"
             },
             "description": "A schedule version (draft, published or superseded)."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 8,
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Recommended: with it a repeat returns the stored result, so a lost response can be retried safely; without it only revision fencing applies.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Recommended: with it a repeat returns the stored result, so a lost response can be retried safely; without it only revision fencing applies."
           }
         ],
         "requestBody": {
@@ -2800,6 +2906,26 @@
               "title": "Version Id"
             },
             "description": "A schedule version (draft, published or superseded)."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 8,
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Recommended: with it a repeat returns the stored result, so a lost response can be retried safely; without it only revision fencing applies.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Recommended: with it a repeat returns the stored result, so a lost response can be retried safely; without it only revision fencing applies."
           }
         ],
         "responses": {
@@ -3779,6 +3905,66 @@
         ],
         "title": "AbsenceReport"
       },
+      "AddFromTemplate": {
+        "properties": {
+          "op": {
+            "type": "string",
+            "const": "add_from_template",
+            "title": "Op"
+          },
+          "template_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Template Id"
+          },
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day",
+            "description": "Outlet-local date the shift starts on; must be in the draft's week."
+          },
+          "employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Id",
+            "description": "null adds an open (unfilled) shift."
+          },
+          "skill_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Id",
+            "description": "Required when the template allows any skill; must match it otherwise."
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "op",
+          "template_id",
+          "day"
+        ],
+        "title": "AddFromTemplate",
+        "description": "Add a shift shaped by one of the outlet's shift templates (listShiftTemplates). Start, end and\nbreak come from the template, so no client chooses a break policy."
+      },
       "AddShift": {
         "properties": {
           "op": {
@@ -4644,6 +4830,9 @@
                   "$ref": "#/components/schemas/AddShift"
                 },
                 {
+                  "$ref": "#/components/schemas/AddFromTemplate"
+                },
+                {
                   "$ref": "#/components/schemas/UpdateShift"
                 },
                 {
@@ -4657,6 +4846,7 @@
                 "propertyName": "op",
                 "mapping": {
                   "add": "#/components/schemas/AddShift",
+                  "add_from_template": "#/components/schemas/AddFromTemplate",
                   "lock": "#/components/schemas/SetLock",
                   "remove": "#/components/schemas/RemoveShift",
                   "unlock": "#/components/schemas/SetLock",
@@ -7074,6 +7264,97 @@
           "alternatives"
         ],
         "title": "ShiftExplanation"
+      },
+      "ShiftTemplate": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "skill_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Id",
+            "description": "null: usable for any skill."
+          },
+          "start_minute": {
+            "type": "integer",
+            "maximum": 1439.0,
+            "minimum": 0.0,
+            "title": "Start Minute",
+            "description": "Outlet-local minutes from midnight."
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Duration Minutes"
+          },
+          "break_minutes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Break Minutes"
+          },
+          "break_start_minute": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Break Start Minute",
+            "description": "Where the break starts, in minutes from shift start (the server's placement); null when the template has no break."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "skill_id",
+          "start_minute",
+          "duration_minutes",
+          "break_minutes",
+          "break_start_minute"
+        ],
+        "title": "ShiftTemplate"
+      },
+      "ShiftTemplateList": {
+        "properties": {
+          "outlet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Outlet Id"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ShiftTemplate"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Active templates, by start time."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "outlet_id",
+          "items"
+        ],
+        "title": "ShiftTemplateList"
       },
       "Shortage": {
         "properties": {

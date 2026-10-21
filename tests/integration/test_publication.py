@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timedelta
 from typing import Any
 
 import pytest
@@ -13,7 +14,7 @@ from api.v2 import schemas
 from db.session import admin_engine
 from seed import v2
 from seed.world import uid
-from tests.integration.test_api_v2 import IND, KOR, MANAGER, OWNER, STAFF, WEEK, client, error_code
+from tests.integration.test_api_v2 import IND, KOR, MANAGER, OWNER, STAFF, WEEK, client, error_code, fixture
 
 pytestmark = pytest.mark.integration
 __all__ = ["client"]
@@ -272,3 +273,60 @@ def test_metrics_are_stored_on_save_and_frozen_at_publication(client: TestClient
     assert row["status"] == "published" and row["recorded_metrics"] == applied["metrics"]
     with pytest.raises(Exception, match="cannot change"):
         sql("UPDATE schedule_versions SET metrics = '{}'::jsonb WHERE id = :v", v=draft["id"])
+
+
+def test_shift_templates_and_adding_from_one(client: TestClient) -> None:
+    """Contract 3.5: the template catalog and add_from_template; the server places the break."""
+    listed = client.get(f"/v2/outlets/{IND}/shift-templates", headers=MANAGER)
+    assert listed.status_code == 200 and listed.json() == fixture("shift_templates.list")
+    assert client.get(f"/v2/outlets/{IND}/shift-templates", headers=STAFF).status_code == 403
+    template = next(t for t in listed.json()["items"] if t["break_start_minute"] is not None)
+
+    draft = new_draft(client, current(client)["id"]).json()
+    tuesday = (datetime.fromisoformat(WEEK) + timedelta(days=1)).date().isoformat()
+    add = {"op": "add_from_template", "template_id": template["id"], "day": tuesday, "skill_id": GRILL}
+    preview = edit(client, draft, [add], preview=True)
+    assert preview.status_code == 200, preview.text
+    [change] = [c for c in preview.json()["changes"] if c["kinds"] == ["added"]]
+    added = change["after"]
+    start = datetime.fromisoformat(added["start_at"])
+    assert start.hour * 60 + start.minute == template["start_minute"] and start.date().isoformat() == tuesday
+    assert datetime.fromisoformat(added["end_at"]) - start == timedelta(minutes=template["duration_minutes"])
+    assert datetime.fromisoformat(added["break_start_at"]) - start == timedelta(
+        minutes=template["break_start_minute"]
+    )
+    assert added["employee_id"] is None and added["skill_id"] == GRILL
+
+    def refused(change: dict[str, Any]) -> list[Any]:
+        r = edit(client, draft, [add | change], preview=True)
+        assert r.status_code == 422, r.text
+        return [f["path"] for f in r.json()["error"]["details"]["fields"]]
+
+    assert refused({"template_id": str(uuid.uuid4())}) == [["edits", 0, "template_id"]]
+    assert refused({"day": "2026-11-30"}) == [["edits", 0, "day"]]
+    assert refused({"skill_id": None}) == [["edits", 0, "skill_id"]]
+
+
+def test_apply_and_discard_replay_with_an_idempotency_key(client: TestClient) -> None:
+    draft = new_draft(client, current(client)["id"]).json()
+    target = grill_shift(draft)
+    body = {
+        "expected_revision": 1,
+        "edits": [{"op": "lock", "logical_shift_id": target["logical_shift_id"], "reason": "Confirmed"}],
+    }
+    url = f"/v2/schedule-versions/{draft['id']}"
+    k = key()
+    first = client.post(f"{url}/edits", headers=MANAGER | k, json=body)
+    assert first.status_code == 200 and first.json()["revision"] == 2
+    lost = client.post(f"{url}/edits", headers=MANAGER | k, json=body)  # the response was lost; retry
+    assert lost.status_code == 200 and lost.json() == first.json()
+    other = client.post(f"{url}/edits", headers=MANAGER | k, json=body | {"expected_revision": 2})
+    assert other.status_code == 409 and error_code(other) == "idempotency_conflict"
+    unkeyed = client.post(f"{url}/edits", headers=MANAGER, json=body)  # revision fencing still applies
+    assert unkeyed.status_code == 409 and error_code(unkeyed) == "stale_version"
+
+    dk = key()
+    gone = client.post(f"{url}/discard", headers=MANAGER | dk)
+    assert gone.status_code == 200 and gone.json()["status"] == "discarded"
+    assert client.post(f"{url}/discard", headers=MANAGER | dk).json() == gone.json()
+    assert client.post(f"{url}/discard", headers=MANAGER).status_code == 409

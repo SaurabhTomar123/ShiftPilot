@@ -48,6 +48,7 @@ from seed.world import (
     SKILL,
     SKILLS,
     STAFF,
+    TEMPLATES,
     TZ,
     WEEK,
     Emp,
@@ -1373,6 +1374,33 @@ def p3_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
     hard = [v for v in preview.validation.violations if v.severity == "hard"]
 
     return [
+        Fixture(
+            "shift_templates.list",
+            "listShiftTemplates",
+            "GET",
+            "/v2/outlets/{outlet_id}/shift-templates",
+            "manager_indiranagar",
+            200,
+            s.ShiftTemplateList(
+                outlet_id=HOME,
+                items=sorted(
+                    (
+                        s.ShiftTemplate(
+                            id=uid("template", f"indiranagar:{t.key}"),
+                            name=t.key.title(),
+                            skill_id=None,
+                            start_minute=t.start,
+                            duration_minutes=t.end - t.start,
+                            break_minutes=30 if t.break_start is not None else 0,
+                            break_start_minute=t.break_start - t.start if t.break_start is not None else None,
+                        )
+                        for t in TEMPLATES.values()
+                    ),
+                    key=lambda x: (x.start_minute, x.duration_minutes, x.name),
+                ),
+            ),
+            {"path_params": {"outlet_id": ind}},
+        ),
         Fixture(
             "draft.create",
             "createDraft",

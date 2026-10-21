@@ -1,6 +1,12 @@
 {
-  "contract_version": "3.4.0-p4",
+  "contract_version": "3.5.0-p4",
   "fixtures": [
+    {
+      "name": "shift_templates.list",
+      "operation_id": "listShiftTemplates",
+      "status": 200,
+      "schema": "ShiftTemplateList"
+    },
     {
       "name": "draft.create",
       "operation_id": "createDraft",

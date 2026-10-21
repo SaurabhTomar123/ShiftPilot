@@ -32,6 +32,16 @@ IdempotencyKey = Annotated[
         "original result, a different body with the same key is 409.",
     ),
 ]
+OptionalIdempotencyKey = Annotated[
+    str | None,
+    Header(
+        alias="Idempotency-Key",
+        min_length=8,
+        max_length=80,
+        description="Recommended: with it a repeat returns the stored result, so a lost response can be "
+        "retried safely; without it only revision fencing applies.",
+    ),
+]
 WeekStart = Annotated[date, Query(description="Monday of the week, outlet-local.")]
 
 
@@ -193,6 +203,17 @@ def put_availability(
     caller: v2auth.CallerDep, employee_id: UUID, body: s.AvailabilityUpdate
 ) -> s.Availability:
     return service.put_availability(caller, employee_id, body)
+
+
+@router.get(
+    "/outlets/{outlet_id}/shift-templates",
+    operation_id="listShiftTemplates",
+    response_model=s.ShiftTemplateList,
+    responses=_errors(403, 404, 422),
+)
+def list_shift_templates(caller: v2auth.CallerDep, outlet_id: UUID) -> s.ShiftTemplateList:
+    """The outlet's active shift shapes, for add_from_template edits. Read-only here."""
+    return drafts.list_shift_templates(caller, outlet_id)
 
 
 @router.get(
@@ -369,11 +390,16 @@ def preview_edits(caller: v2auth.CallerDep, version_id: VersionPath, body: s.Edi
     response_model=s.ScheduleVersion,
     responses=_errors(403, 404, 409, 422),
 )
-def apply_edits(caller: v2auth.CallerDep, version_id: VersionPath, body: s.EditRequest) -> s.ScheduleVersion:
+def apply_edits(
+    caller: v2auth.CallerDep,
+    version_id: VersionPath,
+    body: s.EditRequest,
+    idempotency_key: OptionalIdempotencyKey = None,
+) -> s.ScheduleVersion:
     """Apply edits to a draft. 409 stale_version when expected_revision is not current
     (details.current_revision); 409 conflict when the version is not a draft. Edits that break rules
     are applied and reported in validation; publishing is what refuses hard violations."""
-    return drafts.apply_edits(caller, version_id, body)
+    return drafts.apply_edits(caller, version_id, body, idempotency_key)
 
 
 @router.post(
@@ -474,8 +500,10 @@ def reject_proposal(caller: v2auth.CallerDep, proposal_id: ProposalPath) -> s.Pr
     response_model=s.ScheduleVersionSummary,
     responses=_errors(403, 404, 409, 422),
 )
-def discard_draft(caller: v2auth.CallerDep, version_id: VersionPath) -> s.ScheduleVersionSummary:
-    return drafts.discard_draft(caller, version_id)
+def discard_draft(
+    caller: v2auth.CallerDep, version_id: VersionPath, idempotency_key: OptionalIdempotencyKey = None
+) -> s.ScheduleVersionSummary:
+    return drafts.discard_draft(caller, version_id, idempotency_key)
 
 
 @router.get(
