@@ -47,6 +47,36 @@ def _scope(caller: Caller, outlet_id: uuid.UUID) -> None:
     assert_outlet(caller, str(outlet_id))
 
 
+# Audit event names (architecture v3 section 26). v3 names IMPORT_COMMITTED, RULE_CREATED, SHIFT_EDITED,
+# OPTIMIZATION_REQUESTED, ABSENCE_REPORTED, PROPOSAL_APPROVED, SCHEDULE_PUBLISHED and SCHEDULE_RESTORED;
+# the first two arrive with CSV import (B5.4) and rules (B5.2). Rows are never renamed: before contract 3.7
+# a draft edit was recorded as SHIFTS_EDITED.
+AUDIT_ACTIONS = frozenset(
+    {
+        "ABSENCE_REPORTED",
+        "ABSENCE_CONFIRMED",  # absence decisions: ABSENCE_{status} in absences.update
+        "ABSENCE_REJECTED",
+        "ABSENCE_CANCELLED",
+        "AVAILABILITY_REPLACED",
+        "CANDIDATE_SELECTED",
+        "DRAFT_CREATED",
+        "DRAFT_DISCARDED",
+        "EMPLOYEE_CREATED",
+        "EMPLOYEE_UPDATED",
+        "OPTIMIZATION_REQUESTED",
+        "PROPOSAL_APPROVED",
+        "PROPOSAL_CREATED",
+        "PROPOSAL_REJECTED",
+        "SCHEDULE_PUBLISHED",
+        "SCHEDULE_RESTORED",
+        "SHIFT_EDITED",
+        "STAFFING_EXPANDED",
+        "STAFFING_REPLACED",
+        "STAFFING_TEMPLATE_REPLACED",
+    }
+)
+
+
 def _audit(
     session: Session,
     caller: Caller,
@@ -56,6 +86,8 @@ def _audit(
     before: BaseModel | None,
     after: BaseModel | None,
 ) -> None:
+    if action not in AUDIT_ACTIONS:
+        raise ValueError(f"unregistered audit action {action}")  # a typo would silently fork the log
     session.add(
         AuditLog(
             id=uuid.uuid7(),

@@ -162,3 +162,19 @@ def test_staffing_preferred_below_minimum_is_rejected() -> None:
     interval = load("staffing.get")["response"]["body"]["intervals"][0]
     with pytest.raises(ValidationError):
         schemas.StaffingInterval.model_validate({**interval, "minimum_required": 3, "preferred_required": 2})
+
+
+def test_audit_actions_are_registered_and_follow_v3() -> None:
+    """A3.12 (architecture v3 section 26): every _audit call uses a registered name."""
+    import re
+
+    from api.v2.service import AUDIT_ACTIONS
+
+    api = CONTRACTS.parents[1] / "api" / "v2"
+    source = "\n".join(p.read_text(encoding="utf-8") for p in api.glob("*.py"))
+    used = set(re.findall(r'_audit\(\s*session,\s*caller,\s*"([A-Z_]+)"', source))
+    assert used and used <= AUDIT_ACTIONS
+    decisions = {f"ABSENCE_{status.upper()}" for status in ("confirmed", "rejected", "cancelled")}
+    assert decisions <= AUDIT_ACTIONS  # built dynamically in absences.update
+    assert {"SHIFT_EDITED", "OPTIMIZATION_REQUESTED", "ABSENCE_REPORTED", "PROPOSAL_APPROVED"} <= used
+    assert {"SCHEDULE_PUBLISHED", "SCHEDULE_RESTORED"} <= used and "SHIFTS_EDITED" not in AUDIT_ACTIONS

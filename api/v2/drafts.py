@@ -507,7 +507,7 @@ def _apply_edits(
         session.flush()
     except IntegrityError as exc:  # e.g. an employee or skill from another organization
         raise ApiError("validation_failed", "Some edits refer to unknown employees or roles.") from exc
-    _audit(session, caller, "SHIFTS_EDITED", "schedule_version", version.id, None, None)
+    _audit(session, caller, "SHIFT_EDITED", "schedule_version", version.id, None, None)
     return version_view(session, version, record=True)
 
 
