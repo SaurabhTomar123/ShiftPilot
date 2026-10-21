@@ -60,7 +60,7 @@ The roster is a working document, not an analytics dashboard. The default treatm
 
 Appearance offers three palettes (Ink, Paprika, Olive), three typography choices (Workshop: Bricolage/Plex, Editorial: Fraunces/Plex, Plain: Plex), and three sidebar transitions (slide, dissolve, fold). Preferences apply to the current visit. These are working experiments, not a claim of approved branding.
 
-This document describes `/`. `/sandbox` retains its older Geist-based editing prototype. Architecture v3 governs product behavior; visual experiments do not replace its candidate, proposal, validation or human-approval requirements.
+This document describes `/`. `/sandbox` retains its older Geist-based editing prototype. Architecture v4 governs product behavior; visual experiments do not replace its candidate, proposal, validation or human-approval requirements.
 
 ## Colors
 
@@ -92,7 +92,7 @@ Controls and shift tiles use 7px corners; working containers use 10px. Role mark
 
 ## Components
 
-- **Sidebar:** Schedule, Employees, Staffing and History are real destinations. Manager controls are absent from the employee view. Collapse remains operable in the rail. Mobile menu focus and scroll-lock cleanup run independently of animation completion.
+- **Sidebar:** Schedule, Employees, Staffing, Repair Inbox and History are real destinations. Manager controls are absent from the employee view. Collapse remains operable in the rail. Mobile menu focus and scroll-lock cleanup run independently of animation completion.
 - **Sidebar motion:** routine transitions remain under 300ms. Reversible CSS transitions retarget when toggled. Slide uses translation, Dissolve combines opacity with bounded 4px blur, Fold uses clipping. Reduced motion removes spatial effects. Semantic state changes immediately and does not wait for transitionend.
 - **Appearance:** native disclosure and labelled selects. Type, palette and motion can be compared on real roster data without changing the session or losing form inputs.
 - **Roster and review:** explicit draft/published state, provider-reported metrics and explanatory staffing gaps. Shift disclosures retain template break and lock details; break placement and pay rules are not editable features.
@@ -110,3 +110,7 @@ Controls and shift tiles use 7px corners; working containers use 10px. Role mark
 - Keep human approval and architecture v3's Published/Stale/Invalid/Changed distinction in subsequent publication work.
 - Do not mistake fixed fixture previews or legacy sandbox publication for v3's candidate-selection/proposal workflow.
 - Do not infer fairness, paid-break policies or forecast capabilities from the current metrics.
+
+- **Repair Inbox:** a labelled reporting form beside weekly saved records; a single-column layout below 1100px. Saved facts, repair status and proposal decisions are separate. Repair widening uses an ordered list; employee reasoning displays only returned facts. Locked assignments have individual consent checkboxes. Status changes have an explicit decision step.
+
+- **V4 decision surfaces:** Repair Inbox and Plan Compare prioritize recovery trade-offs. Comparison uses a keyboard-focusable horizontal table on phones, recorded-baseline labels and explicit unreported fairness. Scenario Lab will be a distinct isolated workflow once its provider contract is available. No generic dashboard or invented solver recommendation.

@@ -33,7 +33,13 @@ export class SchedulingClient {
   private async request<T>(path: string, init: RequestInit = {}, idempotencyKey?: string): Promise<T> {
     if ((init.method ?? 'GET') !== 'GET') return this.transport<T>(path, init, idempotencyKey);
     const generation = this.generation;
-    try { return await this.queryClient.fetchQuery({ queryKey: ['session', generation, path], queryFn: ({ signal }) => this.transport<T>(path, { ...init, signal: init.signal ? AbortSignal.any([init.signal, signal]) : signal }) }); }
+    try {
+      init.signal?.throwIfAborted();
+      // A shared GET belongs to the session. A departing screen cancels its own
+      // wait, while another screen can still consume the same in-flight read.
+      const read = this.queryClient.fetchQuery({ queryKey: ['session', generation, path], queryFn: ({ signal }) => this.transport<T>(path, { ...init, signal }) });
+      return await waitForRead(read, init.signal);
+    }
     catch (error) {
       if (this.expired?.generation === generation) throw this.expired.error;
       if (generation !== this.generation) throw new DOMException('Session was replaced', 'AbortError');
@@ -81,6 +87,10 @@ export class SchedulingClient {
     return session.me;
   }
   me(signal?: AbortSignal) { return this.request<Schema['Me']>('/v2/me', { signal }); }
+  absences(outletId: string, from: string, to: string, signal?: AbortSignal) { return this.request<Schema['AbsenceList']>(`/v2/absences?${new URLSearchParams({ outlet_id: outletId, from, to })}`, { signal }); }
+  reportAbsence(input: Schema['ReportAbsenceRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['AbsenceReport']>('/v2/absences', { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
+  updateAbsence(id: string, input: Schema['UpdateAbsenceRequest'], signal?: AbortSignal) { return this.request<Schema['AbsenceReport']>(`/v2/absences/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(input), signal }); }
+  repair(outletId: string, week: string, input: Schema['RepairRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['OptimizationRun']>(`/v2/outlets/${encodeURIComponent(outletId)}/schedules/${encodeURIComponent(week)}/repair`, { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
   outlets(signal?: AbortSignal) { return this.request<Schema['OutletList']>('/v2/outlets', { signal }); }
   skills(signal?: AbortSignal) { return this.request<Schema['SkillList']>('/v2/skills', { signal }); }
   schedule(outletId: string, week: string, signal?: AbortSignal) {
@@ -125,6 +135,16 @@ export class SchedulingClient {
 }
 
 function requiredKey(key: string) { if (!key) throw new Error('This action requires a stable idempotency key.'); return key; }
+
+function waitForRead<T>(read: Promise<T>, signal?: AbortSignal | null): Promise<T> {
+  if (!signal) return read;
+  return new Promise((resolve, reject) => {
+    const abort = () => reject(signal.reason ?? new DOMException('Aborted', 'AbortError'));
+    signal.addEventListener('abort', abort, { once: true });
+    read.then(value => { signal.removeEventListener('abort', abort); resolve(value); }, error => { signal.removeEventListener('abort', abort); reject(error); });
+    if (signal.aborted) abort();
+  });
+}
 
 function isErrorEnvelope(value: unknown): value is { error: ApiErrorBody } {
   if (!value || typeof value !== 'object' || !('error' in value)) return false;

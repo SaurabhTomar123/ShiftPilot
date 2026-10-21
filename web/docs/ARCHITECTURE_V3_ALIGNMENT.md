@@ -1,3 +1,5 @@
+> Historical alignment. Architecture v4 now governs; see [current v4 alignment](ARCHITECTURE_V4_ALIGNMENT.md). Existing implementation notes below describe the earlier delivery.
+
 # UI alignment with architecture v3
 
 Governing source: `ShiftPilot System Architecture v3.docx`, revision 3 dated 18 October 2026, provided in the main checkout. User explicitly required v3 on 19 October. It overrides revision 2 and older roadmap assumptions where they differ. The source document and shared planning board remain local/private; Claude is the planning writer.
@@ -25,10 +27,14 @@ Existing assignments can be reassigned/unassigned, moved/resized, given another 
 - Sections 20/27/28: commit absence first, automatic repair keyed by the absence, lock-conflict authorization and independent repair admission. The UI must not treat active batch work as a blanket repair blocker.
 - Sections 9/15: named strategy profiles and hours-preference alignment, without a fairness claim or editable solver weights.
 
-Backend handoff: shared tasks A3.1-A3.13 remain under Claude's planning ownership. Current consumer review accepts the candidate/selection/proposal and cache semantics of 3.1. Templates and CSV need their declared contracts; absence APIs are present but their UI is not yet integrated. I1/I2 and complete v3 release acceptance are not declared closed by this slice.
+Backend handoff: shared tasks A3.1-A3.13 remain under Claude's planning ownership. Current consumer review accepts the candidate/selection/proposal and cache semantics of 3.1. Templates and CSV need their declared contracts; absence reporting and manager repair review are now integrated (see ABSENCE_FLOW.md); staff absence self-service remains pending. I1/I2 and complete v3 release acceptance are not declared closed by this slice.
 
 ## History and restoration delivered (21 October)
 
 Contract 3.3.0-p4 (d66ad33) is merged and reviewed for history/comparison/restore and proposal discovery. Version rows use recorded_metrics, never a recomputed stand-in for missing historical values. Comparison uses provider metrics evaluated against current facts and typed before/after changes. Restore carries the current published base and a stable key, creates a new validated draft and uses the existing proposal approval flow. Pending proposals can be reopened from History. Both candidate detail fixtures and the acknowledged-cost fixture follow-ups are resolved upstream and consumed here.
 
 Later provider 3.11 APIs are visible but not silently integrated. In particular, template-based additions and replayable edits exist in 3.5 upstream; the current 3.3 manual editor retains its tested reload-after-uncertain-save behavior. Absence repair, templates, CSV, Rules, notifications and full integration/release acceptance remain work. See UI_HANDOFF_HISTORY.md.
+
+## Absence and repair UI (21 October)
+
+The 3.3 consumer now records absence facts before tracking each automatic repair run. Repair failures preserve the saved fact, active generation is not a blanket blocker, explicit repair reloads the published base, and lock conflicts require individual authorization. Cross-outlet consent is owner-only. Widening stages, disruption and returned employee facts are shown without inferred solver explanations. Repair candidates reuse selection and proposal approval. The static provider registry lacks repair candidate detail/select records and matching requested-absence status fixtures, so those synthetic mutations return an explicit unsupported result rather than substituting unrelated facts. Staff self-service and newer provider integration remain open.

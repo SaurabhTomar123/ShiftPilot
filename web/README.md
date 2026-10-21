@@ -1,6 +1,6 @@
 # ShiftPilot web
 
-Codex owns `web/`; Claude owns backend/database contracts. **Architecture v3 is governing.** This branch currently consumes provider contract **3.3.0-p4**. Candidate review/selection, manual draft edits, history/restore and proposal approval now use the v3 contract; staffing templates and absence repair remain upcoming integrations.
+Codex owns `web/`; Claude owns backend/database contracts. **Architecture v4 is governing.** See [v4 alignment and delivery order](docs/ARCHITECTURE_V4_ALIGNMENT.md). This branch currently consumes provider contract **3.3.0-p4**. Candidate review/selection, manual draft edits, history/restore and proposal approval now use the v3 contract; absence reporting and repair review are connected as well. Staffing templates remain an upcoming integration.
 
 ## Run
 
@@ -14,9 +14,11 @@ Open http://127.0.0.1:3001. The UI uses Next.js 16, React 19, TypeScript, TanSta
 
 ## Current surfaces
 
-- `/`: provider fixture preview, with separate owner/manager/employee sessions. Use Schedule, Employees, Staffing and History navigation. Employee/skill/availability and date-specific staffing forms have validation, explicit save results and stale-edit recovery. Synthetic edits exist only in a bounded, expiring preview session. Persona changes/server restarts reset them; fixed roster/solver fixtures do not change with input edits.
+- `/`: provider fixture preview, with separate owner/manager/employee sessions. Use Schedule, Employees, Staffing, Repair Inbox and History navigation. Employee/skill/availability and date-specific staffing forms have validation, explicit save results and stale-edit recovery. Synthetic edits exist only in a bounded, expiring preview session. Persona changes/server restarts reset them; fixed roster/solver fixtures do not change with input edits.
 - Manual drafts: copy the published week, choose an assignment, change its teammate/role/time or lock state, preview server validation, then apply the reviewed request. Removing an assignment also requires preview. Input changes invalidate the preview. Stale or uncertain saves require explicit reload; they never retry automatically. The synthetic preview supports the opening-cook lock and conflicting-reassignment examples only.
 - History: inspect recorded version metrics, compare assignments in either direction, restore an older version into a newly validated draft, and discover pending proposals. Restored drafts enter proposal approval; no restore publishes directly.
+- Repair Inbox: list records by outlet/week, save a confirmed absence or request, explicitly confirm/reject/cancel records, track automatic repair runs, authorize individual locked assignments, and review widening stages and replacement options. Selection creates a draft that uses proposal approval. Synthetic mode supports only the supplied reporting and repair-summary examples; detailed repair review and other status writes require the live API. See [absence flow](docs/ABSENCE_FLOW.md).
+- Plan Compare: compare returned alternatives side by side, with labelled recorded-baseline deltas for coverage/cost/overtime. Missing fairness burden remains explicitly unreported; the UI does not infer portfolio dominance or rename preference match as fairness.
 - Appearance: three type treatments, three palettes, and slide/dissolve/fold sidebar transitions. Desktop collapses to a labelled icon rail; mobile has Escape, focus restoration, a backdrop and reduced-motion support.
 - `/sandbox`: earlier local editing/dragging/repair/publication prototype. Its browser-local data and Geist palette remain separate.
 
@@ -46,16 +48,18 @@ Fixture scenario/session headers are never sent to a configured real API. There 
 
 ## Architecture and handoffs
 
-- [Architecture v3 alignment](docs/ARCHITECTURE_V3_ALIGNMENT.md)
-- [Current history/restore handoff](docs/UI_HANDOFF_HISTORY.md)
+- [V4 Repair Inbox / plan comparison handoff](docs/UI_HANDOFF_V4_FOUNDATION.md)
+- [Architecture v4 alignment and delivery order](docs/ARCHITECTURE_V4_ALIGNMENT.md)
+- [Historical architecture v3 alignment](docs/ARCHITECTURE_V3_ALIGNMENT.md)
+- [Previous history/restore handoff](docs/UI_HANDOFF_HISTORY.md)
 - [Previous manual-edit handoff](docs/UI_HANDOFF_MANUAL_EDITS.md)
 - [Previous v3 review handoff](docs/UI_HANDOFF_V3_REVIEW.md)
 - [Previous forms/design delivery](docs/UI_HANDOFF_2026-10-19.md)
 - [Design system](DESIGN.md)
 - [Contract reviews](docs/CONTRACT_REVIEW.md)
 
-Upcoming work follows v3: template-based assignment creation, drag interactions, staffing templates and preserved manual overrides, absence-triggered repair, fixed-template CSV onboarding, rules and notifications. The old sandbox is not evidence that those server workflows are delivered.
+Upcoming P0 work follows v4: impact-aware freezes and pins, engine-selected portfolios, historical fairness burden, decision traces, replacement recommendations, then isolated Scenario Lab and current-fact conversion. Existing template/import/rules integrations and P1 demand/employee workflows follow the contract handoff. The old sandbox is not evidence that those server workflows are delivered.
 
 Design skills are local development tools, not runtime dependencies. Current work uses the requested [taste redesign guidance](https://github.com/Leonxlnx/taste-skill/tree/main/skills/redesign-skill), [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design), and [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill). [improve-animations](https://github.com/emilkowalski/skills/tree/main/skills/improve-animations) supplies read-only audit/planning criteria; implementation remains the authorized repository task.
 
-This history slice deliberately pins reviewed contract 3.3. Provider 3.11 is available upstream but later profiles, template, replay, CSV, self-report, notification and retention integrations are not claimed by this delivery. In particular, apply-edits recovery still uses the reviewed revision-only behavior; the newer replay guarantee arrives with the later contract upgrade.
+This UI slice deliberately pins reviewed contract 3.3. Provider 3.14 is available upstream; its later v3 APIs and the new v4 engine features are separate integration milestones. Template, replay, CSV, staff self-service, notification and retention integrations are not claimed by this delivery. In particular, apply-edits recovery still uses the reviewed revision-only behavior; the newer replay guarantee arrives with the later contract upgrade.

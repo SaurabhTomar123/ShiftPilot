@@ -24,7 +24,7 @@ test('review is read-only; selection and proposal creation carry explicit writes
   await page.getByRole('button', { name: 'Next week', exact: true }).click();
   await page.getByRole('button', { name: 'Generate draft', exact: true }).click();
   await page.getByRole('button', { name: 'Review option', exact: true }).first().click();
-  await expect(page.getByText('60', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Candidate review', exact: true }).getByText('60', { exact: true }).first()).toBeVisible();
   expect(writes.filter(w => w.path.endsWith('/select'))).toHaveLength(0);
   await expect(page.getByRole('button', { name: 'Create proposal', exact: true })).toHaveCount(0);
   await page.getByText('Review assignment changes (60)', { exact: true }).click();

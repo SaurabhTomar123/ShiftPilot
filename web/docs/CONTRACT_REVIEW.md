@@ -1,3 +1,11 @@
+# 21 October: v4 target and absence/repair consumer review
+
+Architecture v4 now governs the product direction. See [v4 alignment and required handoff](ARCHITECTURE_V4_ALIGNMENT.md). Consumer pin remains 3.3.0-p4 / 83 fixtures. Remote backend 3.14 was inspected; v4 scenario/freeze/replacement routes and fairness/portfolio/decision-trace schemas are not yet declared. Endpoint examples in the architecture are not silently substituted for accepted contracts.
+
+Absence reporting/list/status and explicit repair are integrated using the pinned types. The live synthetic API passed absence commit, automatic repair tracking, candidate detail/select, proposal creation and explicit approval; final publication had zero reported hard violations. Synthetic preview deliberately rejects requests without matching provider fixtures, including requested-record status transitions and detailed repair candidates. Plan comparison never invents fairness, a recommendation or dominance metadata. See [delivery evidence](UI_HANDOFF_V4_FOUNDATION.md).
+
+---
+
 # 21 October: history and restore consumer review (3.3)
 
 Provider baseline d66ad33 (including ea13417) is merged. Generated **83 fixtures** from `3.3.0-p4`; SHA-256 `9e4961ec6a96a6e97d0d5bb659936788d7d4c47e26390776e1f22f276184dd86`.

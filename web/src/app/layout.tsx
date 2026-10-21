@@ -9,7 +9,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'ShiftPilot · Your week, in order',
-  description: 'Build a weekly roster, review coverage, and repair shifts with less disruption.',
+  description: 'Plan schedules, compare recovery options, and approve validated workforce changes with less disruption.',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
