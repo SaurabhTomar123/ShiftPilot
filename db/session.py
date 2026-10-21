@@ -31,6 +31,13 @@ def worker_engine() -> Engine:
 
 
 @lru_cache
+def relay_engine() -> Engine:
+    """The outbox relay's connection: the shiftpilot_relay role when configured (B6.3)."""
+    url = settings().relay_database_url or settings().database_url
+    return create_engine(url, pool_pre_ping=True)
+
+
+@lru_cache
 def app_engine() -> Engine:
     return create_engine(settings().app_database_url, pool_pre_ping=True)
 

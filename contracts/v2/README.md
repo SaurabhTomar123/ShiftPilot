@@ -23,6 +23,17 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.11.0-p4 (live): in-app notifications
+
+This change is additive (architecture v3 §40). A separate relay process (`python -m jobs.outbox_relay`) turns committed events into in-app notifications. A failing notification can never fail the change that caused it.
+
+- **`getMyNotifications` `GET /v2/me/notifications?unread_only=`:** the caller's inbox, newest first. Each item has a `topic`, a ready-to-show `title`, and a `payload` with ids to link to. Recipients:
+  - `schedule.published`: staff with shifts in the new version.
+  - `run.finished`: a repair goes to the outlet's managers and owners; options go to whoever requested them.
+  - `absence.reported`, `proposal.ready` and `proposal.stale`: managers and owners.
+- **`markNotificationRead` `POST /v2/me/notifications/{id}/read`:** idempotent.
+- **Delivery:** at least once with duplicate suppression, so one notification per event and person in normal operation. Poll the inbox; there is no push channel in the MVP. Fixtures: `me.notifications`, `me.notifications.read`.
+
 ## What changed in 3.10.0-p4 (live): employee self-report
 
 This change is additive. Architecture v3 §20 scopes employee requests for the MVP to self-report; leave balances, swaps and availability-change requests come later.

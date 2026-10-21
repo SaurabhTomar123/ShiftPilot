@@ -665,6 +665,7 @@ class NotificationDelivery(Base):
     __table_args__ = (
         ref("recipient_user_id", "users"),
         UniqueConstraint("event_id", "recipient_user_id", "channel"),
+        Index("ix_notification_deliveries_inbox", "recipient_user_id", "delivered_at"),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()
@@ -672,6 +673,11 @@ class NotificationDelivery(Base):
     recipient_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
     channel: Mapped[str] = mapped_column(String(20))
     delivered_at: Mapped[datetime] = created_at()
+    # The in-app inbox (v3 section 40): self-contained, since published outbox rows are deleted.
+    topic: Mapped[str] = mapped_column(String(60), server_default="")
+    title: Mapped[str] = mapped_column(Text, server_default="")
+    payload: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class IdempotencyKey(Base):

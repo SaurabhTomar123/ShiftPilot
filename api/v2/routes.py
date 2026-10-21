@@ -16,7 +16,18 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import AwareDatetime
 
-from api.v2 import absences, candidates, drafts, generation, imports, proposals, rosters, service, staffing
+from api.v2 import (
+    absences,
+    candidates,
+    drafts,
+    generation,
+    imports,
+    notifications,
+    proposals,
+    rosters,
+    service,
+    staffing,
+)
 from api.v2 import auth as v2auth
 from api.v2 import schemas as s
 
@@ -660,6 +671,29 @@ def report_absence(
     absence then enqueues a repair run per affected schedule (repair_run_ids); locked affected shifts are
     listed in lock_conflicts and need explicit authorization through repairSchedule."""
     return absences.report(caller, idempotency_key, body)
+
+
+@router.get(
+    "/me/notifications",
+    operation_id="getMyNotifications",
+    response_model=s.NotificationList,
+    responses=_errors(422),
+)
+def get_my_notifications(caller: v2auth.CallerDep, unread_only: bool = False) -> s.NotificationList:
+    """The caller's in-app inbox, filled by the outbox relay: schedule published, repair or options
+    ready, absence confirmed, proposal ready or stale."""
+    return notifications.inbox(caller, unread_only)
+
+
+@router.post(
+    "/me/notifications/{notification_id}/read",
+    operation_id="markNotificationRead",
+    response_model=s.Notification,
+    responses=_errors(404, 422),
+)
+def mark_notification_read(caller: v2auth.CallerDep, notification_id: UUID) -> s.Notification:
+    """Idempotent: reading twice keeps the first read_at."""
+    return notifications.mark_read(caller, notification_id)
 
 
 @router.get(

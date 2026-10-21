@@ -1806,6 +1806,14 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
         }
     )
     repair_path = "/v2/outlets/{outlet_id}/schedules/{week_start}/repair"
+    published_note = s.Notification(
+        id=uid("notification", f"published:{published.id}:ravi"),
+        topic="schedule.published",
+        title=f"Your schedule for the week of {WEEK:%d %b} was published.",
+        payload={"schedule_id": str(published.schedule_id), "version_id": str(published.id)},
+        delivered_at=stamp("2026-10-17T15:14:05"),
+        read_at=None,
+    )
     repair_req: dict[str, Any] = {
         "path_params": {"outlet_id": str(HOME), "week_start": WEEK.isoformat()},
         "headers": {"Idempotency-Key": "repair-c41a77e0"},
@@ -1846,6 +1854,26 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
                     "reason": "Family function",
                 },
             },
+        ),
+        Fixture(
+            "me.notifications",
+            "getMyNotifications",
+            "GET",
+            "/v2/me/notifications",
+            "staff_ravi",
+            200,
+            s.NotificationList(items=[published_note]),
+            {"query": {"unread_only": "true"}},
+        ),
+        Fixture(
+            "me.notifications.read",
+            "markNotificationRead",
+            "POST",
+            "/v2/me/notifications/{notification_id}/read",
+            "staff_ravi",
+            200,
+            published_note.model_copy(update={"read_at": stamp("2026-10-17T18:30:00")}),
+            {"path_params": {"notification_id": str(published_note.id)}},
         ),
         Fixture(
             "me.absences",

@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.10.0-p4"
+CONTRACT_VERSION = "3.11.0-p4"
 
 
 class Model(BaseModel):
@@ -216,6 +216,24 @@ class EmployeeUpdate(Model):
                 f"null is not allowed for {', '.join(nulls)}; omit a field to leave it unchanged"
             )
         return self
+
+
+class Notification(Model):
+    """An in-app notification (architecture v3 section 40)."""
+
+    id: UUID
+    topic: str = Field(
+        description="schedule.published (your week), run.finished (options or a repair are ready), "
+        "absence.reported, proposal.ready or proposal.stale."
+    )
+    title: str = Field(description="Deterministic text; safe to show.")
+    payload: dict[str, Any] = Field(description="Ids to link to, e.g. schedule_id, version_id, run_id.")
+    delivered_at: AwareDatetime
+    read_at: AwareDatetime | None
+
+
+class NotificationList(Model):
+    items: list[Notification] = Field(description="Newest first, at most 100.")
 
 
 class ImportTemplate(Model):

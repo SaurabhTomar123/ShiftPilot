@@ -53,8 +53,11 @@ def client() -> Iterator[TestClient]:
             prefix, prefix.split("//")[0] + "//shiftpilot_worker:" + base.worker_db_password, 1
         )
         mp.setenv("WORKER_DATABASE_URL", worker_url)
+        relay = prefix.split("//")[0] + "//shiftpilot_relay:" + base.relay_db_password
+        mp.setenv("RELAY_DATABASE_URL", url.replace(prefix, relay, 1))
         mp.setenv("DEMO_SESSIONS_ENABLED", "true")
-        for cached in (config.settings, session.admin_engine, session.app_engine, session.worker_engine):
+        engines = (session.admin_engine, session.app_engine, session.worker_engine, session.relay_engine)
+        for cached in (config.settings, *engines):
             cached.cache_clear()
         from api.v2.app import create_app
 
@@ -64,8 +67,10 @@ def client() -> Iterator[TestClient]:
             session.admin_engine().dispose()
             session.app_engine().dispose()
             session.worker_engine().dispose()
+            session.relay_engine().dispose()
             mp.undo()
             session.worker_engine.cache_clear()
+            session.relay_engine.cache_clear()
             for cached in (config.settings, session.admin_engine, session.app_engine):
                 cached.cache_clear()
 
