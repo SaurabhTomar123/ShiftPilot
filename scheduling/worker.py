@@ -345,6 +345,28 @@ def process(engine: Engine, row: Any, me: str) -> str:
                         }
                         for sh in outcome.shortages
                     ],
+                    "options": [
+                        {
+                            "kind": r.kind,
+                            "summary": r.summary,
+                            "employees": [
+                                {"employee_id": str(e), "name": n, "home_outlet_id": str(o), "minutes": m}
+                                for e, n, o, m in r.employees
+                            ],
+                            "shortages": [
+                                {
+                                    "outlet_id": str(snap.outlet_id),
+                                    "skill_id": str(g.skill_id),
+                                    "interval_start": g.interval_start.isoformat(),
+                                    "interval_end": g.interval_end.isoformat(),
+                                    "minimum_required": g.minimum_required,
+                                    "max_assignable": g.max_assignable,
+                                }
+                                for g in r.shortages
+                            ],
+                        }
+                        for r in outcome.relaxations
+                    ],
                 }
         best = outcome.candidates[0] if outcome and outcome.candidates else None
         won = conn.execute(

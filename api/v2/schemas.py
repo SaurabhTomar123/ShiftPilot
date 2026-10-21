@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.7.0-p4"
+CONTRACT_VERSION = "3.8.0-p4"
 
 
 class Model(BaseModel):
@@ -906,9 +906,38 @@ class Shortage(Model):
     max_assignable: int = Field(description="Upper bound of eligible staff for this interval.")
 
 
+class RelaxationEmployee(Model):
+    employee_id: UUID
+    name: str
+    home_outlet_id: UUID
+    minutes: Minutes = Field(
+        description="overtime: minutes beyond the regular week; cross_outlet: minutes worked."
+    )
+
+
+class RelaxationOption(Model):
+    """A business option instead of a bare INFEASIBLE (architecture v3 section 13). It is a diagnosis
+    found by re-solving with that one relaxation, not a schedule: apply it, then generate again."""
+
+    kind: Literal["overtime", "cross_outlet", "reduced_minimum"] = Field(
+        description="overtime: let the named people work overtime (update their overtime permission). "
+        "cross_outlet: borrow the named people from their outlets (owner). reduced_minimum: operate the "
+        "listed intervals with fewer staff (lower the week's minimum_required)."
+    )
+    summary: str = Field(description="Deterministic text built from the facts; safe to show.")
+    employees: list[RelaxationEmployee] = Field(default_factory=list)
+    shortages: list[Shortage] = Field(default_factory=list, description="reduced_minimum only.")
+
+
 class Infeasibility(Model):
     summary: str
     shortages: list[Shortage]
+    options: list[RelaxationOption] = Field(
+        default_factory=list,
+        description="In order: overtime, cross_outlet, reduced_minimum. Each was feasible on its own; none "
+        "is claimed to be the smallest change. Overlap, availability, absences, mandatory skills, the "
+        "absolute weekly cap and authorization boundaries are never relaxed.",
+    )
 
 
 RepairStageName = Literal["same_day", "adjacent_shifts", "other_outlets", "overtime"]

@@ -206,6 +206,12 @@ def test_impossible_demand_is_reported_as_infeasible(client: TestClient) -> None
     shortage = run["infeasibility"]["shortages"][0]
     assert shortage["minimum_required"] == 9 and shortage["max_assignable"] < 9
     assert "needs 9 Grill" in run["infeasibility"]["summary"]
+    options = run["infeasibility"]["options"]  # v3 section 13: business options, not a bare error
+    assert options and options[-1]["kind"] == "reduced_minimum"
+    assert {o["kind"] for o in options} <= {"overtime", "cross_outlet", "reduced_minimum"}
+    for o in options:
+        if o["kind"] == "cross_outlet":  # other outlets' staff are in the snapshot for exactly this
+            assert all(e["home_outlet_id"] != KOR for e in o["employees"])
 
 
 def test_org_cap_returns_429_with_retry_after(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:

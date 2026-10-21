@@ -14,7 +14,7 @@ from __future__ import annotations
 import time
 import uuid
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from typing import Any
 
@@ -100,10 +100,22 @@ class Shortage:
 
 
 @dataclass
+class Relaxation:
+    """A business option offered instead of a bare INFEASIBLE (architecture v3 section 13). It is a
+    diagnosis: applying it is a manager's (or, across outlets, an owner's) explicit change, then a re-run."""
+
+    kind: str  # overtime | cross_outlet | reduced_minimum
+    summary: str
+    employees: tuple[tuple[uuid.UUID, str, uuid.UUID, int], ...] = ()  # (id, name, home outlet, minutes)
+    shortages: tuple[Shortage, ...] = ()
+
+
+@dataclass
 class Outcome:
     status: str
     candidates: list[Candidate] = field(default_factory=list)
     shortages: list[Shortage] = field(default_factory=list)
+    relaxations: list[Relaxation] = field(default_factory=list)
     summary: str | None = None
     wall_ms: int = 0
     stats: dict[str, Any] = field(default_factory=dict)
@@ -239,7 +251,18 @@ def _conflict(
 # ---------------------------------------------------------------- infeasibility diagnosis
 
 
-def shortages(snap: Snapshot, candidates: list[Slot]) -> list[Shortage]:
+def pool(snap: Snapshot, cross_outlet: bool = False) -> list[Employee]:
+    """Who a solve may assign: the outlet's own staff and anyone already on its base roster. Staff of
+    other outlets are in the snapshot only so a cross-outlet relaxation can be diagnosed."""
+    rostered = {sh.employee_id for sh in (*snap.base_locked.values(), *snap.base)}
+    return [
+        e
+        for e in snap.employees.values()
+        if cross_outlet or e.home_outlet_id == snap.outlet_id or e.id in rostered
+    ]
+
+
+def shortages(snap: Snapshot, candidates: list[Slot], cross_outlet: bool = False) -> list[Shortage]:
     """Deterministic check (decision 9): intervals whose minimum exceeds the qualified, available people."""
     locked = list(snap.base_locked.values())
     found: list[Shortage] = []
@@ -249,7 +272,7 @@ def shortages(snap: Snapshot, candidates: list[Slot]) -> list[Shortage]:
         t = req.interval_start
         people = {
             e.id
-            for e in snap.employees.values()
+            for e in pool(snap, cross_outlet)
             if any(
                 c.skill_id == req.skill_id and c.productive_at(t) and eligible(snap, e, c) for c in candidates
             )
@@ -300,6 +323,7 @@ def solve(
     workers: int = 8,
     max_shortfall_staff_minutes: int | None = None,
     deterministic_time: float | None = None,
+    cross_outlet: bool = False,
 ) -> tuple[str, Candidate | None, dict[str, Any]]:
     """max_shortfall_staff_minutes caps preferred shortfall (equal shortfall = equal coverage), which
     gives matched-coverage comparisons: the cheapest roster covering at least as well as a reference.
@@ -312,7 +336,7 @@ def solve(
     model = cp_model.CpModel()
     x: dict[tuple[uuid.UUID, int], cp_model.IntVar] = {}
     for i, c in enumerate(cands):
-        for e in snap.employees.values():
+        for e in pool(snap, cross_outlet):
             if eligible(snap, e, c):
                 x[e.id, i] = model.new_bool_var(f"x_{i}_{e.id.hex[:6]}")
 
@@ -499,6 +523,7 @@ def generate(
         if status == "INFEASIBLE":
             outcome.status = "INFEASIBLE"
             outcome.shortages = shortages(snap, slots(snap))
+            outcome.relaxations = relaxations(snap, outcome.shortages, time_limit=budget, workers=workers)
             outcome.summary = (
                 describe(snap, outcome.shortages[0])
                 if outcome.shortages
@@ -529,3 +554,99 @@ def generate(
         outcome.status = outcome.candidates[0].status
     outcome.wall_ms = int((time.perf_counter() - started) * 1000)
     return outcome
+
+
+# ---------------------------------------------------------------- infeasibility relaxations (v3 section 13)
+
+
+def _week_minutes(snap: Snapshot, roster: tuple[Shift, ...]) -> dict[uuid.UUID, int]:
+    week_start, week_end = snap.week_bounds()
+    out: dict[uuid.UUID, int] = defaultdict(int)
+    for sh in (*roster, *snap.commitments):
+        if sh.employee_id is not None and week_start <= sh.start_at < week_end:
+            out[sh.employee_id] += sh.paid_minutes
+    return out
+
+
+def _hours(minutes: int) -> str:
+    return f"{minutes // 60} h {minutes % 60} min" if minutes % 60 else f"{minutes // 60} h"
+
+
+def relaxations(
+    snap: Snapshot, found: list[Shortage], *, time_limit: float, workers: int = 8
+) -> list[Relaxation]:
+    """Authorized relaxations, each re-solved on its own, in v3's order. Preferred coverage is already
+    soft. Overlap, availability, absences, mandatory skills, the absolute weekly cap and authorization
+    boundaries are never relaxed; rule relaxations arrive with configurable rules (B5.2). No claim is
+    made that these are the smallest relaxations."""
+    options: list[Relaxation] = []
+    budget = max(1.0, time_limit / 2)
+    home = snap.outlet.name
+
+    # 1. Overtime for people whose contract does not allow it yet (up to their absolute cap).
+    willing = {
+        e.id: replace(e, overtime_allowed=True)
+        for e in pool(snap)
+        if not e.overtime_allowed and e.max_weekly_minutes > e.regular_weekly_minutes
+    }
+    if willing:
+        status, cand, _ = solve(
+            replace(snap, employees={**snap.employees, **willing}),
+            "lowest_cost",
+            time_limit=budget,
+            workers=workers,
+        )
+        if cand is not None:
+            worked = _week_minutes(snap, cand.roster)
+            extra = sorted(
+                (
+                    (e.id, e.name, e.home_outlet_id, worked[e.id] - e.regular_weekly_minutes)
+                    for e in (snap.employees[i] for i in willing)
+                    if worked[e.id] > e.regular_weekly_minutes
+                ),
+                key=lambda t: (-t[3], t[1]),
+            )
+            if extra:
+                names = "; ".join(f"allow {name} {_hours(m)} overtime" for _, name, _, m in extra)
+                options.append(Relaxation("overtime", names[0].upper() + names[1:], tuple(extra)))
+
+    # 2. Borrow staff from other outlets (owner-authorized).
+    if any(e.home_outlet_id != snap.outlet_id for e in snap.employees.values()):
+        status, cand, _ = solve(snap, "lowest_cost", time_limit=budget, workers=workers, cross_outlet=True)
+        if cand is not None:
+            worked = defaultdict(int)
+            for sh in cand.roster:
+                if sh.employee_id is not None:
+                    worked[sh.employee_id] += sh.paid_minutes
+            mine = {e.id for e in pool(snap)}
+            borrowed = sorted(
+                (
+                    (e.id, e.name, e.home_outlet_id, worked[e.id])
+                    for e in snap.employees.values()
+                    if e.id not in mine and worked.get(e.id)
+                ),
+                key=lambda t: (-t[3], t[1]),
+            )
+            if borrowed:
+                names = "; ".join(
+                    f"borrow {name} from {snap.outlets[o].name if o in snap.outlets else 'another outlet'}"
+                    f" for {_hours(m)}"
+                    for _, name, o, m in borrowed
+                )
+                options.append(Relaxation("cross_outlet", names[0].upper() + names[1:], tuple(borrowed)))
+
+    # 3. Operate below the minimum where nobody else can be found.
+    if found:
+        tz = snap.outlet.tz
+        parts = []
+        for gap in found:
+            a, b = gap.interval_start.astimezone(tz), gap.interval_end.astimezone(tz)
+            skill = snap.skill_names.get(gap.skill_id, "staff")
+            parts.append(
+                f"{a:%A} {a:%H:%M}-{b:%H:%M} with {gap.max_assignable} {skill}"
+                f" instead of {gap.minimum_required}"
+            )
+        options.append(
+            Relaxation("reduced_minimum", f"Operate {home} " + "; ".join(parts), shortages=tuple(found))
+        )
+    return options

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.7.0-p4"
+    "version": "3.8.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -5758,6 +5758,14 @@
             },
             "type": "array",
             "title": "Shortages"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/RelaxationOption"
+            },
+            "type": "array",
+            "title": "Options",
+            "description": "In order: overtime, cross_outlet, reduced_minimum. Each was feasible on its own; none is claimed to be the smallest change. Overlap, availability, absences, mandatory skills, the absolute weekly cap and authorization boundaries are never relaxed."
           }
         },
         "additionalProperties": false,
@@ -6688,6 +6696,81 @@
           "superseded_version_id"
         ],
         "title": "PublishResult"
+      },
+      "RelaxationEmployee": {
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Employee Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "home_outlet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Home Outlet Id"
+          },
+          "minutes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Minutes",
+            "description": "overtime: minutes beyond the regular week; cross_outlet: minutes worked."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "employee_id",
+          "name",
+          "home_outlet_id",
+          "minutes"
+        ],
+        "title": "RelaxationEmployee"
+      },
+      "RelaxationOption": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "overtime",
+              "cross_outlet",
+              "reduced_minimum"
+            ],
+            "title": "Kind",
+            "description": "overtime: let the named people work overtime (update their overtime permission). cross_outlet: borrow the named people from their outlets (owner). reduced_minimum: operate the listed intervals with fewer staff (lower the week's minimum_required)."
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "description": "Deterministic text built from the facts; safe to show."
+          },
+          "employees": {
+            "items": {
+              "$ref": "#/components/schemas/RelaxationEmployee"
+            },
+            "type": "array",
+            "title": "Employees"
+          },
+          "shortages": {
+            "items": {
+              "$ref": "#/components/schemas/Shortage"
+            },
+            "type": "array",
+            "title": "Shortages",
+            "description": "reduced_minimum only."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "summary"
+        ],
+        "title": "RelaxationOption",
+        "description": "A business option instead of a bare INFEASIBLE (architecture v3 section 13). It is a diagnosis\nfound by re-solving with that one relaxation, not a schedule: apply it, then generate again."
       },
       "RemoveShift": {
         "properties": {

@@ -254,8 +254,11 @@ def enqueue(
             return run_view(session, existing)
         base = _current_shifts(session, schedule)
         locked = [x for x in base if x.locked]
+        # Other outlets' staff are carried only so INFEASIBLE can offer "borrow X" (the solver's pool is
+        # the outlet's own staff and its roster).
+        others = list(session.scalars(select(Outlet.id).where(Outlet.id != outlet_id)))
         snap = snapshot_db.with_base_locks(
-            snapshot_db.load(session, outlet_id, week_start, base, schedule.id), locked, base
+            snapshot_db.load(session, outlet_id, week_start, base, schedule.id, others), locked, base
         )
         run = _insert(
             session,

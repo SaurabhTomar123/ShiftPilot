@@ -1053,6 +1053,46 @@ def fixtures() -> list[Fixture]:
                                 max_assignable=3,
                             )
                         ],
+                        options=[
+                            s.RelaxationOption(
+                                kind="overtime",
+                                summary="Allow Arjun Rao 2 h overtime",
+                                employees=[
+                                    s.RelaxationEmployee(
+                                        employee_id=uid("employee", "arjun"),
+                                        name="Arjun Rao",
+                                        home_outlet_id=HOME,
+                                        minutes=120,
+                                    )
+                                ],
+                            ),
+                            s.RelaxationOption(
+                                kind="cross_outlet",
+                                summary="Borrow Suresh Pillai from Koramangala for 7 h 30 min",
+                                employees=[
+                                    s.RelaxationEmployee(
+                                        employee_id=uid("employee", "suresh"),
+                                        name="Suresh Pillai",
+                                        home_outlet_id=uid("outlet", "koramangala"),
+                                        minutes=450,
+                                    )
+                                ],
+                            ),
+                            s.RelaxationOption(
+                                kind="reduced_minimum",
+                                summary="Operate Indiranagar Friday 19:00-22:00 with 3 Grill instead of 5",
+                                shortages=[
+                                    s.Shortage(
+                                        outlet_id=HOME,
+                                        skill_id=SKILL["Grill"],
+                                        interval_start=at(date(2026, 10, 30), 1140),
+                                        interval_end=at(date(2026, 10, 30), 1320),
+                                        minimum_required=5,
+                                        max_assignable=3,
+                                    )
+                                ],
+                            ),
+                        ],
                     ),
                     **done,
                 ),

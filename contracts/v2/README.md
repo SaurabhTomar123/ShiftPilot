@@ -23,6 +23,18 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.8.0-p4 (live): infeasibility options
+
+This change is additive (architecture v3 §13). An `INFEASIBLE` run's `infeasibility.options` now lists business options instead of a bare error. Each option was found by re-solving with that single relaxation, and they come in this order:
+
+| `kind` | Meaning | How a manager applies it |
+|---|---|---|
+| `overtime` | The named `employees` would need `minutes` beyond their regular week. | Allow overtime on those employees (`updateEmployee`), then generate again. |
+| `cross_outlet` | The named `employees` from other outlets would cover it. | Owner decision: add them to the week (edits or a repair with `allow_cross_outlet`). |
+| `reduced_minimum` | Operate the listed `shortages` with `max_assignable` staff. | Lower `minimum_required` for those intervals (`putStaffingRequirements`, `source: manual`), then generate again. |
+
+Show the `summary` text as given; it is built from the facts and is ASCII. No option is claimed to be the smallest change. Overlap, availability, absences, mandatory skills, the absolute weekly cap and authorization are never relaxed. Rule relaxations will be added with configurable rules. Fixture: `run.infeasible`.
+
 ## What changed in 3.7.0-p4 (live): retention
 
 This change is additive (architecture v3 §25).
