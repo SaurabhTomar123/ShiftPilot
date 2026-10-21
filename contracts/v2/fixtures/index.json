@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.8.0-p4",
+  "contract_version": "3.9.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -186,6 +186,36 @@
       "operation_id": "rejectProposal",
       "status": 200,
       "schema": "Proposal"
+    },
+    {
+      "name": "imports.template",
+      "operation_id": "getEmployeeImportTemplate",
+      "status": 200,
+      "schema": "ImportTemplate"
+    },
+    {
+      "name": "imports.stage",
+      "operation_id": "stageEmployeeImport",
+      "status": 201,
+      "schema": "ImportJob"
+    },
+    {
+      "name": "imports.stage.invalid",
+      "operation_id": "stageEmployeeImport",
+      "status": 201,
+      "schema": "ImportJob"
+    },
+    {
+      "name": "imports.get",
+      "operation_id": "getImport",
+      "status": 200,
+      "schema": "ImportJob"
+    },
+    {
+      "name": "imports.commit",
+      "operation_id": "commitImport",
+      "status": 200,
+      "schema": "ImportJob"
     },
     {
       "name": "session.demo.manager",

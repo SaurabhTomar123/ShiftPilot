@@ -557,6 +557,7 @@ def fixtures() -> list[Fixture]:
         p3_fixtures(published)
         + p4_fixtures(published)
         + proposal_fixtures(d1)
+        + import_fixtures()
         + [
             Fixture(
                 "session.demo.manager",
@@ -2106,6 +2107,142 @@ def proposal_fixtures(draft: s.ScheduleVersion) -> list[Fixture]:
             200,
             decided("rejected"),
             {"path_params": {"proposal_id": str(proposal.id)}},
+        ),
+    ]
+
+
+# ---------------------------------------------------------------- B5.4: employee CSV onboarding (v3 s19)
+
+
+def import_fixtures() -> list[Fixture]:
+    from api.v2.imports import template
+    from importer.employees_csv import COLUMNS
+
+    header = ",".join(COLUMNS)
+    week = ",".join(["10:00", "22:00"] * 5 + [""] * 4)
+    newline = chr(10)
+    good = newline.join(
+        [
+            header,
+            f"Asha Nair,Indiranagar,Grill;Prep,190,48,40,{week}",
+            f"Dev Sharma,indiranagar,Server,170,40,,{week}",
+        ]
+    )
+    bad = newline.join(
+        [
+            header,
+            f"Asha Nair,Mars,Grill;Juggling,190,48,40,{week}",
+            f"Dev Sharma,indiranagar,Server,170,40,,{week}",
+        ]
+    )
+    job_id, bad_id = uid("import", "employees:good"), uid("import", "employees:bad")
+    created, expires = stamp("2026-10-21T10:00:00"), stamp("2026-10-22T10:00:00")
+
+    def job(i: uuid.UUID, status: Any, rows: list[s.ImportRow], committed: Any = None) -> s.ImportJob:
+        return s.ImportJob(
+            id=i,
+            kind="employees",
+            status=status,
+            filename="staff.csv",
+            row_count=len(rows),
+            error_count=sum(1 for r in rows if r.errors),
+            file_errors=[],
+            created_at=created,
+            expires_at=expires,
+            committed_at=committed,
+            rows=rows,
+        )
+
+    def row(
+        n: int, name: str, outlet: uuid.UUID | None, employee: uuid.UUID | None = None, errors: Any = ()
+    ) -> s.ImportRow:
+        return s.ImportRow(
+            row_number=n, name=name, outlet_id=outlet, errors=list(errors), employee_id=employee
+        )
+
+    staged = job(job_id, "staged", [row(2, "Asha Nair", HOME), row(3, "Dev Sharma", HOME)])
+    invalid = job(
+        bad_id,
+        "invalid",
+        [
+            row(
+                2,
+                "Asha Nair",
+                None,
+                errors=[
+                    s.ImportRowError(column="outlet", message="Unknown outlet 'Mars'."),
+                    s.ImportRowError(column="skills", message="Unknown roles: Juggling."),
+                ],
+            ),
+            row(3, "Dev Sharma", HOME),
+        ],
+    )
+    committed = job(
+        job_id,
+        "committed",
+        [
+            row(2, "Asha Nair", HOME, uid("employee", "import:asha")),
+            row(3, "Dev Sharma", HOME, uid("employee", "import:dev")),
+        ],
+        committed=stamp("2026-10-21T10:02:00"),
+    )
+    stage_path = "/v2/imports/employees"
+    return [
+        Fixture(
+            "imports.template",
+            "getEmployeeImportTemplate",
+            "GET",
+            "/v2/imports/employees/template",
+            "manager_indiranagar",
+            200,
+            template(),
+            {},
+        ),
+        Fixture(
+            "imports.stage",
+            "stageEmployeeImport",
+            "POST",
+            stage_path,
+            "manager_indiranagar",
+            201,
+            staged,
+            {
+                "headers": {"Idempotency-Key": "import-0b5f2c71"},
+                "body": {"filename": "staff.csv", "content": good},
+            },
+        ),
+        Fixture(
+            "imports.stage.invalid",
+            "stageEmployeeImport",
+            "POST",
+            stage_path,
+            "manager_indiranagar",
+            201,
+            invalid,
+            {
+                "headers": {"Idempotency-Key": "import-6e19d4a3"},
+                "body": {"filename": "staff.csv", "content": bad},
+            },
+        ),
+        Fixture(
+            "imports.get",
+            "getImport",
+            "GET",
+            "/v2/imports/{import_id}",
+            "manager_indiranagar",
+            200,
+            staged,
+            {"path_params": {"import_id": str(job_id)}},
+        ),
+        Fixture(
+            "imports.commit",
+            "commitImport",
+            "POST",
+            "/v2/imports/{import_id}/commit",
+            "manager_indiranagar",
+            200,
+            committed,
+            {"path_params": {"import_id": str(job_id)}, "headers": {"Idempotency-Key": "commit-9a7e3b10"}},
         ),
     ]
 

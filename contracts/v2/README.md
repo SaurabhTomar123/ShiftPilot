@@ -23,6 +23,17 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.9.0-p4 (live): employee CSV onboarding
+
+This change is additive (architecture v3 §19). The flow is upload → row-level errors → fix and upload again → commit in one transaction.
+
+| Operation | What it does | Fixture |
+|---|---|---|
+| `getEmployeeImportTemplate` `GET /v2/imports/employees/template` | Returns the fixed `columns`, one valid `example` row and the rules (`notes`). There is no column mapping. | `imports.template` |
+| `stageEmployeeImport` `POST /v2/imports/employees` | Body `{filename, content}` (CSV text, up to 1 MB and 1000 rows) plus `Idempotency-Key`. It validates every row and **writes no employees**. `status` is `staged` (all valid) or `invalid`, with per-row `errors[{column, message}]` and file-level `file_errors`. A manager may only import staff for their own outlet. | `imports.stage`, `.stage.invalid` |
+| `getImport` `GET /v2/imports/{id}` | Re-reads a staged import. Staged imports expire after 24 hours. | `imports.get` |
+| `commitImport` `POST /v2/imports/{id}/commit` | Creates every employee, with their roles and weekly availability, in one transaction. `409 conflict` when the import is invalid, expired or already committed (`details.status`), or when a row no longer fits (`details.rows`). Imported staff have no overtime; change that per employee afterwards. | `imports.commit` |
+
 ## What changed in 3.8.0-p4 (live): infeasibility options
 
 This change is additive (architecture v3 §13). An `INFEASIBLE` run's `infeasibility.options` now lists business options instead of a bare error. Each option was found by re-solving with that single relaxation, and they come in this order:

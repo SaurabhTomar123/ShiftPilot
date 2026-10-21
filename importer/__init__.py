@@ -1,9 +1,6 @@
-"""Bring-your-own-data CSV onboarding (M6). Target: new outlet answering questions in < 10 min.
+"""Onboarding imports (architecture v3 section 19).
 
-1. mapping.py: read headers + 5 sample rows; ask the router model to map columns to
-   employees/shifts/attendance fields (JSON). User confirms/edits in the web wizard.
-2. validate.py: required fields, date/time parsing, overlapping shifts, duplicate employees,
-   negative hours. Return a report; nothing is written yet.
-3. commit: one transaction; insert rows (with org_id), then recompute payslips for the chosen
-   period via mcp_server.queries.compute_period_payslip.
+employees_csv: the fixed employee CSV template, parsed and validated without touching the database.
+api.v2.imports stages a file, reports row-level errors and commits every row in one transaction.
+Fuzzy or AI-assisted column mapping is a later enhancement, not part of the MVP.
 """

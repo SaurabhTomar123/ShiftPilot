@@ -1,0 +1,47 @@
+{
+  "name": "imports.commit",
+  "operation_id": "commitImport",
+  "method": "POST",
+  "path": "/v2/imports/{import_id}/commit",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "import_id": "3ef70f61-5e93-5b12-8f08-38acb7faa42c"
+    },
+    "headers": {
+      "Idempotency-Key": "commit-9a7e3b10"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "ImportJob",
+    "body": {
+      "id": "3ef70f61-5e93-5b12-8f08-38acb7faa42c",
+      "kind": "employees",
+      "status": "committed",
+      "filename": "staff.csv",
+      "row_count": 2,
+      "error_count": 0,
+      "file_errors": [],
+      "created_at": "2026-10-21T10:00:00+05:30",
+      "expires_at": "2026-10-22T10:00:00+05:30",
+      "committed_at": "2026-10-21T10:02:00+05:30",
+      "rows": [
+        {
+          "row_number": 2,
+          "name": "Asha Nair",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "errors": [],
+          "employee_id": "cb06c39f-b028-5892-8824-d038e0c2d390"
+        },
+        {
+          "row_number": 3,
+          "name": "Dev Sharma",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "errors": [],
+          "employee_id": "99be6d46-4c55-58ec-9b24-e8f68a286a3a"
+        }
+      ]
+    }
+  }
+}

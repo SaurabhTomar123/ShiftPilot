@@ -714,3 +714,45 @@ V2_TENANT_TABLES = [
     "notification_deliveries",
     "idempotency_keys",
 ]
+
+
+class ImportJob(Base):
+    """One uploaded onboarding file (architecture v3 section 19). Committed all at once or not at all."""
+
+    __tablename__ = "import_jobs"
+    __table_args__ = (
+        ref("created_by_user_id", "users"),
+        UniqueConstraint("org_id", "id"),
+        one_of("kind", ("employees",), "import_kind"),
+        one_of("status", ("staged", "invalid", "committed", "expired"), "import_status"),
+        CheckConstraint("(status = 'committed') = (committed_at IS NOT NULL)", name="import_committed_at"),
+    )
+    id: Mapped[uuid.UUID] = pk()
+    org_id: Mapped[uuid.UUID] = org()
+    kind: Mapped[str] = mapped_column(String(20))
+    status: Mapped[str] = mapped_column(String(20))
+    filename: Mapped[str] = mapped_column(String(200))
+    row_count: Mapped[int] = mapped_column(Integer)
+    error_count: Mapped[int] = mapped_column(Integer)
+    file_errors: Mapped[list[str]] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
+    created_by_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    created_at: Mapped[datetime] = created_at()
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    committed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class ImportRow(Base):
+    __tablename__ = "import_rows"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["org_id", "job_id"], ["import_jobs.org_id", "import_jobs.id"], ondelete="CASCADE"
+        ),
+        UniqueConstraint("job_id", "row_number"),
+    )
+    id: Mapped[uuid.UUID] = pk()
+    org_id: Mapped[uuid.UUID] = org()
+    job_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    row_number: Mapped[int] = mapped_column(Integer)
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    errors: Mapped[list[dict[str, str]]] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))
+    employee_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)

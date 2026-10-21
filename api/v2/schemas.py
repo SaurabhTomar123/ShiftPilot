@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.8.0-p4"
+CONTRACT_VERSION = "3.9.0-p4"
 
 
 class Model(BaseModel):
@@ -216,6 +216,49 @@ class EmployeeUpdate(Model):
                 f"null is not allowed for {', '.join(nulls)}; omit a field to leave it unchanged"
             )
         return self
+
+
+class ImportTemplate(Model):
+    """The fixed employee CSV template (architecture v3 section 19). No column mapping in the MVP."""
+
+    columns: list[str]
+    example: str = Field(description="One valid data row.")
+    notes: list[str]
+
+
+class StageImportRequest(Model):
+    filename: str = Field(min_length=1, max_length=200)
+    content: str = Field(max_length=1_000_000, description="The CSV text (UTF-8), header row first.")
+
+
+class ImportRowError(Model):
+    column: str = Field(description="Template column, or * for the whole row.")
+    message: str
+
+
+class ImportRow(Model):
+    row_number: int = Field(ge=2, description="Line in the file; the header is line 1.")
+    name: str
+    outlet_id: UUID | None
+    errors: list[ImportRowError]
+    employee_id: UUID | None = Field(description="Set once the import is committed.")
+
+
+class ImportJob(Model):
+    id: UUID
+    kind: Literal["employees"]
+    status: Literal["staged", "invalid", "committed", "expired"] = Field(
+        description="staged: every row is valid; commit it. invalid: fix the listed errors and upload "
+        "again (nothing was written). committed: the employees exist. expired: staged over 24 hours ago."
+    )
+    filename: str
+    row_count: int = Field(ge=0)
+    error_count: int = Field(ge=0, description="Rows with at least one error.")
+    file_errors: list[str] = Field(description="Problems with the file itself, e.g. its header.")
+    created_at: AwareDatetime
+    expires_at: AwareDatetime
+    committed_at: AwareDatetime | None
+    rows: list[ImportRow]
 
 
 class AvailabilityWindow(Model):

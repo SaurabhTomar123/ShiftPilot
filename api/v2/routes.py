@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import AwareDatetime
 
-from api.v2 import absences, candidates, drafts, generation, proposals, rosters, service, staffing
+from api.v2 import absences, candidates, drafts, generation, imports, proposals, rosters, service, staffing
 from api.v2 import auth as v2auth
 from api.v2 import schemas as s
 
@@ -203,6 +203,60 @@ def put_availability(
     caller: v2auth.CallerDep, employee_id: UUID, body: s.AvailabilityUpdate
 ) -> s.Availability:
     return service.put_availability(caller, employee_id, body)
+
+
+ImportPath = Annotated[UUID, Path(description="An onboarding import.")]
+
+
+@router.get(
+    "/imports/employees/template",
+    operation_id="getEmployeeImportTemplate",
+    response_model=s.ImportTemplate,
+    responses=_errors(403),
+)
+def get_employee_import_template(caller: v2auth.CallerDep) -> s.ImportTemplate:
+    """The fixed CSV columns, one valid example row and the rules (architecture v3 section 19)."""
+    v2auth.require(caller, "manage_employees")
+    return imports.template()
+
+
+@router.post(
+    "/imports/employees",
+    operation_id="stageEmployeeImport",
+    response_model=s.ImportJob,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 409, 422),
+)
+def stage_employee_import(
+    caller: v2auth.CallerDep, idempotency_key: IdempotencyKey, body: s.StageImportRequest
+) -> s.ImportJob:
+    """Parse and validate every row; writes no employees. status staged (all valid) or invalid (fix
+    the row errors and upload again)."""
+    return imports.stage(caller, idempotency_key, body)
+
+
+@router.get(
+    "/imports/{import_id}",
+    operation_id="getImport",
+    response_model=s.ImportJob,
+    responses=_errors(403, 404, 422),
+)
+def get_import(caller: v2auth.CallerDep, import_id: ImportPath) -> s.ImportJob:
+    return imports.get(caller, import_id)
+
+
+@router.post(
+    "/imports/{import_id}/commit",
+    operation_id="commitImport",
+    response_model=s.ImportJob,
+    responses=_errors(403, 404, 409, 422),
+)
+def commit_import(
+    caller: v2auth.CallerDep, import_id: ImportPath, idempotency_key: IdempotencyKey
+) -> s.ImportJob:
+    """Create every employee in one transaction. 409 conflict when the import is invalid, expired or
+    already committed, or when a row no longer fits (details.rows)."""
+    return imports.commit(caller, import_id, idempotency_key)
 
 
 @router.get(

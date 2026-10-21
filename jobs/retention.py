@@ -14,6 +14,7 @@ Every derived artifact has an explicit lifetime:
     applied runs                     input snapshot cleared after 30 days; metrics, config, input_hash,
                                      solver version and base version ids are kept
     published and superseded         kept (MVP); audit log kept (MVP)
+    staged or invalid CSV imports    rows deleted 24 hours after upload; the job row 30 days later
     delivered outbox events          7 days
 
 Runs in one transaction across tenants with the admin connection, like the worker.
@@ -116,6 +117,20 @@ STEPS: list[tuple[str, str]] = [
         f"""UPDATE optimization_runs SET input_snapshot = {EMPTY},
                    stats = coalesce(stats, '{{}}'::jsonb) || '{{"snapshot_purged": true}}'::jsonb
              WHERE job_state = 'succeeded' AND finished_at < :long AND input_snapshot <> {EMPTY}""",
+    ),
+    (
+        "imports_expired",
+        """UPDATE import_jobs SET status = 'expired'
+            WHERE status IN ('staged', 'invalid') AND expires_at <= :now""",
+    ),
+    (
+        "import_rows_deleted",
+        """DELETE FROM import_rows r USING import_jobs j
+            WHERE j.id = r.job_id AND j.status = 'expired'""",
+    ),
+    (
+        "imports_deleted",
+        "DELETE FROM import_jobs WHERE status = 'expired' AND expires_at < :long",
     ),
     (
         "outbox_deleted",
