@@ -1,0 +1,37 @@
+{
+  "name": "edits.apply.stale",
+  "operation_id": "applyEdits",
+  "method": "POST",
+  "path": "/v2/schedule-versions/{version_id}/edits",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "version_id": "7d932d02-e046-5127-aaff-604dd184d809"
+    },
+    "body": {
+      "expected_revision": 1,
+      "edits": [
+        {
+          "op": "lock",
+          "logical_shift_id": "c5d11735-6be2-5b94-8b12-4ae842bbdd74",
+          "reason": "Opening cook confirmed"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "stale_version",
+        "message": "This draft was changed by someone else. Reload and try again.",
+        "retryable": false,
+        "details": {
+          "current_revision": 2
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "me.notifications",
+  "operation_id": "getMyNotifications",
+  "method": "GET",
+  "path": "/v2/me/notifications",
+  "persona": "staff_ravi",
+  "request": {
+    "query": {
+      "unread_only": "true"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "NotificationList",
+    "body": {
+      "items": [
+        {
+          "id": "c1b9a81f-7949-5b3b-b63c-62c97ad96a5c",
+          "topic": "schedule.published",
+          "title": "Your schedule for the week of 19 Oct was published.",
+          "payload": {
+            "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+            "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef"
+          },
+          "delivered_at": "2026-10-17T15:14:05+05:30",
+          "read_at": null
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "name": "versions.compare",
+  "operation_id": "compareVersions",
+  "method": "GET",
+  "path": "/v2/schedule-versions/{version_id}/compare",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "version_id": "7d932d02-e046-5127-aaff-604dd184d809"
+    },
+    "query": {
+      "with": "59ddec56-dd6f-5ac4-871a-01119338a0ef"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "VersionDiff",
+    "body": {
+      "from_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "to_version_id": "7d932d02-e046-5127-aaff-604dd184d809",
+      "changes": [
+        {
+          "logical_shift_id": "c5d11735-6be2-5b94-8b12-4ae842bbdd74",
+          "kinds": [
+            "lock_changed"
+          ],
+          "before": {
+            "id": "b118fd66-eff1-5411-b328-3619fb0b262e",
+            "logical_shift_id": "c5d11735-6be2-5b94-8b12-4ae842bbdd74",
+            "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+            "employee_id": "88deef49-a989-573d-ad65-603223d0c3fc",
+            "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+            "start_at": "2026-10-19T10:00:00+05:30",
+            "end_at": "2026-10-19T18:00:00+05:30",
+            "break_start_at": "2026-10-19T15:30:00+05:30",
+            "break_minutes": 30,
+            "locked": false,
+            "lock_reason": null
+          },
+          "after": {
+            "id": "64af630b-04cc-5d7e-ad29-b9a407cbe80e",
+            "logical_shift_id": "c5d11735-6be2-5b94-8b12-4ae842bbdd74",
+            "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+            "employee_id": "88deef49-a989-573d-ad65-603223d0c3fc",
+            "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+            "start_at": "2026-10-19T10:00:00+05:30",
+            "end_at": "2026-10-19T18:00:00+05:30",
+            "break_start_at": "2026-10-19T15:30:00+05:30",
+            "break_minutes": 30,
+            "locked": true,
+            "lock_reason": "Locked by manager"
+          }
+        }
+      ],
+      "metrics_from": {
+        "coverage_ratio": 0.7714,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 6570,
+        "labour_cost": {
+          "amount_paise": 7470000,
+          "currency": "INR"
+        },
+        "overtime_cost": {
+          "amount_paise": 0,
+          "currency": "INR"
+        },
+        "overtime_minutes": 0,
+        "preference_match_ratio": 0.4444,
+        "open_shifts": 0,
+        "assigned_minutes": 25350,
+        "hours_preference_deviation_minutes": 600
+      },
+      "metrics_to": {
+        "coverage_ratio": 0.7714,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 6570,
+        "labour_cost": {
+          "amount_paise": 7470000,
+          "currency": "INR"
+        },
+        "overtime_cost": {
+          "amount_paise": 0,
+          "currency": "INR"
+        },
+        "overtime_minutes": 0,
+        "preference_match_ratio": 0.4444,
+        "open_shifts": 0,
+        "assigned_minutes": 25350,
+        "hours_preference_deviation_minutes": 600
+      }
+    }
+  }
+}

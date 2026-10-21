@@ -1,0 +1,52 @@
+{
+  "name": "repair.accepted",
+  "operation_id": "repairSchedule",
+  "method": "POST",
+  "path": "/v2/outlets/{outlet_id}/schedules/{week_start}/repair",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-19"
+    },
+    "headers": {
+      "Idempotency-Key": "repair-c41a77e0"
+    },
+    "body": {
+      "absence_id": "a423d626-bfbf-5cd0-9360-c602bcc87519",
+      "base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "unlock_logical_shift_ids": [],
+      "time_limit_seconds": 3
+    }
+  },
+  "response": {
+    "status": 202,
+    "schema": "OptimizationRun",
+    "body": {
+      "id": "f81791b4-7109-5853-8a74-970ff95c17b6",
+      "kind": "repair",
+      "outlet_ids": [
+        "69e0477e-4a09-55c5-b467-8c673e7245b5"
+      ],
+      "base_version_ids": [
+        "59ddec56-dd6f-5ac4-871a-01119338a0ef"
+      ],
+      "strategy": "least_disruption",
+      "absence_id": "a423d626-bfbf-5cd0-9360-c602bcc87519",
+      "job_state": "queued",
+      "solver_status": null,
+      "input_hash": "sha256:42c54aba2bc95a5cb052fc7f0b6d85d7",
+      "queued_at": "2026-10-21T16:21:00+05:30",
+      "started_at": null,
+      "finished_at": null,
+      "solver_wall_ms": null,
+      "poll_after_ms": 300,
+      "candidates": [],
+      "infeasibility": null,
+      "error": null,
+      "repair_stages": [],
+      "frozen_logical_shift_ids": [],
+      "candidates_expired": false
+    }
+  }
+}

@@ -16,6 +16,8 @@ import { CandidateReview, ProposalReview, strategyName } from './candidate-revie
 import { DraftEditor } from './draft-editor';
 import { PlanCompare } from './plan-compare';
 import { Absences } from './absences';
+import { ProtectionControls, ProtectionConflict, RunProtection } from './run-protection';
+import { emptyProtection, hasProtection, releaseProtection, requestedProtection } from '@/lib/protection';
 import { ScheduleHistory } from './schedule-history';
 
 type Session = { me: Schema['Me']; outlets: Schema['Outlet'][]; skills: Schema['Skill'][] };
@@ -79,6 +81,9 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
   const [error, setError] = useState<Error | null>(null);
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState<Schema['ScheduleVersion'] | null>(null);
+  const [protection, setProtection] = useState(emptyProtection);
+  const [protectionConflicts, setProtectionConflicts] = useState<string[]>([]);
+  const [protectionNotice, setProtectionNotice] = useState('');
   const [draftBusy, setDraftBusy] = useState(false);
   const [candidateId, setCandidateId] = useState<string | null>(null);
   const [publication, setPublication] = useState<string | null>(null);
@@ -106,9 +111,14 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
     const controller = new AbortController(); operation.current = controller;
     setBusy(true); setError(null); setRun(null); setDraft(null); setEditing(false); setDraftNotice(null); setCandidateId(null); setPublication(null);
     try {
-      const initial = await generateOrAttach(client, outletId, week, { strategy: 'balanced', base_version_id: schedule.current_version?.id ?? null, time_limit_seconds: 10 }, crypto.randomUUID(), controller.signal);
+      const requested = hasProtection(protection) && schedule.current_version ? requestedProtection(protection, schedule.current_version, timezone).map(shift => shift.logical_shift_id).sort() : [];
+      const initial = await generateOrAttach(client, outletId, week, { strategy: 'balanced', base_version_id: schedule.current_version?.id ?? null, time_limit_seconds: 10, ...(hasProtection(protection) ? { freeze: protection } : {}) }, crypto.randomUUID(), controller.signal);
+      if (controller.signal.aborted) return;
+      const confirmed = [...(initial.frozen_logical_shift_ids ?? [])].sort();
+      setProtectionNotice(JSON.stringify(requested) === JSON.stringify(confirmed) ? 'Review the server-confirmed protections below. The next run starts with no protection selected.' : 'This run has a different protection set from your request. An existing run may have been returned. Review its server-confirmed protections before selecting an option.');
+      setProtection(emptyProtection()); setProtectionConflicts([]);
       await watchRun(client, initial, { signal: controller.signal, onUpdate: setRun });
-    } catch (error) { if (!controller.signal.aborted) setError(asError(error)); }
+    } catch (error) { if (!controller.signal.aborted) { setError(asError(error)); if (error instanceof ApiError && Array.isArray(error.detail.details?.frozen_logical_shift_ids)) setProtectionConflicts(error.detail.details.frozen_logical_shift_ids.filter((id): id is string => typeof id === 'string')); } }
     finally { if (!controller.signal.aborted) setBusy(false); }
   }
 
@@ -120,7 +130,7 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
     finally { if (!controller.signal.aborted) setDraftBusy(false); }
   }
 
-  function reloadLatest() { operation.current?.abort(); setResource(null); setRun(null); setDraft(null); setEditing(false); setDraftNotice(null); setCandidateId(null); setError(null); setReload(r => r + 1); }
+  function reloadLatest() { operation.current?.abort(); setResource(null); setRun(null); setDraft(null); setEditing(false); setDraftNotice(null); setCandidateId(null); setError(null); setProtection(emptyProtection()); setProtectionConflicts([]); setProtectionNotice(''); setReload(r => r + 1); }
   function closeEditor() { setEditing(false); requestAnimationFrame(() => editTrigger.current?.focus()); }
   async function createEditingDraft() {
     if (draftBusy) return;
@@ -139,14 +149,18 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
     <section className={`week-state ${draft ? 'draft' : schedule.current_version ? 'published' : 'unplanned'}`} aria-label="Week status">
       <div className="week-state-icon">{draft ? <ListChecksIcon size={25} /> : schedule.current_version ? <CheckCircleIcon size={25} weight="duotone" /> : <CalendarBlankIcon size={25} />}</div>
       <div className="week-state-copy"><strong>{draft ? 'Draft preview · not published' : schedule.current_version ? `Published version ${schedule.current_version.version_number}` : 'No published schedule'}</strong><p>{draft ? 'Review assignments and coverage before approving any changes.' : schedule.current_version ? 'This is the published roster. Drafts are reviewed separately.' : 'Start with a draft built from team availability, skills and staffing needs.'}</p></div>
-      <div className="week-state-actions">{fixtureMode && week === '2026-10-19' && <Button onClick={onNextWeek}>Plan upcoming week<ArrowRightIcon size={16} /></Button>}{canGenerate && <Button variant="primary" onClick={generate} disabled={busy || (fixtureMode && week !== '2026-10-26')}><SparkleIcon size={18} weight="duotone" />{busy ? 'Generating…' : 'Generate draft'}</Button>}</div>
+      <div className="week-state-actions">{fixtureMode && week === '2026-10-19' && <Button onClick={onNextWeek}>Plan upcoming week<ArrowRightIcon size={16} /></Button>}{canGenerate && <Button variant="primary" onClick={generate} disabled={busy || (fixtureMode && week !== '2026-10-26' && !hasProtection(protection))}><SparkleIcon size={18} weight="duotone" />{busy ? 'Generating…' : 'Generate draft'}</Button>}</div>
     </section>
-    {fixtureMode && week === '2026-10-19' && <p className="contract-note generation-hint">Generation is available in next week’s demo. Choose “Plan upcoming week” to try it.</p>}
+    {fixtureMode && week === '2026-10-19' && <p className="contract-note generation-hint">Generation is available in next week’s demo. Choose “Plan upcoming week” to try it. Protected regeneration requires the live 3.15 API.</p>}
+    {canGenerate && schedule.current_version && <ProtectionControls base={schedule.current_version} employees={schedule.employees} skills={session.skills} {...{ timezone }} value={protection} disabled={busy || draftBusy} onChange={value => { setProtection(value); setProtectionConflicts([]); setProtectionNotice(''); setError(null); }} />}
+    {protectionNotice && <p className="save-notice">{protectionNotice}</p>}
+    {protectionConflicts.length > 0 && schedule.current_version && <ProtectionConflict key={protectionConflicts.join()} base={schedule.current_version} employees={schedule.employees} skills={session.skills} {...{ timezone }} ids={protectionConflicts} disabled={busy} onRelease={ids => { setProtection(releaseProtection(protection, ids, schedule.current_version!, timezone)); setProtectionConflicts([]); setError(null); }} />}
     {version && <>
       <div className="week-facts" aria-label="Week at a glance"><span><UsersThreeIcon size={17} />{schedule.employees.length} team members</span><span><CalendarBlankIcon size={17} />{version.shifts.length} shifts</span><span><LockSimpleIcon size={17} />{version.shifts.filter(shift => shift.locked).length} locked {version.shifts.filter(shift => shift.locked).length === 1 ? 'assignment' : 'assignments'}</span><span><ClockIcon size={17} />Times in {timezone}</span></div>
       <MetricStrip metrics={version.metrics} showCosts={canSeeCosts} />
     </>}
-    {error && <ErrorNotice error={error} onReload={error instanceof ApiError && error.detail.code === 'stale_version' ? () => { setResource(null); setRun(null); setDraft(null); setError(null); setReload(r => r + 1); } : undefined} />}
+    {error && <ErrorNotice error={error} onReload={error instanceof ApiError && error.detail.code === 'stale_version' ? reloadLatest : undefined} />}
+    {run && <RunProtection run={run} base={schedule.current_version} employees={schedule.employees} skills={session.skills} timezone={timezone} />}
     {run && <PlanCompare run={run} baseline={schedule.current_version} showCosts={canSeeCosts} />}
     {run && <RunResult {...{ run, skills: session.skills, canSeeCosts }} review={id => setCandidateId(id)} />}
     {candidateId && <CandidateReview key={candidateId} {...{ client, timezone }} candidateId={candidateId} employees={schedule.employees} skills={session.skills} canSelect={session.me.capabilities.includes('publish')} showCosts={canSeeCosts} onSelected={value => { setDraft(value); setEditing(false); setDraftNotice(null); setCandidateId(null); }} onClose={() => setCandidateId(null)} />}

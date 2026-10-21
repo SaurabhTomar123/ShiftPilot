@@ -1,0 +1,34 @@
+{
+  "name": "publish.stale_base",
+  "operation_id": "publishVersion",
+  "method": "POST",
+  "path": "/v2/schedule-versions/{version_id}/publish",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "version_id": "7d932d02-e046-5127-aaff-604dd184d809"
+    },
+    "headers": {
+      "Idempotency-Key": "pub-91be22f0"
+    },
+    "body": {
+      "expected_base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "expected_revision": 2
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "stale_version",
+        "message": "Someone published a newer version. Review the changes and try again.",
+        "retryable": false,
+        "details": {
+          "current_version_id": "57576529-a16c-58a1-a06b-5988f721ff95"
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

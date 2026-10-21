@@ -16,7 +16,7 @@ Restaurant managers create and repair weekly rosters. Owners coordinate outlets.
 
 ## Product Purpose
 
-A Workforce Decision & Recovery Engine: generate valid schedules, recover commitments with minimal disruption, compare trade-offs and simulate isolated what-if scenarios, with deterministic validation and human approval. Scenario Lab, impact freezes and true fairness are v4 targets awaiting API integration; they are not represented as delivered.
+A Workforce Decision & Recovery Engine: generate valid schedules, recover commitments with minimal disruption, compare trade-offs and simulate isolated what-if scenarios, with deterministic validation and human approval. Scenario Lab and true fairness remain v4 targets awaiting API integration. Run-scoped protection controls consume the published 3.15 contract; live 3.15 engine acceptance is pending.
 
 ## Capabilities and Constraints
 
@@ -24,7 +24,7 @@ Schedule-first interaction. No core action requires a prompt. Authoritative vali
 
 ## Evidence on Hand
 
-Provider contract 3.3 is consumed. The UI supports candidate diffs, explicit selection, keyboard/form-based assignment previews and saves, proposal approval with four publication outcomes, and history/comparison/restoration with recorded metrics. An isolated real API/worker check generated candidates without drafts, then selected, proposed and published a 71-shift week with zero reported hard violations. Default mode remains a labelled synthetic preview. An isolated real edit check also passed lock/unlock saves and reload after a lost success response, leaving the published version unchanged. Absence management now saves facts before repair, tracks automatic runs, requires explicit lock authorization, and connects repair options to draft/proposal review. Template-based additions, drag interactions, staffing templates, staff self-service absence requests and release/tenant acceptance gates remain separate work.
+Frontend contract 3.15 is consumed from a commit-pinned schema/fixture snapshot, without a backend source/runtime upgrade. The UI supports candidate diffs, explicit selection, keyboard/form-based assignment previews and saves, proposal approval with four publication outcomes, and history/comparison/restoration with recorded metrics. An isolated real API/worker check generated candidates without drafts, then selected, proposed and published a 71-shift week with zero reported hard violations. Default mode remains a labelled synthetic preview. An isolated real edit check also passed lock/unlock saves and reload after a lost success response, leaving the published version unchanged. Absence management now saves facts before repair, tracks automatic runs, requires explicit lock authorization, and connects repair options to draft/proposal review. Template-based additions, drag interactions, staffing templates, staff self-service absence requests and release/tenant acceptance gates remain separate work.
 
 ## Product Principles
 
@@ -37,4 +37,4 @@ Provider contract 3.3 is consumed. The UI supports candidate diffs, explicit sel
 
 Keyboard alternatives to dragging, visible focus, semantic forms, reduced motion and usable narrow-screen layouts are required by the implementation roadmap.
 
-A real history/compare/restore check created a new validated draft and reopened its pending proposal while leaving the published pointer unchanged during restore. Provider versions after 3.3 remain separate consumer integration work.
+A real history/compare/restore check created a new validated draft and reopened its pending proposal while leaving the published pointer unchanged during restore. Run protection and impact-stage rendering now consume the 3.15 contract; provider runtime integration and unconsumed APIs remain separate work.

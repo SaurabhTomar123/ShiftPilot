@@ -1,0 +1,57 @@
+{
+  "name": "imports.stage.invalid",
+  "operation_id": "stageEmployeeImport",
+  "method": "POST",
+  "path": "/v2/imports/employees",
+  "persona": "manager_indiranagar",
+  "request": {
+    "headers": {
+      "Idempotency-Key": "import-6e19d4a3"
+    },
+    "body": {
+      "filename": "staff.csv",
+      "content": "name,outlet,skills,hourly_rate,max_weekly_hours,preferred_weekly_hours,mon_start,mon_end,tue_start,tue_end,wed_start,wed_end,thu_start,thu_end,fri_start,fri_end,sat_start,sat_end,sun_start,sun_end\nAsha Nair,Mars,Grill;Juggling,190,48,40,10:00,22:00,10:00,22:00,10:00,22:00,10:00,22:00,10:00,22:00,,,,\nDev Sharma,indiranagar,Server,170,40,,10:00,22:00,10:00,22:00,10:00,22:00,10:00,22:00,10:00,22:00,,,,"
+    }
+  },
+  "response": {
+    "status": 201,
+    "schema": "ImportJob",
+    "body": {
+      "id": "790b0d07-08d2-5164-a937-5fdc651038e5",
+      "kind": "employees",
+      "status": "invalid",
+      "filename": "staff.csv",
+      "row_count": 2,
+      "error_count": 1,
+      "file_errors": [],
+      "created_at": "2026-10-21T10:00:00+05:30",
+      "expires_at": "2026-10-22T10:00:00+05:30",
+      "committed_at": null,
+      "rows": [
+        {
+          "row_number": 2,
+          "name": "Asha Nair",
+          "outlet_id": null,
+          "errors": [
+            {
+              "column": "outlet",
+              "message": "Unknown outlet 'Mars'."
+            },
+            {
+              "column": "skills",
+              "message": "Unknown roles: Juggling."
+            }
+          ],
+          "employee_id": null
+        },
+        {
+          "row_number": 3,
+          "name": "Dev Sharma",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "errors": [],
+          "employee_id": null
+        }
+      ]
+    }
+  }
+}

@@ -151,6 +151,151 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/imports/employees/template": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Employee Import Template
+         * @description The fixed CSV columns, one valid example row and the rules (architecture v3 section 19).
+         */
+        get: operations["getEmployeeImportTemplate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/imports/employees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stage Employee Import
+         * @description Parse and validate every row; writes no employees. status staged (all valid) or invalid (fix
+         *     the row errors and upload again).
+         */
+        post: operations["stageEmployeeImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/imports/{import_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Import */
+        get: operations["getImport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/imports/{import_id}/commit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Commit Import
+         * @description Create every employee in one transaction. 409 conflict when the import is invalid, expired or
+         *     already committed, or when a row no longer fits (details.rows).
+         */
+        post: operations["commitImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/outlets/{outlet_id}/shift-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Shift Templates
+         * @description The outlet's active shift shapes, for add_from_template edits. Read-only here.
+         */
+        get: operations["listShiftTemplates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/outlets/{outlet_id}/staffing-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Staffing Templates
+         * @description The outlet's weekly staffing template: weekday x block x role -> minimum and preferred staff.
+         */
+        get: operations["listStaffingTemplates"];
+        /**
+         * Put Staffing Templates
+         * @description Replace the whole template set. 409 stale_version when base_revision is not current; 422 when
+         *     blocks of one weekday and role overlap. Weeks change only when expanded.
+         */
+        put: operations["putStaffingTemplates"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/outlets/{outlet_id}/staffing-requirements/expand": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Expand Staffing Requirements
+         * @description Regenerate the week's template (and, if asked, band) rows from the template. Manual overrides
+         *     survive; the outlet-week demand_revision is bumped. 409 stale_version on a stale base.
+         */
+        post: operations["expandStaffingRequirements"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v2/outlets/{outlet_id}/staffing-requirements": {
         parameters: {
             query?: never;
@@ -550,6 +695,169 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/commands/parse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Parse Command
+         * @description A request in words ("Give Ravi Saturday off") as a preview of an existing API call. Writes
+         *     nothing; asks "Which Ravi?" rather than guessing (architecture v3 section 33).
+         */
+        post: operations["parseCommand"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/rules/parse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Parse Rule
+         * @description A rule in words, compiled and run through previewRule. Unsupported rules are refused.
+         */
+        post: operations["parseRule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/rules/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Rule
+         * @description Who the rule affects, conflicts with active rules (in business terms, with a suggested exception)
+         *     and upcoming published shifts it would break. Writes nothing (architecture v3 section 21).
+         */
+        post: operations["previewRule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Rules */
+        get: operations["listRules"];
+        put?: never;
+        /**
+         * Create Rule
+         * @description Activates the rule. 409 conflict with details.conflicts when it disagrees with an active rule
+         *     for someone both cover and is not an explicit exception (overrides_rule_id).
+         */
+        post: operations["createRule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/rules/{rule_id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Archive Rule */
+        post: operations["archiveRule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/me/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Notifications
+         * @description The caller's in-app inbox, filled by the outbox relay: schedule published, repair or options
+         *     ready, absence confirmed, proposal ready or stale.
+         */
+        get: operations["getMyNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/me/notifications/{notification_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark Notification Read
+         * @description Idempotent: reading twice keeps the first read_at.
+         */
+        post: operations["markNotificationRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/me/absences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Absences
+         * @description The employee's own absences and requests, any status. Withdraw a pending request with
+         *     updateAbsence status=cancelled.
+         */
+        get: operations["getMyAbsences"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v2/absences/{absence_id}": {
         parameters: {
             query?: never;
@@ -654,6 +962,44 @@ export interface components {
              * @description Repair runs enqueued automatically for this confirmed absence (one per affected schedule without unauthorized lock conflicts). Poll them like any run.
              */
             repair_run_ids?: string[];
+        };
+        /**
+         * AddFromTemplate
+         * @description Add a shift shaped by one of the outlet's shift templates (listShiftTemplates). Start, end and
+         *     break come from the template, so no client chooses a break policy.
+         */
+        AddFromTemplate: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            op: "add_from_template";
+            /**
+             * Template Id
+             * Format: uuid
+             */
+            template_id: string;
+            /**
+             * Day
+             * Format: date
+             * @description Outlet-local date the shift starts on; must be in the draft's week.
+             */
+            day: string;
+            /**
+             * Employee Id
+             * @description null adds an open (unfilled) shift.
+             */
+            employee_id?: string | null;
+            /**
+             * Skill Id
+             * @description Required when the template allows any skill; must match it otherwise.
+             */
+            skill_id?: string | null;
+            /**
+             * Locked
+             * @default false
+             */
+            locked: boolean;
         };
         /** AddShift */
         AddShift: {
@@ -960,6 +1306,58 @@ export interface components {
             /** Locked */
             locked: boolean;
         };
+        /** CommandOption */
+        CommandOption: {
+            /**
+             * Employee Id
+             * Format: uuid
+             */
+            employee_id: string;
+            /** Name */
+            name: string;
+        };
+        /**
+         * CommandPreview
+         * @description A language command as a preview (architecture v3 section 33). Never a write: confirming means
+         *     making `action` (with an Idempotency-Key). ready: show summary and confirm. needs_clarification:
+         *     ask question, offering options. unsupported or unavailable: point to the form.
+         */
+        CommandPreview: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ready" | "needs_clarification" | "unsupported" | "unavailable";
+            /** Intent */
+            intent?: ("give_time_off" | "report_sick" | "generate_week") | null;
+            /** Summary */
+            summary: string;
+            /** Question */
+            question?: string | null;
+            /** Options */
+            options?: components["schemas"]["CommandOption"][];
+            action?: components["schemas"]["ProposedCall"] | null;
+            /** Affected Shift Count */
+            affected_shift_count?: number | null;
+        };
+        /** CommandRequest */
+        CommandRequest: {
+            /**
+             * Text
+             * @description E.g. "Give Ravi Saturday off".
+             */
+            text: string;
+            /**
+             * Outlet Id
+             * @description Defaults to the manager's outlet.
+             */
+            outlet_id?: string | null;
+            /**
+             * Employee Id
+             * @description The answer to "Which Ravi?", sent with the same text.
+             */
+            employee_id?: string | null;
+        };
         /** CoverageCell */
         CoverageCell: {
             /**
@@ -1030,6 +1428,13 @@ export interface components {
              */
             expires_at: string;
             me: components["schemas"]["Me"];
+            /**
+             * Sandbox Id
+             * @description This visitor's private copy of the synthetic organization; send it back to switch persona. Changes are visible to nobody else and disappear at sandbox_expires_at.
+             */
+            sandbox_id?: string | null;
+            /** Sandbox Expires At */
+            sandbox_expires_at?: string | null;
         };
         /** DemoSessionRequest */
         DemoSessionRequest: {
@@ -1038,6 +1443,11 @@ export interface components {
              * @enum {string}
              */
             persona: "owner" | "manager" | "staff";
+            /**
+             * Sandbox Id
+             * @description Switch persona inside an existing sandbox; omit to start a fresh one (B6.2).
+             */
+            sandbox_id?: string | null;
         };
         /** Disruption */
         Disruption: {
@@ -1078,7 +1488,7 @@ export interface components {
              */
             expected_revision: number;
             /** Edits */
-            edits: (components["schemas"]["AddShift"] | components["schemas"]["UpdateShift"] | components["schemas"]["RemoveShift"] | components["schemas"]["SetLock"])[];
+            edits: (components["schemas"]["AddShift"] | components["schemas"]["AddFromTemplate"] | components["schemas"]["UpdateShift"] | components["schemas"]["RemoveShift"] | components["schemas"]["SetLock"])[];
         };
         /** Employee */
         Employee: {
@@ -1241,6 +1651,17 @@ export interface components {
         ErrorResponse: {
             error: components["schemas"]["ErrorBody"];
         };
+        /** ExpandStaffingRequest */
+        ExpandStaffingRequest: {
+            /** Base Demand Revision */
+            base_demand_revision: number;
+            /**
+             * Use Demand Bands
+             * @description Let demand bands (orders/hour -> staff) override the template where the week has order counts.
+             * @default false
+             */
+            use_demand_bands: boolean;
+        };
         /** ExplanationFact */
         ExplanationFact: {
             /**
@@ -1260,6 +1681,28 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        /**
+         * FreezeSpec
+         * @description Protect commitments for one run (architecture v4 section 13): these published shifts are held
+         *     exactly as they are. Nothing is stored as a lock; the next run starts unfrozen.
+         */
+        FreezeSpec: {
+            /**
+             * Shift Ids
+             * @description Logical shift ids to pin.
+             */
+            shift_ids?: string[];
+            /**
+             * Employee Ids
+             * @description Hold all of these people's shifts.
+             */
+            employee_ids?: string[];
+            /**
+             * Days
+             * @description Hold every shift on these outlet-local days.
+             */
+            days?: string[];
+        };
         /** GenerateRequest */
         GenerateRequest: {
             /**
@@ -1278,6 +1721,99 @@ export interface components {
              * @default 10
              */
             time_limit_seconds: number;
+            /** @description Regenerating over a published week: shifts to keep exactly. 409 conflict when current facts break a frozen shift (details.frozen_logical_shift_ids). */
+            freeze?: components["schemas"]["FreezeSpec"] | null;
+        };
+        /** ImportJob */
+        ImportJob: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @constant
+             */
+            kind: "employees";
+            /**
+             * Status
+             * @description staged: every row is valid; commit it. invalid: fix the listed errors and upload again (nothing was written). committed: the employees exist. expired: staged over 24 hours ago.
+             * @enum {string}
+             */
+            status: "staged" | "invalid" | "committed" | "expired";
+            /** Filename */
+            filename: string;
+            /** Row Count */
+            row_count: number;
+            /**
+             * Error Count
+             * @description Rows with at least one error.
+             */
+            error_count: number;
+            /**
+             * File Errors
+             * @description Problems with the file itself, e.g. its header.
+             */
+            file_errors: string[];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Committed At */
+            committed_at: string | null;
+            /** Rows */
+            rows: components["schemas"]["ImportRow"][];
+        };
+        /** ImportRow */
+        ImportRow: {
+            /**
+             * Row Number
+             * @description Line in the file; the header is line 1.
+             */
+            row_number: number;
+            /** Name */
+            name: string;
+            /** Outlet Id */
+            outlet_id: string | null;
+            /** Errors */
+            errors: components["schemas"]["ImportRowError"][];
+            /**
+             * Employee Id
+             * @description Set once the import is committed.
+             */
+            employee_id: string | null;
+        };
+        /** ImportRowError */
+        ImportRowError: {
+            /**
+             * Column
+             * @description Template column, or * for the whole row.
+             */
+            column: string;
+            /** Message */
+            message: string;
+        };
+        /**
+         * ImportTemplate
+         * @description The fixed employee CSV template (architecture v3 section 19). No column mapping in the MVP.
+         */
+        ImportTemplate: {
+            /** Columns */
+            columns: string[];
+            /**
+             * Example
+             * @description One valid data row.
+             */
+            example: string;
+            /** Notes */
+            notes: string[];
         };
         /** Infeasibility */
         Infeasibility: {
@@ -1285,6 +1821,11 @@ export interface components {
             summary: string;
             /** Shortages */
             shortages: components["schemas"]["Shortage"][];
+            /**
+             * Options
+             * @description In order: overtime, cross_outlet, reduced_minimum. Each was feasible on its own; none is claimed to be the smallest change. Overlap, availability, absences, mandatory skills, the absolute weekly cap and authorization boundaries are never relaxed.
+             */
+            options?: components["schemas"]["RelaxationOption"][];
         };
         /** Me */
         Me: {
@@ -1373,6 +1914,11 @@ export interface components {
             open_shifts: number;
             /** Assigned Minutes */
             assigned_minutes: number;
+            /**
+             * Hours Preference Deviation Minutes
+             * @description Hours-preference alignment: sum over employees with a preferred weekly total of |worked - preferred| minutes. Lower is better. Not a fairness measure. null when nobody states a preference, and in metrics stored before contract 3.4.
+             */
+            hours_preference_deviation_minutes?: number | null;
         };
         /** Money */
         Money: {
@@ -1415,6 +1961,54 @@ export interface components {
              * @description Skills referenced by the shifts, for role labels.
              */
             skills: components["schemas"]["Skill"][];
+            /**
+             * Absences
+             * @description The employee's own absences overlapping the week, any status (v3 section 20).
+             */
+            absences?: components["schemas"]["AbsenceMark"][];
+        };
+        /**
+         * Notification
+         * @description An in-app notification (architecture v3 section 40).
+         */
+        Notification: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Topic
+             * @description schedule.published (your week), run.finished (options or a repair are ready), absence.reported, proposal.ready or proposal.stale.
+             */
+            topic: string;
+            /**
+             * Title
+             * @description Deterministic text; safe to show.
+             */
+            title: string;
+            /**
+             * Payload
+             * @description Ids to link to, e.g. schedule_id, version_id, run_id.
+             */
+            payload: {
+                [key: string]: unknown;
+            };
+            /**
+             * Delivered At
+             * Format: date-time
+             */
+            delivered_at: string;
+            /** Read At */
+            read_at: string | null;
+        };
+        /** NotificationList */
+        NotificationList: {
+            /**
+             * Items
+             * @description Newest first, at most 100.
+             */
+            items: components["schemas"]["Notification"][];
         };
         /** OperatingWindow */
         OperatingWindow: {
@@ -1495,6 +2089,17 @@ export interface components {
              * @description Repair runs, once finished: the widening stages tried and why it widened.
              */
             repair_stages?: components["schemas"]["RepairStage"][];
+            /**
+             * Frozen Logical Shift Ids
+             * @description The run's freeze set: shifts held exactly (v4 section 13).
+             */
+            frozen_logical_shift_ids?: string[];
+            /**
+             * Candidates Expired
+             * @description Unselected candidates are removed 7 days after the run (retention); only selected ones remain, possibly none. Offer a new run instead of the old options.
+             * @default false
+             */
+            candidates_expired: boolean;
         };
         /** Outlet */
         Outlet: {
@@ -1627,6 +2232,25 @@ export interface components {
              */
             items: components["schemas"]["Proposal"][];
         };
+        /**
+         * ProposedCall
+         * @description The existing API call that carries out the command, made by the UI after the person confirms.
+         */
+        ProposedCall: {
+            /** Operation Id */
+            operation_id: string;
+            /**
+             * Method
+             * @constant
+             */
+            method: "POST";
+            /** Path */
+            path: string;
+            /** Body */
+            body: {
+                [key: string]: unknown;
+            };
+        };
         /** PublishRequest */
         PublishRequest: {
             /**
@@ -1647,6 +2271,51 @@ export interface components {
             published: components["schemas"]["ScheduleVersionSummary"];
             /** Superseded Version Id */
             superseded_version_id: string | null;
+        };
+        /** RelaxationEmployee */
+        RelaxationEmployee: {
+            /**
+             * Employee Id
+             * Format: uuid
+             */
+            employee_id: string;
+            /** Name */
+            name: string;
+            /**
+             * Home Outlet Id
+             * Format: uuid
+             */
+            home_outlet_id: string;
+            /**
+             * Minutes
+             * @description overtime: minutes beyond the regular week; cross_outlet: minutes worked.
+             */
+            minutes: number;
+        };
+        /**
+         * RelaxationOption
+         * @description A business option instead of a bare INFEASIBLE (architecture v3 section 13). It is a diagnosis
+         *     found by re-solving with that one relaxation, not a schedule: apply it, then generate again.
+         */
+        RelaxationOption: {
+            /**
+             * Kind
+             * @description overtime: let the named people work overtime (update their overtime permission). cross_outlet: borrow the named people from their outlets (owner). reduced_minimum: operate the listed intervals with fewer staff (lower the week's minimum_required).
+             * @enum {string}
+             */
+            kind: "overtime" | "cross_outlet" | "reduced_minimum";
+            /**
+             * Summary
+             * @description Deterministic text built from the facts; safe to show.
+             */
+            summary: string;
+            /** Employees */
+            employees?: components["schemas"]["RelaxationEmployee"][];
+            /**
+             * Shortages
+             * @description reduced_minimum only.
+             */
+            shortages?: components["schemas"]["Shortage"][];
         };
         /** RemoveShift */
         RemoveShift: {
@@ -1685,6 +2354,8 @@ export interface components {
              * @default false
              */
             allow_cross_outlet: boolean;
+            /** @description Shifts no stage may change (v4 section 13). 409 when the absence or another current fact breaks one of them. */
+            freeze?: components["schemas"]["FreezeSpec"] | null;
             /**
              * Time Limit Seconds
              * @default 3
@@ -1698,10 +2369,10 @@ export interface components {
         RepairStage: {
             /**
              * Stage
-             * @description same_day: the affected days from the absence onward, home staff, no overtime. adjacent_shifts: plus the day either side. other_outlets: plus other outlets' staff (owner-authorized). overtime: overtime where contracts allow it.
+             * @description impact: only the shifts the absence breaks; everything else frozen (v4 section 15). same_day: the affected days from the absence onward, home staff, no overtime. adjacent_shifts: plus the day either side. other_outlets: plus other outlets' staff (owner-authorized). overtime: overtime where contracts allow it.
              * @enum {string}
              */
-            stage: "same_day" | "adjacent_shifts" | "other_outlets" | "overtime";
+            stage: "impact" | "same_day" | "adjacent_shifts" | "other_outlets" | "overtime";
             /**
              * Result
              * @description selected: the candidates come from this stage. insufficient: minimum staffing could not be kept, so the repair widened. skipped: see reason.
@@ -1728,6 +2399,16 @@ export interface components {
              * @description Best minimum-staffing shortfall found (staff-minutes).
              */
             minimum_shortfall_minutes?: number | null;
+            /**
+             * Released
+             * @description What this stage was allowed to change.
+             */
+            released?: string | null;
+            /**
+             * Widened Because
+             * @description Why the previous stage was not enough.
+             */
+            widened_because?: string | null;
         };
         /** ReportAbsenceRequest */
         ReportAbsenceRequest: {
@@ -1798,6 +2479,168 @@ export interface components {
             regular_weekly_minutes: number;
             /** Max Weekly Minutes */
             max_weekly_minutes: number;
+        };
+        /** RuleConflict */
+        RuleConflict: {
+            /**
+             * Rule Id
+             * Format: uuid
+             */
+            rule_id: string;
+            /** Rule Name */
+            rule_name: string;
+            /**
+             * Employees
+             * @description Names of the people both rules apply to.
+             */
+            employees: string[];
+            /**
+             * Message
+             * @description E.g. This conflicts with "Students must finish by 9 PM". ...
+             */
+            message: string;
+            /** @description When one person is in both: the same rule scoped to them, overriding the existing rule. Offer it as 'Create an exception for <name>'; otherwise keep the existing rule. */
+            suggested_exception: components["schemas"]["RuleDefinition"] | null;
+        };
+        /**
+         * RuleDefinition
+         * @description A scheduling rule (architecture v3 section 21). Precedence is by scope, never by number: a more
+         *     specific rule replaces another only when it names it in overrides_rule_id.
+         *
+         *     parameters by rule_type: max_shift_end_time {latest_end_minute (0-1440, half-hour), weekdays
+         *     [0=Monday..6]}; max_days_per_week {days (1-7)}.
+         */
+        RuleDefinition: {
+            /**
+             * Rule Type
+             * @enum {string}
+             */
+            rule_type: "max_shift_end_time" | "max_days_per_week";
+            /**
+             * Scope Level
+             * @enum {string}
+             */
+            scope_level: "organization" | "outlet" | "tag" | "employee";
+            /**
+             * Scope
+             * @description {} for organization; {outlet_id}; {tag} (e.g. student); {employee_id}.
+             */
+            scope: {
+                [key: string]: string;
+            };
+            /** Parameters */
+            parameters: {
+                [key: string]: unknown;
+            };
+            /**
+             * Hard
+             * @description Only hard rules are supported in the MVP.
+             * @default true
+             */
+            hard: boolean;
+            /**
+             * Overrides Rule Id
+             * @description The rule this one is an exception to.
+             */
+            overrides_rule_id?: string | null;
+            /**
+             * Source Text
+             * @description How a person phrased it.
+             */
+            source_text?: string | null;
+        };
+        /** RuleEmployee */
+        RuleEmployee: {
+            /**
+             * Employee Id
+             * Format: uuid
+             */
+            employee_id: string;
+            /** Name */
+            name: string;
+        };
+        /** RuleImpact */
+        RuleImpact: {
+            /**
+             * Employee Id
+             * Format: uuid
+             */
+            employee_id: string;
+            /** Name */
+            name: string;
+            /**
+             * Logical Shift Id
+             * Format: uuid
+             */
+            logical_shift_id: string;
+            /**
+             * Start At
+             * Format: date-time
+             */
+            start_at: string;
+            /**
+             * End At
+             * Format: date-time
+             */
+            end_at: string;
+            /** Message */
+            message: string;
+        };
+        /** RuleList */
+        RuleList: {
+            /** Items */
+            items: components["schemas"]["SchedulingRule"][];
+        };
+        /**
+         * RuleParse
+         * @description A rule in words, run through the rule validation service. ready: preview is what createRule
+         *     would save (send preview.rule). Unsupported rules are refused, never approximated.
+         */
+        RuleParse: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "ready" | "needs_clarification" | "unsupported" | "unavailable";
+            /** Message */
+            message: string;
+            preview?: components["schemas"]["RulePreview"] | null;
+            /** Options */
+            options?: components["schemas"]["CommandOption"][];
+        };
+        /** RuleParseRequest */
+        RuleParseRequest: {
+            /**
+             * Text
+             * @description E.g. "Students cannot work after 9 PM on weekdays".
+             */
+            text: string;
+        };
+        /**
+         * RulePreview
+         * @description What saving the rule would mean. Writes nothing.
+         */
+        RulePreview: {
+            rule: components["schemas"]["RuleDefinition"];
+            /**
+             * Summary
+             * @description Deterministic description, e.g. No shift ends after 21:00 on weekdays.
+             */
+            summary: string;
+            /**
+             * Valid
+             * @description false when it conflicts with an active rule; saving would be 409.
+             */
+            valid: boolean;
+            /** Affected */
+            affected: components["schemas"]["RuleEmployee"][];
+            /** Conflicts */
+            conflicts: components["schemas"]["RuleConflict"][];
+            /**
+             * Impact
+             * @description Upcoming published shifts this rule would break (at most 50). They stay published; the next generation or repair respects the rule.
+             */
+            impact: components["schemas"]["RuleImpact"][];
         };
         /** ScheduleVersion */
         ScheduleVersion: {
@@ -1946,6 +2789,63 @@ export interface components {
              */
             absences: components["schemas"]["AbsenceMark"][];
         };
+        /** SchedulingRule */
+        SchedulingRule: {
+            /**
+             * Rule Type
+             * @enum {string}
+             */
+            rule_type: "max_shift_end_time" | "max_days_per_week";
+            /**
+             * Scope Level
+             * @enum {string}
+             */
+            scope_level: "organization" | "outlet" | "tag" | "employee";
+            /**
+             * Scope
+             * @description {} for organization; {outlet_id}; {tag} (e.g. student); {employee_id}.
+             */
+            scope: {
+                [key: string]: string;
+            };
+            /** Parameters */
+            parameters: {
+                [key: string]: unknown;
+            };
+            /**
+             * Hard
+             * @description Only hard rules are supported in the MVP.
+             * @default true
+             */
+            hard: boolean;
+            /**
+             * Overrides Rule Id
+             * @description The rule this one is an exception to.
+             */
+            overrides_rule_id?: string | null;
+            /**
+             * Source Text
+             * @description How a person phrased it.
+             */
+            source_text?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Summary */
+            summary: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "active" | "archived";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** SetLock */
         SetLock: {
             /**
@@ -2044,6 +2944,48 @@ export interface components {
              */
             alternatives: components["schemas"]["AlternativeFact"][];
         };
+        /** ShiftTemplate */
+        ShiftTemplate: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Skill Id
+             * @description null: usable for any skill.
+             */
+            skill_id: string | null;
+            /**
+             * Start Minute
+             * @description Outlet-local minutes from midnight.
+             */
+            start_minute: number;
+            /** Duration Minutes */
+            duration_minutes: number;
+            /** Break Minutes */
+            break_minutes: number;
+            /**
+             * Break Start Minute
+             * @description Where the break starts, in minutes from shift start (the server's placement); null when the template has no break.
+             */
+            break_start_minute: number | null;
+        };
+        /** ShiftTemplateList */
+        ShiftTemplateList: {
+            /**
+             * Outlet Id
+             * Format: uuid
+             */
+            outlet_id: string;
+            /**
+             * Items
+             * @description Active templates, by start time.
+             */
+            items: components["schemas"]["ShiftTemplate"][];
+        };
         /** Shortage */
         Shortage: {
             /**
@@ -2118,9 +3060,10 @@ export interface components {
             preferred_required: number;
             /**
              * Source
+             * @description template/band rows are regenerated by expandStaffingRequirements; manual rows are overrides that survive re-expansion.
              * @enum {string}
              */
-            source: "band" | "manual" | "scenario";
+            source: "template" | "band" | "manual" | "scenario" | "forecast";
         };
         /** StaffingRequirements */
         StaffingRequirements: {
@@ -2150,6 +3093,71 @@ export interface components {
             base_demand_revision: number;
             /** Intervals */
             intervals: components["schemas"]["StaffingInterval"][];
+        };
+        /**
+         * StaffingTemplateBlock
+         * @description Default demand for one weekday, block and skill (e.g. Monday 12:00-15:00: 2 Grill, 3 preferred).
+         */
+        StaffingTemplateBlock: {
+            /**
+             * Weekday
+             * @description Monday = 0.
+             */
+            weekday: number;
+            /**
+             * Start Minute
+             * @description Outlet-local minutes from midnight.
+             */
+            start_minute: number;
+            /** End Minute */
+            end_minute: number;
+            /**
+             * Skill Id
+             * Format: uuid
+             */
+            skill_id: string;
+            /** Minimum Required */
+            minimum_required: number;
+            /** Preferred Required */
+            preferred_required: number;
+        };
+        /** StaffingTemplateSet */
+        StaffingTemplateSet: {
+            /**
+             * Outlet Id
+             * Format: uuid
+             */
+            outlet_id: string;
+            /**
+             * Revision
+             * @description 0 before any template was saved. Send it as base_revision.
+             */
+            revision: number;
+            /**
+             * Items
+             * @description By weekday, skill and start.
+             */
+            items: components["schemas"]["StaffingTemplateBlock"][];
+        };
+        /** StaffingTemplateUpdate */
+        StaffingTemplateUpdate: {
+            /** Base Revision */
+            base_revision: number;
+            /**
+             * Items
+             * @description The whole set; blocks of one weekday and skill must not overlap.
+             */
+            items: components["schemas"]["StaffingTemplateBlock"][];
+        };
+        /** StageImportRequest */
+        StageImportRequest: {
+            /** Filename */
+            filename: string;
+            /**
+             * Content
+             * @description The CSV text (UTF-8), header row first.
+             */
+            content: string;
         };
         /** UpdateAbsenceRequest */
         UpdateAbsenceRequest: {
@@ -2235,7 +3243,7 @@ export interface components {
              * Code
              * @enum {string}
              */
-            code: "unavailable" | "absent" | "missing_skill" | "overlap" | "insufficient_rest" | "travel_time" | "weekly_cap" | "overtime" | "minimum_coverage" | "preferred_coverage" | "locked_changed" | "outside_grid" | "outside_operating_hours" | "inactive_employee";
+            code: "unavailable" | "absent" | "missing_skill" | "overlap" | "insufficient_rest" | "travel_time" | "weekly_cap" | "overtime" | "minimum_coverage" | "preferred_coverage" | "locked_changed" | "outside_grid" | "outside_operating_hours" | "inactive_employee" | "rule";
             /**
              * Severity
              * @enum {string}
@@ -2870,6 +3878,573 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Availability"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getEmployeeImportTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportTemplate"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    stageEmployeeImport: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StageImportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportJob"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getImport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description An onboarding import. */
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportJob"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    commitImport: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                /** @description An onboarding import. */
+                import_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportJob"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listShiftTemplates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                outlet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShiftTemplateList"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listStaffingTemplates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                outlet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffingTemplateSet"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    putStaffingTemplates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                outlet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffingTemplateUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffingTemplateSet"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    expandStaffingRequirements: {
+        parameters: {
+            query: {
+                /** @description Monday of the week, outlet-local. */
+                week_start: string;
+            };
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                outlet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpandStaffingRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffingRequirements"];
                 };
             };
             /** @description Unauthorized */
@@ -3722,7 +5297,10 @@ export interface operations {
     applyEdits: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Recommended: with it a repeat returns the stored result, so a lost response can be retried safely; without it only revision fencing applies. */
+                "Idempotency-Key"?: string | null;
+            };
             path: {
                 /** @description A schedule version (draft, published or superseded). */
                 version_id: string;
@@ -4267,7 +5845,10 @@ export interface operations {
     discardDraft: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Recommended: with it a repeat returns the stored result, so a lost response can be retried safely; without it only revision fencing applies. */
+                "Idempotency-Key"?: string | null;
+            };
             path: {
                 /** @description A schedule version (draft, published or superseded). */
                 version_id: string;
@@ -4677,6 +6258,549 @@ export interface operations {
             };
             /** @description Conflict */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    parseCommand: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommandRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommandPreview"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    parseRule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RuleParseRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RuleParse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    previewRule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RuleDefinition"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RulePreview"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listRules: {
+        parameters: {
+            query?: {
+                include_archived?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RuleList"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createRule: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RuleDefinition"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchedulingRule"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    archiveRule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchedulingRule"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getMyNotifications: {
+        parameters: {
+            query?: {
+                unread_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationList"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    markNotificationRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notification_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Notification"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getMyAbsences: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AbsenceList"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

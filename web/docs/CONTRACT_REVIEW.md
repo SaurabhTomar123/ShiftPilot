@@ -1,3 +1,13 @@
+# 21 October: run protection consumer review (3.15)
+
+Frontend-only contract snapshot from provider `03d747cc0cc4b67fccaed8489abbb0d53cd741b4`: **3.15.0-p4 / 108 fixtures**, aggregate SHA-256 `0a9cd663b5817fab0013be229fe39195c9689e41ab8b15f40f445eb99d167775`. `web/contracts/v2/SOURCE.json` records byte hashes; generation verifies them. The root backend contract and runtime remain unchanged. This is not an acceptance of all newer backend features.
+
+Accepted frontend inputs: GenerateRequest.freeze and RepairRequest.freeze (logical shift IDs, employees, local days), `409 details.frozen_logical_shift_ids`, run-confirmed IDs and the `impact` stage with release/widening reasons. Controls distinguish request preview from server scope, do not silently release pins, reject a changed repair base before writing and disclose mismatched existing-run scope. Expired candidates get explicit guidance. See [flow and verification boundaries](RUN_PROTECTION_FLOW.md).
+
+Automatic approval review rejected the broad backend merge because of unreviewed backend files/dependencies. Only published schema/fixture data was imported into the frontend; no backend code was merged or executed. Live 3.15 solver pin-preservation, impact-quality and deployment acceptance remain pending. Prior live API evidence below refers to earlier reviewed runtimes.
+
+---
+
 # 21 October: v4 target and absence/repair consumer review
 
 Architecture v4 now governs the product direction. See [v4 alignment and required handoff](ARCHITECTURE_V4_ALIGNMENT.md). Consumer pin remains 3.3.0-p4 / 83 fixtures. Remote backend 3.14 was inspected; v4 scenario/freeze/replacement routes and fairness/portfolio/decision-trace schemas are not yet declared. Endpoint examples in the architecture are not silently substituted for accepted contracts.

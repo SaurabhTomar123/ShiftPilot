@@ -1,0 +1,355 @@
+{
+  "name": "employees.list.owner.hsr",
+  "operation_id": "listEmployees",
+  "method": "GET",
+  "path": "/v2/employees",
+  "persona": "owner",
+  "request": {
+    "query": {
+      "outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+      "status": "active"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "EmployeeList",
+    "body": {
+      "items": [
+        {
+          "name": "Mohan Reddy",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 20400,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "level": 2
+            },
+            {
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "level": 1
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "02404557-bfb5-5348-8385-6275c28a74de",
+          "revision": 1
+        },
+        {
+          "name": "Gayatri Iyer",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 19500,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "level": 2
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "f3657da0-0906-5797-952e-a688bced46dd",
+          "revision": 1
+        },
+        {
+          "name": "Joseph Mathew",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 19800,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "level": 2
+            },
+            {
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "level": 1
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "562a4b5c-a5d0-5cd7-ab0a-64743c46f185",
+          "revision": 1
+        },
+        {
+          "name": "Swati Nair",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 18000,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "level": 2
+            },
+            {
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "level": 1
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "6c9755f5-db6c-5eea-9020-496185cffa32",
+          "revision": 1
+        },
+        {
+          "name": "Harish Gowda",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 18900,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "level": 2
+            },
+            {
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "level": 1
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": 2250,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "1f307173-cdd3-58ff-a0af-e5c825849d85",
+          "revision": 1
+        },
+        {
+          "name": "Ishita Sen",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 17400,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "level": 2
+            },
+            {
+              "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+              "level": 1
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "e9faed18-61c5-50fc-a12a-47f1e5590905",
+          "revision": 1
+        },
+        {
+          "name": "Manoj Patil",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 16200,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "level": 2
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "1d517362-d4c3-5b41-b5bb-a86804fda2a1",
+          "revision": 1
+        },
+        {
+          "name": "Ritu Agarwal",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 17100,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "level": 2
+            },
+            {
+              "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+              "level": 1
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "84fe3949-7f67-5100-9680-de0baacf82f3",
+          "revision": 1
+        },
+        {
+          "name": "Sameer Qureshi",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 16500,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "level": 2
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "6610f99b-23da-5f76-bed2-53b0830f19e0",
+          "revision": 1
+        },
+        {
+          "name": "Zoya Mirza",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 16800,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+              "level": 2
+            },
+            {
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "level": 1
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "58b01867-d787-5cd4-b29c-467636e57f47",
+          "revision": 1
+        },
+        {
+          "name": "Ajay Kumar",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 17100,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "level": 2
+            },
+            {
+              "skill_id": "b712ed56-af3c-5221-bd78-87676295e21c",
+              "level": 1
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "3ff52ff2-fada-5b55-847f-baf52d0d6647",
+          "revision": 1
+        },
+        {
+          "name": "Bhavna Shah",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 16200,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+              "level": 2
+            }
+          ],
+          "tags": [],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "466bc312-04c9-53b8-bf0f-a80a27e05488",
+          "revision": 1
+        },
+        {
+          "name": "Yash Chawla",
+          "home_outlet_id": "569d957a-db53-5a14-94c3-0c7247aa4586",
+          "status": "active",
+          "hourly_rate": {
+            "amount_paise": 15000,
+            "currency": "INR"
+          },
+          "skills": [
+            {
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "level": 2
+            }
+          ],
+          "tags": [
+            "student"
+          ],
+          "regular_weekly_minutes": 2880,
+          "max_weekly_minutes": 2880,
+          "preferred_weekly_minutes": null,
+          "overtime_allowed": false,
+          "cross_outlet_eligible": false,
+          "id": "6be20d13-060a-5425-9aad-4263a8aeba3b",
+          "revision": 1
+        }
+      ],
+      "next_cursor": null
+    }
+  }
+}

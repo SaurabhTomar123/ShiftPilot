@@ -1,0 +1,46 @@
+{
+  "name": "repair.freeze_conflict",
+  "operation_id": "repairSchedule",
+  "method": "POST",
+  "path": "/v2/outlets/{outlet_id}/schedules/{week_start}/repair",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-19"
+    },
+    "headers": {
+      "Idempotency-Key": "repair-c41a77e0"
+    },
+    "body": {
+      "absence_id": "a423d626-bfbf-5cd0-9360-c602bcc87519",
+      "base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "unlock_logical_shift_ids": [],
+      "time_limit_seconds": 3,
+      "freeze": {
+        "shift_ids": [
+          "f08831e3-520d-540b-89ee-b81ed30e9254"
+        ],
+        "employee_ids": [],
+        "days": []
+      }
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "conflict",
+        "message": "A current fact breaks a shift you asked to keep. Unfreeze it or authorize the change.",
+        "retryable": false,
+        "details": {
+          "frozen_logical_shift_ids": [
+            "f08831e3-520d-540b-89ee-b81ed30e9254"
+          ]
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

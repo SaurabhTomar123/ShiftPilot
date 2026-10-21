@@ -7,7 +7,7 @@ import records from './generated/fixtures.json';
 import manifest from './generated/manifest.json';
 import type { Fixture } from './types';
 
-const openapi = JSON.parse(readFileSync(fileURLToPath(new URL('../../../contracts/v2/openapi.json', import.meta.url)), 'utf8'));
+const openapi = JSON.parse(readFileSync(fileURLToPath(new URL('../../contracts/v2/openapi.json', import.meta.url)), 'utf8'));
 const ajv = new Ajv2020({ strict: false, allErrors: true });
 addFormats(ajv);
 

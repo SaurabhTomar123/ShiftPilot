@@ -1,0 +1,48 @@
+{
+  "name": "shift_templates.list",
+  "operation_id": "listShiftTemplates",
+  "method": "GET",
+  "path": "/v2/outlets/{outlet_id}/shift-templates",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "ShiftTemplateList",
+    "body": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "items": [
+        {
+          "id": "984fdd26-be6e-5d87-ac9a-9b936e9d9479",
+          "name": "Open",
+          "skill_id": null,
+          "start_minute": 600,
+          "duration_minutes": 480,
+          "break_minutes": 30,
+          "break_start_minute": 330
+        },
+        {
+          "id": "7a2a86fb-ba93-5ecd-be8e-18b458b50e18",
+          "name": "Close",
+          "skill_id": null,
+          "start_minute": 900,
+          "duration_minutes": 480,
+          "break_minutes": 30,
+          "break_start_minute": 120
+        },
+        {
+          "id": "fb09d7e8-4b3b-506d-a3e1-540b0e44dc79",
+          "name": "Dinner",
+          "skill_id": null,
+          "start_minute": 1080,
+          "duration_minutes": 300,
+          "break_minutes": 0,
+          "break_start_minute": null
+        }
+      ]
+    }
+  }
+}

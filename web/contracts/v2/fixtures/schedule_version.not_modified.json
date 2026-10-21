@@ -1,0 +1,23 @@
+{
+  "name": "schedule_version.not_modified",
+  "operation_id": "getScheduleVersion",
+  "method": "GET",
+  "path": "/v2/schedule-versions/{version_id}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef"
+    },
+    "headers": {
+      "If-None-Match": "\"59ddec56-dd6f-5ac4-871a-01119338a0ef:published:1\""
+    }
+  },
+  "response": {
+    "status": 304,
+    "schema": null,
+    "headers": {
+      "ETag": "\"59ddec56-dd6f-5ac4-871a-01119338a0ef:published:1\""
+    },
+    "body": null
+  }
+}

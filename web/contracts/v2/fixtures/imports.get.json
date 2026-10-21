@@ -1,0 +1,44 @@
+{
+  "name": "imports.get",
+  "operation_id": "getImport",
+  "method": "GET",
+  "path": "/v2/imports/{import_id}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "import_id": "3ef70f61-5e93-5b12-8f08-38acb7faa42c"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "ImportJob",
+    "body": {
+      "id": "3ef70f61-5e93-5b12-8f08-38acb7faa42c",
+      "kind": "employees",
+      "status": "staged",
+      "filename": "staff.csv",
+      "row_count": 2,
+      "error_count": 0,
+      "file_errors": [],
+      "created_at": "2026-10-21T10:00:00+05:30",
+      "expires_at": "2026-10-22T10:00:00+05:30",
+      "committed_at": null,
+      "rows": [
+        {
+          "row_number": 2,
+          "name": "Asha Nair",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "errors": [],
+          "employee_id": null
+        },
+        {
+          "row_number": 3,
+          "name": "Dev Sharma",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "errors": [],
+          "employee_id": null
+        }
+      ]
+    }
+  }
+}

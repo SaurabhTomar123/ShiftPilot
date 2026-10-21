@@ -1,0 +1,1435 @@
+{
+  "name": "staffing_templates.put",
+  "operation_id": "putStaffingTemplates",
+  "method": "PUT",
+  "path": "/v2/outlets/{outlet_id}/staffing-templates",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5"
+    },
+    "body": {
+      "base_revision": 1,
+      "items": [
+        {
+          "weekday": 0,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 0,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 0,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 0,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 0,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 1,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 1,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 1,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 1,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 2,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 2,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 2,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 2,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 3,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 3,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 3,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 3,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 4,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 4,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 4
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 5,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 2,
+          "preferred_required": 4
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 5,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 4
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 6,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 6,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 6,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 6,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "StaffingTemplateSet",
+    "body": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "revision": 2,
+      "items": [
+        {
+          "weekday": 0,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 0,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 0,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 0,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 0,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 0,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 1,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 1,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 1,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 1,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 1,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 2,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 2,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 2,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 2,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 2,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 3,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 3,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 3,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 3,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 3,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 4,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 4,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 4
+        },
+        {
+          "weekday": 4,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 5,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 2,
+          "preferred_required": 4
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 5,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 4
+        },
+        {
+          "weekday": 5,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 600,
+          "end_minute": 1080,
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "minimum_required": 0,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 6,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 6,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 600,
+          "end_minute": 720,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 720,
+          "end_minute": 900,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 2
+        },
+        {
+          "weekday": 6,
+          "start_minute": 900,
+          "end_minute": 1080,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        },
+        {
+          "weekday": 6,
+          "start_minute": 1080,
+          "end_minute": 1320,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 2,
+          "preferred_required": 3
+        },
+        {
+          "weekday": 6,
+          "start_minute": 1320,
+          "end_minute": 1380,
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "minimum_required": 1,
+          "preferred_required": 1
+        }
+      ]
+    }
+  }
+}

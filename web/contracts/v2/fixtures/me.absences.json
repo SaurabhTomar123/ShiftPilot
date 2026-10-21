@@ -1,0 +1,28 @@
+{
+  "name": "me.absences",
+  "operation_id": "getMyAbsences",
+  "method": "GET",
+  "path": "/v2/me/absences",
+  "persona": "staff_ravi",
+  "request": {
+    "query": {
+      "from": "2026-10-19T00:00:00+05:30"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "AbsenceList",
+    "body": {
+      "items": [
+        {
+          "id": "95307313-914e-59f4-b097-05e0b85f1a8d",
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "start_at": "2026-10-23T00:00:00+05:30",
+          "end_at": "2026-10-24T00:00:00+05:30",
+          "kind": "leave",
+          "status": "requested"
+        }
+      ]
+    }
+  }
+}

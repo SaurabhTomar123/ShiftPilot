@@ -1,0 +1,63 @@
+{
+  "name": "proposal.approve.stale",
+  "operation_id": "approveProposal",
+  "method": "POST",
+  "path": "/v2/proposals/{proposal_id}/approve",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "proposal_id": "d42696ce-fb65-5926-9af6-bbefac1a88dd"
+    },
+    "headers": {
+      "Idempotency-Key": "approve-5d21e8c4"
+    },
+    "body": {
+      "acknowledge_changes": false
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "ProposalDecision",
+    "body": {
+      "outcome": "stale",
+      "message": "The schedule changed while you were reviewing. Recalculating against the latest version.",
+      "proposal": {
+        "id": "d42696ce-fb65-5926-9af6-bbefac1a88dd",
+        "schedule_id": "0b5a4305-0a3c-556f-b825-81ec5a112e3a",
+        "draft_version_id": "89d25c7e-d0ac-5664-a7ac-7981d26fd847",
+        "draft_revision": 1,
+        "base_version_id": null,
+        "candidate_id": "474cdd23-3e7f-58a6-af79-879d2b7bf9bc",
+        "status": "stale",
+        "metrics_at_proposal": {
+          "coverage_ratio": 0.7714,
+          "minimum_deficit_minutes": 0,
+          "preferred_deficit_minutes": 6570,
+          "labour_cost": {
+            "amount_paise": 7470000,
+            "currency": "INR"
+          },
+          "overtime_cost": {
+            "amount_paise": 0,
+            "currency": "INR"
+          },
+          "overtime_minutes": 0,
+          "preference_match_ratio": 0.4444,
+          "open_shifts": 0,
+          "assigned_minutes": 25350,
+          "hours_preference_deviation_minutes": 600
+        },
+        "requested_by_user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+        "decided_by_user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+        "created_at": "2026-10-18T19:45:00+05:30",
+        "decided_at": "2026-10-18T19:52:00+05:30",
+        "expires_at": "2026-10-19T19:45:00+05:30"
+      },
+      "published": null,
+      "superseded_version_id": null,
+      "current_version_id": "90a4bb72-588f-58a8-9bb8-c2e517d09945",
+      "violations": [],
+      "deltas": []
+    }
+  }
+}

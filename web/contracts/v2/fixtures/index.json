@@ -1,0 +1,653 @@
+{
+  "contract_version": "3.15.0-p4",
+  "fixtures": [
+    {
+      "name": "shift_templates.list",
+      "operation_id": "listShiftTemplates",
+      "status": 200,
+      "schema": "ShiftTemplateList"
+    },
+    {
+      "name": "draft.create",
+      "operation_id": "createDraft",
+      "status": 201,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "edits.preview",
+      "operation_id": "previewEdits",
+      "status": 200,
+      "schema": "EditPreview"
+    },
+    {
+      "name": "edits.apply",
+      "operation_id": "applyEdits",
+      "status": 200,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "edits.apply.stale",
+      "operation_id": "applyEdits",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "edits.apply.not_draft",
+      "operation_id": "applyEdits",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "publish",
+      "operation_id": "publishVersion",
+      "status": 200,
+      "schema": "PublishResult"
+    },
+    {
+      "name": "publish.blocked",
+      "operation_id": "publishVersion",
+      "status": 422,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "publish.stale_base",
+      "operation_id": "publishVersion",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "draft.discard",
+      "operation_id": "discardDraft",
+      "status": 200,
+      "schema": "ScheduleVersionSummary"
+    },
+    {
+      "name": "versions.list",
+      "operation_id": "listVersions",
+      "status": 200,
+      "schema": "VersionHistory"
+    },
+    {
+      "name": "versions.compare",
+      "operation_id": "compareVersions",
+      "status": 200,
+      "schema": "VersionDiff"
+    },
+    {
+      "name": "versions.restore",
+      "operation_id": "restoreVersion",
+      "status": 201,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "absence.report",
+      "operation_id": "reportAbsence",
+      "status": 201,
+      "schema": "AbsenceReport"
+    },
+    {
+      "name": "absence.report.requested",
+      "operation_id": "reportAbsence",
+      "status": 201,
+      "schema": "AbsenceReport"
+    },
+    {
+      "name": "me.notifications",
+      "operation_id": "getMyNotifications",
+      "status": 200,
+      "schema": "NotificationList"
+    },
+    {
+      "name": "me.notifications.read",
+      "operation_id": "markNotificationRead",
+      "status": 200,
+      "schema": "Notification"
+    },
+    {
+      "name": "me.absences",
+      "operation_id": "getMyAbsences",
+      "status": 200,
+      "schema": "AbsenceList"
+    },
+    {
+      "name": "absences.list",
+      "operation_id": "listAbsences",
+      "status": 200,
+      "schema": "AbsenceList"
+    },
+    {
+      "name": "absence.update.confirm",
+      "operation_id": "updateAbsence",
+      "status": 200,
+      "schema": "AbsenceReport"
+    },
+    {
+      "name": "repair.accepted",
+      "operation_id": "repairSchedule",
+      "status": 202,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.repair.widened",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "repair.cross_outlet.manager",
+      "operation_id": "repairSchedule",
+      "status": 403,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "repair.freeze_conflict",
+      "operation_id": "repairSchedule",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "repair.locked",
+      "operation_id": "repairSchedule",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "proposal.create",
+      "operation_id": "createProposal",
+      "status": 201,
+      "schema": "Proposal"
+    },
+    {
+      "name": "proposals.list.pending",
+      "operation_id": "listProposals",
+      "status": 200,
+      "schema": "ProposalList"
+    },
+    {
+      "name": "proposal.get",
+      "operation_id": "getProposal",
+      "status": 200,
+      "schema": "Proposal"
+    },
+    {
+      "name": "proposal.approve.published",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.stale",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.invalid",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.changed",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.acknowledged",
+      "operation_id": "approveProposal",
+      "status": 200,
+      "schema": "ProposalDecision"
+    },
+    {
+      "name": "proposal.approve.already_decided",
+      "operation_id": "approveProposal",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "proposal.reject",
+      "operation_id": "rejectProposal",
+      "status": 200,
+      "schema": "Proposal"
+    },
+    {
+      "name": "imports.template",
+      "operation_id": "getEmployeeImportTemplate",
+      "status": 200,
+      "schema": "ImportTemplate"
+    },
+    {
+      "name": "imports.stage",
+      "operation_id": "stageEmployeeImport",
+      "status": 201,
+      "schema": "ImportJob"
+    },
+    {
+      "name": "imports.stage.invalid",
+      "operation_id": "stageEmployeeImport",
+      "status": 201,
+      "schema": "ImportJob"
+    },
+    {
+      "name": "imports.get",
+      "operation_id": "getImport",
+      "status": 200,
+      "schema": "ImportJob"
+    },
+    {
+      "name": "imports.commit",
+      "operation_id": "commitImport",
+      "status": 200,
+      "schema": "ImportJob"
+    },
+    {
+      "name": "commands.parse",
+      "operation_id": "parseCommand",
+      "status": 200,
+      "schema": "CommandPreview"
+    },
+    {
+      "name": "commands.parse.which",
+      "operation_id": "parseCommand",
+      "status": 200,
+      "schema": "CommandPreview"
+    },
+    {
+      "name": "commands.parse.unavailable",
+      "operation_id": "parseCommand",
+      "status": 200,
+      "schema": "CommandPreview"
+    },
+    {
+      "name": "rules.parse",
+      "operation_id": "parseRule",
+      "status": 200,
+      "schema": "RuleParse"
+    },
+    {
+      "name": "rules.parse.unsupported",
+      "operation_id": "parseRule",
+      "status": 200,
+      "schema": "RuleParse"
+    },
+    {
+      "name": "rules.preview",
+      "operation_id": "previewRule",
+      "status": 200,
+      "schema": "RulePreview"
+    },
+    {
+      "name": "rules.preview.conflict",
+      "operation_id": "previewRule",
+      "status": 200,
+      "schema": "RulePreview"
+    },
+    {
+      "name": "rules.create",
+      "operation_id": "createRule",
+      "status": 201,
+      "schema": "SchedulingRule"
+    },
+    {
+      "name": "rules.list",
+      "operation_id": "listRules",
+      "status": 200,
+      "schema": "RuleList"
+    },
+    {
+      "name": "rules.archive",
+      "operation_id": "archiveRule",
+      "status": 200,
+      "schema": "SchedulingRule"
+    },
+    {
+      "name": "session.demo.manager",
+      "operation_id": "createDemoSession",
+      "status": 201,
+      "schema": "DemoSession"
+    },
+    {
+      "name": "session.demo.switch_persona",
+      "operation_id": "createDemoSession",
+      "status": 201,
+      "schema": "DemoSession"
+    },
+    {
+      "name": "session.demo.disabled",
+      "operation_id": "createDemoSession",
+      "status": 403,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "me.owner",
+      "operation_id": "getMe",
+      "status": 200,
+      "schema": "Me"
+    },
+    {
+      "name": "me.manager",
+      "operation_id": "getMe",
+      "status": 200,
+      "schema": "Me"
+    },
+    {
+      "name": "me.staff",
+      "operation_id": "getMe",
+      "status": 200,
+      "schema": "Me"
+    },
+    {
+      "name": "me.unauthenticated",
+      "operation_id": "getMe",
+      "status": 401,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "outlets.owner",
+      "operation_id": "listOutlets",
+      "status": 200,
+      "schema": "OutletList"
+    },
+    {
+      "name": "outlets.manager",
+      "operation_id": "listOutlets",
+      "status": 200,
+      "schema": "OutletList"
+    },
+    {
+      "name": "skills.list",
+      "operation_id": "listSkills",
+      "status": 200,
+      "schema": "SkillList"
+    },
+    {
+      "name": "employees.list",
+      "operation_id": "listEmployees",
+      "status": 200,
+      "schema": "EmployeeList"
+    },
+    {
+      "name": "employees.list.other_outlet_denied",
+      "operation_id": "listEmployees",
+      "status": 403,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "employees.get",
+      "operation_id": "getEmployee",
+      "status": 200,
+      "schema": "Employee"
+    },
+    {
+      "name": "employees.get.not_found",
+      "operation_id": "getEmployee",
+      "status": 404,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "employees.create",
+      "operation_id": "createEmployee",
+      "status": 201,
+      "schema": "Employee"
+    },
+    {
+      "name": "employees.create.invalid",
+      "operation_id": "createEmployee",
+      "status": 422,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "employees.update",
+      "operation_id": "updateEmployee",
+      "status": 200,
+      "schema": "Employee"
+    },
+    {
+      "name": "employees.update.stale",
+      "operation_id": "updateEmployee",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "availability.get",
+      "operation_id": "getAvailability",
+      "status": 200,
+      "schema": "Availability"
+    },
+    {
+      "name": "availability.get.student",
+      "operation_id": "getAvailability",
+      "status": 200,
+      "schema": "Availability"
+    },
+    {
+      "name": "availability.put.invalid",
+      "operation_id": "putAvailability",
+      "status": 422,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "availability.put",
+      "operation_id": "putAvailability",
+      "status": 200,
+      "schema": "Availability"
+    },
+    {
+      "name": "staffing.put",
+      "operation_id": "putStaffingRequirements",
+      "status": 200,
+      "schema": "StaffingRequirements"
+    },
+    {
+      "name": "staffing.get",
+      "operation_id": "getStaffingRequirements",
+      "status": 200,
+      "schema": "StaffingRequirements"
+    },
+    {
+      "name": "staffing_templates.list",
+      "operation_id": "listStaffingTemplates",
+      "status": 200,
+      "schema": "StaffingTemplateSet"
+    },
+    {
+      "name": "staffing_templates.put",
+      "operation_id": "putStaffingTemplates",
+      "status": 200,
+      "schema": "StaffingTemplateSet"
+    },
+    {
+      "name": "staffing.expand",
+      "operation_id": "expandStaffingRequirements",
+      "status": 200,
+      "schema": "StaffingRequirements"
+    },
+    {
+      "name": "schedule_week.published",
+      "operation_id": "getScheduleWeek",
+      "status": 200,
+      "schema": "ScheduleWeek"
+    },
+    {
+      "name": "schedule_week.empty",
+      "operation_id": "getScheduleWeek",
+      "status": 200,
+      "schema": "ScheduleWeek"
+    },
+    {
+      "name": "schedule_week.denied",
+      "operation_id": "getScheduleWeek",
+      "status": 403,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "my_week.staff",
+      "operation_id": "getMyWeek",
+      "status": 200,
+      "schema": "MyWeek"
+    },
+    {
+      "name": "generate.accepted",
+      "operation_id": "generateSchedule",
+      "status": 202,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "generate.idempotency_conflict",
+      "operation_id": "generateSchedule",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "generate.stale_base",
+      "operation_id": "generateSchedule",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "generate.rate_limited",
+      "operation_id": "generateSchedule",
+      "status": 429,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "run.queued",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.running",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.succeeded",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.time_limited_feasible",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.candidates_expired",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.infeasible",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.no_solution_in_time",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.failed",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "candidate.detail",
+      "operation_id": "getOptimizationCandidate",
+      "status": 200,
+      "schema": "CandidateDetail"
+    },
+    {
+      "name": "candidate.select",
+      "operation_id": "selectOptimizationCandidate",
+      "status": 201,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "candidate.detail.lowest_cost",
+      "operation_id": "getOptimizationCandidate",
+      "status": 200,
+      "schema": "CandidateDetail"
+    },
+    {
+      "name": "candidate.select.lowest_cost",
+      "operation_id": "selectOptimizationCandidate",
+      "status": 201,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "schedule_version.draft",
+      "operation_id": "getScheduleVersion",
+      "status": 200,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "schedule_version.draft.lowest_cost",
+      "operation_id": "getScheduleVersion",
+      "status": 200,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "schedule_version.published",
+      "operation_id": "getScheduleVersion",
+      "status": 200,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "schedule_version.not_modified",
+      "operation_id": "getScheduleVersion",
+      "status": 304,
+      "schema": null
+    },
+    {
+      "name": "schedule_week.not_modified",
+      "operation_id": "getScheduleWeek",
+      "status": 304,
+      "schema": null
+    },
+    {
+      "name": "generate.run_in_progress",
+      "operation_id": "generateSchedule",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "employees.update.null_field",
+      "operation_id": "updateEmployee",
+      "status": 422,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "schedule_week.owner.koramangala",
+      "operation_id": "getScheduleWeek",
+      "status": 200,
+      "schema": "ScheduleWeek"
+    },
+    {
+      "name": "schedule_week.owner.hsr",
+      "operation_id": "getScheduleWeek",
+      "status": 200,
+      "schema": "ScheduleWeek"
+    },
+    {
+      "name": "employees.list.owner.koramangala",
+      "operation_id": "listEmployees",
+      "status": 200,
+      "schema": "EmployeeList"
+    },
+    {
+      "name": "employees.list.owner.hsr",
+      "operation_id": "listEmployees",
+      "status": 200,
+      "schema": "EmployeeList"
+    }
+  ]
+}

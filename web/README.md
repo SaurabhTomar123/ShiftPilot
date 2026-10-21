@@ -1,6 +1,6 @@
 # ShiftPilot web
 
-Codex owns `web/`; Claude owns backend/database contracts. **Architecture v4 is governing.** See [v4 alignment and delivery order](docs/ARCHITECTURE_V4_ALIGNMENT.md). This branch currently consumes provider contract **3.3.0-p4**. Candidate review/selection, manual draft edits, history/restore and proposal approval now use the v3 contract; absence reporting and repair review are connected as well. Staffing templates remain an upcoming integration.
+Codex owns `web/`; Claude owns backend/database contracts. **Architecture v4 is governing.** See [v4 alignment and delivery order](docs/ARCHITECTURE_V4_ALIGNMENT.md). This branch currently consumes provider contract **3.15.0-p4**, pinned as a frontend-only contract snapshot. Candidate review/selection, manual draft edits, history/restore and proposal approval now use the v3 contract; absence reporting and repair review are connected as well. Staffing templates remain an upcoming integration.
 
 ## Run
 
@@ -18,11 +18,12 @@ Open http://127.0.0.1:3001. The UI uses Next.js 16, React 19, TypeScript, TanSta
 - Manual drafts: copy the published week, choose an assignment, change its teammate/role/time or lock state, preview server validation, then apply the reviewed request. Removing an assignment also requires preview. Input changes invalidate the preview. Stale or uncertain saves require explicit reload; they never retry automatically. The synthetic preview supports the opening-cook lock and conflicting-reassignment examples only.
 - History: inspect recorded version metrics, compare assignments in either direction, restore an older version into a newly validated draft, and discover pending proposals. Restored drafts enter proposal approval; no restore publishes directly.
 - Repair Inbox: list records by outlet/week, save a confirmed absence or request, explicitly confirm/reject/cancel records, track automatic repair runs, authorize individual locked assignments, and review widening stages and replacement options. Selection creates a draft that uses proposal approval. Synthetic mode supports only the supplied reporting and repair-summary examples; detailed repair review and other status writes require the live API. See [absence flow](docs/ABSENCE_FLOW.md).
+- Run protection: keep individual shifts, an employee, a day or the selected outlet?s published week unchanged for one generate/repair run. Review the selected scope and server-confirmed set. Conflicting protections require an explicit release; permanent locks remain separate. See [protection flow and runtime boundaries](docs/RUN_PROTECTION_FLOW.md).
 - Plan Compare: compare returned alternatives side by side, with labelled recorded-baseline deltas for coverage/cost/overtime. Missing fairness burden remains explicitly unreported; the UI does not infer portfolio dominance or rename preference match as fairness.
 - Appearance: three type treatments, three palettes, and slide/dissolve/fold sidebar transitions. Desktop collapses to a labelled icon rail; mobile has Escape, focus restoration, a backdrop and reduced-motion support.
 - `/sandbox`: earlier local editing/dragging/repair/publication prototype. Its browser-local data and Geist palette remain separate.
 
-The generated registry has 83 provider fixtures, 13 employees per outlet and two detailed candidate options. History comparison fixtures cover versions 3/4 and the restore story uses version 2; unsupported synthetic requests return an explicit missing-fixture message. Balanced selection creates a synthetic draft; proposal approval can demonstrate Published, Stale, Invalid and Changed, with explicit metric acknowledgment. Synthetic publication updates this preview session only. The real seed has 60 employees across three outlets. Unsupported fixture requests return an explicit error. No default UI action publishes a real schedule.
+The generated registry has 108 provider fixtures, 13 employees per outlet and two detailed candidate options. History comparison fixtures cover versions 3/4 and the restore story uses version 2; unsupported synthetic requests return an explicit missing-fixture message. Balanced selection creates a synthetic draft; proposal approval can demonstrate Published, Stale, Invalid and Changed, with explicit metric acknowledgment. Synthetic publication updates this preview session only. The real seed has 60 employees across three outlets. Unsupported fixture requests return an explicit error. No default UI action publishes a real schedule.
 
 ## Checks
 
@@ -36,7 +37,7 @@ npm run build
 npm run test:e2e
 ```
 
-The generator reads `../contracts/v2`; do not edit generated files. AJV checks provider response schemas, headers and bodyless 304s. Browser checks cover desktop/mobile flows and axe scans. Captures under `.impeccable/review/` are local and ignored. For production browser checks, build first and set `PLAYWRIGHT_SERVER_MODE=production`, or start a separate production server for Playwright to reuse. Stop that production server before rebuilding it.
+The generator reads `web/contracts/v2` (relative to the repository root), a byte-preserved snapshot of provider commit `03d747c`; [snapshot provenance and update instructions](contracts/README.md). It verifies every source hash before generating types. Do not edit provider or generated files. AJV checks provider response schemas, headers and bodyless 304s. Browser checks cover desktop/mobile flows and axe scans. Captures under `.impeccable/review/` are local and ignored. For production browser checks, build first and set `PLAYWRIGHT_SERVER_MODE=production`, or start a separate production server for Playwright to reuse. Stop that production server before rebuilding it.
 
 ## API mode
 
@@ -48,7 +49,8 @@ Fixture scenario/session headers are never sent to a configured real API. There 
 
 ## Architecture and handoffs
 
-- [V4 Repair Inbox / plan comparison handoff](docs/UI_HANDOFF_V4_FOUNDATION.md)
+- [Run protection / impact-stage flow](docs/RUN_PROTECTION_FLOW.md)
+- [Previous v4 Repair Inbox / plan comparison handoff](docs/UI_HANDOFF_V4_FOUNDATION.md)
 - [Architecture v4 alignment and delivery order](docs/ARCHITECTURE_V4_ALIGNMENT.md)
 - [Historical architecture v3 alignment](docs/ARCHITECTURE_V3_ALIGNMENT.md)
 - [Previous history/restore handoff](docs/UI_HANDOFF_HISTORY.md)
@@ -58,8 +60,8 @@ Fixture scenario/session headers are never sent to a configured real API. There 
 - [Design system](DESIGN.md)
 - [Contract reviews](docs/CONTRACT_REVIEW.md)
 
-Upcoming P0 work follows v4: impact-aware freezes and pins, engine-selected portfolios, historical fairness burden, decision traces, replacement recommendations, then isolated Scenario Lab and current-fact conversion. Existing template/import/rules integrations and P1 demand/employee workflows follow the contract handoff. The old sandbox is not evidence that those server workflows are delivered.
+Run protection and impact-stage rendering are integrated. Upcoming P0 work follows v4: engine-selected portfolios, historical fairness burden, decision traces, replacement recommendations, then isolated Scenario Lab and current-fact conversion. Existing template/import/rules integrations and P1 demand/employee workflows follow the contract handoff. The old sandbox is not evidence that those server workflows are delivered.
 
 Design skills are local development tools, not runtime dependencies. Current work uses the requested [taste redesign guidance](https://github.com/Leonxlnx/taste-skill/tree/main/skills/redesign-skill), [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design), and [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill). [improve-animations](https://github.com/emilkowalski/skills/tree/main/skills/improve-animations) supplies read-only audit/planning criteria; implementation remains the authorized repository task.
 
-This UI slice deliberately pins reviewed contract 3.3. Provider 3.14 is available upstream; its later v3 APIs and the new v4 engine features are separate integration milestones. Template, replay, CSV, staff self-service, notification and retention integrations are not claimed by this delivery. In particular, apply-edits recovery still uses the reviewed revision-only behavior; the newer replay guarantee arrives with the later contract upgrade.
+This UI slice pins the published 3.15 schema/fixture snapshot without merging or upgrading backend source. A live API must support 3.15 for protection requests; live verification of that version remains pending. Broader backend integration and the remaining v3/v4 APIs are separate milestones. Template, replay, CSV, staff self-service, notification and retention integrations are not claimed by this delivery. In particular, apply-edits recovery still uses the reviewed revision-only behavior; the provider declares replay support, but the editor retains its conservative reload-after-uncertain-save behavior until that workflow is separately accepted.

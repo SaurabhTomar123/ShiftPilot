@@ -1,0 +1,33 @@
+{
+  "name": "employees.update.stale",
+  "operation_id": "updateEmployee",
+  "method": "PATCH",
+  "path": "/v2/employees/{employee_id}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd"
+    },
+    "body": {
+      "base_revision": 1,
+      "tags": [
+        "senior"
+      ]
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "stale_version",
+        "message": "This employee was changed by someone else. Reload and try again.",
+        "retryable": false,
+        "details": {
+          "current_revision": 2
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

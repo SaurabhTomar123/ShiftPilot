@@ -14,6 +14,7 @@ export function runMessage(run: Schema['OptimizationRun']) {
   if (run.job_state === 'running') return { title: 'Working through the possibilities.', body: 'Your published schedule stays in place.', tone: 'neutral' };
   if (run.job_state === 'cancelled') return { title: 'This run was cancelled.', body: 'Your published schedule has not been replaced by this run.', tone: 'neutral' };
   if (run.job_state === 'failed') return { title: 'The optimizer could not finish.', body: run.error?.message ?? 'Check the run details before starting another request.', tone: 'warning' };
+  if (run.candidates_expired) return { title: 'Some saved options have expired.', body: 'Unselected options are no longer available. Review any selected options still listed, or start a new run against current facts.', tone: 'warning' };
   if (run.solver_status === 'INFEASIBLE') return { title: 'These requirements cannot all be met.', body: run.infeasibility?.summary ?? 'Review staffing requirements and the constraints below.', tone: 'warning' };
   if (run.solver_status === 'UNKNOWN') return { title: 'No solution found within the time limit.', body: 'This does not mean the schedule is impossible. You can try a longer solve after reviewing this run.', tone: 'warning' };
   if (run.solver_status === 'FEASIBLE') return { title: 'A valid option, with room to improve.', body: 'The search reached its time limit before optimality was proven.', tone: 'neutral' };

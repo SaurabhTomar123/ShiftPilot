@@ -1,0 +1,44 @@
+{
+  "name": "imports.template",
+  "operation_id": "getEmployeeImportTemplate",
+  "method": "GET",
+  "path": "/v2/imports/employees/template",
+  "persona": "manager_indiranagar",
+  "request": {},
+  "response": {
+    "status": 200,
+    "schema": "ImportTemplate",
+    "body": {
+      "columns": [
+        "name",
+        "outlet",
+        "skills",
+        "hourly_rate",
+        "max_weekly_hours",
+        "preferred_weekly_hours",
+        "mon_start",
+        "mon_end",
+        "tue_start",
+        "tue_end",
+        "wed_start",
+        "wed_end",
+        "thu_start",
+        "thu_end",
+        "fri_start",
+        "fri_end",
+        "sat_start",
+        "sat_end",
+        "sun_start",
+        "sun_end"
+      ],
+      "example": "Asha Nair,Indiranagar,Grill;Prep,190,48,40,10:00,22:00,10:00,22:00,,,10:00,22:00,16:00,23:30,16:00,23:30,,",
+      "notes": [
+        "One employee per row; the header row must match the template exactly.",
+        "outlet: the outlet's name or slug. skills: role names separated by ';'.",
+        "hourly_rate in rupees (up to 2 decimals). Hours on the half-hour; preferred_weekly_hours may be empty.",
+        "Each day: start and end as HH:MM on the half-hour (end before start means overnight), or both empty.",
+        "Imported staff work up to max_weekly_hours with no overtime; change that per employee afterwards."
+      ]
+    }
+  }
+}

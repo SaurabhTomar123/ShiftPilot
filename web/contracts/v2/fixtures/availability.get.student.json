@@ -1,0 +1,64 @@
+{
+  "name": "availability.get.student",
+  "operation_id": "getAvailability",
+  "method": "GET",
+  "path": "/v2/employees/{employee_id}/availability",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "Availability",
+    "body": {
+      "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710",
+      "windows": [
+        {
+          "weekday": 0,
+          "start_minute": 600,
+          "end_minute": 1260,
+          "kind": "available"
+        },
+        {
+          "weekday": 1,
+          "start_minute": 600,
+          "end_minute": 1260,
+          "kind": "available"
+        },
+        {
+          "weekday": 2,
+          "start_minute": 600,
+          "end_minute": 1260,
+          "kind": "available"
+        },
+        {
+          "weekday": 3,
+          "start_minute": 600,
+          "end_minute": 1260,
+          "kind": "available"
+        },
+        {
+          "weekday": 4,
+          "start_minute": 600,
+          "end_minute": 1260,
+          "kind": "available"
+        },
+        {
+          "weekday": 5,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "kind": "available"
+        },
+        {
+          "weekday": 6,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "kind": "available"
+        }
+      ],
+      "revision": 1
+    }
+  }
+}

@@ -3,6 +3,7 @@ import { SchedulingClient, watchRun } from './client';
 import { fixture, fixtureResponse } from './fixture-gateway';
 import records from './generated/fixtures.json';
 import type { Schema } from './types';
+import { runMessage } from './presentation';
 
 function setup() {
   const requests: Request[] = [];
@@ -12,6 +13,13 @@ function setup() {
   };
   return { client: new SchedulingClient({ baseUrl: '/api/fixture', fetcher }), requests };
 }
+
+it('does not present expired candidate results as ready solver options', () => {
+  const expired = fixture<Schema['OptimizationRun']>('run.candidates_expired');
+  expect(expired.candidates_expired).toBe(true);
+  expect(runMessage(expired).title).toContain('expired');
+  expect(runMessage(expired).body).toContain('start a new run');
+});
 
 it('records an absence once, then reads its repair without generation or publication', async () => {
   const { client, requests } = setup(); await client.signIn('manager');
@@ -57,4 +65,15 @@ it('leaving one screen does not abort another screen sharing its pending schedul
   const newRead = client.schedule(me.outlet_id!, '2026-10-19', arriving.signal);
   release();
   await oldResult; expect((await newRead).current_version).not.toBeNull(); expect(scheduleReads).toBe(1);
+});
+
+it('sends exact freeze inputs and never returns unprotected success for unsupported preview requests', async () => {
+  const { client, requests } = setup(); const me = await client.signIn('manager');
+  const body: Schema['RepairRequest'] = { ...records['repair.freeze_conflict'].request.body, allow_cross_outlet: false };
+  await expect(client.repair(me.outlet_id!, '2026-10-19', body, 'freeze-conflict')).rejects.toMatchObject({ status: 409, detail: { details: { frozen_logical_shift_ids: body.freeze!.shift_ids } } });
+  expect(await requests.at(-1)!.json()).toEqual(body);
+  expect(requests.at(-1)!.headers.get('Idempotency-Key')).toBe('freeze-conflict');
+  await expect(client.repair(me.outlet_id!, '2026-10-19', { ...body, freeze: { employee_ids: [crypto.randomUUID()] } }, 'unknown-freeze')).rejects.toMatchObject({ status: 501 });
+  await expect(client.generate(me.outlet_id!, '2026-10-26', { base_version_id: null, strategy: 'balanced', time_limit_seconds: 10, freeze: { days: ['2026-10-26'] } }, 'empty-freeze')).rejects.toMatchObject({ status: 501 });
+  expect(requests.filter(request => request.method === 'POST')).toHaveLength(4);
 });

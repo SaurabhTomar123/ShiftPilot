@@ -77,6 +77,7 @@ export async function fixtureResponse(path: string, request: Request): Promise<R
       if (!request.headers.get('Idempotency-Key')) return respond({ error: { code: 'validation_failed', message: 'An idempotency key is required.', retryable: false, details: {} } }, 422);
       // Generate fixtures only cover the empty week and their balanced request.
       const body = await request.json().catch(() => null);
+      if (body?.freeze && ((body.freeze.shift_ids?.length ?? 0) + (body.freeze.employee_ids?.length ?? 0) + (body.freeze.days?.length ?? 0))) return missing();
       if (scenario === 'active') return reply('generate.run_in_progress');
       if (scenario === 'rate_limited') return reply('generate.rate_limited');
       if (scenario === 'stale') return reply('generate.stale_base');

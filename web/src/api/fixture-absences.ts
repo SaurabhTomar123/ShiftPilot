@@ -36,6 +36,11 @@ export async function absenceFixture(url: URL, request: Request): Promise<Respon
     const body = await request.json().catch(() => null) as Schema['RepairRequest'] | null;
     if (url.pathname !== expectedPath || !body || body.absence_id !== accepted.absence_id || body.base_version_id !== accepted.base_version_ids[0]) return unsupported();
     if (body.allow_cross_outlet) return request.headers.get('Authorization') === 'Bearer ui-fixture-manager' ? reply('repair.cross_outlet.manager') : unsupported();
+    if (body.freeze && ((body.freeze.shift_ids?.length ?? 0) + (body.freeze.employee_ids?.length ?? 0) + (body.freeze.days?.length ?? 0))) {
+      const expected = (fixtures['repair.freeze_conflict'].request.body as Schema['RepairRequest']).freeze!;
+      const same = (['shift_ids', 'employee_ids', 'days'] as const).every(field => JSON.stringify([...(body.freeze?.[field] ?? [])].sort()) === JSON.stringify([...(expected[field] ?? [])].sort()));
+      return same ? reply('repair.freeze_conflict') : unsupported();
+    }
     if (body.unlock_logical_shift_ids?.length) return unsupported();
     return reply('repair.accepted');
   }

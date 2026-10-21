@@ -1,0 +1,21 @@
+{
+  "name": "me.unauthenticated",
+  "operation_id": "getMe",
+  "method": "GET",
+  "path": "/v2/me",
+  "persona": null,
+  "request": {},
+  "response": {
+    "status": 401,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "unauthenticated",
+        "message": "Sign in to continue.",
+        "retryable": false,
+        "details": {},
+        "trace_id": null
+      }
+    }
+  }
+}

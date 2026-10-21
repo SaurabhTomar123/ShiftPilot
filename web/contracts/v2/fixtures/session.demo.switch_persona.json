@@ -1,0 +1,38 @@
+{
+  "name": "session.demo.switch_persona",
+  "operation_id": "createDemoSession",
+  "method": "POST",
+  "path": "/v2/session/demo",
+  "persona": null,
+  "request": {
+    "body": {
+      "persona": "staff",
+      "sandbox_id": "08e18c92-b99a-55f6-97b0-394840dd4d1f"
+    }
+  },
+  "response": {
+    "status": 201,
+    "schema": "DemoSession",
+    "body": {
+      "access_token": "demo.synthetic.token.not-a-real-jwt",
+      "token_type": "bearer",
+      "expires_at": "2026-10-18T21:40:00+05:30",
+      "me": {
+        "user_id": "e4947268-0d92-5d7f-a21e-b8836aeada78",
+        "org_id": "08b61824-d17a-5028-91b1-d498945700e0",
+        "org_name": "Spice Route Kitchens",
+        "display_name": "Ravi Kumar",
+        "role": "staff",
+        "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+        "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+        "timezone": "Asia/Kolkata",
+        "capabilities": [
+          "view_own_schedule",
+          "report_own_absence"
+        ]
+      },
+      "sandbox_id": "08e18c92-b99a-55f6-97b0-394840dd4d1f",
+      "sandbox_expires_at": "2026-10-18T21:40:00+05:30"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "commands.parse",
+  "operation_id": "parseCommand",
+  "method": "POST",
+  "path": "/v2/commands/parse",
+  "persona": "manager_indiranagar",
+  "request": {
+    "body": {
+      "text": "Give Ravi Saturday off"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "CommandPreview",
+    "body": {
+      "status": "ready",
+      "intent": "give_time_off",
+      "summary": "Mark Ravi Kumar off on Saturday 24 Oct (leave). 1 published shift will need cover; a repair starts after you confirm.",
+      "question": null,
+      "options": [],
+      "action": {
+        "operation_id": "reportAbsence",
+        "method": "POST",
+        "path": "/v2/absences",
+        "body": {
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "start_at": "2026-10-24T00:00:00+05:30",
+          "end_at": "2026-10-25T00:00:00+05:30",
+          "kind": "leave",
+          "status": "confirmed",
+          "reason": "Give Ravi Saturday off"
+        }
+      },
+      "affected_shift_count": 1
+    }
+  }
+}
