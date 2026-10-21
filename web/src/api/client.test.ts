@@ -249,6 +249,7 @@ describe('v3 candidate selection and proposals', () => {
       expect(await client.approveProposal(proposal.id, { acknowledge_changes: false }, 'approve')).toEqual(result);
       const published = await client.approveProposal(proposal.id, { acknowledge_changes: true }, 'accept-changes');
       expect(published.outcome).toBe('published');
+      expect(published.published?.recorded_metrics?.labour_cost.amount_paise).toBe(7843500);
       expect((await client.schedule(me.outlet_id!, '2026-10-26')).current_version?.id).toBe(selected.id);
     }
   });
@@ -299,5 +300,47 @@ describe('manual draft edit transport', () => {
     expect(preview.validation.hard_violations).toBe(1);
     await expect(client.previewEdits(draft.id, { expected_revision: 1, edits: [{ op: 'remove', logical_shift_id: draft.shifts[0].logical_shift_id }] })).rejects.toMatchObject({ status: 501 });
     expect((await client.version(draft.id)).revision).toBe(1);
+  });
+});
+
+describe('version history and restore', () => {
+  it('reads recorded metrics and preserves comparison direction without writes', async () => {
+    const { client, requests } = setup(); const me = await client.signIn('manager');
+    const week = await client.schedule(me.outlet_id!, '2026-10-19');
+    const history = await client.versions(week.schedule_id!);
+    expect(history.current_version_id).toBe(week.current_version!.id);
+    expect(history.items.find(v => v.version_number === 3)?.recorded_metrics?.labour_cost.amount_paise).toBe(7470000);
+    const to = history.items.find(v => v.version_number === 4)!;
+    const diff = await client.compareVersions(to.id, history.current_version_id!);
+    const reverse = await client.compareVersions(history.current_version_id!, to.id);
+    expect(diff.changes[0].before!.locked).toBe(false); expect(diff.changes[0].after!.locked).toBe(true);
+    expect(reverse.changes[0].before!.locked).toBe(true); expect(reverse.changes[0].after!.locked).toBe(false);
+    expect(requests.filter(r => r.method !== 'GET')).toHaveLength(1);
+  });
+  it('restores idempotently into a draft and publishes only after proposal approval', async () => {
+    const { client } = setup(); const me = await client.signIn('manager');
+    const week = await client.schedule(me.outlet_id!, '2026-10-19');
+    const source = fixture<Schema['VersionHistory']>('versions.list').items.find(v => v.version_number === 2)!;
+    const input = { expected_base_version_id: week.current_version!.id };
+    const restored = await client.restoreVersion(source.id, input, 'restore-version-2');
+    expect(restored.status).toBe('draft'); expect(restored.source).toBe('restore');
+    expect(await client.restoreVersion(source.id, input, 'restore-version-2')).toEqual(restored);
+    expect((await client.schedule(me.outlet_id!, '2026-10-19')).current_version!.id).toBe(week.current_version!.id);
+    const proposal = await client.createProposal({ draft_version_id: restored.id, expected_revision: restored.revision }, 'propose-restored');
+    expect((await client.proposals(week.schedule_id!)).items[0].id).toBe(proposal.id);
+    expect((await client.proposal(proposal.id)).draft_version_id).toBe(restored.id);
+    await client.approveProposal(proposal.id, { acknowledge_changes: false }, 'approve-restored');
+    expect((await client.schedule(me.outlet_id!, '2026-10-19')).employees.find(e => e.name === 'Ravi Kumar')?.scheduled_minutes).toBe(1350);
+    expect((await client.versions(week.schedule_id!)).current_version_id).toBe(restored.id);
+    expect((await client.proposals(week.schedule_id!)).items).toHaveLength(0);
+  });
+  it('does not retry a stale restore and does not share a published history between sessions', async () => {
+    const { client, requests } = setup(); const me = await client.signIn('manager');
+    const source = fixture<Schema['VersionHistory']>('versions.list').items.find(v => v.version_number === 2)!;
+    await expect(client.restoreVersion(source.id, { expected_base_version_id: null }, 'stale-restore')).rejects.toMatchObject({ status: 409 });
+    expect(requests.filter(r => r.url.endsWith('/restore'))).toHaveLength(1);
+    const separate = setup().client; await separate.signIn('manager');
+    expect((await separate.proposals(fixture<Schema['VersionHistory']>('versions.list').schedule_id)).items).toHaveLength(0);
+    expect((await separate.schedule(me.outlet_id!, '2026-10-19')).current_version!.version_number).toBe(3);
   });
 });

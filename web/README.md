@@ -1,6 +1,6 @@
 # ShiftPilot web
 
-Codex owns `web/`; Claude owns backend/database contracts. **Architecture v3 is governing.** This branch currently consumes provider contract **3.1.0-p4**. Candidate review/selection, manual draft edits and proposal approval now use the v3 contract; staffing templates and absence repair remain upcoming integrations.
+Codex owns `web/`; Claude owns backend/database contracts. **Architecture v3 is governing.** This branch currently consumes provider contract **3.3.0-p4**. Candidate review/selection, manual draft edits, history/restore and proposal approval now use the v3 contract; staffing templates and absence repair remain upcoming integrations.
 
 ## Run
 
@@ -14,12 +14,13 @@ Open http://127.0.0.1:3001. The UI uses Next.js 16, React 19, TypeScript, TanSta
 
 ## Current surfaces
 
-- `/`: provider fixture preview, with separate owner/manager/employee sessions. Use Schedule, Employees and Staffing navigation. Employee/skill/availability and date-specific staffing forms have validation, explicit save results and stale-edit recovery. Synthetic edits exist only in a bounded, expiring preview session. Persona changes/server restarts reset them; fixed roster/solver fixtures do not change with input edits.
+- `/`: provider fixture preview, with separate owner/manager/employee sessions. Use Schedule, Employees, Staffing and History navigation. Employee/skill/availability and date-specific staffing forms have validation, explicit save results and stale-edit recovery. Synthetic edits exist only in a bounded, expiring preview session. Persona changes/server restarts reset them; fixed roster/solver fixtures do not change with input edits.
 - Manual drafts: copy the published week, choose an assignment, change its teammate/role/time or lock state, preview server validation, then apply the reviewed request. Removing an assignment also requires preview. Input changes invalidate the preview. Stale or uncertain saves require explicit reload; they never retry automatically. The synthetic preview supports the opening-cook lock and conflicting-reassignment examples only.
+- History: inspect recorded version metrics, compare assignments in either direction, restore an older version into a newly validated draft, and discover pending proposals. Restored drafts enter proposal approval; no restore publishes directly.
 - Appearance: three type treatments, three palettes, and slide/dissolve/fold sidebar transitions. Desktop collapses to a labelled icon rail; mobile has Escape, focus restoration, a backdrop and reduced-motion support.
 - `/sandbox`: earlier local editing/dragging/repair/publication prototype. Its browser-local data and Geist palette remain separate.
 
-The generated registry has 78 provider fixtures, 13 employees per outlet and two lightweight candidate summaries. Only Balanced has a detailed diff/select fixture; other options return an explicit missing-fixture message. Balanced selection creates a synthetic draft; proposal approval can demonstrate Published, Stale, Invalid and Changed, with explicit metric acknowledgment. Synthetic publication updates this preview session only. The real seed has 60 employees across three outlets. Unsupported fixture requests return an explicit error. No default UI action publishes a real schedule.
+The generated registry has 83 provider fixtures, 13 employees per outlet and two detailed candidate options. History comparison fixtures cover versions 3/4 and the restore story uses version 2; unsupported synthetic requests return an explicit missing-fixture message. Balanced selection creates a synthetic draft; proposal approval can demonstrate Published, Stale, Invalid and Changed, with explicit metric acknowledgment. Synthetic publication updates this preview session only. The real seed has 60 employees across three outlets. Unsupported fixture requests return an explicit error. No default UI action publishes a real schedule.
 
 ## Checks
 
@@ -46,12 +47,15 @@ Fixture scenario/session headers are never sent to a configured real API. There 
 ## Architecture and handoffs
 
 - [Architecture v3 alignment](docs/ARCHITECTURE_V3_ALIGNMENT.md)
-- [Current manual-edit handoff](docs/UI_HANDOFF_MANUAL_EDITS.md)
+- [Current history/restore handoff](docs/UI_HANDOFF_HISTORY.md)
+- [Previous manual-edit handoff](docs/UI_HANDOFF_MANUAL_EDITS.md)
 - [Previous v3 review handoff](docs/UI_HANDOFF_V3_REVIEW.md)
 - [Previous forms/design delivery](docs/UI_HANDOFF_2026-10-19.md)
 - [Design system](DESIGN.md)
 - [Contract reviews](docs/CONTRACT_REVIEW.md)
 
-Upcoming work follows v3: template-based assignment creation, drag interactions, staffing templates and preserved manual overrides, absence-triggered repair, fixed-template CSV onboarding, rules, history and validated restore. The old sandbox is not evidence that those server workflows are delivered.
+Upcoming work follows v3: template-based assignment creation, drag interactions, staffing templates and preserved manual overrides, absence-triggered repair, fixed-template CSV onboarding, rules and notifications. The old sandbox is not evidence that those server workflows are delivered.
 
 Design skills are local development tools, not runtime dependencies. Current work uses the requested [taste redesign guidance](https://github.com/Leonxlnx/taste-skill/tree/main/skills/redesign-skill), [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design), and [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill). [improve-animations](https://github.com/emilkowalski/skills/tree/main/skills/improve-animations) supplies read-only audit/planning criteria; implementation remains the authorized repository task.
+
+This history slice deliberately pins reviewed contract 3.3. Provider 3.11 is available upstream but later profiles, template, replay, CSV, self-report, notification and retention integrations are not claimed by this delivery. In particular, apply-edits recovery still uses the reviewed revision-only behavior; the newer replay guarantee arrives with the later contract upgrade.

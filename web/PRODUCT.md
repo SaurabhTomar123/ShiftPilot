@@ -24,7 +24,7 @@ Schedule-first interaction. No core action requires a prompt. Authoritative vali
 
 ## Evidence on Hand
 
-Provider contract 3.1 is consumed. The UI supports candidate diffs, explicit selection, keyboard/form-based assignment previews and saves, and proposal approval with four publication outcomes. An isolated real API/worker check generated candidates without drafts, then selected, proposed and published a 71-shift week with zero reported hard violations. Default mode remains a labelled synthetic preview. An isolated real edit check also passed lock/unlock saves and reload after a lost success response, leaving the published version unchanged. Template-based additions, drag interactions, staffing templates, absence repair, History and release/tenant acceptance gates remain separate work.
+Provider contract 3.3 is consumed. The UI supports candidate diffs, explicit selection, keyboard/form-based assignment previews and saves, proposal approval with four publication outcomes, and history/comparison/restoration with recorded metrics. An isolated real API/worker check generated candidates without drafts, then selected, proposed and published a 71-shift week with zero reported hard violations. Default mode remains a labelled synthetic preview. An isolated real edit check also passed lock/unlock saves and reload after a lost success response, leaving the published version unchanged. Template-based additions, drag interactions, staffing templates, absence repair and release/tenant acceptance gates remain separate work.
 
 ## Product Principles
 
@@ -36,3 +36,5 @@ Provider contract 3.1 is consumed. The UI supports candidate diffs, explicit sel
 ## Accessibility & Inclusion
 
 Keyboard alternatives to dragging, visible focus, semantic forms, reduced motion and usable narrow-screen layouts are required by the implementation roadmap.
+
+A real history/compare/restore check created a new validated draft and reopened its pending proposal while leaving the published pointer unchanged during restore. Provider versions after 3.3 remain separate consumer integration work.

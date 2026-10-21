@@ -378,7 +378,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * List Proposals
+         * @description Find a week's proposals, e.g. the pending one after a reload. Newest first.
+         */
+        get: operations["listProposals"];
         put?: never;
         /**
          * Create Proposal
@@ -1486,6 +1490,11 @@ export interface components {
             infeasibility: components["schemas"]["Infeasibility"] | null;
             /** @description Set when job_state is failed. */
             error: components["schemas"]["ErrorBody"] | null;
+            /**
+             * Repair Stages
+             * @description Repair runs, once finished: the widening stages tried and why it widened.
+             */
+            repair_stages?: components["schemas"]["RepairStage"][];
         };
         /** Outlet */
         Outlet: {
@@ -1610,6 +1619,14 @@ export interface components {
              */
             deltas?: components["schemas"]["MetricDelta"][];
         };
+        /** ProposalList */
+        ProposalList: {
+            /**
+             * Items
+             * @description Newest first, at most 100.
+             */
+            items: components["schemas"]["Proposal"][];
+        };
         /** PublishRequest */
         PublishRequest: {
             /**
@@ -1663,10 +1680,54 @@ export interface components {
              */
             unlock_logical_shift_ids?: string[];
             /**
+             * Allow Cross Outlet
+             * @description Owner only: let the repair borrow staff from other outlets (widening stage other_outlets). Managers get 403.
+             * @default false
+             */
+            allow_cross_outlet: boolean;
+            /**
              * Time Limit Seconds
              * @default 3
              */
             time_limit_seconds: number;
+        };
+        /**
+         * RepairStage
+         * @description One widening stage of a repair run (architecture v3 section 12), in the order tried.
+         */
+        RepairStage: {
+            /**
+             * Stage
+             * @description same_day: the affected days from the absence onward, home staff, no overtime. adjacent_shifts: plus the day either side. other_outlets: plus other outlets' staff (owner-authorized). overtime: overtime where contracts allow it.
+             * @enum {string}
+             */
+            stage: "same_day" | "adjacent_shifts" | "other_outlets" | "overtime";
+            /**
+             * Result
+             * @description selected: the candidates come from this stage. insufficient: minimum staffing could not be kept, so the repair widened. skipped: see reason.
+             * @enum {string}
+             */
+            result: "selected" | "insufficient" | "no_plan" | "skipped";
+            /**
+             * Reason
+             * @description Why a stage was skipped: not authorized, or no wider than the last.
+             */
+            reason?: ("not_authorized" | "same_scope") | null;
+            /**
+             * Free Shifts
+             * @description Published shifts this stage was allowed to change.
+             */
+            free_shifts: number;
+            /**
+             * Pool
+             * @description Employees who could take them.
+             */
+            pool: number;
+            /**
+             * Minimum Shortfall Minutes
+             * @description Best minimum-staffing shortfall found (staff-minutes).
+             */
+            minimum_shortfall_minutes?: number | null;
         };
         /** ReportAbsenceRequest */
         ReportAbsenceRequest: {
@@ -3796,6 +3857,76 @@ export interface operations {
             };
             /** @description Conflict */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listProposals: {
+        parameters: {
+            query: {
+                /** @description The week (schedule) whose proposals to list. */
+                schedule_id: string;
+                /** @description Repeat to filter, e.g. status=pending. A pending proposal past expiry is expired. */
+                status?: ("pending" | "approved" | "rejected" | "expired" | "stale" | "failed")[] | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProposalList"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

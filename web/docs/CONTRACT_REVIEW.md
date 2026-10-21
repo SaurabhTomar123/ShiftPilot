@@ -1,3 +1,17 @@
+# 21 October: history and restore consumer review (3.3)
+
+Provider baseline d66ad33 (including ea13417) is merged. Generated **83 fixtures** from `3.3.0-p4`; SHA-256 `9e4961ec6a96a6e97d0d5bb659936788d7d4c47e26390776e1f22f276184dd86`.
+
+**Accepted for listVersions, compareVersions, restoreVersion and listProposals**, plus the second candidate detail/select and acknowledged-cost fixture fixes. The consumer parses all 83 response fixtures. VersionHistory uses frozen/recorded metrics where available; missing values are stated. VersionDiff uses service-evaluated current metrics and explicit direction. Restore carries expected_base_version_id and an idempotency key; stale bases are not retried automatically. The returned draft is reviewed against current validation and enters proposals. No direct legacy publication call is added.
+
+The previous candidate-detail and acknowledged-cost follow-ups are resolved: the second option is now reviewable/selectable, and accepted changed cost is stored/displayed after publication. Proposal discovery is integrated in History, with getProposal and a fresh version read before resuming its review. The API independently owns authorization and expiry.
+
+The isolated real API passed history GET, compare GET, restore POST (201), proposal creation (201), proposal listing and reopening a proposal/version (200). Restore left the published pointer unchanged. See UI_HANDOFF_HISTORY.md for the synthetic database setup and test boundaries. No claim of complete cross-tenant, deployment or release acceptance is made.
+
+Provider 3.11 is available upstream. This slice deliberately pins 3.3; later template/import/notification APIs and the 3.5 replay guarantee remain to be reviewed and integrated. Earlier requests for those features are historical, not a claim that Claude has not delivered them.
+
+---
+
 # 19 October: manual draft edit consumer review (3.1)
 
 **Accepted for createDraft, previewEdits and applyEdits request/response shapes.** Provider version and hash remain 3.1.0-p4 / `7b7128bc86e8747a95e92bb6048dacb1afc53c227fb08345aeb3c22eb7ebe763`. Request examples are generated from provider fixture metadata; response records and backend source were not edited.

@@ -68,11 +68,12 @@ export function CandidateReview({ client, candidateId, employees, skills, timezo
 
 export const strategyName = (strategy: Schema['Candidate']['strategy']) => ({ balanced: 'Balanced', lowest_cost: 'Lowest cost', staff_friendly: 'Hours preference alignment', max_coverage: 'Maximum coverage', least_disruption: 'Least disruption', best_coverage: 'Best coverage' })[strategy];
 
-export function ProposalReview({ client, draft, timezone, fixtureMode, showCosts, onPublished, onReload }: {
+export function ProposalReview({ client, draft, timezone, fixtureMode, showCosts, initialProposal, onPublished, onReload }: {
   client: SchedulingClient; draft: Schema['ScheduleVersion']; timezone: string; fixtureMode: boolean; showCosts: boolean;
   onPublished: (decision: Schema['ProposalDecision']) => void; onReload: () => void;
+  initialProposal?: Schema['Proposal'];
 }) {
-  const [proposal, setProposal] = useState<Schema['Proposal'] | null>(null);
+  const [proposal, setProposal] = useState<Schema['Proposal'] | null>(initialProposal ?? null);
   const [decision, setDecision] = useState<Schema['ProposalDecision'] | null>(null);
   const [acknowledged, setAcknowledged] = useState(false);
   const [demoOutcome, setDemoOutcome] = useState<'published' | 'changed' | 'stale' | 'invalid'>('published');

@@ -92,13 +92,14 @@ Controls and shift tiles use 7px corners; working containers use 10px. Role mark
 
 ## Components
 
-- **Sidebar:** Schedule, Employees and Staffing are real destinations. Manager controls are absent from the employee view. Collapse remains operable in the rail. Mobile menu focus and scroll-lock cleanup run independently of animation completion.
+- **Sidebar:** Schedule, Employees, Staffing and History are real destinations. Manager controls are absent from the employee view. Collapse remains operable in the rail. Mobile menu focus and scroll-lock cleanup run independently of animation completion.
 - **Sidebar motion:** routine transitions remain under 300ms. Reversible CSS transitions retarget when toggled. Slide uses translation, Dissolve combines opacity with bounded 4px blur, Fold uses clipping. Reduced motion removes spatial effects. Semantic state changes immediately and does not wait for transitionend.
 - **Appearance:** native disclosure and labelled selects. Type, palette and motion can be compared on real roster data without changing the session or losing form inputs.
 - **Roster and review:** explicit draft/published state, provider-reported metrics and explanatory staffing gaps. Shift disclosures retain template break and lock details; break placement and pay rules are not editable features.
 - **Employees:** exact-paise hourly rate entry, status, skill levels, regular hours versus absolute cap, preferred hours, tags, overtime and cross-outlet eligibility. Unchanged fields are omitted from updates; nullable preferred hours can be cleared.
 - **Availability:** full recurring-window replacement, explicit same-day/next-day offsets and written errors. Overnight values remain integer minutes in the outlet's local time.
 - **Staffing:** edit, add and remove date-specific intervals. Minimum and preferred counts stay distinct. Filters never omit hidden intervals from a save. The initial skill prefers one with demand instead of assuming API list order. Template expansion awaits the v3 contract.
+- **History:** chronological version rows with recorded coverage/cost, clear missing-record text and explicit comparison direction. Current-fact metrics are separated from historical recorded metrics. Restore names the current base, produces a validated draft and reuses proposal approval. Pending proposals can be discovered after leaving the schedule view.
 - **Save/error states:** no optimistic success message, automatic write retry or silent stale overwrite. Inputs survive errors. Explicit reload replaces inputs with current values. Synthetic edits are session-scoped and do not alter fixed roster/solver fixtures.
 
 ## Do's and Don'ts

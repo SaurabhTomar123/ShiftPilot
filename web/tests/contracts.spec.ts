@@ -96,7 +96,7 @@ test('contract roster is accessible and fits desktop/mobile', async ({ page }, i
   expect(result.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) }))).toEqual([]);
 });
 
-test('joins an existing run once and reports missing provider detail for the second option', async ({ page }) => {
+test('joins an existing run once and reviews the lowest-cost option', async ({ page }) => {
   let writes = 0;
   page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/generate')) writes += 1; });
   await page.getByRole('button', { name: 'Next week' }).click();
@@ -106,8 +106,10 @@ test('joins an existing run once and reports missing provider detail for the sec
   expect(writes).toBe(1);
   await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
   await page.getByRole('button', { name: 'Review option' }).last().click();
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('A detailed provider fixture is not available');
+  await expect(page.getByRole('region', { name: 'Candidate review', exact: true })).toContainText('Lowest cost');
   await expect(page.getByRole('heading', { name: 'Proposed roster' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Select option and create draft', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Proposed roster', exact: true })).toBeVisible();
   expect(writes).toBe(1);
 });
 
