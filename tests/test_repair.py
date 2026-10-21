@@ -8,7 +8,7 @@ from datetime import timedelta
 
 import pytest
 
-from scheduling import repair, validator
+from scheduling import metrics, repair, validator
 from scheduling.model import Absence, Shift
 from seed import world
 from seed.world_snapshot import build, greedy_roster
@@ -148,16 +148,16 @@ def tight(snap: object, base: list[Shift]) -> object:
     return replace(snap, employees=employees)  # type: ignore[type-var]
 
 
-def test_widening_to_adjacent_shifts_when_the_same_day_is_not_enough() -> None:
-    snap, base, absence, victim = setting()
+def test_a_wider_stage_counts_the_gaps_it_opens_on_neighbouring_days() -> None:
+    """Regression (found by the B4.5 acceptance test): adjacent and wider stages may move people off the
+    day before or after, so their coverage must be measured on those days too. Hours are tight here, so
+    moving someone only shifts the gap; no stage may report success it does not deliver."""
+    snap, base, absence, _ = setting()
     out = repair.repair(tight(snap, base), base, absence, time_limit=4.0)  # type: ignore[arg-type]
-    same_day, adjacent = out.widening
-    assert same_day["stage"] == "same_day" and same_day["result"] == "insufficient"
-    assert same_day["minimum_shortfall_minutes"] > 0
-    assert adjacent["stage"] == "adjacent_shifts" and adjacent["result"] == "selected"
-    assert adjacent["minimum_shortfall_minutes"] == 0 and adjacent["free_shifts"] > same_day["free_shifts"]
-    covered = next(s for s in out.plans[0].roster if s.logical_id == victim.logical_id)
-    assert covered.employee_id not in (None, victim.employee_id)
+    selected = next(r for r in out.widening if r["result"] == "selected")
+    week_gap = metrics.compute(replace(snap, absences=(absence,)), list(out.plans[0].roster))  # type: ignore[type-var]
+    assert selected["minimum_shortfall_minutes"] == week_gap.minimum_deficit_minutes > 0
+    assert all(r["result"] in ("insufficient", "selected", "skipped") for r in out.widening)
 
 
 def test_every_stage_is_recorded_when_none_keeps_minimum_staffing() -> None:

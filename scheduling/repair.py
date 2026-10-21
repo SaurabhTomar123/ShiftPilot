@@ -267,7 +267,8 @@ def _solve_profile(
     # Coverage on the affected days.
     min_terms, pref_terms = [], []
     for k, req in enumerate(r for r in snap.requirements if r.outlet_id == snap.outlet_id):
-        if req.interval_start.astimezone(tz).date() not in days:
+        # Every day this stage may change: freeing a neighbouring day's shift must not hide its gap.
+        if req.interval_start.astimezone(tz).date() not in scope.free_days | days:
             continue
         t = req.interval_start
         fixed_on = sum(
