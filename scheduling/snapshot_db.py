@@ -11,6 +11,7 @@ from collections.abc import Iterable
 from dataclasses import replace
 from datetime import date, datetime, timedelta
 from decimal import Decimal
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -32,7 +33,7 @@ from db.models_v2 import (
     TravelTime,
     VersionShift,
 )
-from scheduling import rules
+from scheduling import fairness, rules
 from scheduling.model import Absence, Employee, Outlet, Policy, Requirement, Shift, Snapshot, Template, Window
 
 MARGIN = timedelta(days=1)  # adjacent-week commitments that can affect rest and overlap
@@ -193,7 +194,19 @@ def load(
         commitments=commitments,
         templates=templates,
         rules=effective_rules(session, employees.values()),
+        history_burden=history_burden(session, start, employees, outlet.tz),
     )
+
+
+def history_burden(
+    session: Session, week_start: datetime, employees: dict[uuid.UUID, Employee], tz: Any
+) -> dict[uuid.UUID, int]:
+    """Burden carried in the published weeks of the rolling window before this one (v4 section 12)."""
+    since = week_start - timedelta(weeks=fairness.WINDOW_WEEKS)
+    rows = live_shifts(session, since, week_start, None, list(employees))
+    shifts = [to_shift(r) for r in rows if since <= r.start_at < week_start]
+    regular = {e.id: e.regular_weekly_minutes for e in employees.values()}
+    return {k: v for k, v in fairness.burden(shifts, tz, regular).items() if v}
 
 
 def active_rules(session: Session) -> list[rules.Rule]:

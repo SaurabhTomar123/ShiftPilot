@@ -68,7 +68,8 @@
         "preference_match_ratio": 0.4444,
         "open_shifts": 0,
         "assigned_minutes": 25350,
-        "hours_preference_deviation_minutes": 600
+        "hours_preference_deviation_minutes": 600,
+        "fairness_burden_deviation": 3.98
       },
       "metrics_to": {
         "coverage_ratio": 0.7714,
@@ -86,7 +87,8 @@
         "preference_match_ratio": 0.4444,
         "open_shifts": 0,
         "assigned_minutes": 25350,
-        "hours_preference_deviation_minutes": 600
+        "hours_preference_deviation_minutes": 600,
+        "fairness_burden_deviation": 3.98
       }
     }
   }

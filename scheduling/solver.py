@@ -20,7 +20,7 @@ from typing import Any
 
 from ortools.sat.python import cp_model
 
-from scheduling import rules, validator
+from scheduling import fairness, rules, validator
 from scheduling.model import Employee, Shift, Snapshot
 
 STATUS = {
@@ -42,6 +42,7 @@ class Weights:
     preferences: float  # shifts outside an employee's preferred windows
     disruption: float  # base assignments not kept when regenerating over a published version
     hours_alignment: float  # |worked - preferred weekly minutes|, summed over employees
+    fairness: float = 0.0  # deviation of burden per 40 h from the group mean, history included (v4 s12)
 
     def coefficients(self) -> dict[str, int]:
         return {k: round(getattr(self, k) * UNIT[k]) for k in UNIT}
@@ -56,6 +57,7 @@ UNIT = {
     "preferences": 100 * 2_000 * 0.25 / 0.15,
     "disruption": 100 * 5_000 * 0.25 / 0.20,
     "hours_alignment": 100 * 20 * 0.25 / 0.10,
+    "fairness": 200,  # per scaled deviation unit (one burden point is about 830 units per person)
 }
 
 
@@ -70,7 +72,7 @@ STRATEGIES: dict[str, Weights] = {
         cost=0.10, understaffing=0.60, preferences=0.10, disruption=0.15, hours_alignment=0.05
     ),
     "staff_friendly": Weights(
-        cost=0.20, understaffing=0.25, preferences=0.30, disruption=0.10, hours_alignment=0.15
+        cost=0.20, understaffing=0.25, preferences=0.20, disruption=0.10, hours_alignment=0.10, fairness=0.15
     ),
 }
 ALTERNATIVES = ("balanced", "lowest_cost", "max_coverage", "staff_friendly")
@@ -316,6 +318,49 @@ def describe(snap: Snapshot, s: Shortage) -> str:
 # ---------------------------------------------------------------- one solve
 
 
+def _fairness_term(
+    snap: Snapshot,
+    model: cp_model.CpModel,
+    x: dict[tuple[uuid.UUID, int], cp_model.IntVar],
+    cands: list[Slot],
+    fixed_by_emp: dict[uuid.UUID, list[Shift]],
+    week_start: Any,
+    week_end: Any,
+) -> Any:
+    """v4 section 12, linear: n * norm_e - sum_f norm_f per employee, absolute, summed. norm_e is burden
+    (history + this week's closing/weekend components) scaled to 40 h of capacity; split and overtime
+    components are reported by the metric, while overtime is already costed in the objective."""
+    tz = snap.outlet.tz
+    people = [
+        e for e in snap.employees.values() if e.home_outlet_id == snap.outlet_id and e.status == "active"
+    ]
+    if len(people) < 2:
+        return 0
+    k = {e.id: round(1000 * fairness.PER_MINUTES / max(1, e.regular_weekly_minutes)) for e in people}
+    slot_burden = [
+        fairness.shift_burden(Shift(uuid.UUID(int=0), snap.outlet_id, None, c.skill_id, c.start, c.end), tz)
+        for c in cands
+    ]
+    norm = {}
+    for e in people:
+        fixed = snap.history_burden.get(e.id, 0) + sum(
+            fairness.shift_burden(s, tz)
+            for s in fixed_by_emp.get(e.id, [])
+            if week_start <= s.start_at < week_end
+        )
+        variable = sum(slot_burden[i] * v for (emp, i), v in x.items() if emp == e.id and slot_burden[i])
+        norm[e.id] = k[e.id] * (fixed + variable)
+    total = sum(norm.values())
+    n = len(people)
+    devs = []
+    for e in people:
+        dev = model.new_int_var(0, 10**9, f"fair_{e.id.hex[:6]}")
+        model.add(dev >= n * norm[e.id] - total)
+        model.add(dev >= total - n * norm[e.id])
+        devs.append(dev)
+    return sum(devs)
+
+
 def solve(
     snap: Snapshot,
     strategy: str,
@@ -451,6 +496,11 @@ def solve(
     base_assigned = sum(1 for b in snap.base if b.employee_id is not None)
     changed = base_assigned - sum(x[k] for k in kept_ids)
 
+    fair = (
+        _fairness_term(snap, model, x, cands, fixed_by_emp, week_start, week_end)
+        if coef.get("fairness")
+        else 0
+    )
     cost, ot, shortfall, off_pref = sum(cost_terms), sum(ot_terms), sum(short_terms), sum(pref_terms)
     alignment = sum(align_terms)
     if max_shortfall_staff_minutes is not None:
@@ -461,6 +511,7 @@ def solve(
         + coef["preferences"] * off_pref
         + coef["disruption"] * changed
         + coef["hours_alignment"] * alignment
+        + coef.get("fairness", 0) * fair
     )
     stats = {
         "candidate_slots": len(cands),
@@ -502,6 +553,7 @@ def solve(
         "off_preference_shifts": int(solver.value(off_pref)),
         "changed_base_assignments": int(solver.value(changed)),
         "hours_preference_deviation_minutes": int(solver.value(alignment)),
+        "fairness_penalty": int(solver.value(fair)),
     }
     return (
         status,

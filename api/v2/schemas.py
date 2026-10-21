@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.15.0-p4"
+CONTRACT_VERSION = "3.16.0-p4"
 
 
 class Model(BaseModel):
@@ -591,6 +591,13 @@ class Metrics(Model):
         description="Hours-preference alignment: sum over employees with a preferred weekly total of "
         "|worked - preferred| minutes. Lower is better. Not a fairness measure. null when nobody states a "
         "preference, and in metrics stored before contract 3.4.",
+    )
+    fairness_burden_deviation: float | None = Field(
+        default=None,
+        description="Fairness burden (v4 section 12): mean absolute deviation, across the outlet's staff, "
+        "of burden points per 40 h over the last 8 published weeks plus this one. Points: closing "
+        "shift 3, weekend 2, second shift in a day 2, overtime hour 1. Lower is fairer; null in "
+        "metrics stored before 3.16.",
     )
 
 

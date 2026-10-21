@@ -26,6 +26,7 @@ PURE = {
     "demand",
     "snapshot_json",
     "rules",
+    "fairness",
     "freeze",
 }
 ADAPTERS = {"snapshot_db", "worker"}  # allowed to touch the database; nothing pure may import them

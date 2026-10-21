@@ -142,6 +142,8 @@ class Snapshot:
     rules: dict[UUID, tuple[Rule, ...]] = field(default_factory=dict)
     # Run-scoped freeze set (v4 section 13): base shifts held exactly as published for this run.
     frozen: frozenset[UUID] = frozenset()
+    # Fairness burden already carried in the rolling window before this week (v4 section 12).
+    history_burden: dict[UUID, int] = field(default_factory=dict)
 
     @property
     def outlet(self) -> Outlet:

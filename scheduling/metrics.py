@@ -16,6 +16,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
+from scheduling import fairness
 from scheduling.model import Shift, Snapshot
 from scheduling.validator import scheduled
 
@@ -44,6 +45,8 @@ class Metrics:
     # Hours-preference alignment (v3 section 9): sum over employees with a weekly preference of
     # |worked - preferred| minutes. Not fairness: it says nothing about who gets the closing shifts.
     hours_preference_deviation_minutes: int | None = None
+    # Fairness burden (v4 section 12): mean absolute deviation of burden per 40 h, history included.
+    fairness_burden_deviation: float | None = None
 
 
 def _round_div(numerator: int, denominator: int) -> int:
@@ -108,7 +111,21 @@ def compute(snap: Snapshot, roster: Iterable[Shift]) -> Metrics:
         assigned_minutes=sum(sh.paid_minutes for sh in assigned),
         cells=tuple(cells),
         hours_preference_deviation_minutes=deviation,
+        fairness_burden_deviation=fairness_deviation(snap, assigned),
     )
+
+
+def fairness_deviation(snap: Snapshot, assigned: list[Shift]) -> float | None:
+    """Among the outlet's active staff, history plus this week (work elsewhere this week included)."""
+    people = {
+        e.id: e.regular_weekly_minutes
+        for e in snap.employees.values()
+        if e.home_outlet_id == snap.outlet_id and e.status == "active"
+    }
+    week_start, week_end = snap.week_bounds()
+    week = [s for s in [*assigned, *snap.commitments] if week_start <= s.start_at < week_end]
+    current = fairness.burden(week, snap.outlet.tz, people)
+    return fairness.deviation(people, fairness.merged(snap.history_burden, current))
 
 
 def hours_preference_deviation(snap: Snapshot, assigned: list[Shift]) -> int | None:
@@ -154,6 +171,7 @@ def as_contract(m: Metrics) -> dict[str, object]:
         "open_shifts": m.open_shifts,
         "assigned_minutes": m.assigned_minutes,
         "hours_preference_deviation_minutes": m.hours_preference_deviation_minutes,
+        "fairness_burden_deviation": m.fairness_burden_deviation,
     }
 
 

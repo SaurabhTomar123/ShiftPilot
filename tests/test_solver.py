@@ -146,8 +146,8 @@ def test_matched_coverage_is_never_more_expensive_than_the_baseline() -> None:
 def test_profiles_are_v3_weight_vectors() -> None:
     """Architecture v3 section 9: profiles, not user-editable weights; Balanced is fixed by the design."""
     for name, w in solver.STRATEGIES.items():
-        shares = (w.cost, w.understaffing, w.preferences, w.disruption, w.hours_alignment)
-        assert abs(sum(shares) - 1) < 1e-9 and min(shares) > 0, name
+        shares = (w.cost, w.understaffing, w.preferences, w.disruption, w.hours_alignment, w.fairness)
+        assert abs(sum(shares) - 1) < 1e-9 and min(shares[:5]) > 0 and w.fairness >= 0, name
     b = solver.STRATEGIES["balanced"]
     assert (b.cost, b.understaffing, b.preferences, b.disruption, b.hours_alignment) == (
         0.25,

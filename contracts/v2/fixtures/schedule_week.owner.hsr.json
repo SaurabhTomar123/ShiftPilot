@@ -51,7 +51,8 @@
           "preference_match_ratio": 0.8,
           "open_shifts": 0,
           "assigned_minutes": 25350,
-          "hours_preference_deviation_minutes": 0
+          "hours_preference_deviation_minutes": 0,
+          "fairness_burden_deviation": 3.85
         },
         "input_hash": "sha256:0fd35d2cc8ab56bba6f39d30eee3dae0",
         "shifts": [
@@ -852,7 +853,8 @@
           "preference_match_ratio": 0.8,
           "open_shifts": 0,
           "assigned_minutes": 25350,
-          "hours_preference_deviation_minutes": 0
+          "hours_preference_deviation_minutes": 0,
+          "fairness_burden_deviation": 3.85
         },
         "coverage": [
           {

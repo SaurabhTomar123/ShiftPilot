@@ -70,7 +70,7 @@ OUT = ROOT / "contracts" / "v2"
 
 
 def evaluate(
-    week: date, roster: list[PlannedShift], staff: list[Emp] | None = None
+    week: date, roster: list[PlannedShift], staff: list[Emp] | None = None, outlet_key: str = "indiranagar"
 ) -> tuple[s.Metrics, list[s.CoverageCell], s.ValidationResult]:
     """Independent of scheduling.metrics, so the contract checks the provider rather than copying it.
     staff: the outlet's employees (hours-preference alignment covers those with a weekly preference)."""
@@ -151,8 +151,30 @@ def evaluate(
         open_shifts=sum(1 for sh in roster if sh.employee is None),
         assigned_minutes=sum(paid_minutes(sh.template) for sh in assigned),
         hours_preference_deviation_minutes=_deviation(roster, staff or EMPLOYEES),
+        fairness_burden_deviation=_fairness(week, roster, staff or EMPLOYEES, outlet_key),
     )
     return metrics, cells, s.ValidationResult(hard_violations=0, soft_violations=len(soft), violations=soft)
+
+
+def _fairness(week: date, roster: list[PlannedShift], staff: list[Emp], outlet_key: str) -> float | None:
+    """Independent of scheduling.fairness: closing (ends 22:00 or later) 3, weekend 2, second shift on a
+    day 2, over the outlet's staff and bench, with the published fixture week as history for later weeks."""
+    from seed.v2 import bench
+
+    people = [e.key for e in [*staff, *bench(outlet_key)]]
+    history = build_roster(WEEK, with_preferred_extras=True, staff=staff) if week > WEEK else []
+    load: dict[str, int] = {k: 0 for k in people}
+    days: dict[tuple[str, date], int] = {}
+    for sh in [*history, *roster]:
+        if sh.employee is None or sh.employee not in load:
+            continue
+        load[sh.employee] += 3 * (sh.template.end >= 1320) + 2 * (sh.day.weekday() >= 5)
+        days[sh.employee, sh.day] = days.get((sh.employee, sh.day), 0) + 1
+    for (who, _), n in days.items():
+        load[who] += 2 * (n - 1)
+    per40 = [load[k] * 2400 / 2880 for k in people]  # every seeded employee has a 48 h regular week
+    mean = sum(per40) / len(per40)
+    return round(sum(abs(v - mean) for v in per40) / len(per40), 2)
 
 
 def _deviation(roster: list[PlannedShift], staff: list[Emp]) -> int | None:
@@ -194,7 +216,7 @@ def to_shifts(version_key: str, roster: list[PlannedShift], outlet_id: uuid.UUID
 def version(
     key: str, week: date, roster: list[PlannedShift], *, outlet_key: str = "indiranagar", **summary: Any
 ) -> s.ScheduleVersion:
-    metrics, cells, validation = evaluate(week, roster, world_staff[outlet_key])
+    metrics, cells, validation = evaluate(week, roster, world_staff[outlet_key], outlet_key)
     summary.setdefault("revision", 1)
     summary.setdefault("recorded_metrics", metrics)
     return s.ScheduleVersion(
@@ -1357,7 +1379,7 @@ def _to_contract(sh: model.Shift, version_key: str) -> s.Shift:
 
 
 def _evaluated(roster: list[model.Shift]) -> dict[str, Any]:
-    snap = world_snapshot.build("indiranagar", WEEK)
+    snap = world_snapshot.build("indiranagar", WEEK, with_bench=True)
     m = sched_metrics.compute(snap, roster)
     return {
         "metrics": s.Metrics.model_validate(sched_metrics.as_contract(m)),

@@ -35,7 +35,8 @@
         "preference_match_ratio": 0.5,
         "open_shifts": 0,
         "assigned_minutes": 24150,
-        "hours_preference_deviation_minutes": 900
+        "hours_preference_deviation_minutes": 900,
+        "fairness_burden_deviation": 7.83
       },
       "changed_shifts": 56,
       "validation": {
