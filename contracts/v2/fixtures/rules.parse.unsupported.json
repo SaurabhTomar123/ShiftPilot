@@ -1,0 +1,22 @@
+{
+  "name": "rules.parse.unsupported",
+  "operation_id": "parseRule",
+  "method": "POST",
+  "path": "/v2/rules/parse",
+  "persona": "owner",
+  "request": {
+    "body": {
+      "text": "Pay seniors more on Sundays"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "RuleParse",
+    "body": {
+      "status": "unsupported",
+      "message": "That rule is not supported. That kind of rule is not supported yet. Supported: latest end time, maximum days per week.",
+      "preview": null,
+      "options": []
+    }
+  }
+}

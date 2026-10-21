@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.13.0-p4"
+    "version": "3.14.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -4203,6 +4203,154 @@
         }
       }
     },
+    "/v2/commands/parse": {
+      "post": {
+        "summary": "Parse Command",
+        "description": "A request in words (\"Give Ravi Saturday off\") as a preview of an existing API call. Writes\nnothing; asks \"Which Ravi?\" rather than guessing (architecture v3 section 33).",
+        "operationId": "parseCommand",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandPreview"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not Implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v2/rules/parse": {
+      "post": {
+        "summary": "Parse Rule",
+        "description": "A rule in words, compiled and run through previewRule. Unsupported rules are refused.",
+        "operationId": "parseRule",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleParseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RuleParse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not Implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/v2/rules/preview": {
       "post": {
         "summary": "Preview Rule",
@@ -5835,6 +5983,150 @@
         ],
         "title": "CandidateShift",
         "description": "A shift as a candidate proposes it. It has no row id until the candidate is selected."
+      },
+      "CommandOption": {
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Employee Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "employee_id",
+          "name"
+        ],
+        "title": "CommandOption"
+      },
+      "CommandPreview": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "needs_clarification",
+              "unsupported",
+              "unavailable"
+            ],
+            "title": "Status"
+          },
+          "intent": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "give_time_off",
+                  "report_sick",
+                  "generate_week"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intent"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/CommandOption"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "action": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProposedCall"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "affected_shift_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Affected Shift Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "summary"
+        ],
+        "title": "CommandPreview",
+        "description": "A language command as a preview (architecture v3 section 33). Never a write: confirming means\nmaking `action` (with an Idempotency-Key). ready: show summary and confirm. needs_clarification:\nask question, offering options. unsupported or unavailable: point to the form."
+      },
+      "CommandRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Text",
+            "description": "E.g. \"Give Ravi Saturday off\"."
+          },
+          "outlet_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outlet Id",
+            "description": "Defaults to the manager's outlet."
+          },
+          "employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Id",
+            "description": "The answer to \"Which Ravi?\", sent with the same text."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "CommandRequest"
       },
       "CoverageCell": {
         "properties": {
@@ -7879,6 +8171,38 @@
         ],
         "title": "ProposalList"
       },
+      "ProposedCall": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          },
+          "method": {
+            "type": "string",
+            "const": "POST",
+            "title": "Method"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "body": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Body"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "operation_id",
+          "method",
+          "path",
+          "body"
+        ],
+        "title": "ProposedCall",
+        "description": "The existing API call that carries out the command, made by the UI after the person confirms."
+      },
       "PublishRequest": {
         "properties": {
           "expected_base_version_id": {
@@ -8505,6 +8829,66 @@
           "items"
         ],
         "title": "RuleList"
+      },
+      "RuleParse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "needs_clarification",
+              "unsupported",
+              "unavailable"
+            ],
+            "title": "Status"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RulePreview"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/CommandOption"
+            },
+            "type": "array",
+            "title": "Options"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "message"
+        ],
+        "title": "RuleParse",
+        "description": "A rule in words, run through the rule validation service. ready: preview is what createRule\nwould save (send preview.rule). Unsupported rules are refused, never approximated."
+      },
+      "RuleParseRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Text",
+            "description": "E.g. \"Students cannot work after 9 PM on weekdays\"."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "RuleParseRequest"
       },
       "RulePreview": {
         "properties": {

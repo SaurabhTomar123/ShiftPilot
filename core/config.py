@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     # The outbox relay's least-privilege role (migration 0016); same fallback rule as the worker.
     relay_database_url: str | None = None
     relay_db_password: str = "shiftpilot_relay"
+    # Language shortcuts (architecture v3 sections 33-34): a LiteLLM model string, e.g.
+    # anthropic/claude-haiku-5-5. Unset: shortcuts answer "unavailable" and the forms keep working.
+    language_model: str | None = None
     redis_url: str = "redis://localhost:6380/0"
 
     jwt_secret: str = "change-me-in-.env"

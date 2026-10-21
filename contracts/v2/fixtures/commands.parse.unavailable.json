@@ -1,0 +1,25 @@
+{
+  "name": "commands.parse.unavailable",
+  "operation_id": "parseCommand",
+  "method": "POST",
+  "path": "/v2/commands/parse",
+  "persona": "manager_indiranagar",
+  "request": {
+    "body": {
+      "text": "Give Ravi Saturday off"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "CommandPreview",
+    "body": {
+      "status": "unavailable",
+      "intent": null,
+      "summary": "Language shortcuts are unavailable right now. Use the form.",
+      "question": null,
+      "options": [],
+      "action": null,
+      "affected_shift_count": null
+    }
+  }
+}

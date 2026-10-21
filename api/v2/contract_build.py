@@ -2354,7 +2354,109 @@ def rule_fixtures() -> list[Fixture]:
         ],
         impact=[],
     )
-    return [
+    ravi = uid("employee", "ravi")
+    saturday = at(WEEK + timedelta(days=5), 0)
+    time_off = s.CommandPreview(
+        status="ready",
+        intent="give_time_off",
+        summary="Mark Ravi Kumar off on Saturday 24 Oct (leave). 1 published shift will need cover; "
+        "a repair starts after you confirm.",
+        action=s.ProposedCall(
+            operation_id="reportAbsence",
+            method="POST",
+            path="/v2/absences",
+            body={
+                "employee_id": str(ravi),
+                "start_at": saturday.isoformat(),
+                "end_at": (saturday + timedelta(days=1)).isoformat(),
+                "kind": "leave",
+                "status": "confirmed",
+                "reason": "Give Ravi Saturday off",
+            },
+        ),
+        affected_shift_count=1,
+    )
+    which = s.CommandPreview(
+        status="needs_clarification",
+        intent="give_time_off",
+        summary="Which Ravi?",
+        question="Which Ravi?",
+        options=[
+            s.CommandOption(employee_id=ravi, name="Ravi Kumar"),
+            s.CommandOption(employee_id=uid("employee", "ravi-shetty"), name="Ravi Shetty"),
+        ],
+    )
+    unavailable = s.CommandPreview(
+        status="unavailable", summary="Language shortcuts are unavailable right now. Use the form."
+    )
+    command = "/v2/commands/parse"
+    language_fixtures = [
+        Fixture(
+            "commands.parse",
+            "parseCommand",
+            "POST",
+            command,
+            "manager_indiranagar",
+            200,
+            time_off,
+            {"body": {"text": "Give Ravi Saturday off"}},
+        ),
+        Fixture(
+            "commands.parse.which",
+            "parseCommand",
+            "POST",
+            command,
+            "manager_indiranagar",
+            200,
+            which,
+            {"body": {"text": "Give Ravi Saturday off"}},
+        ),
+        Fixture(
+            "commands.parse.unavailable",
+            "parseCommand",
+            "POST",
+            command,
+            "manager_indiranagar",
+            200,
+            unavailable,
+            {"body": {"text": "Give Ravi Saturday off"}},
+        ),
+        Fixture(
+            "rules.parse",
+            "parseRule",
+            "POST",
+            "/v2/rules/parse",
+            "owner",
+            200,
+            s.RuleParse(
+                status="ready",
+                message=clean.summary,
+                preview=clean.model_copy(
+                    update={
+                        "rule": students.model_copy(
+                            update={"source_text": "Students cannot work later than 9 PM on weekdays"}
+                        )
+                    }
+                ),
+            ),
+            {"body": {"text": "Students cannot work later than 9 PM on weekdays"}},
+        ),
+        Fixture(
+            "rules.parse.unsupported",
+            "parseRule",
+            "POST",
+            "/v2/rules/parse",
+            "owner",
+            200,
+            s.RuleParse(
+                status="unsupported",
+                message="That rule is not supported. That kind of rule is not "
+                "supported yet. Supported: latest end time, maximum days per week.",
+            ),
+            {"body": {"text": "Pay seniors more on Sundays"}},
+        ),
+    ]
+    return language_fixtures + [
         Fixture(
             "rules.preview",
             "previewRule",

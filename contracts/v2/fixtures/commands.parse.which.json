@@ -1,0 +1,34 @@
+{
+  "name": "commands.parse.which",
+  "operation_id": "parseCommand",
+  "method": "POST",
+  "path": "/v2/commands/parse",
+  "persona": "manager_indiranagar",
+  "request": {
+    "body": {
+      "text": "Give Ravi Saturday off"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "CommandPreview",
+    "body": {
+      "status": "needs_clarification",
+      "intent": "give_time_off",
+      "summary": "Which Ravi?",
+      "question": "Which Ravi?",
+      "options": [
+        {
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "name": "Ravi Kumar"
+        },
+        {
+          "employee_id": "5f18b9ed-b481-5214-ad18-f1bdac58b6b4",
+          "name": "Ravi Shetty"
+        }
+      ],
+      "action": null,
+      "affected_shift_count": null
+    }
+  }
+}

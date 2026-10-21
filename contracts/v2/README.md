@@ -23,6 +23,19 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.14.0-p4 (live): language shortcuts
+
+This change is additive (architecture v3 §33–34). Language is a shortcut: every operation still has its form.
+
+- **`parseCommand` `POST /v2/commands/parse`:** body `{text, outlet_id?, employee_id?}`. Supported requests:
+  - "Give Ravi Saturday off" (`give_time_off`);
+  - "Asha is sick tomorrow" (`report_sick`);
+  - "Generate next week" (`generate_week`).
+
+  The answer is a **preview that writes nothing**. With `status: ready`, show the `summary` and confirm by making `action` (the existing `reportAbsence` or `generateSchedule` call, with an `Idempotency-Key`). `needs_clarification` asks a `question` with `options` (e.g. "Which Ravi?"); re-send the same text with the chosen `employee_id`. `unsupported` and `unavailable` point to the form. Fixtures: `commands.parse`, `.which`, `.unavailable`.
+- **`parseRule` `POST /v2/rules/parse`:** a rule in words, compiled and run through `previewRule`. With `status: ready`, `preview.rule` is what `createRule` saves. Unsupported rules are refused, never approximated. Fixtures: `rules.parse`, `.unsupported`.
+- **Resilience:** the model is called through one adapter with an 8-second timeout, at most two retries with jitter, a circuit breaker and a concurrency cap. When it's down, these endpoints say `unavailable` and nothing else is affected. Deployments enable it with `LANGUAGE_MODEL` (a LiteLLM model string).
+
 ## What changed in 3.13.0-p4 (live): scheduling rules
 
 This change is additive (architecture v3 §21). Rules are made in forms now; the language shortcut comes next.

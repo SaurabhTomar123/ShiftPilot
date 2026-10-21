@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.13.0-p4"
+CONTRACT_VERSION = "3.14.0-p4"
 
 
 class Model(BaseModel):
@@ -298,6 +298,61 @@ class SchedulingRule(RuleDefinition):
 
 class RuleList(Model):
     items: list[SchedulingRule]
+
+
+LanguageStatus = Literal["ready", "needs_clarification", "unsupported", "unavailable"]
+
+
+class CommandRequest(Model):
+    text: str = Field(min_length=1, max_length=500, description='E.g. "Give Ravi Saturday off".')
+    outlet_id: UUID | None = Field(default=None, description="Defaults to the manager's outlet.")
+    employee_id: UUID | None = Field(
+        default=None, description='The answer to "Which Ravi?", sent with the same text.'
+    )
+
+
+class CommandOption(Model):
+    employee_id: UUID
+    name: str
+
+
+class ProposedCall(Model):
+    """The existing API call that carries out the command, made by the UI after the person confirms."""
+
+    operation_id: str
+    method: Literal["POST"]
+    path: str
+    body: dict[str, Any]
+
+
+class CommandPreview(Model):
+    """A language command as a preview (architecture v3 section 33). Never a write: confirming means
+    making `action` (with an Idempotency-Key). ready: show summary and confirm. needs_clarification:
+    ask question, offering options. unsupported or unavailable: point to the form."""
+
+    status: LanguageStatus
+    intent: Literal["give_time_off", "report_sick", "generate_week"] | None = None
+    summary: str
+    question: str | None = None
+    options: list[CommandOption] = Field(default_factory=list)
+    action: ProposedCall | None = None
+    affected_shift_count: int | None = None
+
+
+class RuleParseRequest(Model):
+    text: str = Field(
+        min_length=1, max_length=500, description='E.g. "Students cannot work after 9 PM on weekdays".'
+    )
+
+
+class RuleParse(Model):
+    """A rule in words, run through the rule validation service. ready: preview is what createRule
+    would save (send preview.rule). Unsupported rules are refused, never approximated."""
+
+    status: LanguageStatus
+    message: str
+    preview: RulePreview | None = None
+    options: list[CommandOption] = Field(default_factory=list)
 
 
 class Notification(Model):

@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.13.0-p4",
+  "contract_version": "3.14.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -234,6 +234,36 @@
       "operation_id": "commitImport",
       "status": 200,
       "schema": "ImportJob"
+    },
+    {
+      "name": "commands.parse",
+      "operation_id": "parseCommand",
+      "status": 200,
+      "schema": "CommandPreview"
+    },
+    {
+      "name": "commands.parse.which",
+      "operation_id": "parseCommand",
+      "status": 200,
+      "schema": "CommandPreview"
+    },
+    {
+      "name": "commands.parse.unavailable",
+      "operation_id": "parseCommand",
+      "status": 200,
+      "schema": "CommandPreview"
+    },
+    {
+      "name": "rules.parse",
+      "operation_id": "parseRule",
+      "status": 200,
+      "schema": "RuleParse"
+    },
+    {
+      "name": "rules.parse.unsupported",
+      "operation_id": "parseRule",
+      "status": 200,
+      "schema": "RuleParse"
     },
     {
       "name": "rules.preview",

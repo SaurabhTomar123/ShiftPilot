@@ -22,6 +22,7 @@ from api.v2 import (
     drafts,
     generation,
     imports,
+    language,
     notifications,
     proposals,
     rosters,
@@ -672,6 +673,29 @@ def report_absence(
     absence then enqueues a repair run per affected schedule (repair_run_ids); locked affected shifts are
     listed in lock_conflicts and need explicit authorization through repairSchedule."""
     return absences.report(caller, idempotency_key, body)
+
+
+@router.post(
+    "/commands/parse",
+    operation_id="parseCommand",
+    response_model=s.CommandPreview,
+    responses=_errors(403, 422),
+)
+def parse_command(caller: v2auth.CallerDep, body: s.CommandRequest) -> s.CommandPreview:
+    """A request in words ("Give Ravi Saturday off") as a preview of an existing API call. Writes
+    nothing; asks "Which Ravi?" rather than guessing (architecture v3 section 33)."""
+    return language.parse_command(caller, body)
+
+
+@router.post(
+    "/rules/parse",
+    operation_id="parseRule",
+    response_model=s.RuleParse,
+    responses=_errors(403, 422),
+)
+def parse_rule(caller: v2auth.CallerDep, body: s.RuleParseRequest) -> s.RuleParse:
+    """A rule in words, compiled and run through previewRule. Unsupported rules are refused."""
+    return language.parse_rule(caller, body)
 
 
 @router.post(
