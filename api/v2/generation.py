@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import uuid
+from dataclasses import replace
 from datetime import date
 from importlib.metadata import version as package_version
 from typing import Any
@@ -30,7 +31,7 @@ from db.models import Organization, Outlet
 from db.models_v2 import Absence as AbsenceRow
 from db.models_v2 import OptimizationCandidate, OptimizationRun, Schedule, VersionShift
 from db.session import tenant_session
-from scheduling import repair, snapshot_db, snapshot_json
+from scheduling import freeze, repair, snapshot_db, snapshot_json
 from scheduling.model import Absence, Shift
 
 ACTIVE = ("queued", "running")
@@ -97,6 +98,7 @@ def run_view(session: Session, run: OptimizationRun) -> s.OptimizationRun:
             "infeasibility": infeasibility,
             "error": run.error,
             "repair_stages": (run.stats or {}).get("widening", []) if run.kind == "repair" else [],
+            "frozen_logical_shift_ids": ((run.config or {}).get("freeze") or {}).get("logical_shift_ids", []),
             "candidates_expired": bool((run.stats or {}).get("candidates_purged")),
         }
     )
@@ -247,6 +249,63 @@ def _current_shifts(session: Session, schedule: Schedule, *, locked_only: bool =
     return [snapshot_db.to_shift(r) for r in session.scalars(query)]
 
 
+def _freeze(
+    snap: Any,
+    base: list[Shift],
+    spec: s.FreezeSpec | None,
+    *,
+    empty_week: bool = False,
+    extra: list[Shift] | None = None,
+) -> frozenset[uuid.UUID]:
+    """Resolve a freeze spec against the base version; refuse unknown pins and pins current facts break."""
+    if spec is None:
+        return frozenset()
+    wanted = freeze.Spec(frozenset(spec.shift_ids), frozenset(spec.employee_ids), frozenset(spec.days))
+    if wanted.empty:
+        return frozenset()
+    if empty_week:
+        raise ApiError(
+            "validation_failed",
+            "Some fields need attention.",
+            fields=[{"path": ["freeze"], "message": "There is no published week to freeze."}],
+        )
+    unknown = freeze.unknown(wanted, base)
+    if unknown:
+        raise ApiError(
+            "validation_failed",
+            "Some fields need attention.",
+            fields=[
+                {
+                    "path": ["freeze", "shift_ids"],
+                    "message": f"Not in the published week: {sorted(map(str, unknown))}",
+                }
+            ],
+        )
+    frozen = freeze.resolve(wanted, base, snap.outlet.tz)
+    broken = [s.logical_id for s in freeze.conflicts(snap, base, frozen)] + [
+        s.logical_id for s in (extra or []) if s.logical_id in frozen
+    ]
+    if broken:
+        raise ApiError(
+            "conflict",
+            "A current fact breaks a shift you asked to keep. Unfreeze it or authorize the change.",
+            frozen_logical_shift_ids=sorted({str(i) for i in broken}),
+        )
+    return frozen
+
+
+def _freeze_config(spec: s.FreezeSpec | None, frozen: frozenset[uuid.UUID]) -> dict[str, Any]:
+    """Stored on the run so it can be reproduced and explained (v4 section 19)."""
+    if not frozen:
+        return {}
+    return {
+        "freeze": {
+            "spec": spec.model_dump(mode="json") if spec else None,
+            "logical_shift_ids": sorted(map(str, frozen)),
+        }
+    }
+
+
 def enqueue(
     caller: Caller, outlet_id: uuid.UUID, week_start: date, key: str, body: s.GenerateRequest
 ) -> s.OptimizationRun:
@@ -266,6 +325,8 @@ def enqueue(
         snap = snapshot_db.with_base_locks(
             snapshot_db.load(session, outlet_id, week_start, base, schedule.id, others), locked, base
         )
+        frozen = _freeze(snap, base, body.freeze, empty_week=body.base_version_id is None)
+        snap = replace(snap, frozen=frozen)
         run = _insert(
             session,
             caller,
@@ -276,7 +337,11 @@ def enqueue(
             doc=snapshot_json.dump(snap),
             key=key,
             request_hash=request_hash,
-            config={"strategy": body.strategy, "time_limit_seconds": body.time_limit_seconds},
+            config={
+                "strategy": body.strategy,
+                "time_limit_seconds": body.time_limit_seconds,
+                **_freeze_config(body.freeze, frozen),
+            },
         )
         return run_view(session, run)
 
@@ -292,6 +357,7 @@ def repair_in_session(
     unlocked: set[uuid.UUID],
     time_limit_seconds: int,
     allow_cross_outlet: bool = False,
+    freeze_spec: s.FreezeSpec | None = None,
 ) -> OptimizationRun:
     """Enqueue (or return) the repair run for one confirmed absence on one schedule (v3 section 20).
 
@@ -324,6 +390,13 @@ def repair_in_session(
         else []
     )
     snap = snapshot_db.load(session, schedule.outlet_id, schedule.week_start, base, schedule.id, others)
+    frozen = _freeze(
+        replace(snap, absences=(*snap.absences, model_absence)),
+        base,
+        freeze_spec,
+        extra=repair.affected_shifts(base, model_absence),
+    )
+    snap = replace(snap, frozen=frozen)
     doc = snapshot_json.dump(snap)
     doc["repair"] = {
         "base": [snapshot_json.shift_doc(x) for x in base],
@@ -346,6 +419,7 @@ def repair_in_session(
             "strategy": "least_disruption",
             "time_limit_seconds": time_limit_seconds,
             "absence_id": str(absence.id),
+            **_freeze_config(freeze_spec, frozen),
         },
     )
 
@@ -386,6 +460,7 @@ def enqueue_repair(
             unlocked=set(body.unlock_logical_shift_ids),
             time_limit_seconds=body.time_limit_seconds,
             allow_cross_outlet=body.allow_cross_outlet,
+            freeze_spec=body.freeze,
         )
         return run_view(session, run)
 

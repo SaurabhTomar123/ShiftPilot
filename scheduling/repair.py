@@ -34,7 +34,7 @@ from scheduling.model import Absence, Employee, Shift, Snapshot
 from scheduling.solver import STATUS, Slot, _conflict, eligible, slots
 
 PROFILES = ("least_disruption", "lowest_cost", "best_coverage")
-STAGES = ("same_day", "adjacent_shifts", "other_outlets", "overtime")
+STAGES = ("impact", "same_day", "adjacent_shifts", "other_outlets", "overtime")
 
 
 @dataclass(frozen=True)
@@ -47,6 +47,8 @@ class Scope:
     cross_outlet: bool
     overtime: bool
     forced: frozenset[uuid.UUID] = frozenset()  # broken shifts: always free, never kept as they are
+    only_forced: bool = False  # impact stage: free nothing but the shifts the triggering fact breaks
+    released: str = ""  # what this stage lets change, for the run record
 
 
 # Per-shift facts that make a published shift unworkable now (not coverage or weekly totals).
@@ -77,11 +79,17 @@ def scopes(
     days = frozenset(_days(snap, must))
     wide = frozenset(d + timedelta(days=k) for d in days for k in (-1, 0, 1))
     forced = frozenset(s.logical_id for s in must)
+    start = absence.start_at.astimezone(snap.outlet.tz)
     return [
-        Scope("same_day", days, absence.start_at, False, False, forced),
-        Scope("adjacent_shifts", wide, None, False, False, forced),
-        Scope("other_outlets", wide, None, True, False, forced),
-        Scope("overtime", wide, None, allow_cross_outlet, True, forced),
+        Scope("impact", days, None, False, False, forced, True, "only the shifts the absence breaks"),
+        Scope(
+            "same_day", days, absence.start_at, False, False, forced, False, f"shifts from {start:%A %H:%M}"
+        ),
+        Scope("adjacent_shifts", wide, None, False, False, forced, False, "the day before and after too"),
+        Scope("other_outlets", wide, None, True, False, forced, False, "staff from other outlets"),
+        Scope(
+            "overtime", wide, None, allow_cross_outlet, True, forced, False, "overtime where contracts allow"
+        ),
     ]
 
 
@@ -163,6 +171,8 @@ def _scope_sets(
         for s in base
         if s.start_at.astimezone(tz).date() in scope.free_days
         and (not s.locked or s.logical_id in unlocked)
+        and (s.logical_id not in snap.frozen or s.logical_id in affected)  # frozen stays (v4 section 13)
+        and (not scope.only_forced or s.logical_id in affected)
         and (scope.from_instant is None or s.end_at > scope.from_instant or s.logical_id in affected)
     ]
     rostered = {s.employee_id for s in base}
@@ -577,7 +587,12 @@ def repair(
     )
     broken = broken_shifts(snap, base, unlocked)
     outcome.stats["broken_shifts"] = len(broken)
-    outcome.locked_conflicts = [s for s in broken if s.locked and s.logical_id not in unlocked]
+    blocked = {
+        s.logical_id: s
+        for s in [*affected, *broken]
+        if (s.locked and s.logical_id not in unlocked) or s.logical_id in snap.frozen
+    }
+    outcome.locked_conflicts = list(blocked.values())
     if outcome.locked_conflicts:  # an earlier absence hit a locked shift that nobody authorized changing
         outcome.status = "LOCK_CONFLICT"
         return outcome
@@ -585,7 +600,18 @@ def repair(
     tried: set[tuple[frozenset[uuid.UUID], frozenset[uuid.UUID], bool]] = set()
     for scope in scopes(snap, base, absence, allow_cross_outlet, broken):
         free, pool = _scope_sets(snap, base, absence, unlocked, scope)
-        record: dict[str, Any] = {"stage": scope.name, "free_shifts": len(free), "pool": len(pool)}
+        record: dict[str, Any] = {
+            "stage": scope.name,
+            "free_shifts": len(free),
+            "pool": len(pool),
+            "released": scope.released,
+        }
+        attempted = [r for r in outcome.widening if r.get("minimum_shortfall_minutes") is not None]
+        if attempted:
+            record["widened_because"] = (
+                f"{attempted[-1]['stage']} left {attempted[-1]['minimum_shortfall_minutes']} staff-minutes "
+                "below minimum staffing"
+            )
         outcome.widening.append(record)
         if scope.cross_outlet and not allow_cross_outlet:
             record |= {"result": "skipped", "reason": "not_authorized"}

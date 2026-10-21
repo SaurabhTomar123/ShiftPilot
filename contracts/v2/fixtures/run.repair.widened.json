@@ -353,12 +353,24 @@
       "error": null,
       "repair_stages": [
         {
+          "stage": "impact",
+          "result": "insufficient",
+          "reason": null,
+          "free_shifts": 1,
+          "pool": 12,
+          "minimum_shortfall_minutes": 240,
+          "released": "only the shifts the absence breaks",
+          "widened_because": null
+        },
+        {
           "stage": "same_day",
           "result": "insufficient",
           "reason": null,
           "free_shifts": 8,
           "pool": 12,
-          "minimum_shortfall_minutes": 240
+          "minimum_shortfall_minutes": 240,
+          "released": "shifts from Wednesday 09:00",
+          "widened_because": "impact left 240 staff-minutes below minimum staffing"
         },
         {
           "stage": "adjacent_shifts",
@@ -366,9 +378,12 @@
           "reason": null,
           "free_shifts": 24,
           "pool": 12,
-          "minimum_shortfall_minutes": 0
+          "minimum_shortfall_minutes": 0,
+          "released": "the day before and after too",
+          "widened_because": "same_day left 240 staff-minutes below minimum staffing"
         }
       ],
+      "frozen_logical_shift_ids": [],
       "candidates_expired": false
     }
   }

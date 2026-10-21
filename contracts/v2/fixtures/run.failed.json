@@ -39,6 +39,7 @@
         "trace_id": "trc_9f2c41d07ab3"
       },
       "repair_stages": [],
+      "frozen_logical_shift_ids": [],
       "candidates_expired": false
     }
   }

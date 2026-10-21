@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.14.0-p4",
+  "contract_version": "3.15.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -137,6 +137,12 @@
       "name": "repair.cross_outlet.manager",
       "operation_id": "repairSchedule",
       "status": 403,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "repair.freeze_conflict",
+      "operation_id": "repairSchedule",
+      "status": 409,
       "schema": "ErrorResponse"
     },
     {

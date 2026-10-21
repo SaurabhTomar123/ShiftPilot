@@ -140,6 +140,8 @@ class Snapshot:
     base: tuple[Shift, ...] = ()
     # Active scheduling rules after precedence, per employee (scheduling.rules.effective).
     rules: dict[UUID, tuple[Rule, ...]] = field(default_factory=dict)
+    # Run-scoped freeze set (v4 section 13): base shifts held exactly as published for this run.
+    frozen: frozenset[UUID] = frozenset()
 
     @property
     def outlet(self) -> Outlet:

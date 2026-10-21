@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.14.0-p4"
+CONTRACT_VERSION = "3.15.0-p4"
 
 
 class Model(BaseModel):
@@ -988,6 +988,11 @@ class RepairRequest(Model):
         description="Owner only: let the repair borrow staff from other outlets (widening stage "
         "other_outlets). Managers get 403.",
     )
+    freeze: FreezeSpec | None = Field(
+        default=None,
+        description="Shifts no stage may change (v4 section 13). 409 when the absence or another current "
+        "fact breaks one of them.",
+    )
     time_limit_seconds: int = Field(default=3, ge=1, le=10)
 
 
@@ -1000,6 +1005,15 @@ JobState = Literal["queued", "running", "succeeded", "failed", "cancelled"]
 SolverStatus = Literal["OPTIMAL", "FEASIBLE", "INFEASIBLE", "MODEL_INVALID", "UNKNOWN"]
 
 
+class FreezeSpec(Model):
+    """Protect commitments for one run (architecture v4 section 13): these published shifts are held
+    exactly as they are. Nothing is stored as a lock; the next run starts unfrozen."""
+
+    shift_ids: list[UUID] = Field(default_factory=list, description="Logical shift ids to pin.")
+    employee_ids: list[UUID] = Field(default_factory=list, description="Hold all of these people's shifts.")
+    days: list[date] = Field(default_factory=list, description="Hold every shift on these outlet-local days.")
+
+
 class GenerateRequest(Model):
     strategy: Strategy = "balanced"
     base_version_id: UUID | None = Field(
@@ -1007,6 +1021,11 @@ class GenerateRequest(Model):
         description="Current published version the draft replaces; null for an empty week. Stale -> 409.",
     )
     time_limit_seconds: int = Field(default=10, ge=1, le=30)
+    freeze: FreezeSpec | None = Field(
+        default=None,
+        description="Regenerating over a published week: shifts to keep exactly. 409 conflict when "
+        "current facts break a frozen shift (details.frozen_logical_shift_ids).",
+    )
 
 
 class ExplanationFact(Model):
@@ -1143,14 +1162,15 @@ class Infeasibility(Model):
     )
 
 
-RepairStageName = Literal["same_day", "adjacent_shifts", "other_outlets", "overtime"]
+RepairStageName = Literal["impact", "same_day", "adjacent_shifts", "other_outlets", "overtime"]
 
 
 class RepairStage(Model):
     """One widening stage of a repair run (architecture v3 section 12), in the order tried."""
 
     stage: RepairStageName = Field(
-        description="same_day: the affected days from the absence onward, home staff, no overtime. "
+        description="impact: only the shifts the absence breaks; everything else frozen (v4 section 15). "
+        "same_day: the affected days from the absence onward, home staff, no overtime. "
         "adjacent_shifts: plus the day either side. other_outlets: plus other outlets' staff "
         "(owner-authorized). overtime: overtime where contracts allow it."
     )
@@ -1166,6 +1186,8 @@ class RepairStage(Model):
     minimum_shortfall_minutes: int | None = Field(
         default=None, ge=0, description="Best minimum-staffing shortfall found (staff-minutes)."
     )
+    released: str | None = Field(default=None, description="What this stage was allowed to change.")
+    widened_because: str | None = Field(default=None, description="Why the previous stage was not enough.")
 
 
 class OptimizationRun(Model):
@@ -1195,6 +1217,9 @@ class OptimizationRun(Model):
     repair_stages: list[RepairStage] = Field(
         default_factory=list,
         description="Repair runs, once finished: the widening stages tried and why it widened.",
+    )
+    frozen_logical_shift_ids: list[UUID] = Field(
+        default_factory=list, description="The run's freeze set: shifts held exactly (v4 section 13)."
     )
     candidates_expired: bool = Field(
         default=False,

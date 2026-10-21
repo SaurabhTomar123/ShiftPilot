@@ -132,6 +132,7 @@ def dump(snap: Snapshot) -> dict[str, Any]:
         "commitments": [_shift(sh) for sh in snap.commitments],
         "base_locked": [_shift(sh) for sh in snap.base_locked.values()],
         "base": [_shift(sh) for sh in snap.base],
+        "frozen": sorted(str(i) for i in snap.frozen),
         "rules": {
             str(emp): [_rule(r) for r in rules]
             for emp, rules in sorted(snap.rules.items(), key=lambda kv: str(kv[0]))
@@ -199,6 +200,7 @@ def load(doc: dict[str, Any]) -> Snapshot:
         commitments=tuple(_shift_back(d) for d in doc["commitments"]),
         base_locked={sh.logical_id: sh for sh in base_locked},
         base=tuple(_shift_back(d) for d in doc.get("base", [])),  # absent before A3.8
+        frozen=frozenset(UUID(i) for i in doc.get("frozen", [])),  # absent before A4.1
         rules={UUID(k): tuple(_rule_back(r) for r in v) for k, v in doc.get("rules", {}).items()},
         templates=tuple(
             Template(

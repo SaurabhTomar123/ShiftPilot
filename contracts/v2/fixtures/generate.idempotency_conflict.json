@@ -15,7 +15,8 @@
     "body": {
       "strategy": "balanced",
       "base_version_id": null,
-      "time_limit_seconds": 10
+      "time_limit_seconds": 10,
+      "freeze": null
     }
   },
   "response": {

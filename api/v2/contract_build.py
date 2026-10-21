@@ -1804,11 +1804,21 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             ],
             "repair_stages": [
                 s.RepairStage(
+                    stage="impact",
+                    result="insufficient",
+                    free_shifts=1,
+                    pool=12,
+                    minimum_shortfall_minutes=240,
+                    released="only the shifts the absence breaks",
+                ),
+                s.RepairStage(
                     stage="same_day",
                     result="insufficient",
                     free_shifts=8,
                     pool=12,
                     minimum_shortfall_minutes=240,
+                    released="shifts from Wednesday 09:00",
+                    widened_because="impact left 240 staff-minutes below minimum staffing",
                 ),
                 s.RepairStage(
                     stage="adjacent_shifts",
@@ -1816,6 +1826,8 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
                     free_shifts=24,
                     pool=12,
                     minimum_shortfall_minutes=0,
+                    released="the day before and after too",
+                    widened_because="same_day left 240 staff-minutes below minimum staffing",
                 ),
             ],
         }
@@ -1949,6 +1961,26 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             403,
             error("permission_denied", "Only an owner can let a repair borrow staff from other outlets."),
             {**repair_req, "body": {**repair_req["body"], "allow_cross_outlet": True}},
+        ),
+        Fixture(
+            "repair.freeze_conflict",
+            "repairSchedule",
+            "POST",
+            repair_path,
+            "manager_indiranagar",
+            409,
+            error(
+                "conflict",
+                "A current fact breaks a shift you asked to keep. Unfreeze it or authorize the change.",
+                frozen_logical_shift_ids=[str(hit.logical_shift_id)],
+            ),
+            {
+                **repair_req,
+                "body": {
+                    **repair_req["body"],
+                    "freeze": {"shift_ids": [str(hit.logical_shift_id)], "employee_ids": [], "days": []},
+                },
+            },
         ),
         Fixture(
             "repair.locked",

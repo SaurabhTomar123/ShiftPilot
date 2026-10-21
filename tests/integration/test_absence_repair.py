@@ -192,7 +192,7 @@ def test_repair_runs_record_their_widening_stages(client: TestClient) -> None:
     drain()
     run = client.get(f"/v2/optimization-runs/{run_id}", headers=MANAGER).json()
     stages = run["repair_stages"]
-    assert stages and stages[0]["stage"] == "same_day"
+    assert stages and stages[0]["stage"] == "impact"  # v4 section 15: impact scope first
     assert [s["result"] for s in stages].count("selected") == 1
     assert all(s["result"] != "skipped" or s["reason"] for s in stages)
 

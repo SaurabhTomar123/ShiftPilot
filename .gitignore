@@ -23,3 +23,5 @@ web/.next/
 CLAUDE.md
 AGENTS.md
 /ShiftPilot System Architecture*.docx
+# Architecture revisions (v4 and later) are local-only, wherever they are saved.
+**/ShiftPilot*Architecture*.docx

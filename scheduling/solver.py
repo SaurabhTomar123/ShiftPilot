@@ -333,6 +333,13 @@ def solve(
     deterministic_time bounds the search in CP-SAT's deterministic work units instead of wall time, so
     one worker with a fixed seed returns the same roster however loaded the machine is (evaluation
     mode; time_limit stays as a wall-clock safety net)."""
+    if snap.frozen:  # frozen base shifts are held exactly, like locked ones (v4 section 13)
+        held = {s.logical_id: s for s in snap.base if s.logical_id in snap.frozen}
+        snap = replace(
+            snap,
+            base_locked={**snap.base_locked, **held},
+            base=tuple(s for s in snap.base if s.logical_id not in snap.frozen),
+        )
     coef = STRATEGIES[strategy].coefficients()
     cands = slots(snap)
     model = cp_model.CpModel()

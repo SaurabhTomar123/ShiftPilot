@@ -45,6 +45,7 @@
       "infeasibility": null,
       "error": null,
       "repair_stages": [],
+      "frozen_logical_shift_ids": [],
       "candidates_expired": false
     }
   }

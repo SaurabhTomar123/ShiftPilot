@@ -23,6 +23,17 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.15.0-p4 (live): freeze and pin (architecture v4 §13, §15)
+
+Architecture **v4** now governs. This change is additive.
+
+- **`GenerateRequest.freeze` / `RepairRequest.freeze`:** `{shift_ids, employee_ids, days}`. The published shifts these select are held exactly as they are for this run only; nothing is stored as a lock. The run echoes them in `frozen_logical_shift_ids`. Errors:
+  - `422`: freezing an empty week, or pinning a shift that isn't in the published week;
+  - `409 conflict` with `details.frozen_logical_shift_ids`: a current fact (an absence, unavailability, a rule) or the repaired absence itself breaks a frozen shift. Unfreeze it or authorize the change.
+
+  Fixture: `repair.freeze_conflict`.
+- **Repair runs start with a new stage, `impact`:** it frees only the shifts the absence breaks and freezes everything else (e.g. "Arjun replaces Ravi"), then widens as before. Every `RepairStage` now says what it `released` and, after the first, why it widened (`widened_because`). Fixture: `run.repair.widened`.
+
 ## What changed in 3.14.0-p4 (live): language shortcuts
 
 This change is additive (architecture v3 §33–34). Language is a shortcut: every operation still has its form.

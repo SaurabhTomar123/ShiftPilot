@@ -129,7 +129,7 @@ def test_local_repair_stops_at_the_first_stage_that_keeps_minimum_staffing(
     outcome: repair.RepairOutcome,
 ) -> None:
     """v3 section 12: local first; later stages are not even tried."""
-    assert [r["stage"] for r in outcome.widening] == ["same_day"]
+    assert [r["stage"] for r in outcome.widening] == ["impact"]  # v4 section 15: impact scope first
     assert outcome.widening[0]["result"] == "selected"
     assert outcome.widening[0]["minimum_shortfall_minutes"] == 0
 
@@ -199,3 +199,35 @@ def test_cross_outlet_stage_needs_authorization_and_other_outlets_staff() -> Non
     local = next(x for x in repair.scopes(wider, base, absence, True) if x.name == "adjacent_shifts")  # type: ignore[arg-type]
     _, home_pool = repair._scope_sets(wider, base, absence, set(), local)  # type: ignore[arg-type]
     assert away.id in pool and away.id not in home_pool
+
+
+def test_frozen_shifts_are_never_changed_by_a_repair() -> None:
+    """v4 section 13: an employee freeze holds their published shifts even where a wider stage would move
+    them; a frozen shift the absence itself breaks is a conflict to authorize, not ignored."""
+    snap, base, absence, victim = setting()
+    same_day = [
+        s
+        for s in base
+        if s.employee_id
+        and s.start_at.astimezone(world.IST).date() == victim.start_at.astimezone(world.IST).date()
+    ]
+    keep = frozenset(s.logical_id for s in same_day if s.logical_id != victim.logical_id)
+    out = repair.repair(replace(snap, frozen=keep), base, absence, time_limit=4.0)  # type: ignore[arg-type]
+    assert out.plans
+    for plan in out.plans:
+        by_id = {s.logical_id: s for s in plan.roster}
+        assert all(
+            by_id[i].employee_id == next(b for b in base if b.logical_id == i).employee_id for i in keep
+        )
+    clash = repair.repair(replace(snap, frozen=frozenset({victim.logical_id})), base, absence, time_limit=2.0)  # type: ignore[arg-type]
+    assert clash.status == "LOCK_CONFLICT" and [s.logical_id for s in clash.locked_conflicts] == [
+        victim.logical_id
+    ]
+
+
+def test_widening_records_what_was_released_and_why() -> None:
+    snap, base, absence, _ = setting()
+    out = repair.repair(tight(snap, base), base, absence, time_limit=4.0)  # type: ignore[arg-type]
+    assert out.widening[0]["stage"] == "impact" and out.widening[0]["released"].startswith("only the shifts")
+    later = [r for r in out.widening[1:] if r["result"] != "skipped"]
+    assert later and all("below minimum staffing" in r["widened_because"] for r in later)

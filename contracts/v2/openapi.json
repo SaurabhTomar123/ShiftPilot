@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.14.0-p4"
+    "version": "3.15.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -6962,6 +6962,41 @@
         ],
         "title": "ExplanationFact"
       },
+      "FreezeSpec": {
+        "properties": {
+          "shift_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Shift Ids",
+            "description": "Logical shift ids to pin."
+          },
+          "employee_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Employee Ids",
+            "description": "Hold all of these people's shifts."
+          },
+          "days": {
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "type": "array",
+            "title": "Days",
+            "description": "Hold every shift on these outlet-local days."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "FreezeSpec",
+        "description": "Protect commitments for one run (architecture v4 section 13): these published shifts are held\nexactly as they are. Nothing is stored as a lock; the next run starts unfrozen."
+      },
       "GenerateRequest": {
         "properties": {
           "strategy": {
@@ -6994,6 +7029,17 @@
             "minimum": 1.0,
             "title": "Time Limit Seconds",
             "default": 10
+          },
+          "freeze": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FreezeSpec"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Regenerating over a published week: shifts to keep exactly. 409 conflict when current facts break a frozen shift (details.frozen_logical_shift_ids)."
           }
         },
         "additionalProperties": false,
@@ -7839,6 +7885,15 @@
             "title": "Repair Stages",
             "description": "Repair runs, once finished: the widening stages tried and why it widened."
           },
+          "frozen_logical_shift_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Frozen Logical Shift Ids",
+            "description": "The run's freeze set: shifts held exactly (v4 section 13)."
+          },
           "candidates_expired": {
             "type": "boolean",
             "title": "Candidates Expired",
@@ -8388,6 +8443,17 @@
             "description": "Owner only: let the repair borrow staff from other outlets (widening stage other_outlets). Managers get 403.",
             "default": false
           },
+          "freeze": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FreezeSpec"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Shifts no stage may change (v4 section 13). 409 when the absence or another current fact breaks one of them."
+          },
           "time_limit_seconds": {
             "type": "integer",
             "maximum": 10.0,
@@ -8409,13 +8475,14 @@
           "stage": {
             "type": "string",
             "enum": [
+              "impact",
               "same_day",
               "adjacent_shifts",
               "other_outlets",
               "overtime"
             ],
             "title": "Stage",
-            "description": "same_day: the affected days from the absence onward, home staff, no overtime. adjacent_shifts: plus the day either side. other_outlets: plus other outlets' staff (owner-authorized). overtime: overtime where contracts allow it."
+            "description": "impact: only the shifts the absence breaks; everything else frozen (v4 section 15). same_day: the affected days from the absence onward, home staff, no overtime. adjacent_shifts: plus the day either side. other_outlets: plus other outlets' staff (owner-authorized). overtime: overtime where contracts allow it."
           },
           "result": {
             "type": "string",
@@ -8468,6 +8535,30 @@
             ],
             "title": "Minimum Shortfall Minutes",
             "description": "Best minimum-staffing shortfall found (staff-minutes)."
+          },
+          "released": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Released",
+            "description": "What this stage was allowed to change."
+          },
+          "widened_because": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Widened Because",
+            "description": "Why the previous stage was not enough."
           }
         },
         "additionalProperties": false,

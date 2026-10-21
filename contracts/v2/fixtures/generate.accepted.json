@@ -15,7 +15,8 @@
     "body": {
       "strategy": "balanced",
       "base_version_id": null,
-      "time_limit_seconds": 10
+      "time_limit_seconds": 10,
+      "freeze": null
     }
   },
   "response": {
@@ -42,6 +43,7 @@
       "infeasibility": null,
       "error": null,
       "repair_stages": [],
+      "frozen_logical_shift_ids": [],
       "candidates_expired": false
     }
   }
