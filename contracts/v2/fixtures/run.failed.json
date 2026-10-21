@@ -38,7 +38,8 @@
         "details": {},
         "trace_id": "trc_9f2c41d07ab3"
       },
-      "repair_stages": []
+      "repair_stages": [],
+      "candidates_expired": false
     }
   }
 }

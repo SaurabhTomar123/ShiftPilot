@@ -412,6 +412,7 @@ class ScheduleVersion(Base):
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     input_hash: Mapped[str] = mapped_column(String(80))
     revision: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    discarded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # Contract Metrics, stored while a draft is validated and at publication (v3 section 22).
     metrics: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
 

@@ -96,6 +96,7 @@ def run_view(session: Session, run: OptimizationRun) -> s.OptimizationRun:
             "infeasibility": infeasibility,
             "error": run.error,
             "repair_stages": (run.stats or {}).get("widening", []) if run.kind == "repair" else [],
+            "candidates_expired": bool((run.stats or {}).get("candidates_purged")),
         }
     )
 

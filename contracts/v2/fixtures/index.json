@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.6.0-p4",
+  "contract_version": "3.7.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -411,6 +411,12 @@
     },
     {
       "name": "run.time_limited_feasible",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "run.candidates_expired",
       "operation_id": "getOptimizationRun",
       "status": 200,
       "schema": "OptimizationRun"

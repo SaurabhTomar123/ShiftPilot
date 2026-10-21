@@ -368,7 +368,8 @@
           "pool": 12,
           "minimum_shortfall_minutes": 0
         }
-      ]
+      ],
+      "candidates_expired": false
     }
   }
 }

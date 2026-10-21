@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.6.0-p4"
+CONTRACT_VERSION = "3.7.0-p4"
 
 
 class Model(BaseModel):
@@ -964,6 +964,11 @@ class OptimizationRun(Model):
         default_factory=list,
         description="Repair runs, once finished: the widening stages tried and why it widened.",
     )
+    candidates_expired: bool = Field(
+        default=False,
+        description="Unselected candidates are removed 7 days after the run (retention); only selected "
+        "ones remain, possibly none. Offer a new run instead of the old options.",
+    )
 
     @model_validator(mode="after")
     def _consistent_state(self) -> OptimizationRun:
@@ -982,7 +987,11 @@ class OptimizationRun(Model):
         elif self.job_state == "cancelled":
             ok = not has_candidates and self.infeasibility is None
         elif self.solver_status in ("OPTIMAL", "FEASIBLE"):
-            ok = has_candidates and self.infeasibility is None and self.error is None
+            ok = (
+                (has_candidates or self.candidates_expired)
+                and self.infeasibility is None
+                and self.error is None
+            )
         elif self.solver_status == "INFEASIBLE":
             ok = not has_candidates and self.infeasibility is not None and self.error is None
         else:  # succeeded with UNKNOWN / MODEL_INVALID / missing status

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.6.0-p4"
+    "version": "3.7.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -6295,6 +6295,12 @@
             "type": "array",
             "title": "Repair Stages",
             "description": "Repair runs, once finished: the widening stages tried and why it widened."
+          },
+          "candidates_expired": {
+            "type": "boolean",
+            "title": "Candidates Expired",
+            "description": "Unselected candidates are removed 7 days after the run (retention); only selected ones remain, possibly none. Offer a new run instead of the old options.",
+            "default": false
           }
         },
         "additionalProperties": false,

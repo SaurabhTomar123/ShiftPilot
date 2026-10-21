@@ -519,6 +519,7 @@ def discard_draft(caller: Caller, version_id: uuid.UUID, key: str | None = None)
             version, schedule = _version(session, caller, version_id, for_update=True)
             _require_draft(version)
             version.status = "discarded"
+            version.discarded_at = datetime.now(UTC)  # starts the 7-day retention clock (v3 section 25)
             session.flush()
             _audit(session, caller, "DRAFT_DISCARDED", "schedule_version", version.id, None, None)
             view = version_view(session, version)

@@ -23,6 +23,14 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.7.0-p4 (live): retention
+
+This change is additive (architecture v3 §25).
+
+- **`OptimizationRun.candidates_expired`:** unselected candidates are removed 7 days after their run, and a selected one goes with its draft once that draft has been discarded and purged. A finished run can then show `succeeded` and `OPTIMAL` with few or no candidates. When `candidates_expired` is `true`, say the options expired and offer a new run. Fixture: `run.candidates_expired`.
+- **Proposals:** a pending proposal is recorded as `expired` by the daily job after its expiry. Non-approved proposals disappear 30 days after their decision.
+- **Discarded drafts** are deleted 7 days after discard. Drop links to them after a 404.
+
 ## What changed in 3.6.0-p4 (live): staffing templates (architecture v3 §18)
 
 - **`listStaffingTemplates` / `putStaffingTemplates` `/v2/outlets/{id}/staffing-templates`:** the outlet's weekly default demand, as blocks of weekday × start and end (on the 30-minute grid) × role → `minimum_required` and `preferred_required`. `PUT` replaces the whole set with `base_revision`: a stale base is `409 stale_version` with `details.current_revision`, and overlapping blocks for one weekday and role are a field-level `422`. Saving a template changes no week until that week is expanded. Fixtures: `staffing_templates.list`, `.put`.

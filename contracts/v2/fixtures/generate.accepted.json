@@ -41,7 +41,8 @@
       "candidates": [],
       "infeasibility": null,
       "error": null,
-      "repair_stages": []
+      "repair_stages": [],
+      "candidates_expired": false
     }
   }
 }

@@ -1021,6 +1021,16 @@ def fixtures() -> list[Fixture]:
                 run_req,
             ),
             Fixture(
+                "run.candidates_expired",
+                "getOptimizationRun",
+                "GET",
+                "/v2/optimization-runs/{run_id}",
+                "manager_indiranagar",
+                200,
+                run("succeeded", solver_status="OPTIMAL", candidates=[], candidates_expired=True, **done),
+                run_req,
+            ),
+            Fixture(
                 "run.infeasible",
                 "getOptimizationRun",
                 "GET",
