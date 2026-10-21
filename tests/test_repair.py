@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import replace
 from datetime import timedelta
 
@@ -64,7 +65,8 @@ def test_least_disruption_comes_first_and_alternatives_stay_in_guardrails(
 ) -> None:
     first = outcome.plans[0]
     assert first.profile == "least_disruption" and first.disruption["changed_shifts"] >= 1
-    best = outcome.stats["least_disruption"]["best_disruption"]
+    stage = next(r["stage"] for r in outcome.widening if r["result"] == "selected")
+    best = outcome.stats[stage]["least_disruption"]["best_disruption"]
     for plan in outcome.plans:
         total = (
             plan.disruption["changed_shifts"]
@@ -121,3 +123,79 @@ def test_an_absence_without_affected_shifts_changes_nothing() -> None:
     )
     out = repair.repair(snap, base, free_day, time_limit=2.0, profiles=("least_disruption",))  # type: ignore[arg-type]
     assert out.affected == [] and out.plans[0].disruption["changed_shifts"] == 0
+
+
+def test_local_repair_stops_at_the_first_stage_that_keeps_minimum_staffing(
+    outcome: repair.RepairOutcome,
+) -> None:
+    """v3 section 12: local first; later stages are not even tried."""
+    assert [r["stage"] for r in outcome.widening] == ["same_day"]
+    assert outcome.widening[0]["result"] == "selected"
+    assert outcome.widening[0]["minimum_shortfall_minutes"] == 0
+
+
+def tight(snap: object, base: list[Shift]) -> object:
+    """Everyone's regular week is exactly the hours the published roster gives them, and nobody may work
+    overtime: covering an absence means moving hours, not adding them."""
+    promised: dict[object, int] = {}
+    for sh in base:
+        if sh.employee_id:
+            promised[sh.employee_id] = promised.get(sh.employee_id, 0) + sh.paid_minutes
+    employees = {
+        e.id: replace(e, regular_weekly_minutes=promised.get(e.id, 0), overtime_allowed=False)
+        for e in snap.employees.values()  # type: ignore[attr-defined]
+    }
+    return replace(snap, employees=employees)  # type: ignore[type-var]
+
+
+def test_widening_to_adjacent_shifts_when_the_same_day_is_not_enough() -> None:
+    snap, base, absence, victim = setting()
+    out = repair.repair(tight(snap, base), base, absence, time_limit=4.0)  # type: ignore[arg-type]
+    same_day, adjacent = out.widening
+    assert same_day["stage"] == "same_day" and same_day["result"] == "insufficient"
+    assert same_day["minimum_shortfall_minutes"] > 0
+    assert adjacent["stage"] == "adjacent_shifts" and adjacent["result"] == "selected"
+    assert adjacent["minimum_shortfall_minutes"] == 0 and adjacent["free_shifts"] > same_day["free_shifts"]
+    covered = next(s for s in out.plans[0].roster if s.logical_id == victim.logical_id)
+    assert covered.employee_id not in (None, victim.employee_id)
+
+
+def test_every_stage_is_recorded_when_none_keeps_minimum_staffing() -> None:
+    snap, base, absence, _ = setting()
+    # Every other Grill cook is off sick that day too: no stage can keep minimum Grill staffing.
+    day = absence.start_at.astimezone(world.IST).replace(hour=0, minute=0)
+    grill = world.SKILL["Grill"]
+    sick = tuple(
+        Absence(e.id, day, day + timedelta(days=1), "confirmed")
+        for e in snap.employees.values()  # type: ignore[attr-defined]
+        if grill in e.skill_ids and e.id != absence.employee_id
+    )
+    snap = replace(snap, absences=sick)  # type: ignore[type-var]
+    out = repair.repair(tight(snap, base), base, absence, time_limit=4.0)  # type: ignore[arg-type]
+    stages = {r["stage"]: r for r in out.widening}
+    assert list(stages) == list(repair.STAGES)
+    assert (
+        stages["other_outlets"]["result"] == "skipped"
+        and stages["other_outlets"]["reason"] == "not_authorized"
+    )
+    attempted = [r for r in out.widening if r["result"] != "skipped"]
+    assert all(r["minimum_shortfall_minutes"] > 0 for r in attempted)
+    [selected] = [r for r in out.widening if r["result"] == "selected"]
+    assert selected["minimum_shortfall_minutes"] == min(r["minimum_shortfall_minutes"] for r in attempted)
+    assert out.plans  # the best effort is still returned; the worker reports its gaps
+
+
+def test_cross_outlet_stage_needs_authorization_and_other_outlets_staff() -> None:
+    snap, base, absence, _ = setting()
+    authorized = repair.repair(tight(snap, base), base, absence, time_limit=2.0, allow_cross_outlet=True)  # type: ignore[arg-type]
+    stages = {r["stage"]: r for r in authorized.widening}
+    # Authorized, but this snapshot has no other outlets' staff, so the pool is unchanged.
+    assert stages.get("other_outlets", {}).get("reason") in (None, "same_scope")
+    borrowed = next(e for e in snap.employees.values() if e.home_outlet_id == world.HOME)  # type: ignore[attr-defined]
+    away = replace(borrowed, id=uuid.uuid4(), home_outlet_id=uuid.uuid4())
+    wider = replace(snap, employees={**snap.employees, away.id: away})  # type: ignore[attr-defined,type-var]
+    scope = next(x for x in repair.scopes(wider, base, absence, True) if x.name == "other_outlets")  # type: ignore[arg-type]
+    _, pool = repair._scope_sets(wider, base, absence, set(), scope)  # type: ignore[arg-type]
+    local = next(x for x in repair.scopes(wider, base, absence, True) if x.name == "adjacent_shifts")  # type: ignore[arg-type]
+    _, home_pool = repair._scope_sets(wider, base, absence, set(), local)  # type: ignore[arg-type]
+    assert away.id in pool and away.id not in home_pool

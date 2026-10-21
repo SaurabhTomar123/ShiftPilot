@@ -1015,6 +1015,29 @@ def fixtures() -> list[Fixture]:
                 },
             ),
             Fixture(
+                "candidate.detail.lowest_cost",
+                "getOptimizationCandidate",
+                "GET",
+                "/v2/optimization-candidates/{candidate_id}",
+                "manager_indiranagar",
+                200,
+                candidate_detail(candidate(2, d2, "lowest_cost"), d2),
+                {"path_params": {"candidate_id": str(candidate(2, d2, "lowest_cost").id)}},
+            ),
+            Fixture(
+                "candidate.select.lowest_cost",
+                "selectOptimizationCandidate",
+                "POST",
+                "/v2/optimization-candidates/{candidate_id}/select",
+                "manager_indiranagar",
+                201,
+                d2,
+                {
+                    "path_params": {"candidate_id": str(candidate(2, d2, "lowest_cost").id)},
+                    "headers": {"Idempotency-Key": "select-8d0c3f47"},
+                },
+            ),
+            Fixture(
                 "schedule_version.draft",
                 "getScheduleVersion",
                 "GET",
@@ -1576,8 +1599,50 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
         infeasibility=None,
         error=None,
     )
+    widened = queued.model_copy(
+        update={
+            "job_state": "succeeded",
+            "solver_status": "OPTIMAL",
+            "started_at": stamp("2026-10-21T16:21:00.300"),
+            "finished_at": stamp("2026-10-21T16:21:02.900"),
+            "solver_wall_ms": 2480,
+            "poll_after_ms": None,
+            "candidates": [
+                s.Candidate(
+                    id=uid("candidate", f"repair:{absence_id}:1"),
+                    rank=1,
+                    strategy="least_disruption",
+                    solver_status="OPTIMAL",
+                    proven_optimal=True,
+                    materialized_version_id=None,
+                    metrics=published.metrics,
+                    changed_shifts=2,
+                    validation=published.validation,
+                    disruption=s.Disruption(
+                        changed_shifts=2, added_shifts=0, cross_outlet_moves=0, open_shifts=0
+                    ),
+                )
+            ],
+            "repair_stages": [
+                s.RepairStage(
+                    stage="same_day",
+                    result="insufficient",
+                    free_shifts=8,
+                    pool=12,
+                    minimum_shortfall_minutes=240,
+                ),
+                s.RepairStage(
+                    stage="adjacent_shifts",
+                    result="selected",
+                    free_shifts=24,
+                    pool=12,
+                    minimum_shortfall_minutes=0,
+                ),
+            ],
+        }
+    )
     repair_path = "/v2/outlets/{outlet_id}/schedules/{week_start}/repair"
-    repair_req = {
+    repair_req: dict[str, Any] = {
         "path_params": {"outlet_id": str(HOME), "week_start": WEEK.isoformat()},
         "headers": {"Idempotency-Key": "repair-c41a77e0"},
         "body": {
@@ -1647,6 +1712,26 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             202,
             queued,
             repair_req,
+        ),
+        Fixture(
+            "run.repair.widened",
+            "getOptimizationRun",
+            "GET",
+            "/v2/optimization-runs/{run_id}",
+            "manager_indiranagar",
+            200,
+            widened,
+            {"path_params": {"run_id": str(repair_run)}},
+        ),
+        Fixture(
+            "repair.cross_outlet.manager",
+            "repairSchedule",
+            "POST",
+            repair_path,
+            "manager_indiranagar",
+            403,
+            error("permission_denied", "Only an owner can let a repair borrow staff from other outlets."),
+            {**repair_req, "body": {**repair_req["body"], "allow_cross_outlet": True}},
         ),
         Fixture(
             "repair.locked",
@@ -1725,6 +1810,9 @@ def proposal_fixtures(draft: s.ScheduleVersion) -> list[Fixture]:
         approved_by_user_id=manager,
         published_at=stamp("2026-10-18T19:52:00"),
     )
+    # Publication stores the metrics measured against current facts, so the acknowledged story publishes
+    # the moved cost the manager accepted, not the cost at proposal time.
+    published_acknowledged = published.model_copy(update={"recorded_metrics": s.Metrics.model_validate(now)})
     return [
         Fixture(
             "proposal.create",
@@ -1738,6 +1826,16 @@ def proposal_fixtures(draft: s.ScheduleVersion) -> list[Fixture]:
                 "headers": {"Idempotency-Key": "propose-61c0d4a8"},
                 "body": {"draft_version_id": str(draft.id), "expected_revision": draft.revision},
             },
+        ),
+        Fixture(
+            "proposals.list.pending",
+            "listProposals",
+            "GET",
+            "/v2/proposals",
+            "manager_indiranagar",
+            200,
+            s.ProposalList(items=[proposal]),
+            {"query": {"schedule_id": str(draft.schedule_id), "status": "pending"}},
         ),
         Fixture(
             "proposal.get",
@@ -1821,7 +1919,7 @@ def proposal_fixtures(draft: s.ScheduleVersion) -> list[Fixture]:
                 outcome="published",
                 message="Published.",
                 proposal=decided("approved"),
-                published=published,
+                published=published_acknowledged,
                 superseded_version_id=None,
             ),
             approve("approve-7c5d0b96", acknowledge=True),

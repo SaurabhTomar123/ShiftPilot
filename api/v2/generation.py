@@ -25,7 +25,7 @@ from api.v2 import schemas as s
 from api.v2.auth import require
 from api.v2.errors import ApiError, not_found
 from api.v2.service import _audit, _outlet, week_bounds
-from core.auth import Caller, assert_outlet
+from core.auth import Caller, Role, assert_outlet
 from db.models import Outlet
 from db.models_v2 import Absence as AbsenceRow
 from db.models_v2 import OptimizationCandidate, OptimizationRun, Schedule, VersionShift
@@ -95,6 +95,7 @@ def run_view(session: Session, run: OptimizationRun) -> s.OptimizationRun:
             "candidates": [candidate_fields(c) for c in candidates],
             "infeasibility": infeasibility,
             "error": run.error,
+            "repair_stages": (run.stats or {}).get("widening", []) if run.kind == "repair" else [],
         }
     )
 
@@ -279,6 +280,7 @@ def repair_in_session(
     request_hash: str,
     unlocked: set[uuid.UUID],
     time_limit_seconds: int,
+    allow_cross_outlet: bool = False,
 ) -> OptimizationRun:
     """Enqueue (or return) the repair run for one confirmed absence on one schedule (v3 section 20).
 
@@ -304,12 +306,19 @@ def repair_in_session(
             "The absence hits a locked shift. Authorize changing it to repair.",
             locked_logical_shift_ids=[str(c) for c in conflicts],
         )
-    snap = snapshot_db.load(session, schedule.outlet_id, schedule.week_start, base, schedule.id)
+    # Cross-outlet repair needs the other outlets' staff in the snapshot: the worker reads nothing else.
+    others = (
+        list(session.scalars(select(Outlet.id).where(Outlet.id != schedule.outlet_id)))
+        if allow_cross_outlet
+        else []
+    )
+    snap = snapshot_db.load(session, schedule.outlet_id, schedule.week_start, base, schedule.id, others)
     doc = snapshot_json.dump(snap)
     doc["repair"] = {
         "base": [snapshot_json.shift_doc(x) for x in base],
         "absence": snapshot_json.absence_doc(model_absence),
         "unlocked": sorted(str(u) for u in unlocked),
+        "allow_cross_outlet": allow_cross_outlet,
     }
     return _insert(
         session,
@@ -335,6 +344,8 @@ def enqueue_repair(
 ) -> s.OptimizationRun:
     """Repairs are claimed before batch work and never blocked by it (v3 section 28)."""
     require(caller, "generate")
+    if body.allow_cross_outlet and caller.role is not Role.OWNER:
+        raise ApiError("permission_denied", "Only an owner can let a repair borrow staff from other outlets.")
     request_hash = _request_hash(outlet_id, week_start, body)
     with tenant_session(caller, "REPEATABLE READ") as session:
         existing, schedule = _admit(
@@ -363,6 +374,7 @@ def enqueue_repair(
             request_hash=request_hash,
             unlocked=set(body.unlock_logical_shift_ids),
             time_limit_seconds=body.time_limit_seconds,
+            allow_cross_outlet=body.allow_cross_outlet,
         )
         return run_view(session, run)
 

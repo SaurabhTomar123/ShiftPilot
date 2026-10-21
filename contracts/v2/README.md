@@ -23,6 +23,24 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.3.0-p4 (live): answers to the 3.1 consumer review
+
+This change is additive.
+
+- **`listProposals` `GET /v2/proposals?schedule_id=…&status=pending`:** a week's proposals, newest first, at most 100. Repeat `status` to filter by several statuses. Use it to find the pending proposal again after a reload. Fixture: `proposals.list.pending`.
+- **Expiry is visible:** a pending proposal past `expires_at` now reads as `expired` in `getProposal` and `listProposals`, not only when someone tries to approve it.
+- **Second candidate's fixtures:** `candidate.detail.lowest_cost` and `candidate.select.lowest_cost` cover candidate 2 of `run.succeeded`.
+- **Fixture story fixed:** `proposal.approve.acknowledged` now publishes `recorded_metrics` with the moved cost the manager accepted, which matches `proposal.approve.changed`. Publication stores the metrics measured at publication.
+
+## What changed in 3.2.0-p4 (live): repair widening
+
+This change is additive (architecture v3 §12).
+
+- **`OptimizationRun.repair_stages`:** repair runs record each widening stage in the order tried. The stages are `same_day` (the affected days from the absence onward, home staff, no overtime), `adjacent_shifts` (plus the day either side), `other_outlets` (plus other outlets' staff) and `overtime`. Each stage has a `result`: `selected`, `insufficient` (it couldn't keep minimum staffing, so the repair widened), `no_plan` or `skipped` (with a `reason` of `not_authorized` or `same_scope`). It also reports `free_shifts`, `pool` and `minimum_shortfall_minutes`. Use these to explain why a wider change was needed. Fixture: `run.repair.widened`.
+- **`RepairRequest.allow_cross_outlet`:** owner only. Managers get `403` (fixture `repair.cross_outlet.manager`). Automatic repairs never borrow staff from other outlets.
+- **Repairs also fix shifts that current facts already break,** such as an earlier absence nobody has repaired yet, so every candidate is publishable. If such a shift is locked, the run fails with `409`-style `error.code: conflict` and `details.locked_logical_shift_ids`, the same as a locked affected shift.
+- **Fix:** generation now respects confirmed absences of employees who are not yet on the roster, which matters for a fresh week. Previously only people already rostered had their absences loaded.
+
 ## What changed in 3.1.0-p4 (live): stored version metrics
 
 This change is additive. Every version summary, including history items and publish results, now has **`recorded_metrics`**. The figures are stored when a draft is created, selected, restored or edited, and recomputed against current facts at publication. After that they are frozen with the version, so history can show what each version cost and covered when it went live without recomputing anything. `ScheduleVersion.metrics` is still evaluated against current facts, so the two can differ for an old version. `recorded_metrics` is `null` only for versions saved before 3.1 (architecture v3 §22).

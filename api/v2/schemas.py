@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.1.0-p4"
+CONTRACT_VERSION = "3.3.0-p4"
 
 
 class Model(BaseModel):
@@ -563,6 +563,10 @@ class Proposal(Model):
     expires_at: AwareDatetime
 
 
+class ProposalList(Model):
+    items: list[Proposal] = Field(description="Newest first, at most 100.")
+
+
 class ApproveProposalRequest(Model):
     acknowledge_changes: bool = Field(
         default=False,
@@ -690,6 +694,11 @@ class RepairRequest(Model):
         default_factory=list,
         description="Locked affected shifts the manager authorizes to change (decision 5).",
     )
+    allow_cross_outlet: bool = Field(
+        default=False,
+        description="Owner only: let the repair borrow staff from other outlets (widening stage "
+        "other_outlets). Managers get 403.",
+    )
     time_limit_seconds: int = Field(default=3, ge=1, le=10)
 
 
@@ -816,6 +825,31 @@ class Infeasibility(Model):
     shortages: list[Shortage]
 
 
+RepairStageName = Literal["same_day", "adjacent_shifts", "other_outlets", "overtime"]
+
+
+class RepairStage(Model):
+    """One widening stage of a repair run (architecture v3 section 12), in the order tried."""
+
+    stage: RepairStageName = Field(
+        description="same_day: the affected days from the absence onward, home staff, no overtime. "
+        "adjacent_shifts: plus the day either side. other_outlets: plus other outlets' staff "
+        "(owner-authorized). overtime: overtime where contracts allow it."
+    )
+    result: Literal["selected", "insufficient", "no_plan", "skipped"] = Field(
+        description="selected: the candidates come from this stage. insufficient: minimum staffing "
+        "could not be kept, so the repair widened. skipped: see reason."
+    )
+    reason: Literal["not_authorized", "same_scope"] | None = Field(
+        default=None, description="Why a stage was skipped: not authorized, or no wider than the last."
+    )
+    free_shifts: int = Field(ge=0, description="Published shifts this stage was allowed to change.")
+    pool: int = Field(ge=0, description="Employees who could take them.")
+    minimum_shortfall_minutes: int | None = Field(
+        default=None, ge=0, description="Best minimum-staffing shortfall found (staff-minutes)."
+    )
+
+
 class OptimizationRun(Model):
     id: UUID
     kind: Literal["generate", "optimize", "repair"]
@@ -840,6 +874,10 @@ class OptimizationRun(Model):
     candidates: list[Candidate]
     infeasibility: Infeasibility | None
     error: ErrorBody | None = Field(description="Set when job_state is failed.")
+    repair_stages: list[RepairStage] = Field(
+        default_factory=list,
+        description="Repair runs, once finished: the widening stages tried and why it widened.",
+    )
 
     @model_validator(mode="after")
     def _consistent_state(self) -> OptimizationRun:

@@ -411,6 +411,27 @@ def create_proposal(
 
 
 @router.get(
+    "/proposals",
+    operation_id="listProposals",
+    response_model=s.ProposalList,
+    responses=_errors(403, 404, 422),
+)
+def list_proposals(
+    caller: v2auth.CallerDep,
+    schedule_id: Annotated[UUID, Query(description="The week (schedule) whose proposals to list.")],
+    statuses: Annotated[
+        list[s.ProposalStatus] | None,
+        Query(
+            alias="status",
+            description="Repeat to filter, e.g. status=pending. A pending proposal past expiry is expired.",
+        ),
+    ] = None,
+) -> s.ProposalList:
+    """Find a week's proposals, e.g. the pending one after a reload. Newest first."""
+    return proposals.list_for_schedule(caller, schedule_id, statuses)
+
+
+@router.get(
     "/proposals/{proposal_id}",
     operation_id="getProposal",
     response_model=s.Proposal,

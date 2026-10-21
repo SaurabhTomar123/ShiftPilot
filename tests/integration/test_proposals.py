@@ -176,3 +176,25 @@ def test_reject_and_staff(client: TestClient) -> None:
     )
     assert stale_revision.status_code == 409 and error_code(stale_revision) == "stale_version"
     assert client.get(f"/v2/proposals/{uuid.uuid4()}", headers=MANAGER).status_code == 404
+
+
+def test_proposals_can_be_found_again_and_expire(client: TestClient) -> None:
+    d = draft(client)
+    first, second = propose(client, d), propose(client, d)
+    url = f"/v2/proposals?schedule_id={d['schedule_id']}"
+    pending = client.get(f"{url}&status=pending", headers=MANAGER).json()["items"]
+    assert [p["id"] for p in pending][:2] == [second["id"], first["id"]]  # newest first
+    client.post(f"/v2/proposals/{first['id']}/reject", headers=MANAGER)
+    ids = {p["id"] for p in client.get(f"{url}&status=pending", headers=MANAGER).json()["items"]}
+    assert second["id"] in ids and first["id"] not in ids
+    both = client.get(f"{url}&status=pending&status=rejected", headers=MANAGER).json()["items"]
+    assert {first["id"], second["id"]} <= {p["id"] for p in both}
+    assert client.get(url, headers=STAFF).status_code == 403
+    assert client.get(f"/v2/proposals?schedule_id={uuid.uuid4()}", headers=MANAGER).status_code == 404
+
+    sql(
+        "UPDATE schedule_proposals SET expires_at = now() - interval '1 minute' WHERE id = :p", p=second["id"]
+    )
+    assert client.get(f"/v2/proposals/{second['id']}", headers=MANAGER).json()["status"] == "expired"
+    late = approve(client, second)
+    assert late.status_code == 409 and late.json()["error"]["details"]["status"] == "expired"

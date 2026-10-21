@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.1.0-p4"
+    "version": "3.3.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -2345,6 +2345,121 @@
               }
             },
             "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      },
+      "get": {
+        "summary": "List Proposals",
+        "description": "Find a week's proposals, e.g. the pending one after a reload. Newest first.",
+        "operationId": "listProposals",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "schedule_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The week (schedule) whose proposals to list.",
+              "title": "Schedule Id"
+            },
+            "description": "The week (schedule) whose proposals to list."
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "pending",
+                      "approved",
+                      "rejected",
+                      "expired",
+                      "stale",
+                      "failed"
+                    ],
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeat to filter, e.g. status=pending. A pending proposal past expiry is expired.",
+              "title": "Status"
+            },
+            "description": "Repeat to filter, e.g. status=pending. A pending proposal past expiry is expired."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProposalList"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
           },
           "422": {
             "content": {
@@ -5627,6 +5742,14 @@
               }
             ],
             "description": "Set when job_state is failed."
+          },
+          "repair_stages": {
+            "items": {
+              "$ref": "#/components/schemas/RepairStage"
+            },
+            "type": "array",
+            "title": "Repair Stages",
+            "description": "Repair runs, once finished: the widening stages tried and why it widened."
           }
         },
         "additionalProperties": false,
@@ -5936,6 +6059,24 @@
         "title": "ProposalDecision",
         "description": "The publication transaction's answer (architecture v3 section 31). Always 200: each outcome is a\nnormal business result, not an error."
       },
+      "ProposalList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Proposal"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Newest first, at most 100."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "ProposalList"
+      },
       "PublishRequest": {
         "properties": {
           "expected_base_version_id": {
@@ -6040,6 +6181,12 @@
             "title": "Unlock Logical Shift Ids",
             "description": "Locked affected shifts the manager authorizes to change (decision 5)."
           },
+          "allow_cross_outlet": {
+            "type": "boolean",
+            "title": "Allow Cross Outlet",
+            "description": "Owner only: let the repair borrow staff from other outlets (widening stage other_outlets). Managers get 403.",
+            "default": false
+          },
           "time_limit_seconds": {
             "type": "integer",
             "maximum": 10.0,
@@ -6055,6 +6202,83 @@
           "base_version_id"
         ],
         "title": "RepairRequest"
+      },
+      "RepairStage": {
+        "properties": {
+          "stage": {
+            "type": "string",
+            "enum": [
+              "same_day",
+              "adjacent_shifts",
+              "other_outlets",
+              "overtime"
+            ],
+            "title": "Stage",
+            "description": "same_day: the affected days from the absence onward, home staff, no overtime. adjacent_shifts: plus the day either side. other_outlets: plus other outlets' staff (owner-authorized). overtime: overtime where contracts allow it."
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "selected",
+              "insufficient",
+              "no_plan",
+              "skipped"
+            ],
+            "title": "Result",
+            "description": "selected: the candidates come from this stage. insufficient: minimum staffing could not be kept, so the repair widened. skipped: see reason."
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "not_authorized",
+                  "same_scope"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason",
+            "description": "Why a stage was skipped: not authorized, or no wider than the last."
+          },
+          "free_shifts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Free Shifts",
+            "description": "Published shifts this stage was allowed to change."
+          },
+          "pool": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Pool",
+            "description": "Employees who could take them."
+          },
+          "minimum_shortfall_minutes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum Shortfall Minutes",
+            "description": "Best minimum-staffing shortfall found (staff-minutes)."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "stage",
+          "result",
+          "free_shifts",
+          "pool"
+        ],
+        "title": "RepairStage",
+        "description": "One widening stage of a repair run (architecture v3 section 12), in the order tried."
       },
       "ReportAbsenceRequest": {
         "properties": {

@@ -47,6 +47,13 @@ class _Approval(BaseModel):
     acknowledge_changes: bool
 
 
+def _status(proposal: ScheduleProposal) -> str:
+    """A pending proposal past its expiry reads as expired, before the retention job records it."""
+    if proposal.status == "pending" and proposal.expires_at <= datetime.now(UTC):
+        return "expired"
+    return proposal.status
+
+
 def _view(session: Session, proposal: ScheduleProposal) -> s.Proposal:
     draft = session.get(ScheduleVersion, proposal.draft_version_ids[0])
     assert draft is not None
@@ -60,7 +67,7 @@ def _view(session: Session, proposal: ScheduleProposal) -> s.Proposal:
         draft_revision=proposal.draft_revisions[0],
         base_version_id=proposal.base_version_ids[0] if proposal.base_version_ids else None,
         candidate_id=proposal.candidate_id,
-        status=proposal.status,  # type: ignore[arg-type]
+        status=_status(proposal),  # type: ignore[arg-type]
         metrics_at_proposal=s.Metrics.model_validate(proposal.metrics_at_proposal),
         requested_by_user_id=proposal.requested_by_user_id,
         decided_by_user_id=proposal.decided_by_user_id,
@@ -164,6 +171,28 @@ def create(caller: Caller, key: str, body: s.CreateProposalRequest) -> s.Proposa
             return _view(session, proposal)
 
         return s.Proposal.model_validate(idempotent(session, caller, key, "createProposal", body, produce))
+
+
+def list_for_schedule(
+    caller: Caller, schedule_id: uuid.UUID, statuses: list[s.ProposalStatus] | None
+) -> s.ProposalList:
+    """Proposals of one week, newest first, so a reloaded review can find its pending proposal."""
+    if caller.role is Role.STAFF:
+        raise ApiError("permission_denied", "You do not have permission to do this.")
+    with tenant_session(caller) as session:
+        schedule = session.get(Schedule, schedule_id)
+        if schedule is None:
+            raise not_found("Schedule")
+        assert_outlet(caller, str(schedule.outlet_id))
+        drafts = select(ScheduleVersion.id).where(ScheduleVersion.schedule_id == schedule_id)
+        rows = session.scalars(
+            select(ScheduleProposal)
+            .where(ScheduleProposal.draft_version_ids[1].in_(drafts))
+            .order_by(ScheduleProposal.created_at.desc(), ScheduleProposal.id.desc())
+            .limit(100)
+        )
+        items = [_view(session, p) for p in rows]
+        return s.ProposalList(items=[p for p in items if not statuses or p.status in statuses])
 
 
 def get(caller: Caller, proposal_id: uuid.UUID) -> s.Proposal:

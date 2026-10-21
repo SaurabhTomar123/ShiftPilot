@@ -83,13 +83,18 @@ def load(
     week_start: date,
     roster: list[Shift],
     schedule_id: uuid.UUID | None,
+    pool_outlet_ids: Iterable[uuid.UUID] = (),
 ) -> Snapshot:
+    """Everything one outlet-week needs. The employee pool is the outlet's staff, anyone on the roster,
+    and the staff of pool_outlet_ids (owner-authorized cross-outlet repair). Absences and commitments
+    elsewhere are loaded for the whole pool, not only for people already on the roster."""
     outlets = {o.id: outlet_model(o) for o in session.scalars(select(OutletRow))}
     outlet = outlets[outlet_id]
     start = datetime(week_start.year, week_start.month, week_start.day, tzinfo=outlet.tz)
     end = start + timedelta(days=7)
 
-    home_ids = set(session.scalars(select(EmployeeRow.id).where(EmployeeRow.outlet_id == outlet_id)))
+    pool_outlets = {outlet_id, *pool_outlet_ids}
+    home_ids = set(session.scalars(select(EmployeeRow.id).where(EmployeeRow.outlet_id.in_(pool_outlets))))
     roster_ids = {sh.employee_id for sh in roster if sh.employee_id is not None}
     ids = home_ids | roster_ids
     rows = list(session.scalars(select(EmployeeRow).where(EmployeeRow.id.in_(ids)))) if ids else []
@@ -150,7 +155,7 @@ def load(
         Absence(a.employee_id, a.start_at, a.end_at, a.status)
         for a in session.scalars(
             select(AbsenceRow).where(
-                AbsenceRow.employee_id.in_(roster_ids or {uuid.UUID(int=0)}),
+                AbsenceRow.employee_id.in_(ids or {uuid.UUID(int=0)}),
                 AbsenceRow.start_at < end + MARGIN,
                 AbsenceRow.end_at > start - MARGIN,
                 AbsenceRow.status.in_(("requested", "confirmed")),
@@ -159,7 +164,7 @@ def load(
     )
     travel = {(t.from_outlet_id, t.to_outlet_id): t.minutes for t in session.scalars(select(TravelTime))}
     commitments = tuple(
-        to_shift(r) for r in live_shifts(session, start - MARGIN, end + MARGIN, schedule_id, roster_ids)
+        to_shift(r) for r in live_shifts(session, start - MARGIN, end + MARGIN, schedule_id, ids)
     )
     templates = tuple(
         Template(

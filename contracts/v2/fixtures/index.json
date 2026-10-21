@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.1.0-p4",
+  "contract_version": "3.3.0-p4",
   "fixtures": [
     {
       "name": "draft.create",
@@ -104,6 +104,18 @@
       "schema": "OptimizationRun"
     },
     {
+      "name": "run.repair.widened",
+      "operation_id": "getOptimizationRun",
+      "status": 200,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "repair.cross_outlet.manager",
+      "operation_id": "repairSchedule",
+      "status": 403,
+      "schema": "ErrorResponse"
+    },
+    {
       "name": "repair.locked",
       "operation_id": "repairSchedule",
       "status": 409,
@@ -114,6 +126,12 @@
       "operation_id": "createProposal",
       "status": 201,
       "schema": "Proposal"
+    },
+    {
+      "name": "proposals.list.pending",
+      "operation_id": "listProposals",
+      "status": 200,
+      "schema": "ProposalList"
     },
     {
       "name": "proposal.get",
@@ -399,6 +417,18 @@
     },
     {
       "name": "candidate.select",
+      "operation_id": "selectOptimizationCandidate",
+      "status": 201,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "candidate.detail.lowest_cost",
+      "operation_id": "getOptimizationCandidate",
+      "status": 200,
+      "schema": "CandidateDetail"
+    },
+    {
+      "name": "candidate.select.lowest_cost",
       "operation_id": "selectOptimizationCandidate",
       "status": 201,
       "schema": "ScheduleVersion"

@@ -228,8 +228,11 @@ def _run_repair(snap: Snapshot, row: Any) -> tuple[solver.Outcome, dict[int, dic
         unlocked={uuid.UUID(u) for u in doc["unlocked"]},
         time_limit=float(row.config["time_limit_seconds"]),
         workers=int(row.config.get("workers", 8)),
+        allow_cross_outlet=bool(doc.get("allow_cross_outlet", False)),
     )
-    outcome = solver.Outcome(status=result.status, stats={"repair": result.stats})
+    outcome = solver.Outcome(
+        status=result.status, stats={"repair": result.stats, "widening": result.widening}
+    )
     if result.status == "LOCK_CONFLICT":
         outcome.stats["lock_conflict"] = {
             "locked_logical_shift_ids": [str(s.logical_id) for s in result.locked_conflicts]

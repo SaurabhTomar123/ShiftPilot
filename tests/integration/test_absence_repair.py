@@ -13,7 +13,7 @@ from sqlalchemy import text
 from db.session import admin_engine
 from scheduling import worker
 from seed.world import IST, uid
-from tests.integration.test_api_v2 import IND, MANAGER, STAFF, WEEK, client, error_code
+from tests.integration.test_api_v2 import IND, MANAGER, OWNER, STAFF, WEEK, client, error_code
 
 MONDAY = date.fromisoformat(WEEK)
 
@@ -173,3 +173,87 @@ def test_locked_shift_needs_explicit_authorization(client: TestClient) -> None:
         again.status_code == 202 and again.json()["id"] == allowed.json()["id"]
     )  # one active repair per absence
     drain()
+    # Nothing was published, so the locked shift is still held by someone absent. A repair for another
+    # absence cannot produce a valid roster without changing it, and says so.
+    other = shift_on(version, week + timedelta(days=1) if week.weekday() < 6 else week - timedelta(days=1))
+    later = report(client, other).json()["repair_run_ids"]
+    drain()
+    run = client.get(f"/v2/optimization-runs/{later[0]}", headers=MANAGER).json()
+    assert run["job_state"] == "failed" and run["error"]["code"] == "conflict"
+    assert locked["logical_shift_id"] in run["error"]["details"]["locked_logical_shift_ids"]
+    for absence_id in (body["absence"]["id"],):  # later tests in this module share the database
+        client.patch(f"/v2/absences/{absence_id}", headers=MANAGER, json={"status": "cancelled"})
+
+
+def test_repair_runs_record_their_widening_stages(client: TestClient) -> None:
+    version = current(client)
+    target = shift_on(version, MONDAY + timedelta(days=4))  # Friday
+    run_id = report(client, target).json()["repair_run_ids"][0]
+    drain()
+    run = client.get(f"/v2/optimization-runs/{run_id}", headers=MANAGER).json()
+    stages = run["repair_stages"]
+    assert stages and stages[0]["stage"] == "same_day"
+    assert [s["result"] for s in stages].count("selected") == 1
+    assert all(s["result"] != "skipped" or s["reason"] for s in stages)
+
+
+def test_cross_outlet_repair_is_owner_only_and_sees_other_outlets(client: TestClient) -> None:
+    version = current(client)
+    target = shift_on(version, MONDAY + timedelta(days=5))  # Saturday, unlocked
+    absence = report(client, target, status="requested", as_=MANAGER).json()["absence"]
+    client.patch(f"/v2/absences/{absence['id']}", headers=MANAGER, json={"status": "confirmed"})
+    drain()  # the automatic (home-outlet) repair
+    url = f"{WEEK_URL}/repair"
+    body = {
+        "absence_id": absence["id"],
+        "base_version_id": version["id"],
+        "allow_cross_outlet": True,
+        "time_limit_seconds": 3,
+    }
+    denied = client.post(url, headers=MANAGER | key(), json=body)
+    assert denied.status_code == 403 and error_code(denied) == "permission_denied"
+    owned = client.post(url, headers=OWNER | key(), json=body)
+    assert owned.status_code == 202, owned.text
+    homes = sql(
+        "SELECT DISTINCT e->>'home_outlet_id' FROM optimization_runs r, "
+        "jsonb_array_elements(r.input_snapshot->'employees') e WHERE r.id = :r",
+        r=owned.json()["id"],
+    )
+    assert len(homes) == 3  # every outlet's staff are in the snapshot the worker solves from
+    drain()
+    run = client.get(f"/v2/optimization-runs/{owned.json()['id']}", headers=OWNER).json()
+    assert run["job_state"] == "succeeded"
+    assert all(s.get("reason") != "not_authorized" for s in run["repair_stages"])
+
+
+def test_generation_never_schedules_someone_with_a_confirmed_absence(client: TestClient) -> None:
+    """Regression: absences were loaded only for people already on the roster, so an empty week ignored
+    them."""
+    next_week = MONDAY + timedelta(days=7)
+    ravi = str(uid("employee", "ravi"))
+    start = datetime.combine(next_week, datetime.min.time(), IST)
+    r = client.post(
+        "/v2/absences",
+        headers=MANAGER | key(),
+        json={
+            "employee_id": ravi,
+            "start_at": start.isoformat(),
+            "end_at": (start + timedelta(days=7)).isoformat(),
+            "kind": "leave",
+            "status": "confirmed",
+            "reason": None,
+        },
+    )
+    assert r.status_code == 201, r.text
+    gen = client.post(
+        f"/v2/outlets/{IND}/schedules/{next_week}/generate",
+        headers=MANAGER | key(),
+        json={"strategy": "balanced", "base_version_id": None, "time_limit_seconds": 3},
+    )
+    assert gen.status_code == 202, gen.text
+    drain()
+    run = client.get(f"/v2/optimization-runs/{gen.json()['id']}", headers=MANAGER).json()
+    assert run["candidates"], run
+    for cand in run["candidates"]:
+        detail = client.get(f"/v2/optimization-candidates/{cand['id']}", headers=MANAGER).json()
+        assert ravi not in {sh["employee_id"] for sh in detail["diff"]["added"]}
