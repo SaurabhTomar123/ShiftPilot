@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-21T14:38:45+00:00",
+  "generated_at": "2026-10-21T14:57:03+00:00",
   "git": {
-    "commit": "13fb287e040d20282bbf013af9c7dd7b55d33c7c",
+    "commit": "ae69cc8d2f0149a4482676a871316aca21b9e4ab",
     "dirty": false
   },
-  "config_hash": "sha256:4ec1ac1ab4c09044549ee953130127b71cc9ba6ef9ce31bc16b7419ae8d99074",
+  "config_hash": "sha256:d9565efd2a48303ce59723158c12746e9b962e2b9dbe5b747d03b7ccf0a1b5f2",
   "config": {
     "strategies": {
       "balanced": {
@@ -12,28 +12,32 @@
         "understaffing": 10000,
         "preferences": 50000,
         "disruption": 125000,
-        "hours_alignment": 500
+        "hours_alignment": 500,
+        "fairness": 0
       },
       "lowest_cost": {
         "cost": 55,
         "understaffing": 6667,
         "preferences": 16667,
         "disruption": 93750,
-        "hours_alignment": 250
+        "hours_alignment": 250,
+        "fairness": 0
       },
       "max_coverage": {
         "cost": 10,
         "understaffing": 20000,
         "preferences": 33333,
         "disruption": 93750,
-        "hours_alignment": 250
+        "hours_alignment": 250,
+        "fairness": 0
       },
       "staff_friendly": {
         "cost": 20,
         "understaffing": 8333,
-        "preferences": 100000,
+        "preferences": 66667,
         "disruption": 62500,
-        "hours_alignment": 750
+        "hours_alignment": 500,
+        "fairness": 30
       }
     },
     "repair_profiles": [
@@ -49,84 +53,84 @@
     "prompts": "adba7c13c997d7e6",
     "language_model": "scripted",
     "ortools": "9.15.6755",
-    "contract": "3.15.0-p4"
+    "contract": "3.16.0-p4"
   },
   "suites": {
     "normal": {
       "cases": 24,
       "passed": 24,
       "failures": [],
-      "ms": 35630,
+      "ms": 42233,
       "pass_rate": 1.0
     },
     "impossible": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 4143,
+      "ms": 2180,
       "pass_rate": 1.0
     },
     "overtime": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 7272,
+      "ms": 3994,
       "pass_rate": 1.0
     },
     "locks": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 3154,
+      "ms": 1719,
       "pass_rate": 1.0
     },
     "repair": {
       "cases": 10,
       "passed": 10,
       "failures": [],
-      "ms": 3768,
+      "ms": 2196,
       "pass_rate": 1.0
     },
     "rules_enforced": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 5878,
+      "ms": 3917,
       "pass_rate": 1.0
     },
     "multi_outlet": {
       "cases": 3,
       "passed": 3,
       "failures": [],
-      "ms": 4633,
+      "ms": 2828,
       "pass_rate": 1.0
     },
     "commands": {
       "cases": 17,
       "passed": 17,
       "failures": [],
-      "ms": 6,
+      "ms": 1,
       "pass_rate": 1.0
     },
     "ambiguity": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 7,
+      "ms": 0,
       "pass_rate": 1.0
     },
     "rule_language": {
       "cases": 10,
       "passed": 10,
       "failures": [],
-      "ms": 3,
+      "ms": 1,
       "pass_rate": 1.0
     },
     "security": {
       "cases": 7,
       "passed": 7,
       "failures": [],
-      "ms": 1,
+      "ms": 0,
       "pass_rate": 1.0
     }
   },
