@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-21T14:23:24+00:00",
+  "generated_at": "2026-10-21T14:38:45+00:00",
   "git": {
-    "commit": "f64d64a76f86a21e52edaa0e64697e8b568b8188",
+    "commit": "13fb287e040d20282bbf013af9c7dd7b55d33c7c",
     "dirty": false
   },
-  "config_hash": "sha256:9a2a58799da67e67a7bfdcc47f5e95f24025d8da09e34b4630aeebbd43bc2b47",
+  "config_hash": "sha256:4ec1ac1ab4c09044549ee953130127b71cc9ba6ef9ce31bc16b7419ae8d99074",
   "config": {
     "strategies": {
       "balanced": {
@@ -49,77 +49,77 @@
     "prompts": "adba7c13c997d7e6",
     "language_model": "scripted",
     "ortools": "9.15.6755",
-    "contract": "3.14.0-p4"
+    "contract": "3.15.0-p4"
   },
   "suites": {
     "normal": {
       "cases": 24,
       "passed": 24,
       "failures": [],
-      "ms": 30616,
+      "ms": 35630,
       "pass_rate": 1.0
     },
     "impossible": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 3934,
+      "ms": 4143,
       "pass_rate": 1.0
     },
     "overtime": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 7705,
+      "ms": 7272,
       "pass_rate": 1.0
     },
     "locks": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 3485,
+      "ms": 3154,
       "pass_rate": 1.0
     },
     "repair": {
       "cases": 10,
       "passed": 10,
       "failures": [],
-      "ms": 4414,
+      "ms": 3768,
       "pass_rate": 1.0
     },
     "rules_enforced": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 5051,
+      "ms": 5878,
       "pass_rate": 1.0
     },
     "multi_outlet": {
       "cases": 3,
       "passed": 3,
       "failures": [],
-      "ms": 3237,
+      "ms": 4633,
       "pass_rate": 1.0
     },
     "commands": {
       "cases": 17,
       "passed": 17,
       "failures": [],
-      "ms": 1,
+      "ms": 6,
       "pass_rate": 1.0
     },
     "ambiguity": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 5,
+      "ms": 7,
       "pass_rate": 1.0
     },
     "rule_language": {
       "cases": 10,
       "passed": 10,
       "failures": [],
-      "ms": 1,
+      "ms": 3,
       "pass_rate": 1.0
     },
     "security": {
