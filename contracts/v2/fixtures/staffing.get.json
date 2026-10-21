@@ -27,7 +27,7 @@
           "interval_end": "2026-10-19T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -35,7 +35,7 @@
           "interval_end": "2026-10-19T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -43,7 +43,7 @@
           "interval_end": "2026-10-19T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -51,7 +51,7 @@
           "interval_end": "2026-10-19T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -59,7 +59,7 @@
           "interval_end": "2026-10-19T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -67,7 +67,7 @@
           "interval_end": "2026-10-19T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -75,7 +75,7 @@
           "interval_end": "2026-10-19T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -83,7 +83,7 @@
           "interval_end": "2026-10-19T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -91,7 +91,7 @@
           "interval_end": "2026-10-19T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -99,7 +99,7 @@
           "interval_end": "2026-10-19T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -107,7 +107,7 @@
           "interval_end": "2026-10-19T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -115,7 +115,7 @@
           "interval_end": "2026-10-19T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -123,7 +123,7 @@
           "interval_end": "2026-10-19T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -131,7 +131,7 @@
           "interval_end": "2026-10-19T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -139,7 +139,7 @@
           "interval_end": "2026-10-19T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -147,7 +147,7 @@
           "interval_end": "2026-10-19T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -155,7 +155,7 @@
           "interval_end": "2026-10-19T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -163,7 +163,7 @@
           "interval_end": "2026-10-19T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -171,7 +171,7 @@
           "interval_end": "2026-10-19T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -179,7 +179,7 @@
           "interval_end": "2026-10-19T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -187,7 +187,7 @@
           "interval_end": "2026-10-19T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -195,7 +195,7 @@
           "interval_end": "2026-10-19T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -203,7 +203,7 @@
           "interval_end": "2026-10-19T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -211,7 +211,7 @@
           "interval_end": "2026-10-19T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -219,7 +219,7 @@
           "interval_end": "2026-10-19T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -227,7 +227,7 @@
           "interval_end": "2026-10-19T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -235,7 +235,7 @@
           "interval_end": "2026-10-19T10:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -243,7 +243,7 @@
           "interval_end": "2026-10-19T11:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -251,7 +251,7 @@
           "interval_end": "2026-10-19T11:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -259,7 +259,7 @@
           "interval_end": "2026-10-19T12:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -267,7 +267,7 @@
           "interval_end": "2026-10-19T12:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -275,7 +275,7 @@
           "interval_end": "2026-10-19T13:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -283,7 +283,7 @@
           "interval_end": "2026-10-19T13:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -291,7 +291,7 @@
           "interval_end": "2026-10-19T14:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -299,7 +299,7 @@
           "interval_end": "2026-10-19T14:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -307,7 +307,7 @@
           "interval_end": "2026-10-19T15:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -315,7 +315,7 @@
           "interval_end": "2026-10-19T15:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -323,7 +323,7 @@
           "interval_end": "2026-10-19T16:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -331,7 +331,7 @@
           "interval_end": "2026-10-19T16:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -339,7 +339,7 @@
           "interval_end": "2026-10-19T17:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -347,7 +347,7 @@
           "interval_end": "2026-10-19T17:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -355,7 +355,7 @@
           "interval_end": "2026-10-19T18:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -363,7 +363,7 @@
           "interval_end": "2026-10-19T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -371,7 +371,7 @@
           "interval_end": "2026-10-19T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -379,7 +379,7 @@
           "interval_end": "2026-10-19T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -387,7 +387,7 @@
           "interval_end": "2026-10-19T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -395,7 +395,7 @@
           "interval_end": "2026-10-19T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -403,7 +403,7 @@
           "interval_end": "2026-10-19T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -411,7 +411,7 @@
           "interval_end": "2026-10-19T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -419,7 +419,7 @@
           "interval_end": "2026-10-19T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -427,7 +427,7 @@
           "interval_end": "2026-10-19T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -435,7 +435,7 @@
           "interval_end": "2026-10-19T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -443,7 +443,7 @@
           "interval_end": "2026-10-19T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -451,7 +451,7 @@
           "interval_end": "2026-10-19T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -459,7 +459,7 @@
           "interval_end": "2026-10-19T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -467,7 +467,7 @@
           "interval_end": "2026-10-19T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -475,7 +475,7 @@
           "interval_end": "2026-10-19T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -483,7 +483,7 @@
           "interval_end": "2026-10-19T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -491,7 +491,7 @@
           "interval_end": "2026-10-19T18:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -499,7 +499,7 @@
           "interval_end": "2026-10-19T19:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -507,7 +507,7 @@
           "interval_end": "2026-10-19T19:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -515,7 +515,7 @@
           "interval_end": "2026-10-19T20:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -523,7 +523,7 @@
           "interval_end": "2026-10-19T20:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -531,7 +531,7 @@
           "interval_end": "2026-10-19T21:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -539,7 +539,7 @@
           "interval_end": "2026-10-19T21:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -547,7 +547,7 @@
           "interval_end": "2026-10-19T22:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -555,7 +555,7 @@
           "interval_end": "2026-10-19T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -563,7 +563,7 @@
           "interval_end": "2026-10-19T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -571,7 +571,7 @@
           "interval_end": "2026-10-19T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -579,7 +579,7 @@
           "interval_end": "2026-10-19T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -587,7 +587,7 @@
           "interval_end": "2026-10-19T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -595,7 +595,7 @@
           "interval_end": "2026-10-19T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -603,7 +603,7 @@
           "interval_end": "2026-10-19T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -611,7 +611,7 @@
           "interval_end": "2026-10-19T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -619,7 +619,7 @@
           "interval_end": "2026-10-19T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -627,7 +627,7 @@
           "interval_end": "2026-10-19T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -635,7 +635,7 @@
           "interval_end": "2026-10-19T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -643,7 +643,7 @@
           "interval_end": "2026-10-19T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -651,7 +651,7 @@
           "interval_end": "2026-10-19T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -659,7 +659,7 @@
           "interval_end": "2026-10-19T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -667,7 +667,7 @@
           "interval_end": "2026-10-19T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -675,7 +675,7 @@
           "interval_end": "2026-10-19T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -683,7 +683,7 @@
           "interval_end": "2026-10-19T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -691,7 +691,7 @@
           "interval_end": "2026-10-19T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -699,7 +699,7 @@
           "interval_end": "2026-10-19T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -707,7 +707,7 @@
           "interval_end": "2026-10-19T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -715,7 +715,7 @@
           "interval_end": "2026-10-19T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -723,7 +723,7 @@
           "interval_end": "2026-10-19T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -731,7 +731,7 @@
           "interval_end": "2026-10-19T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -739,7 +739,7 @@
           "interval_end": "2026-10-19T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -747,7 +747,7 @@
           "interval_end": "2026-10-19T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -755,7 +755,7 @@
           "interval_end": "2026-10-19T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -763,7 +763,7 @@
           "interval_end": "2026-10-19T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -771,7 +771,7 @@
           "interval_end": "2026-10-19T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -779,7 +779,7 @@
           "interval_end": "2026-10-20T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -787,7 +787,7 @@
           "interval_end": "2026-10-20T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -795,7 +795,7 @@
           "interval_end": "2026-10-20T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -803,7 +803,7 @@
           "interval_end": "2026-10-20T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -811,7 +811,7 @@
           "interval_end": "2026-10-20T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -819,7 +819,7 @@
           "interval_end": "2026-10-20T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -827,7 +827,7 @@
           "interval_end": "2026-10-20T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -835,7 +835,7 @@
           "interval_end": "2026-10-20T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -843,7 +843,7 @@
           "interval_end": "2026-10-20T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -851,7 +851,7 @@
           "interval_end": "2026-10-20T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -859,7 +859,7 @@
           "interval_end": "2026-10-20T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -867,7 +867,7 @@
           "interval_end": "2026-10-20T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -875,7 +875,7 @@
           "interval_end": "2026-10-20T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -883,7 +883,7 @@
           "interval_end": "2026-10-20T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -891,7 +891,7 @@
           "interval_end": "2026-10-20T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -899,7 +899,7 @@
           "interval_end": "2026-10-20T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -907,7 +907,7 @@
           "interval_end": "2026-10-20T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -915,7 +915,7 @@
           "interval_end": "2026-10-20T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -923,7 +923,7 @@
           "interval_end": "2026-10-20T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -931,7 +931,7 @@
           "interval_end": "2026-10-20T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -939,7 +939,7 @@
           "interval_end": "2026-10-20T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -947,7 +947,7 @@
           "interval_end": "2026-10-20T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -955,7 +955,7 @@
           "interval_end": "2026-10-20T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -963,7 +963,7 @@
           "interval_end": "2026-10-20T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -971,7 +971,7 @@
           "interval_end": "2026-10-20T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -979,7 +979,7 @@
           "interval_end": "2026-10-20T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -987,7 +987,7 @@
           "interval_end": "2026-10-20T10:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -995,7 +995,7 @@
           "interval_end": "2026-10-20T11:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1003,7 +1003,7 @@
           "interval_end": "2026-10-20T11:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1011,7 +1011,7 @@
           "interval_end": "2026-10-20T12:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1019,7 +1019,7 @@
           "interval_end": "2026-10-20T12:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1027,7 +1027,7 @@
           "interval_end": "2026-10-20T13:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1035,7 +1035,7 @@
           "interval_end": "2026-10-20T13:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1043,7 +1043,7 @@
           "interval_end": "2026-10-20T14:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1051,7 +1051,7 @@
           "interval_end": "2026-10-20T14:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1059,7 +1059,7 @@
           "interval_end": "2026-10-20T15:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1067,7 +1067,7 @@
           "interval_end": "2026-10-20T15:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1075,7 +1075,7 @@
           "interval_end": "2026-10-20T16:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1083,7 +1083,7 @@
           "interval_end": "2026-10-20T16:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1091,7 +1091,7 @@
           "interval_end": "2026-10-20T17:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1099,7 +1099,7 @@
           "interval_end": "2026-10-20T17:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1107,7 +1107,7 @@
           "interval_end": "2026-10-20T18:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1115,7 +1115,7 @@
           "interval_end": "2026-10-20T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1123,7 +1123,7 @@
           "interval_end": "2026-10-20T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1131,7 +1131,7 @@
           "interval_end": "2026-10-20T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1139,7 +1139,7 @@
           "interval_end": "2026-10-20T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1147,7 +1147,7 @@
           "interval_end": "2026-10-20T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1155,7 +1155,7 @@
           "interval_end": "2026-10-20T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1163,7 +1163,7 @@
           "interval_end": "2026-10-20T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1171,7 +1171,7 @@
           "interval_end": "2026-10-20T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1179,7 +1179,7 @@
           "interval_end": "2026-10-20T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1187,7 +1187,7 @@
           "interval_end": "2026-10-20T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1195,7 +1195,7 @@
           "interval_end": "2026-10-20T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1203,7 +1203,7 @@
           "interval_end": "2026-10-20T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1211,7 +1211,7 @@
           "interval_end": "2026-10-20T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1219,7 +1219,7 @@
           "interval_end": "2026-10-20T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1227,7 +1227,7 @@
           "interval_end": "2026-10-20T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1235,7 +1235,7 @@
           "interval_end": "2026-10-20T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1243,7 +1243,7 @@
           "interval_end": "2026-10-20T18:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1251,7 +1251,7 @@
           "interval_end": "2026-10-20T19:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1259,7 +1259,7 @@
           "interval_end": "2026-10-20T19:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1267,7 +1267,7 @@
           "interval_end": "2026-10-20T20:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1275,7 +1275,7 @@
           "interval_end": "2026-10-20T20:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1283,7 +1283,7 @@
           "interval_end": "2026-10-20T21:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1291,7 +1291,7 @@
           "interval_end": "2026-10-20T21:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1299,7 +1299,7 @@
           "interval_end": "2026-10-20T22:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1307,7 +1307,7 @@
           "interval_end": "2026-10-20T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1315,7 +1315,7 @@
           "interval_end": "2026-10-20T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1323,7 +1323,7 @@
           "interval_end": "2026-10-20T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1331,7 +1331,7 @@
           "interval_end": "2026-10-20T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1339,7 +1339,7 @@
           "interval_end": "2026-10-20T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1347,7 +1347,7 @@
           "interval_end": "2026-10-20T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1355,7 +1355,7 @@
           "interval_end": "2026-10-20T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1363,7 +1363,7 @@
           "interval_end": "2026-10-20T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1371,7 +1371,7 @@
           "interval_end": "2026-10-20T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1379,7 +1379,7 @@
           "interval_end": "2026-10-20T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1387,7 +1387,7 @@
           "interval_end": "2026-10-20T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1395,7 +1395,7 @@
           "interval_end": "2026-10-20T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1403,7 +1403,7 @@
           "interval_end": "2026-10-20T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1411,7 +1411,7 @@
           "interval_end": "2026-10-20T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1419,7 +1419,7 @@
           "interval_end": "2026-10-20T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1427,7 +1427,7 @@
           "interval_end": "2026-10-20T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1435,7 +1435,7 @@
           "interval_end": "2026-10-20T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1443,7 +1443,7 @@
           "interval_end": "2026-10-20T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1451,7 +1451,7 @@
           "interval_end": "2026-10-20T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1459,7 +1459,7 @@
           "interval_end": "2026-10-20T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1467,7 +1467,7 @@
           "interval_end": "2026-10-20T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1475,7 +1475,7 @@
           "interval_end": "2026-10-20T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1483,7 +1483,7 @@
           "interval_end": "2026-10-20T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1491,7 +1491,7 @@
           "interval_end": "2026-10-20T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1499,7 +1499,7 @@
           "interval_end": "2026-10-20T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1507,7 +1507,7 @@
           "interval_end": "2026-10-20T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1515,7 +1515,7 @@
           "interval_end": "2026-10-20T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -1523,7 +1523,7 @@
           "interval_end": "2026-10-20T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1531,7 +1531,7 @@
           "interval_end": "2026-10-21T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1539,7 +1539,7 @@
           "interval_end": "2026-10-21T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1547,7 +1547,7 @@
           "interval_end": "2026-10-21T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1555,7 +1555,7 @@
           "interval_end": "2026-10-21T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1563,7 +1563,7 @@
           "interval_end": "2026-10-21T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1571,7 +1571,7 @@
           "interval_end": "2026-10-21T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1579,7 +1579,7 @@
           "interval_end": "2026-10-21T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1587,7 +1587,7 @@
           "interval_end": "2026-10-21T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1595,7 +1595,7 @@
           "interval_end": "2026-10-21T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1603,7 +1603,7 @@
           "interval_end": "2026-10-21T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1611,7 +1611,7 @@
           "interval_end": "2026-10-21T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1619,7 +1619,7 @@
           "interval_end": "2026-10-21T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1627,7 +1627,7 @@
           "interval_end": "2026-10-21T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1635,7 +1635,7 @@
           "interval_end": "2026-10-21T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1643,7 +1643,7 @@
           "interval_end": "2026-10-21T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1651,7 +1651,7 @@
           "interval_end": "2026-10-21T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1659,7 +1659,7 @@
           "interval_end": "2026-10-21T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1667,7 +1667,7 @@
           "interval_end": "2026-10-21T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1675,7 +1675,7 @@
           "interval_end": "2026-10-21T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1683,7 +1683,7 @@
           "interval_end": "2026-10-21T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1691,7 +1691,7 @@
           "interval_end": "2026-10-21T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1699,7 +1699,7 @@
           "interval_end": "2026-10-21T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1707,7 +1707,7 @@
           "interval_end": "2026-10-21T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1715,7 +1715,7 @@
           "interval_end": "2026-10-21T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1723,7 +1723,7 @@
           "interval_end": "2026-10-21T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -1731,7 +1731,7 @@
           "interval_end": "2026-10-21T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1739,7 +1739,7 @@
           "interval_end": "2026-10-21T10:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1747,7 +1747,7 @@
           "interval_end": "2026-10-21T11:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1755,7 +1755,7 @@
           "interval_end": "2026-10-21T11:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1763,7 +1763,7 @@
           "interval_end": "2026-10-21T12:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1771,7 +1771,7 @@
           "interval_end": "2026-10-21T12:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1779,7 +1779,7 @@
           "interval_end": "2026-10-21T13:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1787,7 +1787,7 @@
           "interval_end": "2026-10-21T13:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1795,7 +1795,7 @@
           "interval_end": "2026-10-21T14:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1803,7 +1803,7 @@
           "interval_end": "2026-10-21T14:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1811,7 +1811,7 @@
           "interval_end": "2026-10-21T15:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1819,7 +1819,7 @@
           "interval_end": "2026-10-21T15:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1827,7 +1827,7 @@
           "interval_end": "2026-10-21T16:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1835,7 +1835,7 @@
           "interval_end": "2026-10-21T16:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1843,7 +1843,7 @@
           "interval_end": "2026-10-21T17:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1851,7 +1851,7 @@
           "interval_end": "2026-10-21T17:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -1859,7 +1859,7 @@
           "interval_end": "2026-10-21T18:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1867,7 +1867,7 @@
           "interval_end": "2026-10-21T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1875,7 +1875,7 @@
           "interval_end": "2026-10-21T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1883,7 +1883,7 @@
           "interval_end": "2026-10-21T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1891,7 +1891,7 @@
           "interval_end": "2026-10-21T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1899,7 +1899,7 @@
           "interval_end": "2026-10-21T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1907,7 +1907,7 @@
           "interval_end": "2026-10-21T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1915,7 +1915,7 @@
           "interval_end": "2026-10-21T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1923,7 +1923,7 @@
           "interval_end": "2026-10-21T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1931,7 +1931,7 @@
           "interval_end": "2026-10-21T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1939,7 +1939,7 @@
           "interval_end": "2026-10-21T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1947,7 +1947,7 @@
           "interval_end": "2026-10-21T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1955,7 +1955,7 @@
           "interval_end": "2026-10-21T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1963,7 +1963,7 @@
           "interval_end": "2026-10-21T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1971,7 +1971,7 @@
           "interval_end": "2026-10-21T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1979,7 +1979,7 @@
           "interval_end": "2026-10-21T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1987,7 +1987,7 @@
           "interval_end": "2026-10-21T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -1995,7 +1995,7 @@
           "interval_end": "2026-10-21T18:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2003,7 +2003,7 @@
           "interval_end": "2026-10-21T19:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2011,7 +2011,7 @@
           "interval_end": "2026-10-21T19:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2019,7 +2019,7 @@
           "interval_end": "2026-10-21T20:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2027,7 +2027,7 @@
           "interval_end": "2026-10-21T20:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2035,7 +2035,7 @@
           "interval_end": "2026-10-21T21:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2043,7 +2043,7 @@
           "interval_end": "2026-10-21T21:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2051,7 +2051,7 @@
           "interval_end": "2026-10-21T22:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2059,7 +2059,7 @@
           "interval_end": "2026-10-21T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2067,7 +2067,7 @@
           "interval_end": "2026-10-21T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2075,7 +2075,7 @@
           "interval_end": "2026-10-21T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2083,7 +2083,7 @@
           "interval_end": "2026-10-21T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2091,7 +2091,7 @@
           "interval_end": "2026-10-21T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2099,7 +2099,7 @@
           "interval_end": "2026-10-21T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2107,7 +2107,7 @@
           "interval_end": "2026-10-21T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2115,7 +2115,7 @@
           "interval_end": "2026-10-21T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2123,7 +2123,7 @@
           "interval_end": "2026-10-21T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2131,7 +2131,7 @@
           "interval_end": "2026-10-21T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2139,7 +2139,7 @@
           "interval_end": "2026-10-21T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2147,7 +2147,7 @@
           "interval_end": "2026-10-21T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2155,7 +2155,7 @@
           "interval_end": "2026-10-21T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2163,7 +2163,7 @@
           "interval_end": "2026-10-21T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2171,7 +2171,7 @@
           "interval_end": "2026-10-21T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2179,7 +2179,7 @@
           "interval_end": "2026-10-21T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2187,7 +2187,7 @@
           "interval_end": "2026-10-21T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2195,7 +2195,7 @@
           "interval_end": "2026-10-21T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2203,7 +2203,7 @@
           "interval_end": "2026-10-21T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2211,7 +2211,7 @@
           "interval_end": "2026-10-21T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2219,7 +2219,7 @@
           "interval_end": "2026-10-21T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2227,7 +2227,7 @@
           "interval_end": "2026-10-21T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2235,7 +2235,7 @@
           "interval_end": "2026-10-21T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2243,7 +2243,7 @@
           "interval_end": "2026-10-21T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2251,7 +2251,7 @@
           "interval_end": "2026-10-21T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2259,7 +2259,7 @@
           "interval_end": "2026-10-21T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2267,7 +2267,7 @@
           "interval_end": "2026-10-21T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2275,7 +2275,7 @@
           "interval_end": "2026-10-21T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2283,7 +2283,7 @@
           "interval_end": "2026-10-22T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2291,7 +2291,7 @@
           "interval_end": "2026-10-22T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2299,7 +2299,7 @@
           "interval_end": "2026-10-22T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2307,7 +2307,7 @@
           "interval_end": "2026-10-22T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2315,7 +2315,7 @@
           "interval_end": "2026-10-22T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2323,7 +2323,7 @@
           "interval_end": "2026-10-22T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2331,7 +2331,7 @@
           "interval_end": "2026-10-22T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2339,7 +2339,7 @@
           "interval_end": "2026-10-22T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2347,7 +2347,7 @@
           "interval_end": "2026-10-22T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2355,7 +2355,7 @@
           "interval_end": "2026-10-22T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2363,7 +2363,7 @@
           "interval_end": "2026-10-22T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2371,7 +2371,7 @@
           "interval_end": "2026-10-22T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2379,7 +2379,7 @@
           "interval_end": "2026-10-22T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2387,7 +2387,7 @@
           "interval_end": "2026-10-22T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2395,7 +2395,7 @@
           "interval_end": "2026-10-22T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2403,7 +2403,7 @@
           "interval_end": "2026-10-22T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2411,7 +2411,7 @@
           "interval_end": "2026-10-22T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2419,7 +2419,7 @@
           "interval_end": "2026-10-22T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2427,7 +2427,7 @@
           "interval_end": "2026-10-22T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2435,7 +2435,7 @@
           "interval_end": "2026-10-22T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2443,7 +2443,7 @@
           "interval_end": "2026-10-22T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2451,7 +2451,7 @@
           "interval_end": "2026-10-22T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2459,7 +2459,7 @@
           "interval_end": "2026-10-22T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2467,7 +2467,7 @@
           "interval_end": "2026-10-22T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2475,7 +2475,7 @@
           "interval_end": "2026-10-22T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -2483,7 +2483,7 @@
           "interval_end": "2026-10-22T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2491,7 +2491,7 @@
           "interval_end": "2026-10-22T10:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2499,7 +2499,7 @@
           "interval_end": "2026-10-22T11:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2507,7 +2507,7 @@
           "interval_end": "2026-10-22T11:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2515,7 +2515,7 @@
           "interval_end": "2026-10-22T12:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2523,7 +2523,7 @@
           "interval_end": "2026-10-22T12:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2531,7 +2531,7 @@
           "interval_end": "2026-10-22T13:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2539,7 +2539,7 @@
           "interval_end": "2026-10-22T13:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2547,7 +2547,7 @@
           "interval_end": "2026-10-22T14:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2555,7 +2555,7 @@
           "interval_end": "2026-10-22T14:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2563,7 +2563,7 @@
           "interval_end": "2026-10-22T15:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2571,7 +2571,7 @@
           "interval_end": "2026-10-22T15:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2579,7 +2579,7 @@
           "interval_end": "2026-10-22T16:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2587,7 +2587,7 @@
           "interval_end": "2026-10-22T16:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2595,7 +2595,7 @@
           "interval_end": "2026-10-22T17:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2603,7 +2603,7 @@
           "interval_end": "2026-10-22T17:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -2611,7 +2611,7 @@
           "interval_end": "2026-10-22T18:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2619,7 +2619,7 @@
           "interval_end": "2026-10-22T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2627,7 +2627,7 @@
           "interval_end": "2026-10-22T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2635,7 +2635,7 @@
           "interval_end": "2026-10-22T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2643,7 +2643,7 @@
           "interval_end": "2026-10-22T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2651,7 +2651,7 @@
           "interval_end": "2026-10-22T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2659,7 +2659,7 @@
           "interval_end": "2026-10-22T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2667,7 +2667,7 @@
           "interval_end": "2026-10-22T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2675,7 +2675,7 @@
           "interval_end": "2026-10-22T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2683,7 +2683,7 @@
           "interval_end": "2026-10-22T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2691,7 +2691,7 @@
           "interval_end": "2026-10-22T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2699,7 +2699,7 @@
           "interval_end": "2026-10-22T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2707,7 +2707,7 @@
           "interval_end": "2026-10-22T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2715,7 +2715,7 @@
           "interval_end": "2026-10-22T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2723,7 +2723,7 @@
           "interval_end": "2026-10-22T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2731,7 +2731,7 @@
           "interval_end": "2026-10-22T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2739,7 +2739,7 @@
           "interval_end": "2026-10-22T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2747,7 +2747,7 @@
           "interval_end": "2026-10-22T18:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2755,7 +2755,7 @@
           "interval_end": "2026-10-22T19:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2763,7 +2763,7 @@
           "interval_end": "2026-10-22T19:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2771,7 +2771,7 @@
           "interval_end": "2026-10-22T20:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2779,7 +2779,7 @@
           "interval_end": "2026-10-22T20:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2787,7 +2787,7 @@
           "interval_end": "2026-10-22T21:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2795,7 +2795,7 @@
           "interval_end": "2026-10-22T21:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2803,7 +2803,7 @@
           "interval_end": "2026-10-22T22:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2811,7 +2811,7 @@
           "interval_end": "2026-10-22T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -2819,7 +2819,7 @@
           "interval_end": "2026-10-22T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2827,7 +2827,7 @@
           "interval_end": "2026-10-22T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2835,7 +2835,7 @@
           "interval_end": "2026-10-22T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2843,7 +2843,7 @@
           "interval_end": "2026-10-22T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2851,7 +2851,7 @@
           "interval_end": "2026-10-22T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2859,7 +2859,7 @@
           "interval_end": "2026-10-22T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2867,7 +2867,7 @@
           "interval_end": "2026-10-22T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2875,7 +2875,7 @@
           "interval_end": "2026-10-22T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2883,7 +2883,7 @@
           "interval_end": "2026-10-22T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2891,7 +2891,7 @@
           "interval_end": "2026-10-22T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2899,7 +2899,7 @@
           "interval_end": "2026-10-22T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2907,7 +2907,7 @@
           "interval_end": "2026-10-22T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2915,7 +2915,7 @@
           "interval_end": "2026-10-22T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2923,7 +2923,7 @@
           "interval_end": "2026-10-22T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2931,7 +2931,7 @@
           "interval_end": "2026-10-22T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2939,7 +2939,7 @@
           "interval_end": "2026-10-22T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2947,7 +2947,7 @@
           "interval_end": "2026-10-22T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2955,7 +2955,7 @@
           "interval_end": "2026-10-22T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2963,7 +2963,7 @@
           "interval_end": "2026-10-22T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2971,7 +2971,7 @@
           "interval_end": "2026-10-22T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2979,7 +2979,7 @@
           "interval_end": "2026-10-22T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2987,7 +2987,7 @@
           "interval_end": "2026-10-22T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -2995,7 +2995,7 @@
           "interval_end": "2026-10-22T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3003,7 +3003,7 @@
           "interval_end": "2026-10-22T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3011,7 +3011,7 @@
           "interval_end": "2026-10-22T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3019,7 +3019,7 @@
           "interval_end": "2026-10-22T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3027,7 +3027,7 @@
           "interval_end": "2026-10-22T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3035,7 +3035,7 @@
           "interval_end": "2026-10-23T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3043,7 +3043,7 @@
           "interval_end": "2026-10-23T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3051,7 +3051,7 @@
           "interval_end": "2026-10-23T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3059,7 +3059,7 @@
           "interval_end": "2026-10-23T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3067,7 +3067,7 @@
           "interval_end": "2026-10-23T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3075,7 +3075,7 @@
           "interval_end": "2026-10-23T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3083,7 +3083,7 @@
           "interval_end": "2026-10-23T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3091,7 +3091,7 @@
           "interval_end": "2026-10-23T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3099,7 +3099,7 @@
           "interval_end": "2026-10-23T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3107,7 +3107,7 @@
           "interval_end": "2026-10-23T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3115,7 +3115,7 @@
           "interval_end": "2026-10-23T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3123,7 +3123,7 @@
           "interval_end": "2026-10-23T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3131,7 +3131,7 @@
           "interval_end": "2026-10-23T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3139,7 +3139,7 @@
           "interval_end": "2026-10-23T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3147,7 +3147,7 @@
           "interval_end": "2026-10-23T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3155,7 +3155,7 @@
           "interval_end": "2026-10-23T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3163,7 +3163,7 @@
           "interval_end": "2026-10-23T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3171,7 +3171,7 @@
           "interval_end": "2026-10-23T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3179,7 +3179,7 @@
           "interval_end": "2026-10-23T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3187,7 +3187,7 @@
           "interval_end": "2026-10-23T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3195,7 +3195,7 @@
           "interval_end": "2026-10-23T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3203,7 +3203,7 @@
           "interval_end": "2026-10-23T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3211,7 +3211,7 @@
           "interval_end": "2026-10-23T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3219,7 +3219,7 @@
           "interval_end": "2026-10-23T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3227,7 +3227,7 @@
           "interval_end": "2026-10-23T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3235,7 +3235,7 @@
           "interval_end": "2026-10-23T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3243,7 +3243,7 @@
           "interval_end": "2026-10-23T10:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3251,7 +3251,7 @@
           "interval_end": "2026-10-23T11:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3259,7 +3259,7 @@
           "interval_end": "2026-10-23T11:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3267,7 +3267,7 @@
           "interval_end": "2026-10-23T12:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3275,7 +3275,7 @@
           "interval_end": "2026-10-23T12:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3283,7 +3283,7 @@
           "interval_end": "2026-10-23T13:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3291,7 +3291,7 @@
           "interval_end": "2026-10-23T13:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3299,7 +3299,7 @@
           "interval_end": "2026-10-23T14:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3307,7 +3307,7 @@
           "interval_end": "2026-10-23T14:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3315,7 +3315,7 @@
           "interval_end": "2026-10-23T15:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3323,7 +3323,7 @@
           "interval_end": "2026-10-23T15:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3331,7 +3331,7 @@
           "interval_end": "2026-10-23T16:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3339,7 +3339,7 @@
           "interval_end": "2026-10-23T16:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3347,7 +3347,7 @@
           "interval_end": "2026-10-23T17:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3355,7 +3355,7 @@
           "interval_end": "2026-10-23T17:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3363,7 +3363,7 @@
           "interval_end": "2026-10-23T18:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3371,7 +3371,7 @@
           "interval_end": "2026-10-23T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3379,7 +3379,7 @@
           "interval_end": "2026-10-23T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3387,7 +3387,7 @@
           "interval_end": "2026-10-23T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3395,7 +3395,7 @@
           "interval_end": "2026-10-23T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3403,7 +3403,7 @@
           "interval_end": "2026-10-23T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3411,7 +3411,7 @@
           "interval_end": "2026-10-23T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3419,7 +3419,7 @@
           "interval_end": "2026-10-23T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3427,7 +3427,7 @@
           "interval_end": "2026-10-23T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3435,7 +3435,7 @@
           "interval_end": "2026-10-23T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3443,7 +3443,7 @@
           "interval_end": "2026-10-23T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3451,7 +3451,7 @@
           "interval_end": "2026-10-23T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3459,7 +3459,7 @@
           "interval_end": "2026-10-23T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3467,7 +3467,7 @@
           "interval_end": "2026-10-23T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3475,7 +3475,7 @@
           "interval_end": "2026-10-23T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3483,7 +3483,7 @@
           "interval_end": "2026-10-23T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3491,7 +3491,7 @@
           "interval_end": "2026-10-23T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3499,7 +3499,7 @@
           "interval_end": "2026-10-23T18:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3507,7 +3507,7 @@
           "interval_end": "2026-10-23T19:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3515,7 +3515,7 @@
           "interval_end": "2026-10-23T19:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3523,7 +3523,7 @@
           "interval_end": "2026-10-23T20:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3531,7 +3531,7 @@
           "interval_end": "2026-10-23T20:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3539,7 +3539,7 @@
           "interval_end": "2026-10-23T21:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3547,7 +3547,7 @@
           "interval_end": "2026-10-23T21:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3555,7 +3555,7 @@
           "interval_end": "2026-10-23T22:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3563,7 +3563,7 @@
           "interval_end": "2026-10-23T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -3571,7 +3571,7 @@
           "interval_end": "2026-10-23T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3579,7 +3579,7 @@
           "interval_end": "2026-10-23T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3587,7 +3587,7 @@
           "interval_end": "2026-10-23T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3595,7 +3595,7 @@
           "interval_end": "2026-10-23T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3603,7 +3603,7 @@
           "interval_end": "2026-10-23T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3611,7 +3611,7 @@
           "interval_end": "2026-10-23T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3619,7 +3619,7 @@
           "interval_end": "2026-10-23T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3627,7 +3627,7 @@
           "interval_end": "2026-10-23T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3635,7 +3635,7 @@
           "interval_end": "2026-10-23T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3643,7 +3643,7 @@
           "interval_end": "2026-10-23T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3651,7 +3651,7 @@
           "interval_end": "2026-10-23T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3659,7 +3659,7 @@
           "interval_end": "2026-10-23T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3667,7 +3667,7 @@
           "interval_end": "2026-10-23T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3675,7 +3675,7 @@
           "interval_end": "2026-10-23T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3683,7 +3683,7 @@
           "interval_end": "2026-10-23T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3691,7 +3691,7 @@
           "interval_end": "2026-10-23T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3699,7 +3699,7 @@
           "interval_end": "2026-10-23T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3707,7 +3707,7 @@
           "interval_end": "2026-10-23T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3715,7 +3715,7 @@
           "interval_end": "2026-10-23T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3723,7 +3723,7 @@
           "interval_end": "2026-10-23T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3731,7 +3731,7 @@
           "interval_end": "2026-10-23T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3739,7 +3739,7 @@
           "interval_end": "2026-10-23T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3747,7 +3747,7 @@
           "interval_end": "2026-10-23T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3755,7 +3755,7 @@
           "interval_end": "2026-10-23T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3763,7 +3763,7 @@
           "interval_end": "2026-10-23T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3771,7 +3771,7 @@
           "interval_end": "2026-10-23T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -3779,7 +3779,7 @@
           "interval_end": "2026-10-23T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3787,7 +3787,7 @@
           "interval_end": "2026-10-24T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3795,7 +3795,7 @@
           "interval_end": "2026-10-24T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3803,7 +3803,7 @@
           "interval_end": "2026-10-24T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3811,7 +3811,7 @@
           "interval_end": "2026-10-24T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3819,7 +3819,7 @@
           "interval_end": "2026-10-24T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3827,7 +3827,7 @@
           "interval_end": "2026-10-24T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3835,7 +3835,7 @@
           "interval_end": "2026-10-24T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3843,7 +3843,7 @@
           "interval_end": "2026-10-24T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3851,7 +3851,7 @@
           "interval_end": "2026-10-24T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3859,7 +3859,7 @@
           "interval_end": "2026-10-24T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3867,7 +3867,7 @@
           "interval_end": "2026-10-24T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3875,7 +3875,7 @@
           "interval_end": "2026-10-24T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3883,7 +3883,7 @@
           "interval_end": "2026-10-24T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3891,7 +3891,7 @@
           "interval_end": "2026-10-24T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3899,7 +3899,7 @@
           "interval_end": "2026-10-24T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3907,7 +3907,7 @@
           "interval_end": "2026-10-24T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3915,7 +3915,7 @@
           "interval_end": "2026-10-24T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3923,7 +3923,7 @@
           "interval_end": "2026-10-24T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3931,7 +3931,7 @@
           "interval_end": "2026-10-24T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3939,7 +3939,7 @@
           "interval_end": "2026-10-24T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3947,7 +3947,7 @@
           "interval_end": "2026-10-24T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3955,7 +3955,7 @@
           "interval_end": "2026-10-24T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3963,7 +3963,7 @@
           "interval_end": "2026-10-24T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3971,7 +3971,7 @@
           "interval_end": "2026-10-24T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3979,7 +3979,7 @@
           "interval_end": "2026-10-24T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -3987,7 +3987,7 @@
           "interval_end": "2026-10-24T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -3995,7 +3995,7 @@
           "interval_end": "2026-10-24T10:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4003,7 +4003,7 @@
           "interval_end": "2026-10-24T11:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4011,7 +4011,7 @@
           "interval_end": "2026-10-24T11:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4019,7 +4019,7 @@
           "interval_end": "2026-10-24T12:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4027,7 +4027,7 @@
           "interval_end": "2026-10-24T12:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4035,7 +4035,7 @@
           "interval_end": "2026-10-24T13:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4043,7 +4043,7 @@
           "interval_end": "2026-10-24T13:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4051,7 +4051,7 @@
           "interval_end": "2026-10-24T14:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4059,7 +4059,7 @@
           "interval_end": "2026-10-24T14:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4067,7 +4067,7 @@
           "interval_end": "2026-10-24T15:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4075,7 +4075,7 @@
           "interval_end": "2026-10-24T15:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4083,7 +4083,7 @@
           "interval_end": "2026-10-24T16:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4091,7 +4091,7 @@
           "interval_end": "2026-10-24T16:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4099,7 +4099,7 @@
           "interval_end": "2026-10-24T17:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4107,7 +4107,7 @@
           "interval_end": "2026-10-24T17:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4115,7 +4115,7 @@
           "interval_end": "2026-10-24T18:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4123,7 +4123,7 @@
           "interval_end": "2026-10-24T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4131,7 +4131,7 @@
           "interval_end": "2026-10-24T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4139,7 +4139,7 @@
           "interval_end": "2026-10-24T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4147,7 +4147,7 @@
           "interval_end": "2026-10-24T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4155,7 +4155,7 @@
           "interval_end": "2026-10-24T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4163,7 +4163,7 @@
           "interval_end": "2026-10-24T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4171,7 +4171,7 @@
           "interval_end": "2026-10-24T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4179,7 +4179,7 @@
           "interval_end": "2026-10-24T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4187,7 +4187,7 @@
           "interval_end": "2026-10-24T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4195,7 +4195,7 @@
           "interval_end": "2026-10-24T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4203,7 +4203,7 @@
           "interval_end": "2026-10-24T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4211,7 +4211,7 @@
           "interval_end": "2026-10-24T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4219,7 +4219,7 @@
           "interval_end": "2026-10-24T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4227,7 +4227,7 @@
           "interval_end": "2026-10-24T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4235,7 +4235,7 @@
           "interval_end": "2026-10-24T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4243,7 +4243,7 @@
           "interval_end": "2026-10-24T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4251,7 +4251,7 @@
           "interval_end": "2026-10-24T18:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4259,7 +4259,7 @@
           "interval_end": "2026-10-24T19:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4267,7 +4267,7 @@
           "interval_end": "2026-10-24T19:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4275,7 +4275,7 @@
           "interval_end": "2026-10-24T20:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4283,7 +4283,7 @@
           "interval_end": "2026-10-24T20:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4291,7 +4291,7 @@
           "interval_end": "2026-10-24T21:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4299,7 +4299,7 @@
           "interval_end": "2026-10-24T21:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4307,7 +4307,7 @@
           "interval_end": "2026-10-24T22:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 4,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4315,7 +4315,7 @@
           "interval_end": "2026-10-24T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4323,7 +4323,7 @@
           "interval_end": "2026-10-24T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4331,7 +4331,7 @@
           "interval_end": "2026-10-24T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4339,7 +4339,7 @@
           "interval_end": "2026-10-24T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4347,7 +4347,7 @@
           "interval_end": "2026-10-24T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4355,7 +4355,7 @@
           "interval_end": "2026-10-24T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4363,7 +4363,7 @@
           "interval_end": "2026-10-24T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4371,7 +4371,7 @@
           "interval_end": "2026-10-24T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4379,7 +4379,7 @@
           "interval_end": "2026-10-24T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4387,7 +4387,7 @@
           "interval_end": "2026-10-24T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4395,7 +4395,7 @@
           "interval_end": "2026-10-24T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4403,7 +4403,7 @@
           "interval_end": "2026-10-24T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4411,7 +4411,7 @@
           "interval_end": "2026-10-24T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4419,7 +4419,7 @@
           "interval_end": "2026-10-24T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4427,7 +4427,7 @@
           "interval_end": "2026-10-24T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4435,7 +4435,7 @@
           "interval_end": "2026-10-24T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4443,7 +4443,7 @@
           "interval_end": "2026-10-24T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4451,7 +4451,7 @@
           "interval_end": "2026-10-24T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4459,7 +4459,7 @@
           "interval_end": "2026-10-24T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4467,7 +4467,7 @@
           "interval_end": "2026-10-24T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4475,7 +4475,7 @@
           "interval_end": "2026-10-24T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4483,7 +4483,7 @@
           "interval_end": "2026-10-24T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4491,7 +4491,7 @@
           "interval_end": "2026-10-24T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4499,7 +4499,7 @@
           "interval_end": "2026-10-24T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4507,7 +4507,7 @@
           "interval_end": "2026-10-24T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4515,7 +4515,7 @@
           "interval_end": "2026-10-24T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4523,7 +4523,7 @@
           "interval_end": "2026-10-24T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -4531,7 +4531,7 @@
           "interval_end": "2026-10-24T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4539,7 +4539,7 @@
           "interval_end": "2026-10-25T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4547,7 +4547,7 @@
           "interval_end": "2026-10-25T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4555,7 +4555,7 @@
           "interval_end": "2026-10-25T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4563,7 +4563,7 @@
           "interval_end": "2026-10-25T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4571,7 +4571,7 @@
           "interval_end": "2026-10-25T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4579,7 +4579,7 @@
           "interval_end": "2026-10-25T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4587,7 +4587,7 @@
           "interval_end": "2026-10-25T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4595,7 +4595,7 @@
           "interval_end": "2026-10-25T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4603,7 +4603,7 @@
           "interval_end": "2026-10-25T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4611,7 +4611,7 @@
           "interval_end": "2026-10-25T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4619,7 +4619,7 @@
           "interval_end": "2026-10-25T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4627,7 +4627,7 @@
           "interval_end": "2026-10-25T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4635,7 +4635,7 @@
           "interval_end": "2026-10-25T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4643,7 +4643,7 @@
           "interval_end": "2026-10-25T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4651,7 +4651,7 @@
           "interval_end": "2026-10-25T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4659,7 +4659,7 @@
           "interval_end": "2026-10-25T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4667,7 +4667,7 @@
           "interval_end": "2026-10-25T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4675,7 +4675,7 @@
           "interval_end": "2026-10-25T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4683,7 +4683,7 @@
           "interval_end": "2026-10-25T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4691,7 +4691,7 @@
           "interval_end": "2026-10-25T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4699,7 +4699,7 @@
           "interval_end": "2026-10-25T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4707,7 +4707,7 @@
           "interval_end": "2026-10-25T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4715,7 +4715,7 @@
           "interval_end": "2026-10-25T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4723,7 +4723,7 @@
           "interval_end": "2026-10-25T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4731,7 +4731,7 @@
           "interval_end": "2026-10-25T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
@@ -4739,7 +4739,7 @@
           "interval_end": "2026-10-25T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4747,7 +4747,7 @@
           "interval_end": "2026-10-25T10:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4755,7 +4755,7 @@
           "interval_end": "2026-10-25T11:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4763,7 +4763,7 @@
           "interval_end": "2026-10-25T11:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4771,7 +4771,7 @@
           "interval_end": "2026-10-25T12:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4779,7 +4779,7 @@
           "interval_end": "2026-10-25T12:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4787,7 +4787,7 @@
           "interval_end": "2026-10-25T13:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4795,7 +4795,7 @@
           "interval_end": "2026-10-25T13:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4803,7 +4803,7 @@
           "interval_end": "2026-10-25T14:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4811,7 +4811,7 @@
           "interval_end": "2026-10-25T14:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4819,7 +4819,7 @@
           "interval_end": "2026-10-25T15:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4827,7 +4827,7 @@
           "interval_end": "2026-10-25T15:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4835,7 +4835,7 @@
           "interval_end": "2026-10-25T16:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4843,7 +4843,7 @@
           "interval_end": "2026-10-25T16:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4851,7 +4851,7 @@
           "interval_end": "2026-10-25T17:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4859,7 +4859,7 @@
           "interval_end": "2026-10-25T17:30:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
@@ -4867,7 +4867,7 @@
           "interval_end": "2026-10-25T18:00:00+05:30",
           "minimum_required": 0,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4875,7 +4875,7 @@
           "interval_end": "2026-10-25T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4883,7 +4883,7 @@
           "interval_end": "2026-10-25T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4891,7 +4891,7 @@
           "interval_end": "2026-10-25T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4899,7 +4899,7 @@
           "interval_end": "2026-10-25T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4907,7 +4907,7 @@
           "interval_end": "2026-10-25T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4915,7 +4915,7 @@
           "interval_end": "2026-10-25T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4923,7 +4923,7 @@
           "interval_end": "2026-10-25T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4931,7 +4931,7 @@
           "interval_end": "2026-10-25T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4939,7 +4939,7 @@
           "interval_end": "2026-10-25T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4947,7 +4947,7 @@
           "interval_end": "2026-10-25T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 2,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4955,7 +4955,7 @@
           "interval_end": "2026-10-25T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4963,7 +4963,7 @@
           "interval_end": "2026-10-25T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4971,7 +4971,7 @@
           "interval_end": "2026-10-25T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4979,7 +4979,7 @@
           "interval_end": "2026-10-25T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4987,7 +4987,7 @@
           "interval_end": "2026-10-25T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -4995,7 +4995,7 @@
           "interval_end": "2026-10-25T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -5003,7 +5003,7 @@
           "interval_end": "2026-10-25T18:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -5011,7 +5011,7 @@
           "interval_end": "2026-10-25T19:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -5019,7 +5019,7 @@
           "interval_end": "2026-10-25T19:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -5027,7 +5027,7 @@
           "interval_end": "2026-10-25T20:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -5035,7 +5035,7 @@
           "interval_end": "2026-10-25T20:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -5043,7 +5043,7 @@
           "interval_end": "2026-10-25T21:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -5051,7 +5051,7 @@
           "interval_end": "2026-10-25T21:30:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -5059,7 +5059,7 @@
           "interval_end": "2026-10-25T22:00:00+05:30",
           "minimum_required": 2,
           "preferred_required": 3,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -5067,7 +5067,7 @@
           "interval_end": "2026-10-25T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
@@ -5075,7 +5075,7 @@
           "interval_end": "2026-10-25T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5083,7 +5083,7 @@
           "interval_end": "2026-10-25T10:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5091,7 +5091,7 @@
           "interval_end": "2026-10-25T11:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5099,7 +5099,7 @@
           "interval_end": "2026-10-25T11:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5107,7 +5107,7 @@
           "interval_end": "2026-10-25T12:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5115,7 +5115,7 @@
           "interval_end": "2026-10-25T12:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5123,7 +5123,7 @@
           "interval_end": "2026-10-25T13:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5131,7 +5131,7 @@
           "interval_end": "2026-10-25T13:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5139,7 +5139,7 @@
           "interval_end": "2026-10-25T14:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5147,7 +5147,7 @@
           "interval_end": "2026-10-25T14:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5155,7 +5155,7 @@
           "interval_end": "2026-10-25T15:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5163,7 +5163,7 @@
           "interval_end": "2026-10-25T15:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5171,7 +5171,7 @@
           "interval_end": "2026-10-25T16:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5179,7 +5179,7 @@
           "interval_end": "2026-10-25T16:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5187,7 +5187,7 @@
           "interval_end": "2026-10-25T17:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5195,7 +5195,7 @@
           "interval_end": "2026-10-25T17:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5203,7 +5203,7 @@
           "interval_end": "2026-10-25T18:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5211,7 +5211,7 @@
           "interval_end": "2026-10-25T18:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5219,7 +5219,7 @@
           "interval_end": "2026-10-25T19:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5227,7 +5227,7 @@
           "interval_end": "2026-10-25T19:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5235,7 +5235,7 @@
           "interval_end": "2026-10-25T20:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5243,7 +5243,7 @@
           "interval_end": "2026-10-25T20:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5251,7 +5251,7 @@
           "interval_end": "2026-10-25T21:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5259,7 +5259,7 @@
           "interval_end": "2026-10-25T21:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5267,7 +5267,7 @@
           "interval_end": "2026-10-25T22:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5275,7 +5275,7 @@
           "interval_end": "2026-10-25T22:30:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         },
         {
           "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
@@ -5283,7 +5283,7 @@
           "interval_end": "2026-10-25T23:00:00+05:30",
           "minimum_required": 1,
           "preferred_required": 1,
-          "source": "band"
+          "source": "template"
         }
       ]
     }

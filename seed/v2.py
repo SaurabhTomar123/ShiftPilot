@@ -51,6 +51,7 @@ from seed.world import (
     build_roster,
     requirement,
     shift_identity,
+    staffing_template,
     stamp,
     uid,
 )
@@ -320,7 +321,30 @@ def spice_rows(seed: int) -> Rows:
                     for m in range(OPEN, CLOSE, INTERVAL)
                 ],
             )
+        rows.add(
+            "staffing_templates",
+            *[
+                {
+                    "id": uid("staffing_template", f"{key}:{wd}:{skill}:{start}"),
+                    "org_id": org,
+                    "outlet_id": uid("outlet", key),
+                    "weekday": wd,
+                    "start_minute": start,
+                    "end_minute": end,
+                    "skill_id": SKILL[skill],
+                    "minimum_required": mn,
+                    "preferred_required": pref,
+                    "active": True,
+                    "revision": 1,
+                }
+                for wd, start, end, skill, mn, pref in staffing_template()
+            ],
+        )
         for week in (WEEK, NEXT_WEEK):
+            rows.add(
+                "demand_weeks",
+                {"org_id": org, "outlet_id": uid("outlet", key), "week_start": week, "demand_revision": 3},
+            )
             for d in range(7):
                 day = week + timedelta(days=d)
                 for skill in ("Grill", "Prep", "Server", "Cashier"):
@@ -338,7 +362,7 @@ def spice_rows(seed: int) -> Rows:
                                     "interval_end": at(day, m + INTERVAL),
                                     "minimum_required": mn,
                                     "preferred_required": pref,
-                                    "source": "band",
+                                    "source": "template",
                                     "demand_revision": 3,
                                 },
                             )

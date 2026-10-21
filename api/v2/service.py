@@ -15,6 +15,7 @@ from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel
 from sqlalchemy import and_, delete, or_, select, text
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from api.v2 import schemas as s
@@ -22,7 +23,14 @@ from api.v2.auth import require
 from api.v2.errors import ApiError, not_found
 from core.auth import Caller, Role, assert_outlet
 from db.models import AuditLog, Employee, Outlet
-from db.models_v2 import EmployeeAvailability, EmployeeSkill, IdempotencyKey, Skill, StaffingRequirement
+from db.models_v2 import (
+    DemandWeek,
+    EmployeeAvailability,
+    EmployeeSkill,
+    IdempotencyKey,
+    Skill,
+    StaffingRequirement,
+)
 from db.session import tenant_session
 
 INTERVAL_MINUTES = 30
@@ -410,6 +418,26 @@ def put_availability(caller: Caller, employee_id: uuid.UUID, body: s.Availabilit
 # ---------------------------------------------------------------- staffing requirements
 
 
+def demand_revision(
+    session: Session, outlet: Outlet, week_start: date, rows: list[StaffingRequirement] | None = None
+) -> int:
+    """The outlet-week demand_revision (v3 section 18); weeks never written fall back to their rows."""
+    week = session.get(DemandWeek, (outlet.id, week_start))
+    if week is not None:
+        return week.demand_revision
+    return max((r.demand_revision for r in rows or []), default=1)
+
+
+def bump_demand(session: Session, outlet: Outlet, week_start: date, current: int) -> int:
+    revision = current + 1
+    session.execute(
+        pg_insert(DemandWeek)
+        .values(org_id=outlet.org_id, outlet_id=outlet.id, week_start=week_start, demand_revision=revision)
+        .on_conflict_do_update(index_elements=["outlet_id", "week_start"], set_={"demand_revision": revision})
+    )
+    return revision
+
+
 def _staffing_view(session: Session, outlet: Outlet, week_start: date) -> s.StaffingRequirements:
     start, end = week_bounds(outlet, week_start)
     rows = list(
@@ -423,7 +451,7 @@ def _staffing_view(session: Session, outlet: Outlet, week_start: date) -> s.Staf
             .order_by(StaffingRequirement.interval_start, StaffingRequirement.skill_id)
         )
     )
-    revision = max((r.demand_revision for r in rows), default=1)
+    revision = demand_revision(session, outlet, week_start, rows)
     local = ZoneInfo(outlet.timezone)  # instants are returned in the outlet's own offset
     return s.StaffingRequirements(
         outlet_id=outlet.id,
@@ -503,7 +531,7 @@ def put_staffing(
                 StaffingRequirement.interval_start < end,
             )
         )
-        revision = current.demand_revision + 1
+        revision = bump_demand(session, outlet, week_start, current.demand_revision)
         session.add_all(
             [
                 StaffingRequirement(

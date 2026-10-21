@@ -63,6 +63,7 @@ from seed.world import (
     uid,
 )
 from seed.world import STAFF as world_staff
+from seed.world import staffing_template as world_staffing_template
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "contracts" / "v2"
@@ -331,12 +332,28 @@ def staffing(week: date) -> s.StaffingRequirements:
                             interval_end=at(day, minute + INTERVAL),
                             minimum_required=mn,
                             preferred_required=pref,
-                            source="band",
+                            source="template",
                         )
                     )
     return s.StaffingRequirements(
         outlet_id=HOME, week_start=week, interval_minutes=INTERVAL, demand_revision=3, intervals=items
     )
+
+
+def staffing_templates() -> s.StaffingTemplateSet:
+    blocks = [
+        s.StaffingTemplateBlock(
+            weekday=wd,
+            start_minute=start,
+            end_minute=end,
+            skill_id=SKILL[skill],
+            minimum_required=mn,
+            preferred_required=pref,
+        )
+        for wd, start, end, skill, mn, pref in world_staffing_template()
+    ]
+    blocks.sort(key=lambda b: (b.weekday, str(b.skill_id), b.start_minute))
+    return s.StaffingTemplateSet(outlet_id=HOME, revision=1, items=blocks)
 
 
 def error(code: s.ErrorCode, message: str, *, retryable: bool = False, **details: Any) -> s.ErrorResponse:
@@ -522,6 +539,19 @@ def fixtures() -> list[Fixture]:
         )
 
     owner_weeks = {key: other_outlet_week(key) for key in ("koramangala", "hsr")}
+    # Saturday dinner needs a second grill cook at minimum and a fourth preferred.
+    template = staffing_templates()
+    saturday_rush = template.model_copy(
+        update={
+            "revision": 2,
+            "items": [
+                b.model_copy(update={"minimum_required": 2, "preferred_required": 4})
+                if (b.weekday, b.skill_id, b.start_minute) == (5, SKILL["Grill"], 1080)
+                else b
+                for b in template.items
+            ],
+        }
+    )
 
     return (
         p3_fixtures(published)
@@ -773,6 +803,47 @@ def fixtures() -> list[Fixture]:
                 200,
                 staffing(WEEK),
                 {"path_params": {"outlet_id": ind}, "query": {"week_start": WEEK.isoformat()}},
+            ),
+            Fixture(
+                "staffing_templates.list",
+                "listStaffingTemplates",
+                "GET",
+                "/v2/outlets/{outlet_id}/staffing-templates",
+                "manager_indiranagar",
+                200,
+                staffing_templates(),
+                {"path_params": {"outlet_id": ind}},
+            ),
+            Fixture(
+                "staffing_templates.put",
+                "putStaffingTemplates",
+                "PUT",
+                "/v2/outlets/{outlet_id}/staffing-templates",
+                "manager_indiranagar",
+                200,
+                saturday_rush,
+                {
+                    "path_params": {"outlet_id": ind},
+                    "body": {
+                        "base_revision": 1,
+                        "items": [b.model_dump(mode="json") for b in saturday_rush.items],
+                    },
+                },
+            ),
+            Fixture(
+                "staffing.expand",
+                "expandStaffingRequirements",
+                "POST",
+                "/v2/outlets/{outlet_id}/staffing-requirements/expand",
+                "manager_indiranagar",
+                200,
+                staffing(WEEK).model_copy(update={"demand_revision": 4}),
+                {
+                    "path_params": {"outlet_id": ind},
+                    "query": {"week_start": WEEK.isoformat()},
+                    "headers": {"Idempotency-Key": "expand-5c2e91a0"},
+                    "body": {"base_demand_revision": 3, "use_demand_bands": False},
+                },
             ),
             Fixture(
                 "schedule_week.published",

@@ -153,6 +153,23 @@ def requirement(skill: str, weekday: int, minute: int) -> tuple[int, int]:
     return (0, 0)
 
 
+def staffing_template() -> list[tuple[int, int, int, str, int, int]]:
+    """requirement() as a weekly staffing template: (weekday, start, end, skill, minimum, preferred)
+    blocks merging consecutive 30-minute intervals with the same values. Intervals needing nobody are
+    left out, so expanding it reproduces the seeded week exactly."""
+    blocks = []
+    for weekday in range(7):
+        for skill in ("Grill", "Prep", "Server", "Cashier"):
+            start, value = None, (0, 0)
+            for minute in [*range(OPEN, CLOSE, INTERVAL), CLOSE]:
+                now = requirement(skill, weekday, minute) if minute < CLOSE else (0, 0)
+                if now != value:
+                    if start is not None and value[1]:
+                        blocks.append((weekday, start, minute, skill, *value))
+                    start, value = minute, now
+    return blocks
+
+
 # ---------------------------------------------------------------- roster construction
 
 

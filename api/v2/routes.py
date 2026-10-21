@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import AwareDatetime
 
-from api.v2 import absences, candidates, drafts, generation, proposals, rosters, service
+from api.v2 import absences, candidates, drafts, generation, proposals, rosters, service, staffing
 from api.v2 import auth as v2auth
 from api.v2 import schemas as s
 
@@ -214,6 +214,49 @@ def put_availability(
 def list_shift_templates(caller: v2auth.CallerDep, outlet_id: UUID) -> s.ShiftTemplateList:
     """The outlet's active shift shapes, for add_from_template edits. Read-only here."""
     return drafts.list_shift_templates(caller, outlet_id)
+
+
+@router.get(
+    "/outlets/{outlet_id}/staffing-templates",
+    operation_id="listStaffingTemplates",
+    response_model=s.StaffingTemplateSet,
+    responses=_errors(403, 404, 422),
+)
+def list_staffing_templates(caller: v2auth.CallerDep, outlet_id: UUID) -> s.StaffingTemplateSet:
+    """The outlet's weekly staffing template: weekday x block x role -> minimum and preferred staff."""
+    return staffing.list_templates(caller, outlet_id)
+
+
+@router.put(
+    "/outlets/{outlet_id}/staffing-templates",
+    operation_id="putStaffingTemplates",
+    response_model=s.StaffingTemplateSet,
+    responses=_errors(403, 404, 409, 422),
+)
+def put_staffing_templates(
+    caller: v2auth.CallerDep, outlet_id: UUID, body: s.StaffingTemplateUpdate
+) -> s.StaffingTemplateSet:
+    """Replace the whole template set. 409 stale_version when base_revision is not current; 422 when
+    blocks of one weekday and role overlap. Weeks change only when expanded."""
+    return staffing.put_templates(caller, outlet_id, body)
+
+
+@router.post(
+    "/outlets/{outlet_id}/staffing-requirements/expand",
+    operation_id="expandStaffingRequirements",
+    response_model=s.StaffingRequirements,
+    responses=_errors(403, 404, 409, 422),
+)
+def expand_staffing_requirements(
+    caller: v2auth.CallerDep,
+    outlet_id: UUID,
+    week_start: WeekStart,
+    idempotency_key: IdempotencyKey,
+    body: s.ExpandStaffingRequest,
+) -> s.StaffingRequirements:
+    """Regenerate the week's template (and, if asked, band) rows from the template. Manual overrides
+    survive; the outlet-week demand_revision is bumped. 409 stale_version on a stale base."""
+    return staffing.expand(caller, outlet_id, week_start, idempotency_key, body)
 
 
 @router.get(

@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.5.0-p4",
+  "contract_version": "3.6.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -322,6 +322,24 @@
     {
       "name": "staffing.get",
       "operation_id": "getStaffingRequirements",
+      "status": 200,
+      "schema": "StaffingRequirements"
+    },
+    {
+      "name": "staffing_templates.list",
+      "operation_id": "listStaffingTemplates",
+      "status": 200,
+      "schema": "StaffingTemplateSet"
+    },
+    {
+      "name": "staffing_templates.put",
+      "operation_id": "putStaffingTemplates",
+      "status": 200,
+      "schema": "StaffingTemplateSet"
+    },
+    {
+      "name": "staffing.expand",
+      "operation_id": "expandStaffingRequirements",
       "status": 200,
       "schema": "StaffingRequirements"
     },

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.5.0-p4"
+    "version": "3.6.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -956,6 +956,327 @@
               }
             },
             "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/outlets/{outlet_id}/staffing-templates": {
+      "get": {
+        "summary": "List Staffing Templates",
+        "description": "The outlet's weekly staffing template: weekday x block x role -> minimum and preferred staff.",
+        "operationId": "listStaffingTemplates",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outlet_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Outlet Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffingTemplateSet"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      },
+      "put": {
+        "summary": "Put Staffing Templates",
+        "description": "Replace the whole template set. 409 stale_version when base_revision is not current; 422 when\nblocks of one weekday and role overlap. Weeks change only when expanded.",
+        "operationId": "putStaffingTemplates",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outlet_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Outlet Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffingTemplateUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffingTemplateSet"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/outlets/{outlet_id}/staffing-requirements/expand": {
+      "post": {
+        "summary": "Expand Staffing Requirements",
+        "description": "Regenerate the week's template (and, if asked, band) rows from the template. Manual overrides\nsurvive; the outlet-week demand_revision is bumped. 409 stale_version on a stale base.",
+        "operationId": "expandStaffingRequirements",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outlet_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Outlet Id"
+            }
+          },
+          {
+            "name": "week_start",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "Monday of the week, outlet-local.",
+              "title": "Week Start"
+            },
+            "description": "Monday of the week, outlet-local."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpandStaffingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffingRequirements"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
           },
           "422": {
             "content": {
@@ -5329,6 +5650,27 @@
         ],
         "title": "ErrorResponse"
       },
+      "ExpandStaffingRequest": {
+        "properties": {
+          "base_demand_revision": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Base Demand Revision"
+          },
+          "use_demand_bands": {
+            "type": "boolean",
+            "title": "Use Demand Bands",
+            "description": "Let demand bands (orders/hour -> staff) override the template where the week has order counts.",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "base_demand_revision"
+        ],
+        "title": "ExpandStaffingRequest"
+      },
       "ExplanationFact": {
         "properties": {
           "code": {
@@ -7469,11 +7811,14 @@
           "source": {
             "type": "string",
             "enum": [
+              "template",
               "band",
               "manual",
-              "scenario"
+              "scenario",
+              "forecast"
             ],
-            "title": "Source"
+            "title": "Source",
+            "description": "template/band rows are regenerated by expandStaffingRequirements; manual rows are overrides that survive re-expansion."
           }
         },
         "additionalProperties": false,
@@ -7551,6 +7896,115 @@
           "intervals"
         ],
         "title": "StaffingRequirementsUpdate"
+      },
+      "StaffingTemplateBlock": {
+        "properties": {
+          "weekday": {
+            "type": "integer",
+            "maximum": 6.0,
+            "minimum": 0.0,
+            "title": "Weekday",
+            "description": "Monday = 0."
+          },
+          "start_minute": {
+            "type": "integer",
+            "multipleOf": 30.0,
+            "maximum": 1410.0,
+            "minimum": 0.0,
+            "title": "Start Minute",
+            "description": "Outlet-local minutes from midnight."
+          },
+          "end_minute": {
+            "type": "integer",
+            "multipleOf": 30.0,
+            "maximum": 1440.0,
+            "minimum": 30.0,
+            "title": "End Minute"
+          },
+          "skill_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Skill Id"
+          },
+          "minimum_required": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Minimum Required"
+          },
+          "preferred_required": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Preferred Required"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "weekday",
+          "start_minute",
+          "end_minute",
+          "skill_id",
+          "minimum_required",
+          "preferred_required"
+        ],
+        "title": "StaffingTemplateBlock",
+        "description": "Default demand for one weekday, block and skill (e.g. Monday 12:00-15:00: 2 Grill, 3 preferred)."
+      },
+      "StaffingTemplateSet": {
+        "properties": {
+          "outlet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Outlet Id"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Revision",
+            "description": "0 before any template was saved. Send it as base_revision."
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/StaffingTemplateBlock"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "By weekday, skill and start."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "outlet_id",
+          "revision",
+          "items"
+        ],
+        "title": "StaffingTemplateSet"
+      },
+      "StaffingTemplateUpdate": {
+        "properties": {
+          "base_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Base Revision"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/StaffingTemplateBlock"
+            },
+            "type": "array",
+            "maxItems": 2000,
+            "title": "Items",
+            "description": "The whole set; blocks of one weekday and skill must not overlap."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "base_revision",
+          "items"
+        ],
+        "title": "StaffingTemplateUpdate"
       },
       "UpdateAbsenceRequest": {
         "properties": {

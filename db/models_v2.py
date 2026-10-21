@@ -250,6 +250,56 @@ class DemandInput(Base):
     orders: Mapped[int] = mapped_column(Integer)
 
 
+REQUIREMENT_SOURCES = ("template", "band", "manual", "scenario", "forecast")
+
+
+class StaffingTemplate(Base):
+    """Default demand for a normal week (architecture v3 section 18): weekday x block x skill.
+    Replacing a set deactivates the old rows, so revision (shared by the active set) stays monotonic."""
+
+    __tablename__ = "staffing_templates"
+    __table_args__ = (
+        ref("outlet_id", "outlets"),
+        ref("skill_id", "skills"),
+        CheckConstraint("weekday BETWEEN 0 AND 6", name="staffing_template_weekday"),
+        CheckConstraint(
+            "start_minute >= 0 AND end_minute <= 1440 AND end_minute > start_minute "
+            "AND start_minute % 30 = 0 AND end_minute % 30 = 0",
+            name="staffing_template_block",
+        ),
+        CheckConstraint(
+            "minimum_required >= 0 AND preferred_required >= minimum_required", name="staffing_template_staff"
+        ),
+        CheckConstraint("revision >= 1", name="staffing_template_revision"),
+        Index("ix_staffing_templates_active", "outlet_id", "weekday", postgresql_where=text("active")),
+    )
+    id: Mapped[uuid.UUID] = pk()
+    org_id: Mapped[uuid.UUID] = org()
+    outlet_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    weekday: Mapped[int] = mapped_column(SmallInteger)
+    start_minute: Mapped[int] = mapped_column(SmallInteger)
+    end_minute: Mapped[int] = mapped_column(SmallInteger)
+    skill_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    minimum_required: Mapped[int] = mapped_column(SmallInteger)
+    preferred_required: Mapped[int] = mapped_column(SmallInteger)
+    active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    revision: Mapped[int] = mapped_column(Integer)
+
+
+class DemandWeek(Base):
+    """The outlet-week demand_revision; every change to that week's staffing requirements bumps it."""
+
+    __tablename__ = "demand_weeks"
+    __table_args__ = (
+        ref("outlet_id", "outlets"),
+        CheckConstraint("demand_revision >= 1", name="demand_week_revision"),
+    )
+    org_id: Mapped[uuid.UUID] = org()
+    outlet_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    week_start: Mapped[date] = mapped_column(Date, primary_key=True)
+    demand_revision: Mapped[int] = mapped_column(Integer)
+
+
 class StaffingRequirement(Base):
     __tablename__ = "staffing_requirements"
     __table_args__ = (
@@ -261,7 +311,7 @@ class StaffingRequirement(Base):
         CheckConstraint(
             "minimum_required >= 0 AND preferred_required >= minimum_required", name="requirement_staff"
         ),
-        one_of("source", ("band", "manual", "scenario"), "requirement_source"),
+        one_of("source", REQUIREMENT_SOURCES, "requirement_source"),
     )
     id: Mapped[uuid.UUID] = pk()
     org_id: Mapped[uuid.UUID] = org()

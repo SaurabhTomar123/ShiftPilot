@@ -23,6 +23,13 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.6.0-p4 (live): staffing templates (architecture v3 §18)
+
+- **`listStaffingTemplates` / `putStaffingTemplates` `/v2/outlets/{id}/staffing-templates`:** the outlet's weekly default demand, as blocks of weekday × start and end (on the 30-minute grid) × role → `minimum_required` and `preferred_required`. `PUT` replaces the whole set with `base_revision`: a stale base is `409 stale_version` with `details.current_revision`, and overlapping blocks for one weekday and role are a field-level `422`. Saving a template changes no week until that week is expanded. Fixtures: `staffing_templates.list`, `.put`.
+- **`expandStaffingRequirements` `POST /v2/outlets/{id}/staffing-requirements/expand?week_start=`:** body `{base_demand_revision, use_demand_bands}` plus `Idempotency-Key`. Regenerates the week's `template` rows, and `band` rows if bands are requested, from the template. **Manual overrides survive.** It returns the week's requirements with a bumped `demand_revision`. Fixture: `staffing.expand`.
+- **`StaffingInterval.source`** gains `template` and `forecast`. The seeded weeks are now `template` rows; they were `band`. When a manager changes an interval, send it as `manual` so re-expansion keeps it.
+- **`demand_revision` is a true outlet-week counter.** It can't go back when a week's rows are rebuilt.
+
 ## What changed in 3.5.0-p4 (live): answers to the manual-edit review
 
 This change is additive.
