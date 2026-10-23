@@ -25,6 +25,7 @@ from api.v2 import (
     language,
     notifications,
     proposals,
+    recommendations,
     rosters,
     rules,
     service,
@@ -821,3 +822,17 @@ def repair_schedule(
     """Repair runs are claimed before batch work and never blocked by it. An active repair for the same
     absence is returned (idempotent). 409 conflict lists locked affected shifts without authorization."""
     return generation.enqueue_repair(caller, outlet_id, week_start, idempotency_key, body)
+
+
+@router.post(
+    "/recommendations/replacements",
+    operation_id="recommendReplacements",
+    response_model=s.ReplacementRecommendations,
+    responses=_errors(403, 404, 422),
+)
+def recommend_replacements(
+    caller: v2auth.CallerDep, body: s.ReplacementRequest
+) -> s.ReplacementRecommendations:
+    """Who can cover this shift, ranked by disruption then the chosen profile (architecture v4 section 46).
+    Read-only and synchronous; choose someone by applying the returned edit to a draft."""
+    return recommendations.replacements(caller, body)

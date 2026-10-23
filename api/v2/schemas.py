@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.18.0-p4"
+CONTRACT_VERSION = "3.19.0-p4"
 
 
 class Model(BaseModel):
@@ -1089,6 +1089,62 @@ class ShiftExplanation(Model):
     chosen_employee_id: UUID | None = Field(description="null = the shift was left open.")
     reasons: list[ExplanationFact] = Field(description="Facts about the chosen employee.")
     alternatives: list[AlternativeFact] = Field(description="Other qualified people (bounded list).")
+
+
+class ReplacementRequest(Model):
+    version_id: UUID = Field(description="The version the shift is in: published or a draft.")
+    logical_shift_id: UUID
+    profile: Strategy = Field(
+        default="balanced",
+        description="Ranks eligible people the way the profile weighs cost, fairness and preferences.",
+    )
+    include_other_outlets: bool = Field(default=False, description="Owner only; managers get 403.")
+    limit: int = Field(default=5, ge=1, le=10)
+
+
+class Recommendation(Model):
+    rank: int = Field(ge=1)
+    employee_id: UUID
+    name: str
+    home_outlet_id: UUID
+    disruption_class: Literal["direct", "overtime", "cross_outlet"] = Field(
+        description="Ranked in this order first: direct, then pushing into overtime, then another outlet."
+    )
+    incremental_cost: Money = Field(
+        description="Labour plus overtime premium, against leaving the shift open."
+    )
+    overtime_minutes_added: Minutes
+    fairness_delta: float | None = Field(
+        description="Change in fairness burden deviation; negative = fairer."
+    )
+    weekly_minutes_after: Minutes
+    within_preferred_window: bool | None = Field(description="null: the person states no preferred windows.")
+    reasons: list[ExplanationFact] = Field(
+        description="Every eligibility check passed, plus cost, burden and disruption."
+    )
+    edit: UpdateShift = Field(description="Apply to a draft with applyEdits to choose this person.")
+
+
+class ReplacementRecommendations(Model):
+    """Who can cover this shift (architecture v4 sections 11, 46). Read-only; nothing is written.
+
+    basis is a direct assignment: each person is checked as if they took the shift and nothing else
+    changed. Someone blocked only by another of their shifts could become free if that shift moved; that
+    is a repair run, never presented as a recommendation."""
+
+    version_id: UUID
+    version_status: VersionStatus
+    shift: Shift
+    vacating_employee_id: UUID | None = Field(description="Who holds the shift now; null = open.")
+    profile: Strategy
+    basis: Literal["direct_assignment"] = "direct_assignment"
+    policy_version: int
+    considered: int = Field(ge=0, description="Qualified people checked.")
+    eligible: int = Field(
+        ge=0, description="Of those, people no rule blocks (recommendations is the top `limit`)."
+    )
+    recommendations: list[Recommendation]
+    rejected: list[AlternativeFact] = Field(description="Blocked people with the concrete rule (at most 10).")
 
 
 ChangeClass = Literal["KEPT", "MOVED_TIME", "REASSIGNED", "CREATED", "REMOVED", "UNFILLED"]

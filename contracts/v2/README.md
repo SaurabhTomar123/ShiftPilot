@@ -23,6 +23,24 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.19.0-p4 (live): replacement recommendations (architecture v4 §11, §46)
+
+This change is additive.
+
+- **New endpoint, `POST /v2/recommendations/replacements`:** body `{version_id, logical_shift_id, profile, include_other_outlets, limit}`. It answers "who can cover this shift?" for a published or draft version. It is synchronous and read-only; nothing is written.
+- **Eligibility comes first.** Each qualified person is checked by the independent validator as a direct assignment: they take the shift and nothing else changes (`basis: "direct_assignment"`). People a rule blocks are listed in `rejected` (up to 10) with the concrete fact and its `rule_ids` or `absence_ids`. They are never ranked.
+- **Ranking:** first by `disruption_class` (`direct`, then `overtime`, then `cross_outlet`), then by the chosen `profile` on the solver's own scale: incremental cost, fairness penalty, working outside a preferred window and hours alignment.
+- **Each recommendation includes:**
+  - `incremental_cost` against leaving the shift open, `overtime_minutes_added`, `fairness_delta`, `weekly_minutes_after` and `within_preferred_window`;
+  - `reasons`;
+  - a ready-made `edit` (`{op: "update", logical_shift_id, employee_id}`). Apply it to a draft with `applyEdits` to choose that person; it then follows the normal proposal and approval path.
+- **Errors:**
+  - `include_other_outlets` is owner-only: managers get `403`.
+  - A shift that isn't in the version: `422`.
+  - An unknown version: `404`.
+
+Fixtures: `recommendations.replacements` (the same Wednesday shift as the repair story; the repair candidate gives it to the person ranked first), `recommendations.replacements.other_outlets.manager` (403), `recommendations.replacements.unknown_shift` (422).
+
 ## What changed in 3.18.0-p4 (live): decision trace (architecture v4 §18)
 
 This change is additive.

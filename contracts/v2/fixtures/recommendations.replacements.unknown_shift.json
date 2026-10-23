@@ -1,0 +1,38 @@
+{
+  "name": "recommendations.replacements.unknown_shift",
+  "operation_id": "recommendReplacements",
+  "method": "POST",
+  "path": "/v2/recommendations/replacements",
+  "persona": "manager_indiranagar",
+  "request": {
+    "body": {
+      "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "logical_shift_id": "d020b4f4-fa5a-5c4a-aa85-467c46a70043",
+      "profile": "balanced",
+      "include_other_outlets": false,
+      "limit": 5
+    }
+  },
+  "response": {
+    "status": 422,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "validation_failed",
+        "message": "Some fields need attention.",
+        "retryable": false,
+        "details": {
+          "fields": [
+            {
+              "path": [
+                "logical_shift_id"
+              ],
+              "message": "That shift is not in this version."
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

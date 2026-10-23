@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.18.0-p4",
+  "contract_version": "3.19.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -156,6 +156,24 @@
       "operation_id": "getOptimizationCandidate",
       "status": 200,
       "schema": "CandidateDetail"
+    },
+    {
+      "name": "recommendations.replacements",
+      "operation_id": "recommendReplacements",
+      "status": 200,
+      "schema": "ReplacementRecommendations"
+    },
+    {
+      "name": "recommendations.replacements.other_outlets.manager",
+      "operation_id": "recommendReplacements",
+      "status": 403,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "recommendations.replacements.unknown_shift",
+      "operation_id": "recommendReplacements",
+      "status": 422,
+      "schema": "ErrorResponse"
     },
     {
       "name": "candidate.select.repair",

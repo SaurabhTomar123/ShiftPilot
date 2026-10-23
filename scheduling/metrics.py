@@ -125,8 +125,9 @@ def fairness_breakdown(snap: Snapshot, assigned: list[Shift]) -> dict[str, int]:
     return {"policy_version": fairness.POLICY.version, **fairness.components(week, snap.outlet.tz, regular)}
 
 
-def fairness_deviation(snap: Snapshot, assigned: list[Shift]) -> float | None:
-    """Among the outlet's active staff, history plus this week (work elsewhere this week included)."""
+def _burdens(snap: Snapshot, assigned: list[Shift]) -> tuple[dict[UUID, int], dict[UUID, int]]:
+    """The outlet's active staff (regular minutes) and their burden: history plus this week, work
+    elsewhere this week included."""
     people = {
         e.id: e.regular_weekly_minutes
         for e in snap.employees.values()
@@ -135,7 +136,17 @@ def fairness_deviation(snap: Snapshot, assigned: list[Shift]) -> float | None:
     week_start, week_end = snap.week_bounds()
     week = [s for s in [*assigned, *snap.commitments] if week_start <= s.start_at < week_end]
     current = fairness.burden(week, snap.outlet.tz, people)
-    return fairness.deviation(people, fairness.merged(snap.history_burden, current))
+    return people, fairness.merged(snap.history_burden, current)
+
+
+def fairness_deviation(snap: Snapshot, assigned: list[Shift]) -> float | None:
+    """Among the outlet's active staff, history plus this week (work elsewhere this week included)."""
+    return fairness.deviation(*_burdens(snap, assigned))
+
+
+def fairness_penalty(snap: Snapshot, assigned: list[Shift]) -> int:
+    """The same quantity on the solver's integer scale, so a profile's fairness weight means the same."""
+    return fairness.penalty(*_burdens(snap, assigned))
 
 
 def hours_preference_deviation(snap: Snapshot, assigned: list[Shift]) -> int | None:

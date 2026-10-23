@@ -77,6 +77,16 @@ def deviation(people: Mapping[UUID, int], burdens: Mapping[UUID, int]) -> float 
     return round(sum(abs(v - mean) for v in norm.values()) / len(norm), 2)
 
 
+def penalty(people: Mapping[UUID, int], burdens: Mapping[UUID, int]) -> int:
+    """Sum of |n * norm_e - sum norm| with norm_e scaled to 40 h in thousandths: the solver's fairness
+    term (scheduling.solver._fairness_term) evaluated on a finished roster."""
+    if len(people) < 2:
+        return 0
+    norm = [round(1000 * PER_MINUTES / max(1, cap)) * burdens.get(e, 0) for e, cap in people.items()]
+    total, n = sum(norm), len(norm)
+    return sum(abs(n * v - total) for v in norm)
+
+
 def merged(history: Mapping[UUID, int], current: Mapping[UUID, int]) -> dict[UUID, int]:
     return {e: history.get(e, 0) + current.get(e, 0) for e in {*history, *current}}
 

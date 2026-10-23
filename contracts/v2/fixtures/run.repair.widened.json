@@ -44,7 +44,7 @@
             "minimum_deficit_minutes": 0,
             "preferred_deficit_minutes": 6570,
             "labour_cost": {
-              "amount_paise": 7447500,
+              "amount_paise": 7431750,
               "currency": "INR"
             },
             "overtime_cost": {
@@ -357,7 +357,7 @@
           "explanations": [
             {
               "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
-              "chosen_employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+              "chosen_employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
               "reasons": [
                 {
                   "code": "skill",
@@ -382,9 +382,9 @@
                 {
                   "code": "weekly_hours",
                   "ok": true,
-                  "message": "45h this week after the change",
+                  "message": "7.5h this week after the change",
                   "facts": {
-                    "weekly_minutes": 2700,
+                    "weekly_minutes": 450,
                     "regular_weekly_minutes": 2880
                   }
                 },
@@ -405,9 +405,9 @@
                 {
                   "code": "incremental_cost",
                   "ok": true,
-                  "message": "INR 1,350 for this shift",
+                  "message": "INR 1,192 for this shift",
                   "facts": {
-                    "paise": 135000
+                    "paise": 119250
                   }
                 },
                 {
@@ -430,8 +430,8 @@
               ],
               "alternatives": [
                 {
-                  "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
-                  "name": "Chitra Indiranagar",
+                  "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+                  "name": "Aman Shah",
                   "status": "eligible_not_selected",
                   "reasons": [
                     {
@@ -457,9 +457,9 @@
                     {
                       "code": "weekly_hours",
                       "ok": true,
-                      "message": "7.5h this week after the change",
+                      "message": "45h this week after the change",
                       "facts": {
-                        "weekly_minutes": 450,
+                        "weekly_minutes": 2700,
                         "regular_weekly_minutes": 2880
                       }
                     },
@@ -512,7 +512,7 @@
             "strategy": "least_disruption",
             "summary": {
               "compared_to": "base_version",
-              "cost_delta_paise": -22500,
+              "cost_delta_paise": -38250,
               "preferred_gap_delta_minutes": 0,
               "fairness_delta": 0.0,
               "overtime_minutes": 0,

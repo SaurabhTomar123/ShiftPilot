@@ -1,0 +1,263 @@
+{
+  "name": "recommendations.replacements",
+  "operation_id": "recommendReplacements",
+  "method": "POST",
+  "path": "/v2/recommendations/replacements",
+  "persona": "manager_indiranagar",
+  "request": {
+    "body": {
+      "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+      "profile": "balanced",
+      "include_other_outlets": false,
+      "limit": 5
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "ReplacementRecommendations",
+    "body": {
+      "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "version_status": "published",
+      "shift": {
+        "id": "bc3a4357-615c-5a17-a72c-c058500ef67c",
+        "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+        "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+        "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+        "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+        "start_at": "2026-10-21T10:00:00+05:30",
+        "end_at": "2026-10-21T18:00:00+05:30",
+        "break_start_at": "2026-10-21T15:30:00+05:30",
+        "break_minutes": 30,
+        "locked": false,
+        "lock_reason": null
+      },
+      "vacating_employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+      "profile": "balanced",
+      "basis": "direct_assignment",
+      "policy_version": 1,
+      "considered": 4,
+      "eligible": 2,
+      "recommendations": [
+        {
+          "rank": 1,
+          "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
+          "name": "Chitra Indiranagar",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "disruption_class": "direct",
+          "incremental_cost": {
+            "amount_paise": 119250,
+            "currency": "INR"
+          },
+          "overtime_minutes_added": 0,
+          "fairness_delta": 0.0,
+          "weekly_minutes_after": 450,
+          "within_preferred_window": null,
+          "reasons": [
+            {
+              "code": "skill",
+              "ok": true,
+              "message": "Qualified for Prep",
+              "facts": {
+                "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21"
+              }
+            },
+            {
+              "code": "available",
+              "ok": true,
+              "message": "Available for the shift",
+              "facts": {}
+            },
+            {
+              "code": "no_conflict",
+              "ok": true,
+              "message": "No overlapping shift and rest rules met",
+              "facts": {}
+            },
+            {
+              "code": "weekly_hours",
+              "ok": true,
+              "message": "7.5h this week after the change",
+              "facts": {
+                "weekly_minutes": 450,
+                "regular_weekly_minutes": 2880
+              }
+            },
+            {
+              "code": "rules",
+              "ok": true,
+              "message": "Within their scheduling rules",
+              "facts": {}
+            },
+            {
+              "code": "travel",
+              "ok": true,
+              "message": "Works at this outlet",
+              "facts": {
+                "travel_minutes": 0
+              }
+            },
+            {
+              "code": "incremental_cost",
+              "ok": true,
+              "message": "INR 1,192 for this shift",
+              "facts": {
+                "paise": 119250
+              }
+            },
+            {
+              "code": "fairness_burden",
+              "ok": true,
+              "message": "No closing or weekend burden",
+              "facts": {
+                "points": 0,
+                "policy_version": 1
+              }
+            },
+            {
+              "code": "disruption",
+              "ok": true,
+              "message": "Replaces the person published for this shift",
+              "facts": {
+                "class": "reassigned"
+              }
+            }
+          ],
+          "edit": {
+            "op": "update",
+            "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+            "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
+            "skill_id": null,
+            "start_at": null,
+            "end_at": null,
+            "break_start_at": null,
+            "break_minutes": null
+          }
+        },
+        {
+          "rank": 2,
+          "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+          "name": "Aman Shah",
+          "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "disruption_class": "direct",
+          "incremental_cost": {
+            "amount_paise": 135000,
+            "currency": "INR"
+          },
+          "overtime_minutes_added": 0,
+          "fairness_delta": 0.0,
+          "weekly_minutes_after": 2700,
+          "within_preferred_window": null,
+          "reasons": [
+            {
+              "code": "skill",
+              "ok": true,
+              "message": "Qualified for Prep",
+              "facts": {
+                "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21"
+              }
+            },
+            {
+              "code": "available",
+              "ok": true,
+              "message": "Available for the shift",
+              "facts": {}
+            },
+            {
+              "code": "no_conflict",
+              "ok": true,
+              "message": "No overlapping shift and rest rules met",
+              "facts": {}
+            },
+            {
+              "code": "weekly_hours",
+              "ok": true,
+              "message": "45h this week after the change",
+              "facts": {
+                "weekly_minutes": 2700,
+                "regular_weekly_minutes": 2880
+              }
+            },
+            {
+              "code": "rules",
+              "ok": true,
+              "message": "Within their scheduling rules",
+              "facts": {}
+            },
+            {
+              "code": "travel",
+              "ok": true,
+              "message": "Works at this outlet",
+              "facts": {
+                "travel_minutes": 0
+              }
+            },
+            {
+              "code": "incremental_cost",
+              "ok": true,
+              "message": "INR 1,350 for this shift",
+              "facts": {
+                "paise": 135000
+              }
+            },
+            {
+              "code": "fairness_burden",
+              "ok": true,
+              "message": "No closing or weekend burden",
+              "facts": {
+                "points": 0,
+                "policy_version": 1
+              }
+            },
+            {
+              "code": "disruption",
+              "ok": true,
+              "message": "Replaces the person published for this shift",
+              "facts": {
+                "class": "reassigned"
+              }
+            }
+          ],
+          "edit": {
+            "op": "update",
+            "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+            "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+            "skill_id": null,
+            "start_at": null,
+            "end_at": null,
+            "break_start_at": null,
+            "break_minutes": null
+          }
+        }
+      ],
+      "rejected": [
+        {
+          "employee_id": "7df5532e-f630-5999-90fe-0b04f004bf92",
+          "name": "Kavya Reddy",
+          "status": "rejected",
+          "reasons": [
+            {
+              "code": "no_conflict",
+              "ok": false,
+              "message": "Would break overlap, rest or travel rules",
+              "facts": {}
+            }
+          ]
+        },
+        {
+          "employee_id": "39ecd01e-c984-50d7-a64c-9a350c67e8f6",
+          "name": "Neha Iyer",
+          "status": "rejected",
+          "reasons": [
+            {
+              "code": "available",
+              "ok": false,
+              "message": "Not available for the shift",
+              "facts": {}
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

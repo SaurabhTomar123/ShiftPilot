@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.18.0-p4"
+    "version": "3.19.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -5176,6 +5176,90 @@
           }
         }
       }
+    },
+    "/v2/recommendations/replacements": {
+      "post": {
+        "summary": "Recommend Replacements",
+        "description": "Who can cover this shift, ranked by disruption then the chosen profile (architecture v4 section 46).\nRead-only and synchronous; choose someone by applying the returned edit to a draft.",
+        "operationId": "recommendReplacements",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplacementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplacementRecommendations"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not Implemented",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -8679,6 +8763,106 @@
         ],
         "title": "PublishResult"
       },
+      "Recommendation": {
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Rank"
+          },
+          "employee_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Employee Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "home_outlet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Home Outlet Id"
+          },
+          "disruption_class": {
+            "type": "string",
+            "enum": [
+              "direct",
+              "overtime",
+              "cross_outlet"
+            ],
+            "title": "Disruption Class",
+            "description": "Ranked in this order first: direct, then pushing into overtime, then another outlet."
+          },
+          "incremental_cost": {
+            "$ref": "#/components/schemas/Money",
+            "description": "Labour plus overtime premium, against leaving the shift open."
+          },
+          "overtime_minutes_added": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Overtime Minutes Added"
+          },
+          "fairness_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fairness Delta",
+            "description": "Change in fairness burden deviation; negative = fairer."
+          },
+          "weekly_minutes_after": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Weekly Minutes After"
+          },
+          "within_preferred_window": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Within Preferred Window",
+            "description": "null: the person states no preferred windows."
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ExplanationFact"
+            },
+            "type": "array",
+            "title": "Reasons",
+            "description": "Every eligibility check passed, plus cost, burden and disruption."
+          },
+          "edit": {
+            "$ref": "#/components/schemas/UpdateShift",
+            "description": "Apply to a draft with applyEdits to choose this person."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rank",
+          "employee_id",
+          "name",
+          "home_outlet_id",
+          "disruption_class",
+          "incremental_cost",
+          "overtime_minutes_added",
+          "fairness_delta",
+          "weekly_minutes_after",
+          "within_preferred_window",
+          "reasons",
+          "edit"
+        ],
+        "title": "Recommendation"
+      },
       "RelaxationEmployee": {
         "properties": {
           "employee_id": {
@@ -8931,6 +9115,155 @@
         ],
         "title": "RepairStage",
         "description": "One widening stage of a repair run (architecture v3 section 12), in the order tried."
+      },
+      "ReplacementRecommendations": {
+        "properties": {
+          "version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Version Id"
+          },
+          "version_status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "superseded",
+              "discarded"
+            ],
+            "title": "Version Status"
+          },
+          "shift": {
+            "$ref": "#/components/schemas/Shift"
+          },
+          "vacating_employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacating Employee Id",
+            "description": "Who holds the shift now; null = open."
+          },
+          "profile": {
+            "type": "string",
+            "enum": [
+              "balanced",
+              "lowest_cost",
+              "staff_friendly",
+              "max_coverage",
+              "stability",
+              "fairness"
+            ],
+            "title": "Profile"
+          },
+          "basis": {
+            "type": "string",
+            "const": "direct_assignment",
+            "title": "Basis",
+            "default": "direct_assignment"
+          },
+          "policy_version": {
+            "type": "integer",
+            "title": "Policy Version"
+          },
+          "considered": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Considered",
+            "description": "Qualified people checked."
+          },
+          "eligible": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Eligible",
+            "description": "Of those, people no rule blocks (recommendations is the top `limit`)."
+          },
+          "recommendations": {
+            "items": {
+              "$ref": "#/components/schemas/Recommendation"
+            },
+            "type": "array",
+            "title": "Recommendations"
+          },
+          "rejected": {
+            "items": {
+              "$ref": "#/components/schemas/AlternativeFact"
+            },
+            "type": "array",
+            "title": "Rejected",
+            "description": "Blocked people with the concrete rule (at most 10)."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version_id",
+          "version_status",
+          "shift",
+          "vacating_employee_id",
+          "profile",
+          "policy_version",
+          "considered",
+          "eligible",
+          "recommendations",
+          "rejected"
+        ],
+        "title": "ReplacementRecommendations",
+        "description": "Who can cover this shift (architecture v4 sections 11, 46). Read-only; nothing is written.\n\nbasis is a direct assignment: each person is checked as if they took the shift and nothing else\nchanged. Someone blocked only by another of their shifts could become free if that shift moved; that\nis a repair run, never presented as a recommendation."
+      },
+      "ReplacementRequest": {
+        "properties": {
+          "version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Version Id",
+            "description": "The version the shift is in: published or a draft."
+          },
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id"
+          },
+          "profile": {
+            "type": "string",
+            "enum": [
+              "balanced",
+              "lowest_cost",
+              "staff_friendly",
+              "max_coverage",
+              "stability",
+              "fairness"
+            ],
+            "title": "Profile",
+            "description": "Ranks eligible people the way the profile weighs cost, fairness and preferences.",
+            "default": "balanced"
+          },
+          "include_other_outlets": {
+            "type": "boolean",
+            "title": "Include Other Outlets",
+            "description": "Owner only; managers get 403.",
+            "default": false
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "default": 5
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version_id",
+          "logical_shift_id"
+        ],
+        "title": "ReplacementRequest"
       },
       "ReportAbsenceRequest": {
         "properties": {

@@ -31,6 +31,7 @@ from scheduling import diff as sched_diff
 from scheduling import edits as sched_edits
 from scheduling import metrics as sched_metrics
 from scheduling import model
+from scheduling import recommend as sched_recommend
 from scheduling import trace as sched_trace
 from scheduling import validator as sched_validator
 from seed import world_snapshot
@@ -1842,20 +1843,13 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             repair_run_ids=[leave_repair] if any(not h.locked for h in hits) else [],
         )
 
-    # The repair's chosen plan: the same week with the absent employee's Wednesday shift handed to a
-    # colleague who has the skill, is available and is not working that day.
+    # The repair's chosen plan: the same week with the absent employee's Wednesday shift handed to the
+    # colleague the replacement recommender ranks first (so the two fixtures tell one story).
     base = [_to_model(sh) for sh in published.shifts]
-    busy = {sh.employee_id for sh in base if sh.start_at.astimezone(IST).date() == wednesday}
-    skill = next(k for k, v in SKILL.items() if v == hit.skill_id)
-    end_minute = hit.end_at.astimezone(IST).hour * 60 + hit.end_at.astimezone(IST).minute
-    cover = next(
-        uid("employee", e.key)
-        for e in EMPLOYEES
-        if skill in e.skills
-        and wednesday.weekday() not in e.unavailable_days
-        and (e.latest_end is None or end_minute <= e.latest_end)
-        and uid("employee", e.key) not in busy
+    rec = sched_recommend.recommend(
+        world_snapshot.build("indiranagar", WEEK, with_bench=True), base, hit.logical_shift_id, "balanced"
     )
+    cover = rec.options[0].employee_id
     repaired = [
         replace(sh, employee_id=cover) if sh.logical_id == hit.logical_shift_id else sh for sh in base
     ]
@@ -1900,6 +1894,57 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             "trace_changes": repair_rows,
         }
     )
+
+    def fact(r: Any) -> s.ExplanationFact:
+        return s.ExplanationFact(code=r.code, ok=r.ok, message=r.message, facts=r.facts)
+
+    recommended = s.ReplacementRecommendations(
+        version_id=published.id,
+        version_status="published",
+        shift=hit,
+        vacating_employee_id=employee,
+        profile="balanced",
+        policy_version=sched_recommend.POLICY_VERSION,
+        considered=rec.considered,
+        eligible=rec.eligible,
+        recommendations=[
+            s.Recommendation(
+                rank=i,
+                employee_id=o.employee_id,
+                name=o.name,
+                home_outlet_id=o.home_outlet_id,
+                disruption_class=o.disruption_class,  # type: ignore[arg-type]
+                incremental_cost=s.Money(amount_paise=o.incremental_cost_paise),
+                overtime_minutes_added=max(0, o.overtime_minutes_added),
+                fairness_delta=o.fairness_delta,
+                weekly_minutes_after=o.weekly_minutes_after,
+                within_preferred_window=o.within_preferred_window,
+                reasons=[fact(r) for r in o.reasons],
+                edit=s.UpdateShift(
+                    op="update", logical_shift_id=hit.logical_shift_id, employee_id=o.employee_id
+                ),
+            )
+            for i, o in enumerate(rec.options, start=1)
+        ],
+        rejected=[
+            s.AlternativeFact(
+                employee_id=a.employee_id,
+                name=a.name,
+                status="rejected",
+                reasons=[fact(r) for r in a.reasons],
+            )
+            for a in rec.rejected
+        ],
+    )
+    rec_req = {
+        "body": {
+            "version_id": str(published.id),
+            "logical_shift_id": str(hit.logical_shift_id),
+            "profile": "balanced",
+            "include_other_outlets": False,
+            "limit": 5,
+        }
+    }
     repair_draft = s.ScheduleVersion(
         id=uid("version", repair_key),
         schedule_id=published.schedule_id,
@@ -2133,6 +2178,40 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             200,
             repair_detail,
             {"path_params": {"candidate_id": str(repair_candidate.id)}},
+        ),
+        Fixture(
+            "recommendations.replacements",
+            "recommendReplacements",
+            "POST",
+            "/v2/recommendations/replacements",
+            "manager_indiranagar",
+            200,
+            recommended,
+            rec_req,
+        ),
+        Fixture(
+            "recommendations.replacements.other_outlets.manager",
+            "recommendReplacements",
+            "POST",
+            "/v2/recommendations/replacements",
+            "manager_indiranagar",
+            403,
+            error("permission_denied", "Only an owner can borrow staff from other outlets."),
+            {"body": {**rec_req["body"], "include_other_outlets": True}},
+        ),
+        Fixture(
+            "recommendations.replacements.unknown_shift",
+            "recommendReplacements",
+            "POST",
+            "/v2/recommendations/replacements",
+            "manager_indiranagar",
+            422,
+            error(
+                "validation_failed",
+                "Some fields need attention.",
+                fields=[{"path": ["logical_shift_id"], "message": "That shift is not in this version."}],
+            ),
+            {"body": {**rec_req["body"], "logical_shift_id": str(uid("logical_shift", "not-in-week"))}},
         ),
         Fixture(
             "candidate.select.repair",
