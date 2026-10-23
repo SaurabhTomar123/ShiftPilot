@@ -23,6 +23,12 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## Fixtures added under 3.16.0-p4 (no schema change)
+
+- **Requested leave, every transition:** `absence.update.requested.confirm` (manager; lists the affected shifts and starts a repair), `.reject` (manager), `.cancel` (the employee withdrawing it). Errors: `absence.update.withdraw_conflict` (409, the employee withdraws after a manager decided), `absence.update.already_closed` (409, deciding a rejected or cancelled record).
+- **`absence.report.requested`** now lists the shift the leave overlaps. The server always computed this for requested records; `repair_suggested` stays false until it is confirmed.
+- **Repair candidates:** `candidate.detail.repair` (one changed shift, against the published base) and `candidate.select.repair` (the draft: `source: "repair"`, `base_version_id` = the published version). `run.repair.widened` now carries the same candidate, with real metrics.
+
 ## What changed in 3.16.0-p4 (live): fairness burden (architecture v4 §12)
 
 This change is additive. Every `Metrics` now has **`fairness_burden_deviation`**: across the outlet's staff, the mean absolute deviation of burden points per 40 h of regular capacity, over the last 8 published weeks plus the week shown. Points come from versioned policy 1: a closing shift (ends at 22:00 or later) 3, a weekend shift 2, a second shift on the same day 2, each overtime hour 1. Lower is fairer. Label it "fairness burden"; it is not hours-preference alignment. **`fairness_components`** breaks the week's burden points down as `{policy_version, closing, weekend, split, overtime}` (this week only, everyone at the outlet), so a candidate's delta from the baseline can be shown component by component. The `staff_friendly` profile now weighs it (15%). The dedicated Fairness strategy arrives with the candidate portfolio.

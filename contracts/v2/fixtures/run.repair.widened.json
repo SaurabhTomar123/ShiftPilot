@@ -44,7 +44,7 @@
             "minimum_deficit_minutes": 0,
             "preferred_deficit_minutes": 6570,
             "labour_cost": {
-              "amount_paise": 7470000,
+              "amount_paise": 7447500,
               "currency": "INR"
             },
             "overtime_cost": {
@@ -65,23 +65,11 @@
               "overtime": 0
             }
           },
-          "changed_shifts": 2,
+          "changed_shifts": 1,
           "validation": {
             "hard_violations": 0,
             "soft_violations": 23,
             "violations": [
-              {
-                "code": "preferred_coverage",
-                "severity": "soft",
-                "message": "Grill is below preferred staffing for 420 staff-minutes on Mon 19 Oct.",
-                "employee_id": null,
-                "logical_shift_ids": [],
-                "facts": {
-                  "date": "2026-10-19",
-                  "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
-                  "deficit_minutes": 420
-                }
-              },
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
@@ -97,24 +85,24 @@
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
-                "message": "Server is below preferred staffing for 420 staff-minutes on Mon 19 Oct.",
+                "message": "Grill is below preferred staffing for 420 staff-minutes on Mon 19 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
                 "facts": {
                   "date": "2026-10-19",
-                  "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+                  "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
                   "deficit_minutes": 420
                 }
               },
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
-                "message": "Grill is below preferred staffing for 420 staff-minutes on Tue 20 Oct.",
+                "message": "Server is below preferred staffing for 420 staff-minutes on Mon 19 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
                 "facts": {
-                  "date": "2026-10-20",
-                  "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+                  "date": "2026-10-19",
+                  "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
                   "deficit_minutes": 420
                 }
               },
@@ -133,24 +121,24 @@
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
-                "message": "Server is below preferred staffing for 420 staff-minutes on Tue 20 Oct.",
+                "message": "Grill is below preferred staffing for 420 staff-minutes on Tue 20 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
                 "facts": {
                   "date": "2026-10-20",
-                  "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+                  "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
                   "deficit_minutes": 420
                 }
               },
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
-                "message": "Grill is below preferred staffing for 420 staff-minutes on Wed 21 Oct.",
+                "message": "Server is below preferred staffing for 420 staff-minutes on Tue 20 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
                 "facts": {
-                  "date": "2026-10-21",
-                  "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+                  "date": "2026-10-20",
+                  "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
                   "deficit_minutes": 420
                 }
               },
@@ -169,24 +157,24 @@
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
-                "message": "Server is below preferred staffing for 420 staff-minutes on Wed 21 Oct.",
+                "message": "Grill is below preferred staffing for 420 staff-minutes on Wed 21 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
                 "facts": {
                   "date": "2026-10-21",
-                  "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+                  "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
                   "deficit_minutes": 420
                 }
               },
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
-                "message": "Grill is below preferred staffing for 420 staff-minutes on Thu 22 Oct.",
+                "message": "Server is below preferred staffing for 420 staff-minutes on Wed 21 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
                 "facts": {
-                  "date": "2026-10-22",
-                  "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+                  "date": "2026-10-21",
+                  "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
                   "deficit_minutes": 420
                 }
               },
@@ -205,23 +193,11 @@
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
-                "message": "Server is below preferred staffing for 420 staff-minutes on Thu 22 Oct.",
+                "message": "Grill is below preferred staffing for 420 staff-minutes on Thu 22 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
                 "facts": {
                   "date": "2026-10-22",
-                  "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
-                  "deficit_minutes": 420
-                }
-              },
-              {
-                "code": "preferred_coverage",
-                "severity": "soft",
-                "message": "Grill is below preferred staffing for 420 staff-minutes on Fri 23 Oct.",
-                "employee_id": null,
-                "logical_shift_ids": [],
-                "facts": {
-                  "date": "2026-10-23",
                   "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
                   "deficit_minutes": 420
                 }
@@ -229,23 +205,11 @@
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
-                "message": "Prep is below preferred staffing for 30 staff-minutes on Fri 23 Oct.",
+                "message": "Server is below preferred staffing for 420 staff-minutes on Thu 22 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
                 "facts": {
-                  "date": "2026-10-23",
-                  "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
-                  "deficit_minutes": 30
-                }
-              },
-              {
-                "code": "preferred_coverage",
-                "severity": "soft",
-                "message": "Server is below preferred staffing for 420 staff-minutes on Fri 23 Oct.",
-                "employee_id": null,
-                "logical_shift_ids": [],
-                "facts": {
-                  "date": "2026-10-23",
+                  "date": "2026-10-22",
                   "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
                   "deficit_minutes": 420
                 }
@@ -265,23 +229,11 @@
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
-                "message": "Grill is below preferred staffing for 420 staff-minutes on Sat 24 Oct.",
+                "message": "Prep is below preferred staffing for 30 staff-minutes on Fri 23 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
                 "facts": {
-                  "date": "2026-10-24",
-                  "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
-                  "deficit_minutes": 420
-                }
-              },
-              {
-                "code": "preferred_coverage",
-                "severity": "soft",
-                "message": "Prep is below preferred staffing for 30 staff-minutes on Sat 24 Oct.",
-                "employee_id": null,
-                "logical_shift_ids": [],
-                "facts": {
-                  "date": "2026-10-24",
+                  "date": "2026-10-23",
                   "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
                   "deficit_minutes": 30
                 }
@@ -289,11 +241,23 @@
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
-                "message": "Server is below preferred staffing for 420 staff-minutes on Sat 24 Oct.",
+                "message": "Grill is below preferred staffing for 420 staff-minutes on Fri 23 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
                 "facts": {
-                  "date": "2026-10-24",
+                  "date": "2026-10-23",
+                  "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+                  "deficit_minutes": 420
+                }
+              },
+              {
+                "code": "preferred_coverage",
+                "severity": "soft",
+                "message": "Server is below preferred staffing for 420 staff-minutes on Fri 23 Oct.",
+                "employee_id": null,
+                "logical_shift_ids": [],
+                "facts": {
+                  "date": "2026-10-23",
                   "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
                   "deficit_minutes": 420
                 }
@@ -313,12 +277,36 @@
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
-                "message": "Grill is below preferred staffing for 420 staff-minutes on Sun 25 Oct.",
+                "message": "Prep is below preferred staffing for 30 staff-minutes on Sat 24 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
                 "facts": {
-                  "date": "2026-10-25",
+                  "date": "2026-10-24",
+                  "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+                  "deficit_minutes": 30
+                }
+              },
+              {
+                "code": "preferred_coverage",
+                "severity": "soft",
+                "message": "Grill is below preferred staffing for 420 staff-minutes on Sat 24 Oct.",
+                "employee_id": null,
+                "logical_shift_ids": [],
+                "facts": {
+                  "date": "2026-10-24",
                   "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+                  "deficit_minutes": 420
+                }
+              },
+              {
+                "code": "preferred_coverage",
+                "severity": "soft",
+                "message": "Server is below preferred staffing for 420 staff-minutes on Sat 24 Oct.",
+                "employee_id": null,
+                "logical_shift_ids": [],
+                "facts": {
+                  "date": "2026-10-24",
+                  "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
                   "deficit_minutes": 420
                 }
               },
@@ -337,6 +325,18 @@
               {
                 "code": "preferred_coverage",
                 "severity": "soft",
+                "message": "Grill is below preferred staffing for 420 staff-minutes on Sun 25 Oct.",
+                "employee_id": null,
+                "logical_shift_ids": [],
+                "facts": {
+                  "date": "2026-10-25",
+                  "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+                  "deficit_minutes": 420
+                }
+              },
+              {
+                "code": "preferred_coverage",
+                "severity": "soft",
                 "message": "Server is below preferred staffing for 420 staff-minutes on Sun 25 Oct.",
                 "employee_id": null,
                 "logical_shift_ids": [],
@@ -349,7 +349,7 @@
             ]
           },
           "disruption": {
-            "changed_shifts": 2,
+            "changed_shifts": 1,
             "added_shifts": 0,
             "cross_outlet_moves": 0,
             "open_shifts": 0

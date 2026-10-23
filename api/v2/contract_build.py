@@ -15,7 +15,7 @@ import argparse
 import json
 import sys
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Any, Literal
@@ -1792,6 +1792,104 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
         kind="leave",
         status="requested",
     )
+
+    def overlapping(emp: uuid.UUID, start: Any, end: Any) -> list[s.AffectedShift]:
+        return [
+            s.AffectedShift(
+                schedule_id=published.schedule_id,
+                version_id=published.id,
+                logical_shift_id=sh.logical_shift_id,
+                outlet_id=sh.outlet_id,
+                skill_id=sh.skill_id,
+                start_at=sh.start_at,
+                end_at=sh.end_at,
+                locked=sh.locked,
+            )
+            for sh in published.shifts
+            if sh.employee_id == emp and sh.start_at < end and sh.end_at > start
+        ]
+
+    leave_hits = overlapping(ravi, requested.start_at, requested.end_at)
+    leave_locked = [h.logical_shift_id for h in leave_hits if h.locked]
+    leave_repair = uid("run", f"repair:{requested.id}")
+
+    def requested_report(status: str) -> s.AbsenceReport:
+        hits = leave_hits if status == "confirmed" else []
+        return s.AbsenceReport(
+            absence=s.AbsenceMark.model_validate(requested.model_dump() | {"status": status}),
+            affected=hits,
+            lock_conflicts=leave_locked if hits else [],
+            repair_suggested=bool(hits),
+            repair_run_ids=[leave_repair] if any(not h.locked for h in hits) else [],
+        )
+
+    # The repair's chosen plan: the same week with the absent employee's Wednesday shift handed to a
+    # colleague who has the skill, is available and is not working that day.
+    base = [_to_model(sh) for sh in published.shifts]
+    busy = {sh.employee_id for sh in base if sh.start_at.astimezone(IST).date() == wednesday}
+    skill = next(k for k, v in SKILL.items() if v == hit.skill_id)
+    end_minute = hit.end_at.astimezone(IST).hour * 60 + hit.end_at.astimezone(IST).minute
+    cover = next(
+        uid("employee", e.key)
+        for e in EMPLOYEES
+        if skill in e.skills
+        and wednesday.weekday() not in e.unavailable_days
+        and (e.latest_end is None or end_minute <= e.latest_end)
+        and uid("employee", e.key) not in busy
+    )
+    repaired = [
+        replace(sh, employee_id=cover) if sh.logical_id == hit.logical_shift_id else sh for sh in base
+    ]
+    repair_key = f"indiranagar:{WEEK}:repair:{absence_id}"
+    repaired_eval = _evaluated(repaired)
+    moved = next(sh for sh in repaired if sh.logical_id == hit.logical_shift_id)
+    repair_candidate = s.Candidate(
+        id=uid("candidate", f"repair:{absence_id}:1"),
+        rank=1,
+        strategy="least_disruption",
+        solver_status="OPTIMAL",
+        proven_optimal=True,
+        materialized_version_id=None,
+        metrics=repaired_eval["metrics"],
+        changed_shifts=1,
+        validation=repaired_eval["validation"],
+        disruption=s.Disruption(changed_shifts=1, added_shifts=0, cross_outlet_moves=0, open_shifts=0),
+    )
+    repair_detail = s.CandidateDetail.model_validate(
+        repair_candidate.model_dump()
+        | {
+            "run_id": repair_run,
+            "base_version_id": published.id,
+            "diff": {
+                "added": [],
+                "changed": [
+                    s.CandidateShift.model_validate(
+                        _to_contract(moved, repair_key).model_dump(exclude={"id", "lock_reason"})
+                    )
+                ],
+                "removed": [],
+            },
+        }
+    )
+    repair_draft = s.ScheduleVersion(
+        id=uid("version", repair_key),
+        schedule_id=published.schedule_id,
+        version_number=published.version_number + 1,
+        status="draft",
+        source="repair",
+        reason="Selected option 1 (least disruption)",
+        base_version_id=published.id,
+        optimization_run_id=repair_run,
+        created_by_user_id=uid("user", "manager_indiranagar"),
+        approved_by_user_id=None,
+        created_at=stamp("2026-10-21T16:24:10"),
+        published_at=None,
+        revision=1,
+        input_hash="sha256:" + uuid.uuid5(NS, "input:repair").hex,
+        shifts=[_to_contract(sh, repair_key) for sh in repaired],
+        **repaired_eval,
+        recorded_metrics=repaired_eval["metrics"],
+    )
     body = {
         "employee_id": str(employee),
         "start_at": mark.start_at.isoformat(),
@@ -1827,22 +1925,7 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             "finished_at": stamp("2026-10-21T16:21:02.900"),
             "solver_wall_ms": 2480,
             "poll_after_ms": None,
-            "candidates": [
-                s.Candidate(
-                    id=uid("candidate", f"repair:{absence_id}:1"),
-                    rank=1,
-                    strategy="least_disruption",
-                    solver_status="OPTIMAL",
-                    proven_optimal=True,
-                    materialized_version_id=None,
-                    metrics=published.metrics,
-                    changed_shifts=2,
-                    validation=published.validation,
-                    disruption=s.Disruption(
-                        changed_shifts=2, added_shifts=0, cross_outlet_moves=0, open_shifts=0
-                    ),
-                )
-            ],
+            "candidates": [repair_candidate],
             "repair_stages": [
                 s.RepairStage(
                     stage="impact",
@@ -1910,7 +1993,9 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             "/v2/absences",
             "staff_ravi",
             201,
-            s.AbsenceReport(absence=requested, affected=[], lock_conflicts=[], repair_suggested=False),
+            s.AbsenceReport(
+                absence=requested, affected=leave_hits, lock_conflicts=leave_locked, repair_suggested=False
+            ),
             {
                 "headers": {"Idempotency-Key": "absence-77b2d1f0"},
                 "body": {
@@ -1972,6 +2057,66 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             200,
             report,
             {"path_params": {"absence_id": str(absence_id)}, "body": {"status": "confirmed"}},
+        ),
+        *[
+            Fixture(
+                f"absence.update.requested.{verb}",
+                "updateAbsence",
+                "PATCH",
+                "/v2/absences/{absence_id}",
+                persona,
+                200,
+                requested_report(status),
+                {"path_params": {"absence_id": str(requested.id)}, "body": {"status": status}},
+            )
+            for verb, status, persona in (
+                ("confirm", "confirmed", "manager_indiranagar"),
+                ("reject", "rejected", "manager_indiranagar"),
+                ("cancel", "cancelled", "staff_ravi"),
+            )
+        ],
+        Fixture(
+            "absence.update.withdraw_conflict",
+            "updateAbsence",
+            "PATCH",
+            "/v2/absences/{absence_id}",
+            "staff_ravi",
+            409,
+            error("conflict", "Only a request that is still waiting can be withdrawn. Ask your manager."),
+            {"path_params": {"absence_id": str(requested.id)}, "body": {"status": "cancelled"}},
+        ),
+        Fixture(
+            "absence.update.already_closed",
+            "updateAbsence",
+            "PATCH",
+            "/v2/absences/{absence_id}",
+            "manager_indiranagar",
+            409,
+            error("conflict", "This absence was already rejected."),
+            {"path_params": {"absence_id": str(requested.id)}, "body": {"status": "confirmed"}},
+        ),
+        Fixture(
+            "candidate.detail.repair",
+            "getOptimizationCandidate",
+            "GET",
+            "/v2/optimization-candidates/{candidate_id}",
+            "manager_indiranagar",
+            200,
+            repair_detail,
+            {"path_params": {"candidate_id": str(repair_candidate.id)}},
+        ),
+        Fixture(
+            "candidate.select.repair",
+            "selectOptimizationCandidate",
+            "POST",
+            "/v2/optimization-candidates/{candidate_id}/select",
+            "manager_indiranagar",
+            201,
+            repair_draft,
+            {
+                "path_params": {"candidate_id": str(repair_candidate.id)},
+                "headers": {"Idempotency-Key": "select-repair-61d0b4a2"},
+            },
         ),
         Fixture(
             "repair.accepted",

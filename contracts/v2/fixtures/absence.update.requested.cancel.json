@@ -1,0 +1,33 @@
+{
+  "name": "absence.update.requested.cancel",
+  "operation_id": "updateAbsence",
+  "method": "PATCH",
+  "path": "/v2/absences/{absence_id}",
+  "persona": "staff_ravi",
+  "request": {
+    "path_params": {
+      "absence_id": "95307313-914e-59f4-b097-05e0b85f1a8d"
+    },
+    "body": {
+      "status": "cancelled"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "AbsenceReport",
+    "body": {
+      "absence": {
+        "id": "95307313-914e-59f4-b097-05e0b85f1a8d",
+        "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+        "start_at": "2026-10-23T00:00:00+05:30",
+        "end_at": "2026-10-24T00:00:00+05:30",
+        "kind": "leave",
+        "status": "cancelled"
+      },
+      "affected": [],
+      "lock_conflicts": [],
+      "repair_suggested": false,
+      "repair_run_ids": []
+    }
+  }
+}

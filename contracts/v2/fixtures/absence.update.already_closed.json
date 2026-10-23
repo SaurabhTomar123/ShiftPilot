@@ -1,0 +1,28 @@
+{
+  "name": "absence.update.already_closed",
+  "operation_id": "updateAbsence",
+  "method": "PATCH",
+  "path": "/v2/absences/{absence_id}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "absence_id": "95307313-914e-59f4-b097-05e0b85f1a8d"
+    },
+    "body": {
+      "status": "confirmed"
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "conflict",
+        "message": "This absence was already rejected.",
+        "retryable": false,
+        "details": {},
+        "trace_id": null
+      }
+    }
+  }
+}
