@@ -1,0 +1,36 @@
+{
+  "name": "scenario.convert.assumptions",
+  "operation_id": "convertScenario",
+  "method": "POST",
+  "path": "/v2/scenarios/{scenario_id}/convert",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "scenario_id": "0920b775-f231-53f1-83d9-c5639ec508b7"
+    },
+    "headers": {
+      "Idempotency-Key": "scenario-convert-91ab"
+    },
+    "body": {
+      "candidate_id": "64f30ab7-594f-51e7-9501-50d6bcb3d5cf"
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "conflict",
+        "message": "This plan only works under the scenario's assumptions; current facts break it. Generate against the real week instead.",
+        "retryable": false,
+        "details": {
+          "hard_violations": 2,
+          "violation_codes": [
+            "minimum_coverage"
+          ]
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

@@ -145,6 +145,9 @@ class Snapshot:
     frozen: frozenset[UUID] = frozenset()
     # Fairness burden already carried in the rolling window before this week (v4 section 12).
     history_burden: dict[UUID, int] = field(default_factory=dict)
+    # Scenario overlays only (v4 section 23); real snapshots leave both empty.
+    closed_days: frozenset[date] = frozenset()  # outlet-local days with no shifts
+    labour_cap_paise: int | None = None  # hard ceiling on labour plus overtime
 
     @property
     def outlet(self) -> Outlet:

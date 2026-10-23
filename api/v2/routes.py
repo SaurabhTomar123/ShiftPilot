@@ -28,6 +28,7 @@ from api.v2 import (
     recommendations,
     rosters,
     rules,
+    scenarios,
     service,
     staffing,
 )
@@ -836,3 +837,100 @@ def recommend_replacements(
     """Who can cover this shift, ranked by disruption then the chosen profile (architecture v4 section 46).
     Read-only and synchronous; choose someone by applying the returned edit to a draft."""
     return recommendations.replacements(caller, body)
+
+
+# ---------------------------------------------------------------- Scenario Lab (v4 sections 23, 42)
+
+
+@router.post(
+    "/outlets/{outlet_id}/schedules/{week_start}/scenarios",
+    operation_id="createScenario",
+    response_model=s.Scenario,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 422),
+)
+def create_scenario(
+    caller: v2auth.CallerDep, outlet_id: UUID, week_start: date, body: s.CreateScenarioRequest
+) -> s.Scenario:
+    """A what-if on this week, starting from its current published version. Nothing real changes."""
+    return scenarios.create(caller, outlet_id, week_start, body)
+
+
+@router.get(
+    "/outlets/{outlet_id}/scenarios",
+    operation_id="listScenarios",
+    response_model=s.ScenarioList,
+    responses=_errors(403, 404, 422),
+)
+def list_scenarios(
+    caller: v2auth.CallerDep, outlet_id: UUID, week_start: date | None = None
+) -> s.ScenarioList:
+    return scenarios.list_for(caller, outlet_id, week_start)
+
+
+@router.get(
+    "/scenarios/{scenario_id}",
+    operation_id="getScenario",
+    response_model=s.Scenario,
+    responses=_errors(403, 404, 422),
+)
+def get_scenario(caller: v2auth.CallerDep, scenario_id: UUID) -> s.Scenario:
+    return scenarios.get(caller, scenario_id)
+
+
+@router.post(
+    "/scenarios/{scenario_id}/events",
+    operation_id="addScenarioEvent",
+    response_model=s.Scenario,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def add_scenario_event(caller: v2auth.CallerDep, scenario_id: UUID, body: s.ScenarioEventIn) -> s.Scenario:
+    """409 once the scenario is converted, discarded or expired."""
+    return scenarios.add_event(caller, scenario_id, body)
+
+
+@router.post(
+    "/scenarios/{scenario_id}/run",
+    operation_id="runScenario",
+    response_model=s.OptimizationRun,
+    status_code=status.HTTP_202_ACCEPTED,
+    responses={
+        **_errors(403, 404, 409, 422),
+        429: {"model": s.ErrorResponse, "headers": {"Retry-After": _header("Seconds to wait.")}},
+    },
+)
+def run_scenario(
+    caller: v2auth.CallerDep, scenario_id: UUID, idempotency_key: IdempotencyKey, body: s.ScenarioRunRequest
+) -> s.OptimizationRun:
+    """Queue a solve with the events applied. 409 stale_version when the real week moved since the
+    scenario was created; 409 run_in_progress while this scenario already has an active run."""
+    return scenarios.run(caller, scenario_id, idempotency_key, body)
+
+
+@router.post(
+    "/scenarios/{scenario_id}/convert",
+    operation_id="convertScenario",
+    response_model=s.ScheduleVersion,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def convert_scenario(
+    caller: v2auth.CallerDep,
+    scenario_id: UUID,
+    idempotency_key: IdempotencyKey,
+    body: s.ConvertScenarioRequest,
+) -> s.ScheduleVersion:
+    """Turn this into a plan: the candidate is re-checked against current facts and becomes a normal
+    draft. 409 stale_version if the real week moved; 409 conflict if current facts break the plan."""
+    return scenarios.convert(caller, scenario_id, idempotency_key, body)
+
+
+@router.post(
+    "/scenarios/{scenario_id}/discard",
+    operation_id="discardScenario",
+    response_model=s.Scenario,
+    responses=_errors(403, 404, 409, 422),
+)
+def discard_scenario(caller: v2auth.CallerDep, scenario_id: UUID) -> s.Scenario:
+    return scenarios.discard(caller, scenario_id)

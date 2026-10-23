@@ -23,6 +23,7 @@
       ],
       "strategy": "least_disruption",
       "absence_id": "a423d626-bfbf-5cd0-9360-c602bcc87519",
+      "scenario_id": null,
       "job_state": "succeeded",
       "solver_status": "OPTIMAL",
       "input_hash": "sha256:42c54aba2bc95a5cb052fc7f0b6d85d7",

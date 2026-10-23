@@ -36,6 +36,7 @@ from scheduling.model import Absence, Shift
 
 ACTIVE = ("queued", "running")
 BATCH_PRIORITY, REPAIR_PRIORITY = 5, 1  # lower is claimed first (v3 section 28)
+SCENARIO_PRIORITY = 3  # user-visible but not operationally urgent (v4 section 38)
 ORG_ACTIVE_CAP = 10  # architecture v3 section 28
 SANDBOX_ACTIVE_CAP = 2  # public demo sandboxes share the worker pool (B6.2)
 RETRY_AFTER_SECONDS = 3
@@ -92,6 +93,7 @@ def run_view(session: Session, run: OptimizationRun) -> s.OptimizationRun:
             "base_version_ids": run.base_version_ids,
             "strategy": run.strategy,
             "absence_id": (run.config or {}).get("absence_id"),
+            "scenario_id": run.scenario_id,
             "job_state": run.job_state,
             "solver_status": run.solver_status,
             "input_hash": run.input_hash,
@@ -200,6 +202,7 @@ def _insert(
     kind: str,
     priority: int,
     trigger_absence_id: uuid.UUID | None = None,
+    scenario_id: uuid.UUID | None = None,
     strategy: str,
     doc: dict[str, Any],
     config: dict[str, Any],
@@ -213,6 +216,7 @@ def _insert(
         priority=priority,
         schedule_id=schedule.id,
         trigger_absence_id=trigger_absence_id,
+        scenario_id=scenario_id,
         strategy=strategy,
         outlet_ids=[schedule.outlet_id],
         base_version_ids=[schedule.current_version_id] if schedule.current_version_id else [],

@@ -164,6 +164,8 @@ def slots(snap: Snapshot) -> list[Slot]:
     out: list[Slot] = []
     for d in range(7):
         day = snap.week_start + timedelta(days=d)
+        if day in snap.closed_days:  # a scenario's outlet closure
+            continue
         midnight = datetime(day.year, day.month, day.day, tzinfo=outlet.tz)
         hours = outlet.operating_hours.get(day.weekday())
         for t in snap.templates:
@@ -512,6 +514,15 @@ def solve(
     alignment = sum(align_terms)
     if max_shortfall_staff_minutes is not None:
         model.add(shortfall <= max_shortfall_staff_minutes)
+    if snap.labour_cap_paise is not None:
+        # Conservative: the model prices an overtime minute at the full rate, at least the premium the
+        # metric charges, so a plan within this bound is within the cap. Generation re-checks it.
+        fixed_cost = sum(
+            (sh.paid_minutes * snap.employees[sh.employee_id].rate_paise_per_hour + 30) // 60
+            for sh in locked
+            if sh.employee_id in snap.employees and week_start <= sh.start_at < week_end
+        )
+        model.add(fixed_cost + cost + ot <= snap.labour_cap_paise)
     model.minimize(
         coef["cost"] * (cost + ot)
         + coef["understaffing"] * shortfall
@@ -616,6 +627,9 @@ def generate(
             outcome.summary = (
                 describe(snap, outcome.shortages[0])
                 if outcome.shortages
+                else f"No roster keeps minimum staffing within the labour cap of "
+                f"INR {snap.labour_cap_paise / 100:,.0f}."
+                if snap.labour_cap_paise is not None
                 else "No roster satisfies every rule at once: minimum staffing conflicts with "
                 "availability, rest or weekly limits."
             )
@@ -626,6 +640,11 @@ def generate(
         if cand is None:
             continue
         check = validator.validate(snap, cand.roster)
+        if check.valid and snap.labour_cap_paise is not None:
+            m = metrics.compute(snap, cand.roster)
+            if m.labour_cost_paise + m.overtime_cost_paise > snap.labour_cap_paise:
+                outcome.stats["rejected_by_validator"].append({"strategy": name, "codes": ["labour_cap"]})
+                continue
         if not check.valid:
             outcome.stats["rejected_by_validator"].append(
                 {

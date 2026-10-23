@@ -1,0 +1,48 @@
+{
+  "name": "scenario.create.invalid_event",
+  "operation_id": "createScenario",
+  "method": "POST",
+  "path": "/v2/outlets/{outlet_id}/schedules/{week_start}/scenarios",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-19"
+    },
+    "body": {
+      "title": "Rain",
+      "events": [
+        {
+          "type": "weather",
+          "payload": {
+            "rain_mm": 40
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 422,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "validation_failed",
+        "message": "Some fields need attention.",
+        "retryable": false,
+        "details": {
+          "fields": [
+            {
+              "path": [
+                "events",
+                0,
+                "type"
+              ],
+              "message": "Unsupported scenario event. Supported: demand_change, absence, outlet_closure, labour_cap, rule."
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

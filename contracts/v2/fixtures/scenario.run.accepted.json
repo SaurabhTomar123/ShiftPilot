@@ -1,0 +1,51 @@
+{
+  "name": "scenario.run.accepted",
+  "operation_id": "runScenario",
+  "method": "POST",
+  "path": "/v2/scenarios/{scenario_id}/run",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "scenario_id": "0920b775-f231-53f1-83d9-c5639ec508b7"
+    },
+    "headers": {
+      "Idempotency-Key": "scenario-run-4e1a"
+    },
+    "body": {
+      "strategy": "balanced",
+      "time_limit_seconds": 10
+    }
+  },
+  "response": {
+    "status": 202,
+    "schema": "OptimizationRun",
+    "body": {
+      "id": "830117c4-b622-591d-80aa-bf3301d76d31",
+      "kind": "scenario",
+      "outlet_ids": [
+        "69e0477e-4a09-55c5-b467-8c673e7245b5"
+      ],
+      "base_version_ids": [
+        "59ddec56-dd6f-5ac4-871a-01119338a0ef"
+      ],
+      "strategy": "balanced",
+      "absence_id": null,
+      "scenario_id": "0920b775-f231-53f1-83d9-c5639ec508b7",
+      "job_state": "queued",
+      "solver_status": null,
+      "input_hash": "sha256:707b28ca635d5ad19b616b75d7d5f44b",
+      "queued_at": "2026-10-21T16:21:00+05:30",
+      "started_at": null,
+      "finished_at": null,
+      "solver_wall_ms": null,
+      "poll_after_ms": 500,
+      "candidates": [],
+      "infeasibility": null,
+      "error": null,
+      "repair_stages": [],
+      "frozen_logical_shift_ids": [],
+      "portfolio": null,
+      "candidates_expired": false
+    }
+  }
+}

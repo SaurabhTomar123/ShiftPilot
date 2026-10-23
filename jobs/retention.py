@@ -15,6 +15,8 @@ Every derived artifact has an explicit lifetime:
                                      solver version and base version ids are kept
     published and superseded         kept (MVP); audit log kept (MVP)
     staged or invalid CSV imports    rows deleted 24 hours after upload; the job row 30 days later
+    open what-if scenarios           expired 7 days after creation (v4 section 34); their runs follow
+                                     the run rules above
     delivered outbox events          7 days
     public demo sandboxes            the whole sandbox org when it expires (2 hours, B6.2)
 
@@ -133,6 +135,11 @@ STEPS: list[tuple[str, str]] = [
     (
         "imports_deleted",
         "DELETE FROM import_jobs WHERE status = 'expired' AND expires_at < :long",
+    ),
+    (
+        "scenarios_expired",
+        """UPDATE planning_scenarios SET status = 'expired'
+            WHERE status = 'open' AND expires_at <= :now""",
     ),
     (
         "outbox_deleted",

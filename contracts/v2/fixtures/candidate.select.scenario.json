@@ -1,0 +1,30 @@
+{
+  "name": "candidate.select.scenario",
+  "operation_id": "selectOptimizationCandidate",
+  "method": "POST",
+  "path": "/v2/optimization-candidates/{candidate_id}/select",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "candidate_id": "64f30ab7-594f-51e7-9501-50d6bcb3d5cf"
+    },
+    "headers": {
+      "Idempotency-Key": "select-scenario-0d3f"
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "conflict",
+        "message": "This plan is a what-if. Turn it into a plan from its scenario instead.",
+        "retryable": false,
+        "details": {
+          "scenario_id": "0920b775-f231-53f1-83d9-c5639ec508b7"
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

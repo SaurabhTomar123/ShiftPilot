@@ -1,0 +1,57 @@
+{
+  "name": "scenario.create",
+  "operation_id": "createScenario",
+  "method": "POST",
+  "path": "/v2/outlets/{outlet_id}/schedules/{week_start}/scenarios",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-19"
+    },
+    "body": {
+      "title": "Sick on Wednesday, busy Saturday evening",
+      "events": [
+        {
+          "type": "absence",
+          "payload": {
+            "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+            "start_at": "2026-10-21T00:00:00+05:30",
+            "end_at": "2026-10-22T00:00:00+05:30"
+          }
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 201,
+    "schema": "Scenario",
+    "body": {
+      "id": "0920b775-f231-53f1-83d9-c5639ec508b7",
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-19",
+      "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+      "title": "Sick on Wednesday, busy Saturday evening",
+      "base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "status": "open",
+      "created_by_user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+      "created_at": "2026-10-21T17:00:00+05:30",
+      "expires_at": "2026-10-28T17:00:00+05:30",
+      "converted_version_id": null,
+      "events": [
+        {
+          "type": "absence",
+          "payload": {
+            "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+            "start_at": "2026-10-21T00:00:00+05:30",
+            "end_at": "2026-10-22T00:00:00+05:30"
+          },
+          "id": "830cad48-c70c-5880-9726-1050f91535bb",
+          "sequence": 1
+        }
+      ],
+      "latest_run_id": null,
+      "baseline": null
+    }
+  }
+}

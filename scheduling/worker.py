@@ -41,7 +41,7 @@ log = logging.getLogger("shiftpilot.worker")
 LEASE_SECONDS = 30
 RENEW_SECONDS = 10
 MAX_ATTEMPTS = 3
-ALL_KINDS = ("repair", "generate", "optimize")
+ALL_KINDS = ("repair", "generate", "optimize", "scenario")  # one process stays REPAIR_ONLY
 REPAIR_ONLY = ("repair",)
 
 CLAIM = text("""

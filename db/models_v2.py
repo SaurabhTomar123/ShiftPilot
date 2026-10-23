@@ -353,7 +353,7 @@ class SchedulingRule(Base):
 # ---------------------------------------------------------------- schedules and immutable versions
 
 VERSION_STATUSES = ("draft", "published", "superseded", "discarded")
-VERSION_SOURCES = ("seed", "manual", "generate", "optimize", "repair", "restore", "import")
+VERSION_SOURCES = ("seed", "manual", "generate", "optimize", "repair", "restore", "import", "scenario")
 
 
 class Schedule(Base):
@@ -497,7 +497,8 @@ class OptimizationRun(Base):
         ref("requested_by_user_id", "users"),
         UniqueConstraint("org_id", "id"),
         UniqueConstraint("org_id", "idempotency_key"),
-        one_of("kind", ("generate", "optimize", "repair"), "run_kind"),
+        one_of("kind", ("generate", "optimize", "repair", "scenario"), "run_kind"),
+        CheckConstraint("(kind = 'scenario') = (scenario_id IS NOT NULL)", name="run_scenario"),
         one_of("job_state", JOB_STATES, "run_job_state"),
         CheckConstraint(
             f"solver_status IS NULL OR solver_status IN {SOLVER_STATUSES}", name="run_solver_status"
@@ -505,6 +506,14 @@ class OptimizationRun(Base):
         CheckConstraint("attempts >= 0", name="run_attempts"),
         ref("schedule_id", "schedules", name="optimization_runs_schedule_fkey"),
         ref("trigger_absence_id", "absences", name="optimization_runs_absence_fkey"),
+        ref("scenario_id", "planning_scenarios", name="optimization_runs_scenario_fkey"),
+        Index(
+            "ux_optimization_runs_active_scenario",
+            "org_id",
+            "scenario_id",
+            unique=True,
+            postgresql_where=text("kind = 'scenario' AND job_state IN ('queued', 'running')"),
+        ),
         Index(
             "ix_optimization_runs_claim",
             "priority",
@@ -534,6 +543,7 @@ class OptimizationRun(Base):
     strategy: Mapped[str] = mapped_column(String(20))
     schedule_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     trigger_absence_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    scenario_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     outlet_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
     base_version_ids: Mapped[list[uuid.UUID]] = mapped_column(ARRAY(UUID(as_uuid=True)))
     requested_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
@@ -781,3 +791,59 @@ class DemoSandbox(Base):
     salt: Mapped[str] = mapped_column(String(64))
     created_at: Mapped[datetime] = created_at()
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+# ---------------------------------------------------------------- scenario lab (v4 sections 23, 42)
+
+SCENARIO_EVENT_TYPES = ("demand_change", "absence", "outlet_closure", "labour_cap", "rule")
+
+
+class PlanningScenario(Base):
+    """A hypothetical what-if for one outlet week. Never a published schedule; converting it re-checks
+    the plan against current facts and creates a normal draft."""
+
+    __tablename__ = "planning_scenarios"
+    __table_args__ = (
+        ref("schedule_id", "schedules"),
+        ref("base_version_id", "schedule_versions"),
+        ref("converted_version_id", "schedule_versions"),
+        ref("created_by_user_id", "users"),
+        UniqueConstraint("org_id", "id"),
+        one_of("status", ("open", "converted", "discarded", "expired"), "scenario_status"),
+        CheckConstraint(
+            "(status = 'converted') = (converted_version_id IS NOT NULL)", name="scenario_converted_version"
+        ),
+        Index("ix_planning_scenarios_schedule", "schedule_id"),
+    )
+    id: Mapped[uuid.UUID] = pk()
+    org_id: Mapped[uuid.UUID] = org()
+    schedule_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    title: Mapped[str] = mapped_column(String(120))
+    base_version_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="open", server_default="open")
+    created_by_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    created_at: Mapped[datetime] = created_at()
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    converted_version_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+
+
+class ScenarioEvent(Base):
+    """One overlay event. Applied only while building the solver input (scheduling.scenario)."""
+
+    __tablename__ = "scenario_events"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["org_id", "scenario_id"],
+            ["planning_scenarios.org_id", "planning_scenarios.id"],
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint("scenario_id", "sequence"),
+        one_of("type", SCENARIO_EVENT_TYPES, "scenario_event_type"),
+    )
+    id: Mapped[uuid.UUID] = pk()
+    org_id: Mapped[uuid.UUID] = org()
+    scenario_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    sequence: Mapped[int] = mapped_column(Integer)
+    type: Mapped[str] = mapped_column(String(30))
+    payload: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = created_at()

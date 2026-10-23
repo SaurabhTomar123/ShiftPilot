@@ -187,6 +187,12 @@ def select_candidate(caller: Caller, candidate_id: uuid.UUID, key: str) -> s.Sch
 
         def produce() -> s.ScheduleVersion:
             candidate, run, schedule = _load(session, caller, candidate_id, for_update=True)
+            if run.kind == "scenario":
+                raise ApiError(
+                    "conflict",
+                    "This plan is a what-if. Turn it into a plan from its scenario instead.",
+                    scenario_id=str(run.scenario_id),
+                )
             session.execute(select(Schedule.id).where(Schedule.id == schedule.id).with_for_update())
             if candidate.materialized_version_id is not None:
                 existing = session.get(ScheduleVersion, candidate.materialized_version_id)

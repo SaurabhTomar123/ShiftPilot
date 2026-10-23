@@ -32,6 +32,7 @@ from scheduling import edits as sched_edits
 from scheduling import metrics as sched_metrics
 from scheduling import model
 from scheduling import recommend as sched_recommend
+from scheduling import scenario as sched_scenario
 from scheduling import trace as sched_trace
 from scheduling import validator as sched_validator
 from seed import world_snapshot
@@ -1991,6 +1992,78 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
         infeasibility=None,
         error=None,
     )
+    # Scenario Lab (v4 section 23): "What if they call in sick on Wednesday and Saturday evening is 30%
+    # busier?" The baseline is the published week under those events; the plan converted is the repaired
+    # roster, re-checked against current facts.
+    scenario_id = uid("scenario", "sick-and-busy")
+    scenario_run_id = uid("run", "scenario:sick-and-busy")
+    sick_event = {
+        "type": "absence",
+        "payload": {
+            "employee_id": str(employee),
+            "start_at": at(wednesday, 0).isoformat(),
+            "end_at": at(wednesday, 1440).isoformat(),
+        },
+    }
+    busy_event = {"type": "demand_change", "payload": {"percent": 30, "weekdays": [5], "start_minute": 1080}}
+    what_if = sched_scenario.apply(
+        world_snapshot.build("indiranagar", WEEK, with_bench=True),
+        [sched_scenario.Event(e["type"], e["payload"]) for e in (sick_event, busy_event)],  # type: ignore[arg-type]
+    )
+    hard = [v for v in sched_validator.validate(what_if, base).violations if v.severity == "hard"]
+    scenario_events = [
+        s.ScenarioEvent(id=uid("scenario_event", f"sick-and-busy:{n}"), sequence=n, **e)  # type: ignore[arg-type]
+        for n, e in enumerate((sick_event, busy_event), start=1)
+    ]
+    scenario_common: dict[str, Any] = dict(
+        id=scenario_id,
+        outlet_id=HOME,
+        week_start=WEEK,
+        schedule_id=published.schedule_id,
+        title="Sick on Wednesday, busy Saturday evening",
+        base_version_id=published.id,
+        created_by_user_id=uid("user", "manager_indiranagar"),
+        created_at=stamp("2026-10-21T17:00:00"),
+        expires_at=stamp("2026-10-28T17:00:00"),
+        converted_version_id=None,
+        events=scenario_events,
+    )
+    scenario_new = s.Scenario(status="open", latest_run_id=None, baseline=None, **scenario_common)
+    scenario_ran = s.Scenario(
+        status="open",
+        latest_run_id=scenario_run_id,
+        baseline=s.ScenarioBaseline(
+            run_id=scenario_run_id,
+            metrics=s.Metrics.model_validate(sched_metrics.as_contract(sched_metrics.compute(what_if, base))),
+            hard_violations=len(hard),
+            violation_codes=sorted({v.code for v in hard}),
+        ),
+        **scenario_common,
+    )
+    scenario_queued = queued.model_copy(
+        update={
+            "id": scenario_run_id,
+            "kind": "scenario",
+            "strategy": "balanced",
+            "absence_id": None,
+            "scenario_id": scenario_id,
+            "input_hash": "sha256:" + uuid.uuid5(NS, "input:scenario").hex,
+            "poll_after_ms": 500,
+        }
+    )
+    scenario_key = f"indiranagar:{WEEK}:scenario:sick-and-busy"
+    scenario_draft = repair_draft.model_copy(
+        update={
+            "id": uid("version", scenario_key),
+            "source": "scenario",
+            "reason": "Selected option 1 (balanced)",
+            "optimization_run_id": scenario_run_id,
+            "created_at": stamp("2026-10-21T17:05:00"),
+            "input_hash": scenario_queued.input_hash,
+            "shifts": [_to_contract(sh, scenario_key) for sh in repaired],
+        }
+    )
+    scenario_candidate = uid("candidate", "scenario:sick-and-busy:1")
     widened = queued.model_copy(
         update={
             "job_state": "succeeded",
@@ -2050,6 +2123,148 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
         },
     }
     return [
+        Fixture(
+            "scenario.create",
+            "createScenario",
+            "POST",
+            "/v2/outlets/{outlet_id}/schedules/{week_start}/scenarios",
+            "manager_indiranagar",
+            201,
+            scenario_new.model_copy(update={"events": scenario_events[:1]}),
+            {
+                "path_params": {"outlet_id": str(HOME), "week_start": WEEK.isoformat()},
+                "body": {"title": scenario_new.title, "events": [sick_event]},
+            },
+        ),
+        Fixture(
+            "scenario.create.invalid_event",
+            "createScenario",
+            "POST",
+            "/v2/outlets/{outlet_id}/schedules/{week_start}/scenarios",
+            "manager_indiranagar",
+            422,
+            error(
+                "validation_failed",
+                "Some fields need attention.",
+                fields=[
+                    {
+                        "path": ["events", 0, "type"],
+                        "message": "Unsupported scenario event. Supported: "
+                        + ", ".join(sched_scenario.EVENT_TYPES)
+                        + ".",
+                    }
+                ],
+            ),
+            {
+                "path_params": {"outlet_id": str(HOME), "week_start": WEEK.isoformat()},
+                "body": {"title": "Rain", "events": [{"type": "weather", "payload": {"rain_mm": 40}}]},
+            },
+        ),
+        Fixture(
+            "scenario.event.add",
+            "addScenarioEvent",
+            "POST",
+            "/v2/scenarios/{scenario_id}/events",
+            "manager_indiranagar",
+            201,
+            scenario_new,
+            {"path_params": {"scenario_id": str(scenario_id)}, "body": busy_event},
+        ),
+        Fixture(
+            "scenarios.list",
+            "listScenarios",
+            "GET",
+            "/v2/outlets/{outlet_id}/scenarios",
+            "manager_indiranagar",
+            200,
+            s.ScenarioList(items=[scenario_ran]),
+            {"path_params": {"outlet_id": str(HOME)}, "query": {"week_start": WEEK.isoformat()}},
+        ),
+        Fixture(
+            "scenario.discard",
+            "discardScenario",
+            "POST",
+            "/v2/scenarios/{scenario_id}/discard",
+            "manager_indiranagar",
+            200,
+            scenario_ran.model_copy(update={"status": "discarded"}),
+            {"path_params": {"scenario_id": str(scenario_id)}},
+        ),
+        Fixture(
+            "scenario.run.accepted",
+            "runScenario",
+            "POST",
+            "/v2/scenarios/{scenario_id}/run",
+            "manager_indiranagar",
+            202,
+            scenario_queued,
+            {
+                "path_params": {"scenario_id": str(scenario_id)},
+                "headers": {"Idempotency-Key": "scenario-run-4e1a"},
+                "body": {"strategy": "balanced", "time_limit_seconds": 10},
+            },
+        ),
+        Fixture(
+            "scenario.get",
+            "getScenario",
+            "GET",
+            "/v2/scenarios/{scenario_id}",
+            "manager_indiranagar",
+            200,
+            scenario_ran,
+            {"path_params": {"scenario_id": str(scenario_id)}},
+        ),
+        Fixture(
+            "scenario.convert",
+            "convertScenario",
+            "POST",
+            "/v2/scenarios/{scenario_id}/convert",
+            "manager_indiranagar",
+            201,
+            scenario_draft,
+            {
+                "path_params": {"scenario_id": str(scenario_id)},
+                "headers": {"Idempotency-Key": "scenario-convert-77c2"},
+                "body": {"candidate_id": str(scenario_candidate)},
+            },
+        ),
+        Fixture(
+            "scenario.convert.assumptions",
+            "convertScenario",
+            "POST",
+            "/v2/scenarios/{scenario_id}/convert",
+            "manager_indiranagar",
+            409,
+            error(
+                "conflict",
+                "This plan only works under the scenario's assumptions; current facts break it. "
+                "Generate against the real week instead.",
+                hard_violations=2,
+                violation_codes=["minimum_coverage"],
+            ),
+            {
+                "path_params": {"scenario_id": str(scenario_id)},
+                "headers": {"Idempotency-Key": "scenario-convert-91ab"},
+                "body": {"candidate_id": str(scenario_candidate)},
+            },
+        ),
+        Fixture(
+            "candidate.select.scenario",
+            "selectOptimizationCandidate",
+            "POST",
+            "/v2/optimization-candidates/{candidate_id}/select",
+            "manager_indiranagar",
+            409,
+            error(
+                "conflict",
+                "This plan is a what-if. Turn it into a plan from its scenario instead.",
+                scenario_id=str(scenario_id),
+            ),
+            {
+                "path_params": {"candidate_id": str(scenario_candidate)},
+                "headers": {"Idempotency-Key": "select-scenario-0d3f"},
+            },
+        ),
         Fixture(
             "absence.report",
             "reportAbsence",

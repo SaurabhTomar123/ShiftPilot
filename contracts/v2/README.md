@@ -23,6 +23,29 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.20.0-p4 (live): Scenario Lab (architecture v4 §23, §42)
+
+This change is additive. Migration `0019` adds `planning_scenarios` and `scenario_events`.
+
+- **The flow:** create a what-if on a week → add events → run → compare → "Turn this into a plan" (convert) or discard.
+  - `POST /v2/outlets/{outlet_id}/schedules/{week_start}/scenarios` takes `{title, events}` and starts from the week's current published version.
+  - `GET /v2/outlets/{outlet_id}/scenarios?week_start=` and `GET /v2/scenarios/{id}` read scenarios.
+  - `POST /v2/scenarios/{id}/events` adds an event.
+  - `POST /v2/scenarios/{id}/run` (Idempotency-Key) returns `202` with an `OptimizationRun` of `kind: "scenario"` and a `scenario_id`.
+  - `POST /v2/scenarios/{id}/convert` (Idempotency-Key, `{candidate_id}`) returns `201` with a draft.
+  - `POST /v2/scenarios/{id}/discard`.
+- **Event types:** `demand_change` `{percent, skill_id?, weekdays?, start_minute?, end_minute?}`, `absence` `{employee_id, start_at, end_at}`, `outlet_closure` `{day}`, `labour_cap` `{max_cost_paise}`, `rule` `{rule_type, parameters, employee_ids}`. Anything else gets a `422` that names the field, e.g. `["events", 0, "type"]`.
+- **Isolation:** events are overlays applied only while the solver input is built. Nothing is written to absences, availability, rules or staffing requirements; integration tests assert those tables are unchanged.
+- **Comparing:** `Scenario.baseline` is the current plan under the events: its metrics, plus the hard violations the events cause (e.g. `absent`, `minimum_coverage`). Each candidate's `trace.summary` is its delta against the base version under the same events.
+- **Scenario candidates cannot be selected:** `selectOptimizationCandidate` returns `409 conflict` with `details.scenario_id`. Convert instead.
+- **Convert re-checks against current facts:**
+  - `409 stale_version` when the real week moved since the run.
+  - `409 conflict` with `details.violation_codes` when the plan only works under the scenario's assumptions (e.g. a closed-Saturday plan breaks real minimum staffing).
+  - Otherwise it creates a normal draft with `source: "scenario"`, which follows the usual proposal and publish path.
+- **Running:** scenario runs queue below repairs and above batch generation. One worker process stays repair-only. Open scenarios expire after 7 days (`status: "expired"`), and every change returns `409` once a scenario is converted, discarded or expired.
+
+Fixtures: `scenario.create`, `scenario.create.invalid_event`, `scenario.event.add`, `scenarios.list`, `scenario.run.accepted`, `scenario.get` (with baseline), `scenario.convert`, `scenario.convert.assumptions`, `scenario.discard`, `candidate.select.scenario`.
+
 ## What changed in 3.19.0-p4 (live): replacement recommendations (architecture v4 §11, §46)
 
 This change is additive.

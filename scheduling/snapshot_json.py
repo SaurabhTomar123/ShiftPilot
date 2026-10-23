@@ -134,6 +134,8 @@ def dump(snap: Snapshot) -> dict[str, Any]:
         "base_locked": [_shift(sh) for sh in snap.base_locked.values()],
         "base": [_shift(sh) for sh in snap.base],
         "frozen": sorted(str(i) for i in snap.frozen),
+        **({"closed_days": sorted(d.isoformat() for d in snap.closed_days)} if snap.closed_days else {}),
+        **({"labour_cap_paise": snap.labour_cap_paise} if snap.labour_cap_paise is not None else {}),
         "history_burden": {
             str(k): v for k, v in sorted(snap.history_burden.items(), key=lambda kv: str(kv[0]))
         },
@@ -212,6 +214,8 @@ def load(doc: dict[str, Any]) -> Snapshot:
         base=tuple(_shift_back(d) for d in doc.get("base", [])),  # absent before A3.8
         frozen=frozenset(UUID(i) for i in doc.get("frozen", [])),  # absent before A4.1
         history_burden={UUID(k): int(v) for k, v in doc.get("history_burden", {}).items()},
+        closed_days=frozenset(date.fromisoformat(d) for d in doc.get("closed_days", [])),
+        labour_cap_paise=doc.get("labour_cap_paise"),
         rules={UUID(k): tuple(_rule_back(r) for r in v) for k, v in doc.get("rules", {}).items()},
         templates=tuple(
             Template(

@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.19.0-p4",
+  "contract_version": "3.20.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -78,6 +78,66 @@
       "operation_id": "restoreVersion",
       "status": 201,
       "schema": "ScheduleVersion"
+    },
+    {
+      "name": "scenario.create",
+      "operation_id": "createScenario",
+      "status": 201,
+      "schema": "Scenario"
+    },
+    {
+      "name": "scenario.create.invalid_event",
+      "operation_id": "createScenario",
+      "status": 422,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "scenario.event.add",
+      "operation_id": "addScenarioEvent",
+      "status": 201,
+      "schema": "Scenario"
+    },
+    {
+      "name": "scenarios.list",
+      "operation_id": "listScenarios",
+      "status": 200,
+      "schema": "ScenarioList"
+    },
+    {
+      "name": "scenario.discard",
+      "operation_id": "discardScenario",
+      "status": 200,
+      "schema": "Scenario"
+    },
+    {
+      "name": "scenario.run.accepted",
+      "operation_id": "runScenario",
+      "status": 202,
+      "schema": "OptimizationRun"
+    },
+    {
+      "name": "scenario.get",
+      "operation_id": "getScenario",
+      "status": 200,
+      "schema": "Scenario"
+    },
+    {
+      "name": "scenario.convert",
+      "operation_id": "convertScenario",
+      "status": 201,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "scenario.convert.assumptions",
+      "operation_id": "convertScenario",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "candidate.select.scenario",
+      "operation_id": "selectOptimizationCandidate",
+      "status": 409,
+      "schema": "ErrorResponse"
     },
     {
       "name": "absence.report",

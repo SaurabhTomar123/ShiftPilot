@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.19.0-p4"
+CONTRACT_VERSION = "3.20.0-p4"
 
 
 class Model(BaseModel):
@@ -626,7 +626,7 @@ class CoverageCell(Model):
 
 
 VersionStatus = Literal["draft", "published", "superseded", "discarded"]
-VersionSource = Literal["seed", "manual", "generate", "optimize", "repair", "restore", "import"]
+VersionSource = Literal["seed", "manual", "generate", "optimize", "repair", "restore", "import", "scenario"]
 
 
 class ScheduleVersionSummary(Model):
@@ -1091,6 +1091,77 @@ class ShiftExplanation(Model):
     alternatives: list[AlternativeFact] = Field(description="Other qualified people (bounded list).")
 
 
+ScenarioEventType = Literal["demand_change", "absence", "outlet_closure", "labour_cap", "rule"]
+
+
+class ScenarioEventIn(Model):
+    """One hypothetical event (architecture v4 section 23). Payloads by type:
+
+    - demand_change: {percent: -100..300, skill_id?, weekdays?: [0..6], start_minute?, end_minute?}
+    - absence: {employee_id, start_at, end_at}
+    - outlet_closure: {day: YYYY-MM-DD}
+    - labour_cap: {max_cost_paise}
+    - rule: {rule_type, parameters, employee_ids: [...]} (same rule types as createRule)
+
+    Other types are refused (422), never turned into free-form solver input."""
+
+    type: ScenarioEventType
+    payload: dict[str, Any]
+
+
+class ScenarioEvent(ScenarioEventIn):
+    id: UUID
+    sequence: int = Field(ge=1, description="Events apply in this order.")
+
+
+class CreateScenarioRequest(Model):
+    title: str = Field(min_length=1, max_length=120)
+    events: list[ScenarioEventIn] = Field(default_factory=list, max_length=20)
+
+
+class ScenarioRunRequest(Model):
+    strategy: Strategy = "balanced"
+    time_limit_seconds: int = Field(default=10, ge=1, le=30)
+
+
+class ConvertScenarioRequest(Model):
+    candidate_id: UUID = Field(description="A candidate of this scenario's latest successful run.")
+
+
+class ScenarioBaseline(Model):
+    """The current plan as it would stand if the events happened: the "before" of the comparison."""
+
+    run_id: UUID
+    metrics: Metrics
+    hard_violations: int = Field(ge=0, description="Shifts the events would break (e.g. an absence).")
+    violation_codes: list[str]
+
+
+class Scenario(Model):
+    """A what-if that never changes real facts. Run it, compare each candidate's trace (deltas against
+    the base version, measured under the scenario) with `baseline`, then convert one candidate: it is
+    re-checked against current facts and becomes a normal draft."""
+
+    id: UUID
+    outlet_id: UUID
+    week_start: date
+    schedule_id: UUID
+    title: str
+    base_version_id: UUID | None = Field(description="The published version the scenario starts from.")
+    status: Literal["open", "converted", "discarded", "expired"]
+    created_by_user_id: UUID
+    created_at: AwareDatetime
+    expires_at: AwareDatetime
+    converted_version_id: UUID | None
+    events: list[ScenarioEvent]
+    latest_run_id: UUID | None
+    baseline: ScenarioBaseline | None = Field(description="From the latest run; null before the first.")
+
+
+class ScenarioList(Model):
+    items: list[Scenario]
+
+
 class ReplacementRequest(Model):
     version_id: UUID = Field(description="The version the shift is in: published or a draft.")
     logical_shift_id: UUID
@@ -1348,11 +1419,14 @@ class PortfolioSummary(Model):
 
 class OptimizationRun(Model):
     id: UUID
-    kind: Literal["generate", "optimize", "repair"]
+    kind: Literal["generate", "optimize", "repair", "scenario"]
     outlet_ids: list[UUID]
     base_version_ids: list[UUID]
     strategy: Strategy | RepairProfile
     absence_id: UUID | None = Field(default=None, description="Repair runs: the absence being repaired.")
+    scenario_id: UUID | None = Field(
+        default=None, description="Scenario runs: hypothetical; their candidates cannot be selected."
+    )
     job_state: JobState
     solver_status: SolverStatus | None = Field(
         description="Set once solving ends. UNKNOWN means no "
