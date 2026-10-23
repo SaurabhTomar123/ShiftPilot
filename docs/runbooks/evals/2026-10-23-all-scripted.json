@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-23T14:22:46+00:00",
+  "generated_at": "2026-10-23T14:36:49+00:00",
   "git": {
-    "commit": "5d93779f6a51a823db9b3d376f68e9feaa22fe96",
+    "commit": "6c3f731a4ab50f7d924e4cf0a6d5fd213e0dc37f",
     "dirty": false
   },
-  "config_hash": "sha256:54de241a95681f4d4ef479fdc1725ab41d6c45b850ccefc5019240fc855ba007",
+  "config_hash": "sha256:57490bedc8a8ce0381e5204fe12481ac479bd53f4a88bfe28f49689f8758ca03",
   "config": {
     "strategies": {
       "balanced": {
@@ -69,56 +69,56 @@
     "prompts": "adba7c13c997d7e6",
     "language_model": "scripted",
     "ortools": "9.15.6755",
-    "contract": "3.18.0-p4"
+    "contract": "3.19.0-p4"
   },
   "suites": {
     "normal": {
       "cases": 36,
       "passed": 36,
       "failures": [],
-      "ms": 79697,
+      "ms": 80276,
       "pass_rate": 1.0
     },
     "impossible": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 3676,
+      "ms": 2818,
       "pass_rate": 1.0
     },
     "overtime": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 7093,
+      "ms": 5664,
       "pass_rate": 1.0
     },
     "locks": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 2702,
+      "ms": 2592,
       "pass_rate": 1.0
     },
     "repair": {
       "cases": 10,
       "passed": 10,
       "failures": [],
-      "ms": 3043,
+      "ms": 3134,
       "pass_rate": 1.0
     },
     "rules_enforced": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 5241,
+      "ms": 5427,
       "pass_rate": 1.0
     },
     "multi_outlet": {
       "cases": 3,
       "passed": 3,
       "failures": [],
-      "ms": 3859,
+      "ms": 3882,
       "pass_rate": 1.0
     },
     "commands": {
@@ -146,7 +146,7 @@
       "cases": 7,
       "passed": 7,
       "failures": [],
-      "ms": 1,
+      "ms": 0,
       "pass_rate": 1.0
     }
   },
