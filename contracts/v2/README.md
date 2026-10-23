@@ -25,7 +25,7 @@ The roster in the fixtures is built by a simple rule-respecting script, not the 
 
 ## What changed in 3.16.0-p4 (live): fairness burden (architecture v4 §12)
 
-This change is additive. Every `Metrics` now has **`fairness_burden_deviation`**: across the outlet's staff, the mean absolute deviation of burden points per 40 h of regular capacity, over the last 8 published weeks plus the week shown. Points come from versioned policy 1: a closing shift (ends at 22:00 or later) 3, a weekend shift 2, a second shift on the same day 2, each overtime hour 1. Lower is fairer. Label it "fairness burden"; it is not hours-preference alignment. The `staff_friendly` profile now weighs it (15%). The dedicated Fairness strategy arrives with the candidate portfolio.
+This change is additive. Every `Metrics` now has **`fairness_burden_deviation`**: across the outlet's staff, the mean absolute deviation of burden points per 40 h of regular capacity, over the last 8 published weeks plus the week shown. Points come from versioned policy 1: a closing shift (ends at 22:00 or later) 3, a weekend shift 2, a second shift on the same day 2, each overtime hour 1. Lower is fairer. Label it "fairness burden"; it is not hours-preference alignment. **`fairness_components`** breaks the week's burden points down as `{policy_version, closing, weekend, split, overtime}` (this week only, everyone at the outlet), so a candidate's delta from the baseline can be shown component by component. The `staff_friendly` profile now weighs it (15%). The dedicated Fairness strategy arrives with the candidate portfolio.
 
 ## What changed in 3.15.0-p4 (live): freeze and pin (architecture v4 §13, §15)
 

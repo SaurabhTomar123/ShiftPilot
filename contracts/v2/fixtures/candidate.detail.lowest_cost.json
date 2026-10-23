@@ -36,7 +36,14 @@
         "open_shifts": 0,
         "assigned_minutes": 24150,
         "hours_preference_deviation_minutes": 900,
-        "fairness_burden_deviation": 7.83
+        "fairness_burden_deviation": 7.83,
+        "fairness_components": {
+          "policy_version": 1,
+          "closing": 84,
+          "weekend": 32,
+          "split": 0,
+          "overtime": 0
+        }
       },
       "changed_shifts": 56,
       "validation": {

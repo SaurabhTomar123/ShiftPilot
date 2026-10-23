@@ -47,7 +47,14 @@
         "open_shifts": 0,
         "assigned_minutes": 25350,
         "hours_preference_deviation_minutes": 600,
-        "fairness_burden_deviation": 3.98
+        "fairness_burden_deviation": 3.98,
+        "fairness_components": {
+          "policy_version": 1,
+          "closing": 96,
+          "weekend": 36,
+          "split": 0,
+          "overtime": 0
+        }
       },
       "input_hash": "sha256:afd4c098066850b89bbc565a8cc3ed77",
       "shifts": [
@@ -849,7 +856,14 @@
         "open_shifts": 0,
         "assigned_minutes": 25350,
         "hours_preference_deviation_minutes": 600,
-        "fairness_burden_deviation": 3.98
+        "fairness_burden_deviation": 3.98,
+        "fairness_components": {
+          "policy_version": 1,
+          "closing": 96,
+          "weekend": 36,
+          "split": 0,
+          "overtime": 0
+        }
       },
       "coverage": [
         {

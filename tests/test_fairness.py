@@ -65,3 +65,13 @@ def test_metric_matches_the_definition() -> None:
     }
     expected = fairness.deviation(people, fairness.burden(roster, snap.outlet.tz, people))
     assert metrics.compute(snap, roster).fairness_burden_deviation == expected
+
+
+def test_components_add_up_to_this_weeks_burden() -> None:
+    snap = build()
+    roster = greedy_roster()
+    regular = {e.id: e.regular_weekly_minutes for e in snap.employees.values()}
+    parts = fairness.components(roster, snap.outlet.tz, regular)
+    assert sum(parts.values()) == sum(fairness.burden(roster, snap.outlet.tz, regular).values())
+    shown = metrics.compute(snap, roster).fairness_components
+    assert shown is not None and shown["policy_version"] == 1 and shown["closing"] == parts["closing"] > 0

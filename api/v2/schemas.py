@@ -572,6 +572,17 @@ class ValidationResult(Model):
     violations: list[Violation]
 
 
+class FairnessComponents(Model):
+    """Burden points by component (architecture v4 section 12). Last-minute and transfer burden are not
+    part of policy 1."""
+
+    policy_version: int
+    closing: int = Field(ge=0, description="3 per shift ending at 22:00 or later.")
+    weekend: int = Field(ge=0, description="2 per Saturday or Sunday shift.")
+    split: int = Field(ge=0, description="2 per extra shift on the same day.")
+    overtime: int = Field(ge=0, description="1 per full hour beyond the regular week.")
+
+
 class Metrics(Model):
     coverage_ratio: Ratio | None = Field(
         description="sum(min(assigned, preferred) x minutes) / "
@@ -598,6 +609,11 @@ class Metrics(Model):
         "of burden points per 40 h over the last 8 published weeks plus this one. Points: closing "
         "shift 3, weekend 2, second shift in a day 2, overtime hour 1. Lower is fairer; null in "
         "metrics stored before 3.16.",
+    )
+    fairness_components: FairnessComponents | None = Field(
+        default=None,
+        description="This roster's burden points this week by component (history excluded), with the "
+        "policy version. Compare two plans component by component.",
     )
 
 

@@ -6962,6 +6962,49 @@
         ],
         "title": "ExplanationFact"
       },
+      "FairnessComponents": {
+        "properties": {
+          "policy_version": {
+            "type": "integer",
+            "title": "Policy Version"
+          },
+          "closing": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Closing",
+            "description": "3 per shift ending at 22:00 or later."
+          },
+          "weekend": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Weekend",
+            "description": "2 per Saturday or Sunday shift."
+          },
+          "split": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Split",
+            "description": "2 per extra shift on the same day."
+          },
+          "overtime": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Overtime",
+            "description": "1 per full hour beyond the regular week."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "policy_version",
+          "closing",
+          "weekend",
+          "split",
+          "overtime"
+        ],
+        "title": "FairnessComponents",
+        "description": "Burden points by component (architecture v4 section 12). Last-minute and transfer burden are not\npart of policy 1."
+      },
       "FreezeSpec": {
         "properties": {
           "shift_ids": {
@@ -7509,6 +7552,17 @@
             ],
             "title": "Fairness Burden Deviation",
             "description": "Fairness burden (v4 section 12): mean absolute deviation, across the outlet's staff, of burden points per 40 h over the last 8 published weeks plus this one. Points: closing shift 3, weekend 2, second shift in a day 2, overtime hour 1. Lower is fairer; null in metrics stored before 3.16."
+          },
+          "fairness_components": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FairnessComponents"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "This roster's burden points this week by component (history excluded), with the policy version. Compare two plans component by component."
           }
         },
         "additionalProperties": false,

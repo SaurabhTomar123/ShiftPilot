@@ -152,6 +152,7 @@ def evaluate(
         assigned_minutes=sum(paid_minutes(sh.template) for sh in assigned),
         hours_preference_deviation_minutes=_deviation(roster, staff or EMPLOYEES),
         fairness_burden_deviation=_fairness(week, roster, staff or EMPLOYEES, outlet_key),
+        fairness_components=_components(roster),
     )
     return metrics, cells, s.ValidationResult(hard_violations=0, soft_violations=len(soft), violations=soft)
 
@@ -175,6 +176,24 @@ def _fairness(week: date, roster: list[PlannedShift], staff: list[Emp], outlet_k
     per40 = [load[k] * 2400 / 2880 for k in people]  # every seeded employee has a 48 h regular week
     mean = sum(per40) / len(per40)
     return round(sum(abs(v - mean) for v in per40) / len(per40), 2)
+
+
+def _components(roster: list[PlannedShift]) -> s.FairnessComponents:
+    """Independent of scheduling.fairness: this week's points by component (policy 1)."""
+    worked = [sh for sh in roster if sh.employee]
+    per_day: dict[tuple[str, date], int] = {}
+    per_week: dict[str, int] = {}
+    for sh in worked:
+        who = sh.employee or ""
+        per_day[who, sh.day] = per_day.get((who, sh.day), 0) + 1
+        per_week[who] = per_week.get(who, 0) + paid_minutes(sh.template)
+    return s.FairnessComponents(
+        policy_version=1,
+        closing=3 * sum(sh.template.end >= 1320 for sh in worked),
+        weekend=2 * sum(sh.day.weekday() >= 5 for sh in worked),
+        split=2 * sum(n - 1 for n in per_day.values()),
+        overtime=sum(max(0, (m - 2880) // 60) for m in per_week.values()),
+    )
 
 
 def _deviation(roster: list[PlannedShift], staff: list[Emp]) -> int | None:

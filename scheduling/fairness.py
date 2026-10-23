@@ -79,3 +79,28 @@ def deviation(people: Mapping[UUID, int], burdens: Mapping[UUID, int]) -> float 
 
 def merged(history: Mapping[UUID, int], current: Mapping[UUID, int]) -> dict[UUID, int]:
     return {e: history.get(e, 0) + current.get(e, 0) for e in {*history, *current}}
+
+
+def components(
+    shifts: Iterable[Shift], tz: ZoneInfo, regular: Mapping[UUID, int] | None = None, policy: Policy = POLICY
+) -> dict[str, int]:
+    """This week's burden points by component, across everyone (what changed when two plans differ).
+    Last-minute and cross-outlet burden are not part of policy 1."""
+    out = {"closing": 0, "weekend": 0, "split": 0, "overtime": 0}
+    per_day: dict[tuple[UUID, object], int] = defaultdict(int)
+    per_week: dict[tuple[UUID, object], int] = defaultdict(int)
+    for sh in shifts:
+        if sh.employee_id is None:
+            continue
+        start, end = sh.start_at.astimezone(tz), sh.end_at.astimezone(tz)
+        closing = end.date() > start.date() or end.hour * 60 + end.minute >= policy.closing_minute
+        out["closing"] += policy.closing * closing
+        out["weekend"] += policy.weekend * (start.weekday() >= 5)
+        per_day[sh.employee_id, start.date()] += 1
+        per_week[sh.employee_id, start.isocalendar()[:2]] += sh.paid_minutes
+    out["split"] = sum(policy.split * max(0, n - 1) for n in per_day.values())
+    if regular is not None:
+        out["overtime"] = sum(
+            policy.overtime_hour * max(0, (m - regular.get(e, m)) // 60) for (e, _), m in per_week.items()
+        )
+    return out

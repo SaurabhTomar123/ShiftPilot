@@ -47,6 +47,7 @@ class Metrics:
     hours_preference_deviation_minutes: int | None = None
     # Fairness burden (v4 section 12): mean absolute deviation of burden per 40 h, history included.
     fairness_burden_deviation: float | None = None
+    fairness_components: dict[str, int] | None = None  # this week's burden points, policy 1
 
 
 def _round_div(numerator: int, denominator: int) -> int:
@@ -112,7 +113,16 @@ def compute(snap: Snapshot, roster: Iterable[Shift]) -> Metrics:
         cells=tuple(cells),
         hours_preference_deviation_minutes=deviation,
         fairness_burden_deviation=fairness_deviation(snap, assigned),
+        fairness_components=fairness_breakdown(snap, assigned),
     )
+
+
+def fairness_breakdown(snap: Snapshot, assigned: list[Shift]) -> dict[str, int]:
+    """This week's burden points by component for this roster (no history)."""
+    regular = {e.id: e.regular_weekly_minutes for e in snap.employees.values()}
+    week_start, week_end = snap.week_bounds()
+    week = [s for s in assigned if week_start <= s.start_at < week_end]
+    return {"policy_version": fairness.POLICY.version, **fairness.components(week, snap.outlet.tz, regular)}
 
 
 def fairness_deviation(snap: Snapshot, assigned: list[Shift]) -> float | None:
@@ -172,6 +182,7 @@ def as_contract(m: Metrics) -> dict[str, object]:
         "assigned_minutes": m.assigned_minutes,
         "hours_preference_deviation_minutes": m.hours_preference_deviation_minutes,
         "fairness_burden_deviation": m.fairness_burden_deviation,
+        "fairness_components": m.fairness_components,
     }
 
 
