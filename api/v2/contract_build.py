@@ -33,6 +33,7 @@ from scheduling import metrics as sched_metrics
 from scheduling import model
 from scheduling import recommend as sched_recommend
 from scheduling import scenario as sched_scenario
+from scheduling import solver as sched_solver
 from scheduling import trace as sched_trace
 from scheduling import validator as sched_validator
 from seed import world_snapshot
@@ -468,6 +469,7 @@ class Fixture:
 
 def fixtures() -> list[Fixture]:
     ind = str(HOME)
+    arjun = world_snapshot.build("indiranagar", NEXT_WEEK).employees[uid("employee", "arjun")]
     ravi = str(uid("employee", "ravi"))
     other_outlet = str(uid("outlet", "koramangala"))
     published = version(
@@ -1130,6 +1132,24 @@ def fixtures() -> list[Fixture]:
                                 minimum_required=5,
                                 max_assignable=3,
                             )
+                        ],
+                        conflict_set=[
+                            s.ConflictItem(
+                                kind="minimum_coverage",
+                                message="Minimum Grill staffing on Friday 30 Oct",
+                                relaxation=sched_solver.RELAX["minimum_coverage"],
+                                skill_id=SKILL["Grill"],
+                                day=date(2026, 10, 30),
+                            ),
+                            s.ConflictItem(
+                                kind="no_overtime",
+                                message="Arjun Rao cannot work beyond "
+                                + sched_solver._hours(arjun.regular_weekly_minutes)
+                                + " (no overtime)",
+                                relaxation=sched_solver.RELAX["no_overtime"],
+                                employee_id=arjun.id,
+                                minutes=arjun.regular_weekly_minutes,
+                            ),
                         ],
                         options=[
                             s.RelaxationOption(

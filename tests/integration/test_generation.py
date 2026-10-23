@@ -225,6 +225,10 @@ def test_impossible_demand_is_reported_as_infeasible(client: TestClient) -> None
     options = run["infeasibility"]["options"]  # v3 section 13: business options, not a bare error
     assert options and options[-1]["kind"] == "reduced_minimum"
     assert {o["kind"] for o in options} <= {"overtime", "cross_outlet", "reduced_minimum"}
+    # v4 section 17: the diagnosed conflict set names the business constraints, never facts.
+    conflict = run["infeasibility"]["conflict_set"]
+    assert conflict and any(c["kind"] == "minimum_coverage" for c in conflict)
+    assert {c["kind"] for c in conflict} <= {"minimum_coverage", "no_overtime", "rule", "labour_cap"}
     for o in options:
         if o["kind"] == "cross_outlet":  # other outlets' staff are in the snapshot for exactly this
             assert all(e["home_outlet_id"] != KOR for e in o["employees"])

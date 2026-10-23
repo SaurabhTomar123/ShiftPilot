@@ -190,10 +190,15 @@ def slots(snap: Snapshot) -> list[Slot]:
     return out
 
 
-def eligible(snap: Snapshot, emp: Employee, slot: Slot) -> bool:
+def eligible(snap: Snapshot, emp: Employee, slot: Slot, *, with_rules: bool = True) -> bool:
+    """Facts (status, skill, availability, absences) always; scheduling rules unless with_rules is False
+    (diagnosis gates them behind assumptions instead)."""
     if emp.status != "active" or slot.skill_id not in emp.skill_ids:
         return False
-    if rules.end_allowed(snap.rules.get(emp.id, ()), slot.start, slot.end, snap.outlet.tz) is not None:
+    if (
+        with_rules
+        and rules.end_allowed(snap.rules.get(emp.id, ()), slot.start, slot.end, snap.outlet.tz) is not None
+    ):
         return False  # a scheduling rule (v3 section 21); facts are checked below
     local = slot.start.astimezone(snap.outlet.tz)
     s = local.hour * 60 + local.minute
@@ -370,6 +375,26 @@ def _fairness_term(
     return sum(devs)
 
 
+class _Gates:
+    """Assumption literals for business constraints (architecture v4 section 17). Off for normal solves:
+    constraints are then added plainly and the model is unchanged."""
+
+    def __init__(self, model: cp_model.CpModel, on: bool) -> None:
+        self.model, self.on = model, on
+        self.lits: dict[tuple[Any, ...], cp_model.IntVar] = {}
+        self.labels: dict[int, dict[str, Any]] = {}
+
+    def add(self, constraint: Any, key: tuple[Any, ...], label: dict[str, Any]) -> None:
+        ct = self.model.add(constraint)
+        if not self.on:
+            return
+        lit = self.lits.get(key)
+        if lit is None:
+            lit = self.lits[key] = self.model.new_bool_var(f"assume_{len(self.lits)}")
+            self.labels[lit.index] = label
+        ct.only_enforce_if(lit)
+
+
 def solve(
     snap: Snapshot,
     strategy: str,
@@ -380,6 +405,7 @@ def solve(
     max_shortfall_staff_minutes: int | None = None,
     deterministic_time: float | None = None,
     cross_outlet: bool = False,
+    diagnose: bool = False,
 ) -> tuple[str, Candidate | None, dict[str, Any]]:
     """max_shortfall_staff_minutes caps preferred shortfall (equal shortfall = equal coverage), which
     gives matched-coverage comparisons: the cheapest roster covering at least as well as a reference.
@@ -397,11 +423,27 @@ def solve(
     coef = STRATEGIES[strategy].coefficients()
     cands = slots(snap)
     model = cp_model.CpModel()
+    gates = _Gates(model, diagnose)
+    tz = snap.outlet.tz
     x: dict[tuple[uuid.UUID, int], cp_model.IntVar] = {}
     for i, c in enumerate(cands):
         for e in pool(snap, cross_outlet):
             if eligible(snap, e, c):
                 x[e.id, i] = model.new_bool_var(f"x_{i}_{e.id.hex[:6]}")
+            elif diagnose and eligible(snap, e, c, with_rules=False):
+                broken = rules.end_allowed(snap.rules.get(e.id, ()), c.start, c.end, tz)
+                assert broken is not None
+                x[e.id, i] = model.new_bool_var(f"x_{i}_{e.id.hex[:6]}")
+                gates.add(
+                    x[e.id, i] == 0,
+                    ("rule", broken.id, e.id),
+                    {
+                        "kind": "rule",
+                        "rule_id": broken.id,
+                        "employee_id": e.id,
+                        "rule_type": broken.rule_type,
+                    },
+                )
 
     week_start, week_end = snap.week_bounds()
     locked = [sh for sh in snap.base_locked.values() if sh.employee_id is not None]
@@ -442,7 +484,11 @@ def solve(
             model.add(over >= total - emp.regular_weekly_minutes)
             ot_terms.append(over * (emp.rate_paise_per_hour // 60))
         else:
-            model.add(total <= emp.regular_weekly_minutes)
+            gates.add(
+                total <= emp.regular_weekly_minutes,
+                ("no_overtime", emp_id),
+                {"kind": "no_overtime", "employee_id": emp_id, "minutes": emp.regular_weekly_minutes},
+            )
         if emp.preferred_weekly_minutes is not None:
             gap = model.new_int_var(
                 0, emp.max_weekly_minutes + emp.preferred_weekly_minutes, f"gap_{emp_id.hex[:6]}"
@@ -466,7 +512,11 @@ def solve(
                     if cands[i].day == day:
                         model.add(x[emp_id, i] <= on)
                 works.append(on)
-            model.add(sum(works) + len(fixed_days) <= max(cap.parameters["days"], len(fixed_days)))
+            gates.add(
+                sum(works) + len(fixed_days) <= max(cap.parameters["days"], len(fixed_days)),
+                ("rule", cap.id, emp_id),
+                {"kind": "rule", "rule_id": cap.id, "employee_id": emp_id, "rule_type": cap.rule_type},
+            )
         has_prefs = any(w.kind == "preferred" for w in emp.windows)
         for i in idx:
             cost_terms.append(x[emp_id, i] * ((cands[i].paid_minutes * emp.rate_paise_per_hour + 30) // 60))
@@ -488,7 +538,12 @@ def solve(
             and not sh.on_break(t)
         )
         covered = cp_model.LinearExpr.sum(covering)
-        model.add(covered + locked_on >= req.minimum)
+        day = t.astimezone(tz).date()
+        gates.add(
+            covered + locked_on >= req.minimum,
+            ("minimum_coverage", req.skill_id, day),
+            {"kind": "minimum_coverage", "skill_id": req.skill_id, "day": day},
+        )
         if req.preferred > req.minimum:
             short = model.new_int_var(0, req.preferred, f"short_{k}")
             model.add(short >= req.preferred - locked_on - covered)
@@ -522,16 +577,23 @@ def solve(
             for sh in locked
             if sh.employee_id in snap.employees and week_start <= sh.start_at < week_end
         )
-        model.add(fixed_cost + cost + ot <= snap.labour_cap_paise)
-    model.minimize(
-        coef["cost"] * (cost + ot)
-        + coef["understaffing"] * shortfall
-        + coef["preferences"] * off_pref
-        + coef["disruption"] * changed
-        + coef["hours_alignment"] * alignment
-        + coef.get("fairness", 0) * fair
-    )
-    stats = {
+        gates.add(
+            fixed_cost + cost + ot <= snap.labour_cap_paise,
+            ("labour_cap",),
+            {"kind": "labour_cap", "max_cost_paise": snap.labour_cap_paise},
+        )
+    if diagnose:  # feasibility only, every gated business constraint assumed
+        model.add_assumptions(list(gates.lits.values()))
+    else:
+        model.minimize(
+            coef["cost"] * (cost + ot)
+            + coef["understaffing"] * shortfall
+            + coef["preferences"] * off_pref
+            + coef["disruption"] * changed
+            + coef["hours_alignment"] * alignment
+            + coef.get("fairness", 0) * fair
+        )
+    stats: dict[str, Any] = {
         "candidate_slots": len(cands),
         "assignment_variables": len(x),
         "constraints": len(model.proto.constraints),
@@ -546,6 +608,8 @@ def solve(
         solver.parameters.interleave_search = workers > 1  # parallel search is otherwise nondeterministic
     status = STATUS[solver.solve(model)]
     stats["solver_wall_ms"] = int(solver.wall_time * 1000)
+    if diagnose and status == "INFEASIBLE":
+        stats["conflict_set"] = [gates.labels[i] for i in solver.sufficient_assumptions_for_infeasibility()]
     if status not in ("OPTIMAL", "FEASIBLE"):
         return status, None, stats
     roster: list[Shift] = list(snap.base_locked.values())
@@ -624,6 +688,7 @@ def generate(
             outcome.status = "INFEASIBLE"
             outcome.shortages = shortages(snap, slots(snap))
             outcome.relaxations = relaxations(snap, outcome.shortages, time_limit=budget, workers=workers)
+            outcome.stats["conflict_set"] = diagnose(snap, time_limit=max(1.0, budget))
             outcome.summary = (
                 describe(snap, outcome.shortages[0])
                 if outcome.shortages
@@ -687,6 +752,61 @@ def _select(snap: Snapshot, outcome: Outcome, base: list[Shift], limit: int) -> 
         "considered": [e.strategy for e in entries],
         "dropped": [d.as_json() for d in dropped],
     }
+
+
+# ---------------------------------------------------------------- assumption diagnosis (v4 section 17)
+
+RELAX = {
+    "minimum_coverage": "Operate below this minimum, if policy permits.",
+    "no_overtime": "Allow overtime for this person.",
+    "rule": "Make an exception to this rule for this week.",
+    "labour_cap": "Raise the labour cap.",
+}
+
+
+def diagnose(snap: Snapshot, *, time_limit: float = 5.0, workers: int = 1) -> list[dict[str, Any]]:
+    """Business constraints that together leave no valid roster: CP-SAT's sufficient infeasible
+    assumption set. Diagnostic, not a minimum unsatisfiable core. Facts, skills, safety caps (maximum
+    weekly hours, rest, overlap) and pins are never assumptions, so they never appear as options."""
+    status, _, stats = solve(snap, "balanced", time_limit=time_limit, workers=workers, diagnose=True)
+    if status != "INFEASIBLE":
+        return []
+    names = {e.id: e.name for e in snap.employees.values()}
+    out = []
+    for item in sorted(
+        stats.get("conflict_set", []),
+        key=lambda d: (
+            d["kind"],
+            str(d.get("day", "")),
+            str(d.get("skill_id", "")),
+            names.get(d.get("employee_id"), ""),
+        ),
+    ):
+        kind = item["kind"]
+        if kind == "minimum_coverage":
+            skill = snap.skill_names.get(item["skill_id"], "This role")
+            message = f"Minimum {skill} staffing on {item['day']:%A %d %b}"
+        elif kind == "no_overtime":
+            who = names.get(item["employee_id"], "Someone")
+            message = f"{who} cannot work beyond {_hours(item['minutes'])} (no overtime)"
+        elif kind == "rule":
+            who = names.get(item["employee_id"], "Someone")
+            message = f"{who}: scheduling rule ({item['rule_type'].replace('_', ' ')})"
+        else:
+            message = f"Labour cap of INR {item['max_cost_paise'] / 100:,.0f}"
+        out.append(
+            {
+                "kind": kind,
+                "message": message,
+                "relaxation": RELAX[kind],
+                **{
+                    k: (str(v) if k != "minutes" and k != "max_cost_paise" else v)
+                    for k, v in item.items()
+                    if k != "kind"
+                },
+            }
+        )
+    return out
 
 
 # ---------------------------------------------------------------- infeasibility relaxations (v3 section 13)

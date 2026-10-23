@@ -350,6 +350,7 @@ def process(engine: Engine, row: Any, me: str) -> str:
             if outcome.status == "INFEASIBLE":
                 stats["infeasibility"] = {
                     "summary": outcome.summary or "No roster satisfies every rule.",
+                    "conflict_set": stats.pop("conflict_set", []),
                     "shortages": [
                         {
                             "outlet_id": str(snap.outlet_id),

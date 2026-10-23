@@ -23,6 +23,18 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.21.0-p4 (live): conflict-set diagnosis (architecture v4 §17)
+
+This change is additive.
+
+- **`Infeasibility.conflict_set`:** when no valid roster exists, the run also names the business constraints that together cause it. These come from CP-SAT's sufficient infeasible assumption set.
+  - Kinds: `minimum_coverage` (skill and day), `no_overtime` (person), `rule` (person and rule id), `labour_cap` (scenarios).
+  - Each item has a deterministic `message` and the `relaxation` it offers, e.g. "Allow overtime for this person."
+- **What it is not:** it is a diagnostic set, not a claim of the smallest one. Facts (availability, absences), mandatory skills, safety caps (maximum weekly hours, rest, overlap) and pins are never in it. When facts alone make the week impossible, it lists only the minimum-staffing constraints that cannot be met.
+- **Alongside the existing fields:** shown with `shortages` (the capacity gap) and `options` (relaxations already tested to be feasible). Scenario runs get it too, e.g. an impossible labour cap.
+
+Fixture: `run.infeasible` carries a conflict set.
+
 ## What changed in 3.20.0-p4 (live): Scenario Lab (architecture v4 §23, §42)
 
 This change is additive. Migration `0019` adds `planning_scenarios` and `scenario_events`.

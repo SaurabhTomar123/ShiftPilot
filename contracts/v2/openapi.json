@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.20.0-p4"
+    "version": "3.21.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -6996,6 +6996,121 @@
         ],
         "title": "CommandRequest"
       },
+      "ConflictItem": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "minimum_coverage",
+              "no_overtime",
+              "rule",
+              "labour_cap"
+            ],
+            "title": "Kind"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Deterministic text; safe to show."
+          },
+          "relaxation": {
+            "type": "string",
+            "title": "Relaxation",
+            "description": "The business option this constraint offers if relaxed."
+          },
+          "skill_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill Id"
+          },
+          "day": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Day"
+          },
+          "employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employee Id"
+          },
+          "rule_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule Id"
+          },
+          "rule_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule Type"
+          },
+          "minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minutes",
+            "description": "no_overtime: the regular weekly minutes."
+          },
+          "max_cost_paise": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Cost Paise"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "message",
+          "relaxation"
+        ],
+        "title": "ConflictItem",
+        "description": "One business constraint in the diagnosed conflict set (architecture v4 section 17)."
+      },
       "ConvertScenarioRequest": {
         "properties": {
           "candidate_id": {
@@ -8289,6 +8404,14 @@
             },
             "type": "array",
             "title": "Shortages"
+          },
+          "conflict_set": {
+            "items": {
+              "$ref": "#/components/schemas/ConflictItem"
+            },
+            "type": "array",
+            "title": "Conflict Set",
+            "description": "Business constraints that together leave no valid roster: CP-SAT's sufficient infeasible assumption set. A diagnostic set, not a claim of the smallest one. Facts, skills, safety caps and pins are never in it. Empty when the facts alone are infeasible."
           },
           "options": {
             "items": {

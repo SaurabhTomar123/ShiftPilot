@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.20.0-p4"
+CONTRACT_VERSION = "3.21.0-p4"
 
 
 class Model(BaseModel):
@@ -1357,9 +1357,30 @@ class RelaxationOption(Model):
     shortages: list[Shortage] = Field(default_factory=list, description="reduced_minimum only.")
 
 
+class ConflictItem(Model):
+    """One business constraint in the diagnosed conflict set (architecture v4 section 17)."""
+
+    kind: Literal["minimum_coverage", "no_overtime", "rule", "labour_cap"]
+    message: str = Field(description="Deterministic text; safe to show.")
+    relaxation: str = Field(description="The business option this constraint offers if relaxed.")
+    skill_id: UUID | None = None
+    day: date | None = None
+    employee_id: UUID | None = None
+    rule_id: UUID | None = None
+    rule_type: str | None = None
+    minutes: int | None = Field(default=None, description="no_overtime: the regular weekly minutes.")
+    max_cost_paise: int | None = None
+
+
 class Infeasibility(Model):
     summary: str
     shortages: list[Shortage]
+    conflict_set: list[ConflictItem] = Field(
+        default_factory=list,
+        description="Business constraints that together leave no valid roster: CP-SAT's sufficient "
+        "infeasible assumption set. A diagnostic set, not a claim of the smallest one. Facts, skills, "
+        "safety caps and pins are never in it. Empty when the facts alone are infeasible.",
+    )
     options: list[RelaxationOption] = Field(
         default_factory=list,
         description="In order: overtime, cross_outlet, reduced_minimum. Each was feasible on its own; none "
