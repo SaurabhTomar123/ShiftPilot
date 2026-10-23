@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.17.0-p4"
+    "version": "3.18.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -5722,7 +5722,18 @@
             },
             "type": "array",
             "title": "Explanations",
-            "description": "Repair runs: one per changed shift."
+            "description": "One per reassigned, created or unfilled shift against a base version (repairs, regeneration). Empty on an empty week, where every shift is new."
+          },
+          "trace": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionTrace"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null for candidates stored before 3.18."
           }
         },
         "additionalProperties": false,
@@ -5831,7 +5842,18 @@
             },
             "type": "array",
             "title": "Explanations",
-            "description": "Repair runs: one per changed shift."
+            "description": "One per reassigned, created or unfilled shift against a base version (repairs, regeneration). Empty on an empty week, where every shift is new."
+          },
+          "trace": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionTrace"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null for candidates stored before 3.18."
           },
           "run_id": {
             "type": "string",
@@ -5853,6 +5875,14 @@
           },
           "diff": {
             "$ref": "#/components/schemas/CandidateDiff"
+          },
+          "trace_changes": {
+            "items": {
+              "$ref": "#/components/schemas/TraceChange"
+            },
+            "type": "array",
+            "title": "Trace Changes",
+            "description": "The change class of every non-kept shift, in time order."
           }
         },
         "additionalProperties": false,
@@ -6226,6 +6256,77 @@
           "expected_revision"
         ],
         "title": "CreateProposalRequest"
+      },
+      "DecisionTrace": {
+        "properties": {
+          "strategy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "balanced",
+                  "lowest_cost",
+                  "staff_friendly",
+                  "max_coverage",
+                  "stability",
+                  "fairness"
+                ]
+              },
+              {
+                "type": "string",
+                "enum": [
+                  "least_disruption",
+                  "lowest_cost",
+                  "best_coverage"
+                ]
+              }
+            ],
+            "title": "Strategy"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/PlanDelta"
+          },
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "KEPT",
+                "MOVED_TIME",
+                "REASSIGNED",
+                "CREATED",
+                "REMOVED",
+                "UNFILLED"
+              ]
+            },
+            "type": "object",
+            "title": "Counts",
+            "description": "Every class, KEPT included."
+          },
+          "explained_shifts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Explained Shifts",
+            "description": "Changed shifts with why/why-not facts."
+          },
+          "explanations_truncated": {
+            "type": "boolean",
+            "title": "Explanations Truncated",
+            "description": "More changed shifts than were explained (limit 30)."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "strategy",
+          "summary",
+          "counts",
+          "explained_shifts",
+          "explanations_truncated"
+        ],
+        "title": "DecisionTrace",
+        "description": "What changed, what stayed, and the trade-off that produced the plan (architecture v4 section 18)."
       },
       "DemoSession": {
         "properties": {
@@ -6938,9 +7039,14 @@
               "available",
               "no_conflict",
               "weekly_hours",
-              "travel"
+              "travel",
+              "rules",
+              "incremental_cost",
+              "fairness_burden",
+              "disruption"
             ],
-            "title": "Code"
+            "title": "Code",
+            "description": "incremental_cost, fairness_burden and disruption appear for the chosen person only. Unknown codes may be added; show their message."
           },
           "ok": {
             "type": "boolean",
@@ -6954,7 +7060,8 @@
           "facts": {
             "additionalProperties": true,
             "type": "object",
-            "title": "Facts"
+            "title": "Facts",
+            "description": "Blocking reasons carry provenance: rule_ids and/or absence_ids (v4 section 18)."
           }
         },
         "additionalProperties": false,
@@ -8087,6 +8194,91 @@
           "timezone"
         ],
         "title": "OutletRef"
+      },
+      "PlanDelta": {
+        "properties": {
+          "compared_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "base_version",
+                  "requested_plan"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Compared To",
+            "description": "base_version when regenerating or repairing; on an empty week, other plans compare with the requested plan (rank 1), whose deltas are null."
+          },
+          "cost_delta_paise": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Delta Paise",
+            "description": "Labour plus overtime premium; negative = cheaper."
+          },
+          "preferred_gap_delta_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Gap Delta Minutes",
+            "description": "Negative = better preferred coverage."
+          },
+          "fairness_delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fairness Delta",
+            "description": "Fairness burden deviation; negative = fairer."
+          },
+          "overtime_minutes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Overtime Minutes"
+          },
+          "cross_outlet_moves": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Cross Outlet Moves",
+            "description": "Shifts worked away from the person's home outlet."
+          },
+          "changed_commitments": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Changed Commitments",
+            "description": "MOVED_TIME + REASSIGNED + REMOVED + UNFILLED."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "compared_to",
+          "cost_delta_paise",
+          "preferred_gap_delta_minutes",
+          "fairness_delta",
+          "overtime_minutes",
+          "cross_outlet_moves",
+          "changed_commitments"
+        ],
+        "title": "PlanDelta"
       },
       "PortfolioDrop": {
         "properties": {
@@ -10361,6 +10553,70 @@
           "content"
         ],
         "title": "StageImportRequest"
+      },
+      "TraceChange": {
+        "properties": {
+          "logical_shift_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Logical Shift Id"
+          },
+          "change": {
+            "type": "string",
+            "enum": [
+              "KEPT",
+              "MOVED_TIME",
+              "REASSIGNED",
+              "CREATED",
+              "REMOVED",
+              "UNFILLED"
+            ],
+            "title": "Change",
+            "description": "Never KEPT: kept shifts are only counted."
+          },
+          "kinds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Kinds",
+            "description": "Finer diff kinds: added, removed, reassigned, moved, resized, ..."
+          },
+          "before_employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Before Employee Id"
+          },
+          "after_employee_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After Employee Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "logical_shift_id",
+          "change",
+          "kinds",
+          "before_employee_id",
+          "after_employee_id"
+        ],
+        "title": "TraceChange"
       },
       "UpdateAbsenceRequest": {
         "properties": {

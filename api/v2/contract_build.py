@@ -31,6 +31,7 @@ from scheduling import diff as sched_diff
 from scheduling import edits as sched_edits
 from scheduling import metrics as sched_metrics
 from scheduling import model
+from scheduling import trace as sched_trace
 from scheduling import validator as sched_validator
 from seed import world_snapshot
 from seed.world import (
@@ -506,6 +507,14 @@ def fixtures() -> list[Fixture]:
 
     d1 = draft("draft1", 1, balanced_roster, "balanced")
     d2 = draft("draft2", 2, lean_roster, "lowest_cost")
+    next_snap = world_snapshot.build("indiranagar", NEXT_WEEK, with_bench=True)
+
+    def traced(rank: int, v: s.ScheduleVersion, strategy: str) -> tuple[s.DecisionTrace, list[s.TraceChange]]:
+        """Empty week: rank 1 has no comparison, other ranks compare with the requested plan."""
+        roster = [_to_model(sh) for sh in v.shifts]
+        reference = None if rank == 1 else [_to_model(sh) for sh in d1.shifts]
+        doc, rows, _ = sched_trace.build(next_snap, strategy, [], roster, reference)
+        return s.DecisionTrace.model_validate(doc), [s.TraceChange.model_validate(r) for r in rows]
 
     def candidate(
         rank: int,
@@ -523,6 +532,7 @@ def fixtures() -> list[Fixture]:
             metrics=v.metrics,
             changed_shifts=len(v.shifts),
             validation=v.validation,
+            trace=traced(rank, v, strategy)[0],
         )
 
     def candidate_detail(c: s.Candidate, v: s.ScheduleVersion) -> s.CandidateDetail:
@@ -535,6 +545,7 @@ def fixtures() -> list[Fixture]:
                 "run_id": run_id,
                 "base_version_id": None,
                 "diff": {"added": added, "changed": [], "removed": []},
+                "trace_changes": traced(c.rank, v, c.strategy)[1],
             }
         )
 
@@ -1851,6 +1862,13 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
     repair_key = f"indiranagar:{WEEK}:repair:{absence_id}"
     repaired_eval = _evaluated(repaired)
     moved = next(sh for sh in repaired if sh.logical_id == hit.logical_shift_id)
+    repair_trace, repair_rows, repair_why = sched_trace.build(
+        world_snapshot.build("indiranagar", WEEK, with_bench=True),
+        "least_disruption",
+        base,
+        repaired,
+        exclude=frozenset({employee}),
+    )
     repair_candidate = s.Candidate(
         id=uid("candidate", f"repair:{absence_id}:1"),
         rank=1,
@@ -1862,6 +1880,8 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
         changed_shifts=1,
         validation=repaired_eval["validation"],
         disruption=s.Disruption(changed_shifts=1, added_shifts=0, cross_outlet_moves=0, open_shifts=0),
+        explanations=[s.ShiftExplanation.model_validate(e) for e in repair_why],
+        trace=s.DecisionTrace.model_validate(repair_trace),
     )
     repair_detail = s.CandidateDetail.model_validate(
         repair_candidate.model_dump()
@@ -1877,6 +1897,7 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
                 ],
                 "removed": [],
             },
+            "trace_changes": repair_rows,
         }
     )
     repair_draft = s.ScheduleVersion(

@@ -58,6 +58,7 @@ class Absence:
     start_at: datetime
     end_at: datetime
     status: str  # only "confirmed" invalidates shifts
+    id: UUID | None = None  # provenance for explanations (v4 section 18); absent in older snapshots
 
 
 @dataclass(frozen=True)

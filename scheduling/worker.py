@@ -34,7 +34,7 @@ from typing import Any
 from sqlalchemy import Engine, text
 
 from db.session import worker_engine
-from scheduling import metrics, repair, snapshot_json, solver, validator
+from scheduling import metrics, repair, snapshot_json, solver, trace, validator
 from scheduling.model import Shift, Snapshot
 
 log = logging.getLogger("shiftpilot.worker")
@@ -159,7 +159,7 @@ def _persist_candidates(
     for rank, cand in enumerate(outcome.candidates, start=1):
         doc = snapshot_json.candidate_diff(base, cand.roster)
         changed = len(doc["added"]) + len(doc["changed"]) + len(doc["removed"])
-        if extras and rank in extras:
+        if extras and "disruption" in extras.get(rank, {}):
             doc["disruption"] = extras[rank]["disruption"]
         key = sorted((str(sh.employee_id), sh.start_at.isoformat(), str(sh.skill_id)) for sh in cand.roster)
         conn.execute(
@@ -182,7 +182,7 @@ def _persist_candidates(
                 "metrics": json.dumps(metrics.as_contract(metrics.compute(snap, cand.roster))),
                 "diff": json.dumps({"changed_shifts": changed, **doc}),
                 "facts": json.dumps(
-                    {"explanations": extras[rank]["explanations"]} if extras and rank in extras else {}
+                    {k: v for k, v in (extras or {}).get(rank, {}).items() if k in ("explanations", "trace")}
                 ),
                 "validation": json.dumps(validator.as_contract(validator.validate(snap, cand.roster))),
                 "hash": hashlib.sha256(json.dumps(key).encode()).hexdigest(),
@@ -191,26 +191,35 @@ def _persist_candidates(
 
 
 def _explanations_json(plan: repair.Plan) -> list[dict[str, Any]]:
-    def reason(r: repair.Reason) -> dict[str, Any]:
-        return {"code": r.code, "ok": r.ok, "message": r.message, "facts": r.facts}
+    return [repair.explanation_json(e) for e in plan.explanations]
 
-    return [
-        {
-            "logical_shift_id": str(e.logical_id),
-            "chosen_employee_id": str(e.chosen_employee_id) if e.chosen_employee_id else None,
-            "reasons": [reason(r) for r in e.chosen],
-            "alternatives": [
-                {
-                    "employee_id": str(a.employee_id),
-                    "name": a.name,
-                    "status": a.status,
-                    "reasons": [reason(r) for r in a.reasons],
-                }
-                for a in e.alternatives
-            ],
-        }
-        for e in plan.explanations
-    ]
+
+def _traces(
+    snap: Snapshot,
+    outcome: solver.Outcome,
+    base: list[Shift],
+    extras: dict[int, dict[str, Any]],
+    *,
+    explain: bool,
+    exclude: frozenset[uuid.UUID] = frozenset(),
+) -> dict[int, dict[str, Any]]:
+    """Decision trace per candidate (v4 section 18), computed before the result transaction opens."""
+    requested = list(outcome.candidates[0].roster) if outcome.candidates else None
+    for rank, cand in enumerate(outcome.candidates, start=1):
+        trace_doc, rows, explanations = trace.build(
+            snap,
+            cand.strategy,
+            base,
+            list(cand.roster),
+            None if rank == 1 else requested,
+            explain=explain,
+            exclude=exclude,
+        )
+        entry = extras.setdefault(rank, {})
+        entry["trace"] = {**trace_doc, "changes": rows}
+        if explain and "explanations" not in entry:
+            entry["explanations"] = explanations
+    return extras
 
 
 def _run_repair(snap: Snapshot, row: Any) -> tuple[solver.Outcome, dict[int, dict[str, Any]]]:
@@ -278,6 +287,11 @@ def _run_repair(snap: Snapshot, row: Any) -> tuple[solver.Outcome, dict[int, dic
         )
     elif outcome.candidates:
         outcome.status = outcome.candidates[0].status
+    if outcome.candidates:
+        # Repair explanations already exist per changed shift; the trace adds taxonomy and summary.
+        _traces(with_absence, outcome, base, extras, explain=False)
+        for entry in extras.values():
+            entry["trace"]["explained_shifts"] = len(entry.get("explanations", []))
     return outcome, extras
 
 
@@ -303,6 +317,8 @@ def process(engine: Engine, row: Any, me: str) -> str:
                     # Evaluation mode: reproducible from (input_hash, config); production leaves it unset.
                     deterministic_time=row.config.get("deterministic_time"),
                 )
+                base = [*snap.base, *snap.base_locked.values()]
+                extras = _traces(snap, outcome, base, {}, explain=True)
         except Exception:  # the job failed; the error is recorded, not raised into the loop
             log.exception("run %s failed", row.id)
             error = {

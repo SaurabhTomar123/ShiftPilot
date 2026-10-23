@@ -70,6 +70,10 @@ def test_enqueue_is_idempotent_and_guarded(client: TestClient) -> None:
     assert folio["policy_version"] == 1 and folio["considered"][0] == done["strategy"]
     shown = {c["strategy"] for c in done["candidates"]}
     assert shown | {d["strategy"] for d in folio["dropped"]} == set(folio["considered"])
+    # Decision trace (v4 section 18): an empty week is all CREATED; rank 1 has nothing to compare with.
+    first = done["candidates"][0]["trace"]
+    assert first["summary"]["compared_to"] is None and first["counts"]["CREATED"] > 0
+    assert all(c["trace"]["summary"]["compared_to"] == "requested_plan" for c in done["candidates"][1:])
     # Candidates are lightweight (v3 section 23): no version exists until a manager selects one.
     assert sql("SELECT count(*) FROM schedule_versions WHERE optimization_run_id = :r", r=run.id)[0][0] == 0
     for cand in done["candidates"]:
@@ -137,6 +141,10 @@ def test_regeneration_keeps_locked_shifts_and_never_touches_the_published_week(c
     detail = client.get(f"/v2/optimization-candidates/{run['candidates'][0]['id']}", headers=MANAGER).json()
     assert detail["base_version_id"] == current["id"]
     assert not locked & set(detail["diff"]["removed"])  # locked shifts are kept
+    trace = run["candidates"][0]["trace"]
+    assert trace["summary"]["compared_to"] == "base_version" and trace["counts"]["KEPT"] >= len(locked)
+    assert len(detail["trace_changes"]) == sum(v for k, v in trace["counts"].items() if k != "KEPT")
+    assert trace["explained_shifts"] == len(run["candidates"][0]["explanations"])
     draft = client.post(
         f"/v2/optimization-candidates/{run['candidates'][0]['id']}/select", headers=MANAGER | key()
     ).json()

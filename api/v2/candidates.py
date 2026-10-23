@@ -93,6 +93,7 @@ def get_candidate(caller: Caller, candidate_id: uuid.UUID) -> s.CandidateDetail:
                     "changed": [shift(d) for d in diff.get("changed", [])],
                     "removed": diff.get("removed", []),
                 },
+                "trace_changes": ((candidate.explanation_facts or {}).get("trace") or {}).get("changes", []),
             }
         )
 

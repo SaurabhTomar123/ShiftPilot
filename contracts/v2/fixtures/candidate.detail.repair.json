@@ -334,7 +334,182 @@
         "cross_outlet_moves": 0,
         "open_shifts": 0
       },
-      "explanations": [],
+      "explanations": [
+        {
+          "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+          "chosen_employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+          "reasons": [
+            {
+              "code": "skill",
+              "ok": true,
+              "message": "Qualified for Prep",
+              "facts": {
+                "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21"
+              }
+            },
+            {
+              "code": "available",
+              "ok": true,
+              "message": "Available for the shift",
+              "facts": {}
+            },
+            {
+              "code": "no_conflict",
+              "ok": true,
+              "message": "No overlapping shift and rest rules met",
+              "facts": {}
+            },
+            {
+              "code": "weekly_hours",
+              "ok": true,
+              "message": "45h this week after the change",
+              "facts": {
+                "weekly_minutes": 2700,
+                "regular_weekly_minutes": 2880
+              }
+            },
+            {
+              "code": "rules",
+              "ok": true,
+              "message": "Within their scheduling rules",
+              "facts": {}
+            },
+            {
+              "code": "travel",
+              "ok": true,
+              "message": "Works at this outlet",
+              "facts": {
+                "travel_minutes": 0
+              }
+            },
+            {
+              "code": "incremental_cost",
+              "ok": true,
+              "message": "INR 1,350 for this shift",
+              "facts": {
+                "paise": 135000
+              }
+            },
+            {
+              "code": "fairness_burden",
+              "ok": true,
+              "message": "No closing or weekend burden",
+              "facts": {
+                "points": 0,
+                "policy_version": 1
+              }
+            },
+            {
+              "code": "disruption",
+              "ok": true,
+              "message": "Replaces the person published for this shift",
+              "facts": {
+                "class": "reassigned"
+              }
+            }
+          ],
+          "alternatives": [
+            {
+              "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
+              "name": "Chitra Indiranagar",
+              "status": "eligible_not_selected",
+              "reasons": [
+                {
+                  "code": "skill",
+                  "ok": true,
+                  "message": "Qualified for Prep",
+                  "facts": {
+                    "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21"
+                  }
+                },
+                {
+                  "code": "available",
+                  "ok": true,
+                  "message": "Available for the shift",
+                  "facts": {}
+                },
+                {
+                  "code": "no_conflict",
+                  "ok": true,
+                  "message": "No overlapping shift and rest rules met",
+                  "facts": {}
+                },
+                {
+                  "code": "weekly_hours",
+                  "ok": true,
+                  "message": "7.5h this week after the change",
+                  "facts": {
+                    "weekly_minutes": 450,
+                    "regular_weekly_minutes": 2880
+                  }
+                },
+                {
+                  "code": "rules",
+                  "ok": true,
+                  "message": "Within their scheduling rules",
+                  "facts": {}
+                },
+                {
+                  "code": "travel",
+                  "ok": true,
+                  "message": "Works at this outlet",
+                  "facts": {
+                    "travel_minutes": 0
+                  }
+                }
+              ]
+            },
+            {
+              "employee_id": "7df5532e-f630-5999-90fe-0b04f004bf92",
+              "name": "Kavya Reddy",
+              "status": "rejected",
+              "reasons": [
+                {
+                  "code": "no_conflict",
+                  "ok": false,
+                  "message": "Would break overlap, rest or travel rules",
+                  "facts": {}
+                }
+              ]
+            },
+            {
+              "employee_id": "39ecd01e-c984-50d7-a64c-9a350c67e8f6",
+              "name": "Neha Iyer",
+              "status": "rejected",
+              "reasons": [
+                {
+                  "code": "available",
+                  "ok": false,
+                  "message": "Not available for the shift",
+                  "facts": {}
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "trace": {
+        "strategy": "least_disruption",
+        "summary": {
+          "compared_to": "base_version",
+          "cost_delta_paise": -22500,
+          "preferred_gap_delta_minutes": 0,
+          "fairness_delta": 0.0,
+          "overtime_minutes": 0,
+          "cross_outlet_moves": 0,
+          "changed_commitments": 1
+        },
+        "counts": {
+          "KEPT": 59,
+          "MOVED_TIME": 0,
+          "REASSIGNED": 1,
+          "CREATED": 0,
+          "REMOVED": 0,
+          "UNFILLED": 0
+        },
+        "explained_shifts": 1,
+        "explanations_truncated": false
+      },
       "run_id": "f81791b4-7109-5853-8a74-970ff95c17b6",
       "base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
       "diff": {
@@ -353,7 +528,18 @@
           }
         ],
         "removed": []
-      }
+      },
+      "trace_changes": [
+        {
+          "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+          "change": "REASSIGNED",
+          "kinds": [
+            "reassigned"
+          ],
+          "before_employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "after_employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98"
+        }
+      ]
     }
   }
 }

@@ -126,6 +126,7 @@ def dump(snap: Snapshot) -> dict[str, Any]:
         ],
         "absences": [
             [str(a.employee_id), a.start_at.isoformat(), a.end_at.isoformat(), a.status]
+            + ([str(a.id)] if a.id else [])
             for a in snap.absences
         ],
         "travel_minutes": [[str(a), str(b), m] for (a, b), m in sorted(snap.travel_minutes.items(), key=str)],
@@ -196,8 +197,14 @@ def load(doc: dict[str, Any]) -> Snapshot:
             for o, k, a, b, mn, pf in doc["requirements"]
         ),
         absences=tuple(
-            Absence(UUID(e), datetime.fromisoformat(a), datetime.fromisoformat(b), st)
-            for e, a, b, st in doc["absences"]
+            Absence(
+                UUID(e),
+                datetime.fromisoformat(a),
+                datetime.fromisoformat(b),
+                st,
+                UUID(rest[0]) if rest else None,
+            )
+            for e, a, b, st, *rest in doc["absences"]
         ),
         travel_minutes={(UUID(a), UUID(b)): m for a, b, m in doc["travel_minutes"]},
         commitments=tuple(_shift_back(d) for d in doc["commitments"]),
@@ -241,6 +248,7 @@ def absence_doc(a: Absence) -> dict[str, Any]:
         "start_at": a.start_at.isoformat(),
         "end_at": a.end_at.isoformat(),
         "status": a.status,
+        **({"id": str(a.id)} if a.id else {}),
     }
 
 
@@ -250,6 +258,7 @@ def absence_from_doc(d: dict[str, Any]) -> Absence:
         datetime.fromisoformat(d["start_at"]),
         datetime.fromisoformat(d["end_at"]),
         d["status"],
+        UUID(d["id"]) if d.get("id") else None,
     )
 
 

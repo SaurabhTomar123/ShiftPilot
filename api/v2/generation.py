@@ -64,7 +64,13 @@ def candidate_fields(c: OptimizationCandidate) -> dict[str, Any]:
         "validation": c.validation,
         "disruption": c.diff.get("disruption"),
         "explanations": (c.explanation_facts or {}).get("explanations", []),
+        "trace": _trace(c),
     }
+
+
+def _trace(c: OptimizationCandidate) -> dict[str, Any] | None:
+    doc = (c.explanation_facts or {}).get("trace")
+    return {k: v for k, v in doc.items() if k != "changes"} if doc else None
 
 
 def run_view(session: Session, run: OptimizationRun) -> s.OptimizationRun:
@@ -372,7 +378,7 @@ def repair_in_session(
     if active is not None:
         return active
     base = _current_shifts(session, schedule)
-    model_absence = Absence(absence.employee_id, absence.start_at, absence.end_at, "confirmed")
+    model_absence = Absence(absence.employee_id, absence.start_at, absence.end_at, "confirmed", absence.id)
     conflicts = [
         x.logical_id
         for x in repair.affected_shifts(base, model_absence)

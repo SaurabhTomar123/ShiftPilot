@@ -347,7 +347,29 @@
             ]
           },
           "disruption": null,
-          "explanations": []
+          "explanations": [],
+          "trace": {
+            "strategy": "balanced",
+            "summary": {
+              "compared_to": null,
+              "cost_delta_paise": null,
+              "preferred_gap_delta_minutes": null,
+              "fairness_delta": null,
+              "overtime_minutes": 0,
+              "cross_outlet_moves": 0,
+              "changed_commitments": 0
+            },
+            "counts": {
+              "KEPT": 0,
+              "MOVED_TIME": 0,
+              "REASSIGNED": 0,
+              "CREATED": 60,
+              "REMOVED": 0,
+              "UNFILLED": 0
+            },
+            "explained_shifts": 0,
+            "explanations_truncated": false
+          }
         },
         {
           "id": "cf2129a7-c492-5388-a2c8-bbc18065b8a5",
@@ -666,7 +688,29 @@
             ]
           },
           "disruption": null,
-          "explanations": []
+          "explanations": [],
+          "trace": {
+            "strategy": "lowest_cost",
+            "summary": {
+              "compared_to": "requested_plan",
+              "cost_delta_paise": -357000,
+              "preferred_gap_delta_minutes": 960,
+              "fairness_delta": 0.02,
+              "overtime_minutes": 0,
+              "cross_outlet_moves": 0,
+              "changed_commitments": 0
+            },
+            "counts": {
+              "KEPT": 0,
+              "MOVED_TIME": 0,
+              "REASSIGNED": 0,
+              "CREATED": 56,
+              "REMOVED": 0,
+              "UNFILLED": 0
+            },
+            "explained_shifts": 0,
+            "explanations_truncated": false
+          }
         }
       ],
       "infeasibility": null,

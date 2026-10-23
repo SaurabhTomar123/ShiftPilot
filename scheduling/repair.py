@@ -23,13 +23,14 @@ from __future__ import annotations
 
 import uuid
 from collections import defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from typing import Any
 
 from ortools.sat.python import cp_model
 
-from scheduling import validator
+from scheduling import fairness, validator
 from scheduling.model import Absence, Employee, Shift, Snapshot
 from scheduling.solver import STATUS, Slot, _conflict, eligible, slots
 
@@ -414,17 +415,38 @@ def explain(
     """Deterministic facts per changed shift. Alternatives get the concrete rule that blocks them, or
     'eligible_not_selected' -- non-selection alone is never presented as a rejection reason."""
     base_by_id = {s.logical_id: s for s in base}
+    changed = [
+        s
+        for s in plan_roster
+        if (before := base_by_id.get(s.logical_id)) is None or before.employee_id != s.employee_id
+    ]
+    return explain_shifts(
+        snap, base, plan_roster, changed, frozenset({absence.employee_id}), max_alternatives
+    )
+
+
+def explain_shifts(
+    snap: Snapshot,
+    base: Sequence[Shift],
+    plan_roster: Sequence[Shift],
+    shifts: Sequence[Shift],
+    exclude: frozenset[uuid.UUID] = frozenset(),
+    max_alternatives: int = 4,
+) -> tuple[Explanation, ...]:
+    """Explain the given shifts of a plan (v4 section 18): why this person, why not the others.
+    `exclude`: people who are not alternatives at all (the absent employee)."""
+    base_by_id = {s.logical_id: s for s in base}
     out = []
     week_start, week_end = snap.week_bounds()
-    for s in plan_roster:
+    for s in shifts:
         before = base_by_id.get(s.logical_id)
-        if before is not None and before.employee_id == s.employee_id:
-            continue
-        others = [o for o in plan_roster if o is not s]
-        chosen = _facts(snap, s, s.employee_id, others, week_start, week_end) if s.employee_id else ()
+        others = [o for o in plan_roster if o.logical_id != s.logical_id]
+        chosen: tuple[Reason, ...] = ()
+        if s.employee_id:
+            chosen = _facts(snap, s, s.employee_id, others, week_start, week_end) + _choice(snap, s, before)
         alts = []
         for e in sorted(snap.employees.values(), key=lambda e: e.name):
-            if e.id in (s.employee_id, absence.employee_id) or s.skill_id not in e.skill_ids:
+            if e.id == s.employee_id or e.id in exclude or s.skill_id not in e.skill_ids:
                 continue
             reasons = _facts(snap, s, e.id, others, week_start, week_end)
             blocked = [r for r in reasons if not r.ok]
@@ -453,13 +475,26 @@ def _facts(
         return ()
     emp: Employee = snap.employees[employee_id]
     trial = replace(s, employee_id=employee_id)
-    hard = {
-        v.code
+    found = [
+        v
         for v in validator.validate(
             replace(snap, requirements=()), [trial, *[o for o in others if o.employee_id == employee_id]]
         ).violations
         if v.severity == "hard"
-    }
+    ]
+    hard = {v.code for v in found}
+
+    def source(*codes: str) -> dict[str, Any]:
+        """Constraint provenance (v4 section 18): which rule or absence produced the restriction."""
+        hits = [v for v in found if v.code in codes]
+        rule_ids = sorted({v.facts["rule_id"] for v in hits if "rule_id" in v.facts})
+        absence_ids = sorted({v.facts["absence_id"] for v in hits if "absence_id" in v.facts})
+        return {
+            **({"rule_ids": rule_ids} if rule_ids else {}),
+            **({"absence_ids": absence_ids} if absence_ids else {}),
+        }
+
+    broken_rule = next((v for v in found if v.code == "rule"), None)
     week = (
         sum(
             o.paid_minutes
@@ -483,10 +518,11 @@ def _facts(
         ),
         Reason(
             "available",
-            not hard & {"unavailable", "absent"},
+            not hard & {"unavailable", "absent", "inactive_employee"},
             "Available for the shift"
-            if not hard & {"unavailable", "absent"}
+            if not hard & {"unavailable", "absent", "inactive_employee"}
             else "Not available for the shift",
+            source("unavailable", "absent", "inactive_employee"),
         ),
         Reason(
             "no_conflict",
@@ -494,12 +530,23 @@ def _facts(
             "No overlapping shift and rest rules met"
             if not hard & {"overlap", "insufficient_rest", "travel_time"}
             else "Would break overlap, rest or travel rules",
+            source("overlap", "insufficient_rest", "travel_time"),
         ),
         Reason(
             "weekly_hours",
             not hard & {"weekly_cap", "overtime"},
             f"{week / 60:g}h this week after the change",
-            {"weekly_minutes": week, "regular_weekly_minutes": emp.regular_weekly_minutes},
+            {
+                "weekly_minutes": week,
+                "regular_weekly_minutes": emp.regular_weekly_minutes,
+                **source("weekly_cap", "overtime"),
+            },
+        ),
+        Reason(
+            "rules",
+            broken_rule is None,
+            "Within their scheduling rules" if broken_rule is None else broken_rule.message,
+            source("rule"),
         ),
         Reason(
             "travel",
@@ -508,6 +555,55 @@ def _facts(
             {"travel_minutes": travel},
         ),
     )
+
+
+def _choice(snap: Snapshot, s: Shift, before: Shift | None) -> tuple[Reason, ...]:
+    """Facts about the chosen person only: incremental cost, fairness burden, disruption class."""
+    emp = snap.employees[s.employee_id] if s.employee_id else None
+    if emp is None:
+        return ()
+    paise = (s.paid_minutes * emp.rate_paise_per_hour + 30) // 60
+    points = fairness.shift_burden(s, snap.outlet.tz)
+    if before is None:
+        disruption = ("new", "A new shift")
+    elif before.employee_id is None:
+        disruption = ("filled_open", "Fills a shift that was open")
+    elif before.employee_id != s.employee_id:
+        disruption = ("reassigned", "Replaces the person published for this shift")
+    else:
+        disruption = ("kept", "Keeps the published assignment")
+    return (
+        Reason("incremental_cost", True, f"INR {paise / 100:,.0f} for this shift", {"paise": paise}),
+        Reason(
+            "fairness_burden",
+            True,
+            f"{points} burden point{'s' if points != 1 else ''} (closing/weekend)"
+            if points
+            else "No closing or weekend burden",
+            {"points": points, "policy_version": fairness.POLICY.version},
+        ),
+        Reason("disruption", True, disruption[1], {"class": disruption[0]}),
+    )
+
+
+def explanation_json(e: Explanation) -> dict[str, Any]:
+    def reason(r: Reason) -> dict[str, Any]:
+        return {"code": r.code, "ok": r.ok, "message": r.message, "facts": r.facts}
+
+    return {
+        "logical_shift_id": str(e.logical_id),
+        "chosen_employee_id": str(e.chosen_employee_id) if e.chosen_employee_id else None,
+        "reasons": [reason(r) for r in e.chosen],
+        "alternatives": [
+            {
+                "employee_id": str(a.employee_id),
+                "name": a.name,
+                "status": a.status,
+                "reasons": [reason(r) for r in a.reasons],
+            }
+            for a in e.alternatives
+        ],
+    }
 
 
 def _attempt(

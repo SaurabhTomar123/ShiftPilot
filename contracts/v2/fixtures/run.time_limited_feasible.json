@@ -347,7 +347,29 @@
             ]
           },
           "disruption": null,
-          "explanations": []
+          "explanations": [],
+          "trace": {
+            "strategy": "balanced",
+            "summary": {
+              "compared_to": null,
+              "cost_delta_paise": null,
+              "preferred_gap_delta_minutes": null,
+              "fairness_delta": null,
+              "overtime_minutes": 0,
+              "cross_outlet_moves": 0,
+              "changed_commitments": 0
+            },
+            "counts": {
+              "KEPT": 0,
+              "MOVED_TIME": 0,
+              "REASSIGNED": 0,
+              "CREATED": 60,
+              "REMOVED": 0,
+              "UNFILLED": 0
+            },
+            "explained_shifts": 0,
+            "explanations_truncated": false
+          }
         }
       ],
       "infeasibility": null,

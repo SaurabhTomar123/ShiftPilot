@@ -23,6 +23,21 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.18.0-p4 (live): decision trace (architecture v4 §18)
+
+This change is additive.
+
+- **`Candidate.trace`:** every new candidate, from generate or repair, carries `{strategy, summary, counts, explained_shifts, explanations_truncated}`. It is null on candidates stored before 3.18.
+  - **`summary`:** `cost_delta_paise`, `preferred_gap_delta_minutes`, `fairness_delta`, `overtime_minutes`, `cross_outlet_moves`, `changed_commitments`. When there is a published base, deltas compare with it (`compared_to: "base_version"`). On an empty week, other plans compare with the requested plan (`"requested_plan"`); the requested plan's own deltas are null. Negative deltas mean cheaper, better covered or fairer.
+  - **`counts`:** the v4 taxonomy, `KEPT`, `MOVED_TIME`, `REASSIGNED`, `CREATED`, `REMOVED`, `UNFILLED`.
+- **`CandidateDetail.trace_changes`:** the class of every non-kept shift, in time order.
+- **Explanations:** these now also come with regeneration over a published week, not just repairs. They cover reassigned, created and unfilled shifts, up to 30 (`explanations_truncated`).
+  - **New fact codes for the chosen person:** `incremental_cost`, `fairness_burden`, `disruption`.
+  - **New `rules` fact for everyone:** an alternative blocked only by a scheduling rule used to show as `eligible_not_selected`. It is now `rejected`.
+  - **Provenance:** blocking facts carry `rule_ids` and/or `absence_ids`.
+
+Fixtures: `run.succeeded`, `candidate.detail`, `candidate.detail.repair` and `run.repair.widened` carry traces computed by the backend's own code.
+
 ## What changed in 3.17.0-p4 (live): Candidate Portfolio (architecture v4 §16)
 
 This change is additive.

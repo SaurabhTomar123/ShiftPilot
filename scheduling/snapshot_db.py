@@ -157,7 +157,7 @@ def load(
         )
     )
     absences = tuple(
-        Absence(a.employee_id, a.start_at, a.end_at, a.status)
+        Absence(a.employee_id, a.start_at, a.end_at, a.status, a.id)
         for a in session.scalars(
             select(AbsenceRow).where(
                 AbsenceRow.employee_id.in_(ids or {uuid.UUID(int=0)}),

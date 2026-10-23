@@ -144,6 +144,7 @@ def _per_shift(snap: Snapshot, shift: Shift) -> Iterable[Violation]:
                     "absence_start": absence.start_at.isoformat(),
                     "absence_end": absence.end_at.isoformat(),
                     "locked": shift.locked,
+                    **({"absence_id": str(absence.id)} if absence.id else {}),
                 },
             )
     grid = snap.policy.grid_minutes

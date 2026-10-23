@@ -88,6 +88,9 @@ def test_confirmed_absence_is_a_fact_and_triggers_a_repair(client: TestClient) -
     first = run["candidates"][0]
     assert first["strategy"] == "least_disruption" and first["disruption"]["changed_shifts"] >= 1
     explained = {e["logical_shift_id"]: e for e in first["explanations"]}
+    assert first["trace"]["summary"]["compared_to"] == "base_version"
+    assert first["trace"]["counts"]["REASSIGNED"] + first["trace"]["counts"]["UNFILLED"] >= 1
+    assert first["trace"]["explained_shifts"] == len(first["explanations"])
     assert target["logical_shift_id"] in explained
     chosen = explained[target["logical_shift_id"]]
     assert chosen["chosen_employee_id"] != target["employee_id"]

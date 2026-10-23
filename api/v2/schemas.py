@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.17.0-p4"
+CONTRACT_VERSION = "3.18.0-p4"
 
 
 class Model(BaseModel):
@@ -1052,10 +1052,26 @@ class GenerateRequest(Model):
 
 
 class ExplanationFact(Model):
-    code: Literal["skill", "available", "no_conflict", "weekly_hours", "travel"]
+    code: Literal[
+        "skill",
+        "available",
+        "no_conflict",
+        "weekly_hours",
+        "travel",
+        "rules",
+        "incremental_cost",
+        "fairness_burden",
+        "disruption",
+    ] = Field(
+        description="incremental_cost, fairness_burden and disruption appear for the chosen person only. "
+        "Unknown codes may be added; show their message."
+    )
     ok: bool
     message: str = Field(description="Deterministic text built from facts; safe to show.")
-    facts: dict[str, Any] = Field(default_factory=dict)
+    facts: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Blocking reasons carry provenance: rule_ids and/or absence_ids (v4 section 18).",
+    )
 
 
 class AlternativeFact(Model):
@@ -1073,6 +1089,40 @@ class ShiftExplanation(Model):
     chosen_employee_id: UUID | None = Field(description="null = the shift was left open.")
     reasons: list[ExplanationFact] = Field(description="Facts about the chosen employee.")
     alternatives: list[AlternativeFact] = Field(description="Other qualified people (bounded list).")
+
+
+ChangeClass = Literal["KEPT", "MOVED_TIME", "REASSIGNED", "CREATED", "REMOVED", "UNFILLED"]
+
+
+class TraceChange(Model):
+    logical_shift_id: UUID
+    change: ChangeClass = Field(description="Never KEPT: kept shifts are only counted.")
+    kinds: list[str] = Field(description="Finer diff kinds: added, removed, reassigned, moved, resized, ...")
+    before_employee_id: UUID | None
+    after_employee_id: UUID | None
+
+
+class PlanDelta(Model):
+    compared_to: Literal["base_version", "requested_plan"] | None = Field(
+        description="base_version when regenerating or repairing; on an empty week, other plans compare "
+        "with the requested plan (rank 1), whose deltas are null."
+    )
+    cost_delta_paise: int | None = Field(description="Labour plus overtime premium; negative = cheaper.")
+    preferred_gap_delta_minutes: int | None = Field(description="Negative = better preferred coverage.")
+    fairness_delta: float | None = Field(description="Fairness burden deviation; negative = fairer.")
+    overtime_minutes: Minutes
+    cross_outlet_moves: Minutes = Field(description="Shifts worked away from the person's home outlet.")
+    changed_commitments: Minutes = Field(description="MOVED_TIME + REASSIGNED + REMOVED + UNFILLED.")
+
+
+class DecisionTrace(Model):
+    """What changed, what stayed, and the trade-off that produced the plan (architecture v4 section 18)."""
+
+    strategy: Strategy | RepairProfile
+    summary: PlanDelta
+    counts: dict[ChangeClass, int] = Field(description="Every class, KEPT included.")
+    explained_shifts: int = Field(ge=0, description="Changed shifts with why/why-not facts.")
+    explanations_truncated: bool = Field(description="More changed shifts than were explained (limit 30).")
 
 
 class Disruption(Model):
@@ -1102,8 +1152,11 @@ class Candidate(Model):
     )
     disruption: Disruption | None = Field(default=None, description="Repair runs only.")
     explanations: list[ShiftExplanation] = Field(
-        default_factory=list, description="Repair runs: one per changed shift."
+        default_factory=list,
+        description="One per reassigned, created or unfilled shift against a base version (repairs, "
+        "regeneration). Empty on an empty week, where every shift is new.",
     )
+    trace: DecisionTrace | None = Field(default=None, description="null for candidates stored before 3.18.")
 
     @model_validator(mode="after")
     def _honest(self) -> Candidate:
@@ -1140,6 +1193,9 @@ class CandidateDetail(Candidate):
     run_id: UUID
     base_version_id: UUID | None = Field(description="The version this diff applies to; null = empty week.")
     diff: CandidateDiff
+    trace_changes: list[TraceChange] = Field(
+        default_factory=list, description="The change class of every non-kept shift, in time order."
+    )
 
 
 class Shortage(Model):
