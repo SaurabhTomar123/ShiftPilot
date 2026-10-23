@@ -673,6 +673,31 @@
       "error": null,
       "repair_stages": [],
       "frozen_logical_shift_ids": [],
+      "portfolio": {
+        "policy_version": 1,
+        "considered": [
+          "balanced",
+          "lowest_cost",
+          "fairness",
+          "max_coverage"
+        ],
+        "dropped": [
+          {
+            "strategy": "fairness",
+            "reason": "duplicate",
+            "detail": [
+              "balanced"
+            ]
+          },
+          {
+            "strategy": "max_coverage",
+            "reason": "guardrail",
+            "detail": [
+              "cost"
+            ]
+          }
+        ]
+      },
       "candidates_expired": false
     }
   }

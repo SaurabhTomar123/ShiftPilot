@@ -20,7 +20,7 @@ from typing import Any
 
 from ortools.sat.python import cp_model
 
-from scheduling import fairness, rules, validator
+from scheduling import fairness, metrics, portfolio, rules, validator
 from scheduling.model import Employee, Shift, Snapshot
 
 STATUS = {
@@ -74,8 +74,15 @@ STRATEGIES: dict[str, Weights] = {
     "staff_friendly": Weights(
         cost=0.20, understaffing=0.25, preferences=0.20, disruption=0.10, hours_alignment=0.10, fairness=0.15
     ),
+    # Candidate Portfolio strategies (v4 section 16); lowest_cost and max_coverage above serve both.
+    "stability": Weights(
+        cost=0.15, understaffing=0.25, preferences=0.05, disruption=0.50, hours_alignment=0.05
+    ),
+    "fairness": Weights(
+        cost=0.15, understaffing=0.25, preferences=0.10, disruption=0.10, hours_alignment=0.05, fairness=0.35
+    ),
 }
-ALTERNATIVES = ("balanced", "lowest_cost", "max_coverage", "staff_friendly")
+ALTERNATIVES = ("balanced", "lowest_cost", "max_coverage", "staff_friendly", "stability", "fairness")
 
 
 @dataclass(frozen=True)
@@ -582,12 +589,16 @@ def generate(
     max_candidates: int = 3,
     deterministic_time: float | None = None,
 ) -> Outcome:
-    """Requested strategy first, then other profiles; deduplicated; each independently validated."""
+    """The requested strategy, then the Candidate Portfolio (v4 section 16): every plan independently
+    validated, then deduplicated, held to its guardrails and filtered for dominance. Stability is skipped
+    for an empty week, where there is nothing to keep stable."""
     started = time.perf_counter()
-    order = [strategy, *[s for s in ALTERNATIVES if s != strategy]][:max_candidates]
+    base = [*snap.base, *snap.base_locked.values()]
+    order = [strategy]
+    if max_candidates > 1:
+        order += [s for s in portfolio.PORTFOLIO if s != strategy and (base or s != "stability")]
     budget = time_limit / len(order)
     outcome = Outcome(status="UNKNOWN", stats={"strategies": {}, "rejected_by_validator": []})
-    seen: set[frozenset[tuple[Any, ...]]] = set()
     for name in order:
         status, cand, stats = solve(
             snap,
@@ -623,15 +634,40 @@ def generate(
                 }
             )
             continue
-        key = frozenset((sh.employee_id, sh.skill_id, sh.start_at, sh.end_at) for sh in cand.roster)
-        if key in seen:
-            continue
-        seen.add(key)
         outcome.candidates.append(cand)
+    if outcome.candidates and outcome.candidates[0].strategy != strategy:
+        # The requested plan failed validation: nothing is pinned, the first valid plan is the reference.
+        outcome.stats["requested_rejected"] = True
+    _select(snap, outcome, base, max_candidates)
     if outcome.candidates:
         outcome.status = outcome.candidates[0].status
     outcome.wall_ms = int((time.perf_counter() - started) * 1000)
     return outcome
+
+
+def displayed(snap: Snapshot, roster: tuple[Shift, ...], base: list[Shift]) -> portfolio.Displayed:
+    m = metrics.compute(snap, roster)
+    return portfolio.Displayed(
+        cost_paise=m.labour_cost_paise + m.overtime_cost_paise,
+        preferred_deficit_minutes=m.preferred_deficit_minutes,
+        overtime_minutes=m.overtime_minutes,
+        changed_shifts=portfolio.changed_shifts(base, roster) if base else None,
+        fairness=m.fairness_burden_deviation,
+    )
+
+
+def _select(snap: Snapshot, outcome: Outcome, base: list[Shift], limit: int) -> None:
+    entries = [
+        portfolio.Entry(c.strategy, portfolio.assignment_key(c.roster), displayed(snap, c.roster, base))
+        for c in outcome.candidates
+    ]
+    keep, dropped = portfolio.select(entries, len(base), limit)
+    outcome.candidates = [outcome.candidates[i] for i in keep]
+    outcome.stats["portfolio"] = {
+        "policy_version": portfolio.POLICY_VERSION,
+        "considered": [e.strategy for e in entries],
+        "dropped": [d.as_json() for d in dropped],
+    }
 
 
 # ---------------------------------------------------------------- infeasibility relaxations (v3 section 13)

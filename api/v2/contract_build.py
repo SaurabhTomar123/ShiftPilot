@@ -1058,6 +1058,14 @@ def fixtures() -> list[Fixture]:
                     "succeeded",
                     solver_status="OPTIMAL",
                     candidates=[candidate(1, d1, "balanced"), candidate(2, d2, "lowest_cost")],
+                    portfolio=s.PortfolioSummary(
+                        policy_version=1,
+                        considered=["balanced", "lowest_cost", "fairness", "max_coverage"],
+                        dropped=[
+                            s.PortfolioDrop(strategy="fairness", reason="duplicate", detail=["balanced"]),
+                            s.PortfolioDrop(strategy="max_coverage", reason="guardrail", detail=["cost"]),
+                        ],
+                    ),
                     **done,
                 ),
                 run_req,

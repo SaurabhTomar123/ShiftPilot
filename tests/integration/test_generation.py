@@ -65,6 +65,11 @@ def test_enqueue_is_idempotent_and_guarded(client: TestClient) -> None:
     done = client.get(f"/v2/optimization-runs/{run.id}", headers=MANAGER).json()
     assert done["job_state"] == "succeeded" and done["solver_status"] in ("OPTIMAL", "FEASIBLE")
     assert done["poll_after_ms"] is None and done["candidates"]
+    # Candidate Portfolio (v4 section 16): requested first, every other strategy shown or explained.
+    folio = done["portfolio"]
+    assert folio["policy_version"] == 1 and folio["considered"][0] == done["strategy"]
+    shown = {c["strategy"] for c in done["candidates"]}
+    assert shown | {d["strategy"] for d in folio["dropped"]} == set(folio["considered"])
     # Candidates are lightweight (v3 section 23): no version exists until a manager selects one.
     assert sql("SELECT count(*) FROM schedule_versions WHERE optimization_run_id = :r", r=run.id)[0][0] == 0
     for cand in done["candidates"]:
@@ -128,6 +133,7 @@ def test_regeneration_keeps_locked_shifts_and_never_touches_the_published_week(c
     worker.run_once()
     run = client.get(f"/v2/optimization-runs/{r.json()['id']}", headers=MANAGER).json()
     assert run["job_state"] == "succeeded" and run["base_version_ids"] == [current["id"]]
+    assert "stability" in run["portfolio"]["considered"]  # there is a published week to keep stable
     detail = client.get(f"/v2/optimization-candidates/{run['candidates'][0]['id']}", headers=MANAGER).json()
     assert detail["base_version_id"] == current["id"]
     assert not locked & set(detail["diff"]["removed"])  # locked shifts are kept

@@ -40,6 +40,7 @@
       },
       "repair_stages": [],
       "frozen_logical_shift_ids": [],
+      "portfolio": null,
       "candidates_expired": false
     }
   }

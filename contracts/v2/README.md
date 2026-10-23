@@ -23,6 +23,25 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.17.0-p4 (live): Candidate Portfolio (architecture v4 §16)
+
+This change is additive.
+
+- **Strategy names:** generation adds `stability` and `fairness` to `Strategy`; the existing names keep working. Labels are Stability, Lowest cost, Employee fairness and Maximum coverage. `fairness` is a real fairness solve: it minimizes the burden imbalance, not hours alignment.
+- **Which strategies run:** a generate run solves the requested strategy, then the portfolio's: `stability` (only when there is a published week to keep stable), `lowest_cost`, `fairness`, `max_coverage`.
+- **How plans are chosen:**
+  - The requested strategy's plan is always rank 1.
+  - The others are dropped as duplicates (same assignments), on a guardrail, or as dominated (another plan is no worse on cost, preferred-coverage gap, overtime, changed shifts and fairness burden, and better on one).
+  - At most three plans are shown.
+- **`OptimizationRun.portfolio`:** `{policy_version, considered, dropped: [{strategy, reason, detail}]}` explains every strategy not shown, e.g. "Maximum coverage was left out: it costs more than 1.4x the requested plan". It is null for repairs.
+- **Guardrails, policy 1,** measured against the requested plan:
+  - Stability: cost ≤ 1.1×, and overtime no more than 4 h above the requested plan.
+  - Lowest cost: preferred-coverage gap ≤ 3× + 240 staff-minutes; fairness burden ≤ +1.0; changed shifts ≤ +(4 + 20% of the base).
+  - Employee fairness: coverage gap ≤ 1.25× + 240 staff-minutes; the same changed-shift bound.
+  - Maximum coverage: cost ≤ 1.4×, and overtime no more than 8 h above the requested plan; the same changed-shift bound.
+
+Fixture: `run.succeeded` now carries a `portfolio`.
+
 ## Fixtures added under 3.16.0-p4 (no schema change)
 
 - **Requested leave, every transition:** `absence.update.requested.confirm` (manager; lists the affected shifts and starts a repair), `.reject` (manager), `.cancel` (the employee withdrawing it). Errors: `absence.update.withdraw_conflict` (409, the employee withdraws after a manager decided), `absence.update.already_closed` (409, deciding a rejected or cancelled record).

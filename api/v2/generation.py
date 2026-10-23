@@ -99,6 +99,7 @@ def run_view(session: Session, run: OptimizationRun) -> s.OptimizationRun:
             "error": run.error,
             "repair_stages": (run.stats or {}).get("widening", []) if run.kind == "repair" else [],
             "frozen_logical_shift_ids": ((run.config or {}).get("freeze") or {}).get("logical_shift_ids", []),
+            "portfolio": (run.stats or {}).get("portfolio") if run.kind != "repair" else None,
             "candidates_expired": bool((run.stats or {}).get("candidates_purged")),
         }
     )

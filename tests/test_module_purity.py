@@ -28,6 +28,7 @@ PURE = {
     "rules",
     "fairness",
     "freeze",
+    "portfolio",
 }
 ADAPTERS = {"snapshot_db", "worker"}  # allowed to touch the database; nothing pure may import them
 THIRD_PARTY = {"ortools"}

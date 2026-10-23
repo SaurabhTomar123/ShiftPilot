@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.16.0-p4"
+CONTRACT_VERSION = "3.17.0-p4"
 
 
 class Model(BaseModel):
@@ -1021,7 +1021,7 @@ class RepairRequest(Model):
 
 # ---------------------------------------------------------------- optimization
 
-Strategy = Literal["balanced", "lowest_cost", "staff_friendly", "max_coverage"]
+Strategy = Literal["balanced", "lowest_cost", "staff_friendly", "max_coverage", "stability", "fairness"]
 # Repair profiles (2.4): candidates of a repair run use these names.
 RepairProfile = Literal["least_disruption", "lowest_cost", "best_coverage"]
 JobState = Literal["queued", "running", "succeeded", "failed", "cancelled"]
@@ -1213,6 +1213,27 @@ class RepairStage(Model):
     widened_because: str | None = Field(default=None, description="Why the previous stage was not enough.")
 
 
+class PortfolioDrop(Model):
+    strategy: Strategy
+    reason: Literal["duplicate", "guardrail", "dominated", "limit"] = Field(
+        description="duplicate: same assignments as `detail[0]`. guardrail: broke the guardrails named "
+        "in `detail` (cost, overtime, coverage, disruption, fairness), measured against the requested "
+        "plan. dominated: `detail[0]` is no worse on every displayed metric and better on one. "
+        "limit: valid and distinct, but beyond the three plans shown."
+    )
+    detail: list[str]
+
+
+class PortfolioSummary(Model):
+    """How the Candidate Portfolio chose what to show (architecture v4 section 16). The requested
+    strategy's plan is always first; displayed metrics are total cost, preferred-coverage gap, overtime
+    minutes, changed shifts (when there is a base) and fairness burden."""
+
+    policy_version: int = Field(description="Guardrail policy revision.")
+    considered: list[Strategy] = Field(description="Strategies solved, requested first.")
+    dropped: list[PortfolioDrop]
+
+
 class OptimizationRun(Model):
     id: UUID
     kind: Literal["generate", "optimize", "repair"]
@@ -1243,6 +1264,9 @@ class OptimizationRun(Model):
     )
     frozen_logical_shift_ids: list[UUID] = Field(
         default_factory=list, description="The run's freeze set: shifts held exactly (v4 section 13)."
+    )
+    portfolio: PortfolioSummary | None = Field(
+        default=None, description="Generate runs that finished with plans; null for repairs and before."
     )
     candidates_expired: bool = Field(
         default=False,

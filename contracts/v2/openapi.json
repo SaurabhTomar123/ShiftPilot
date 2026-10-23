@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.16.0-p4"
+    "version": "3.17.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -5650,7 +5650,9 @@
                   "balanced",
                   "lowest_cost",
                   "staff_friendly",
-                  "max_coverage"
+                  "max_coverage",
+                  "stability",
+                  "fairness"
                 ]
               },
               {
@@ -5757,7 +5759,9 @@
                   "balanced",
                   "lowest_cost",
                   "staff_friendly",
-                  "max_coverage"
+                  "max_coverage",
+                  "stability",
+                  "fairness"
                 ]
               },
               {
@@ -7048,7 +7052,9 @@
               "balanced",
               "lowest_cost",
               "staff_friendly",
-              "max_coverage"
+              "max_coverage",
+              "stability",
+              "fairness"
             ],
             "title": "Strategy",
             "default": "balanced"
@@ -7802,7 +7808,9 @@
                   "balanced",
                   "lowest_cost",
                   "staff_friendly",
-                  "max_coverage"
+                  "max_coverage",
+                  "stability",
+                  "fairness"
                 ]
               },
               {
@@ -7960,6 +7968,17 @@
             "title": "Frozen Logical Shift Ids",
             "description": "The run's freeze set: shifts held exactly (v4 section 13)."
           },
+          "portfolio": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PortfolioSummary"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Generate runs that finished with plans; null for repairs and before."
+          },
           "candidates_expired": {
             "type": "boolean",
             "title": "Candidates Expired",
@@ -8068,6 +8087,89 @@
           "timezone"
         ],
         "title": "OutletRef"
+      },
+      "PortfolioDrop": {
+        "properties": {
+          "strategy": {
+            "type": "string",
+            "enum": [
+              "balanced",
+              "lowest_cost",
+              "staff_friendly",
+              "max_coverage",
+              "stability",
+              "fairness"
+            ],
+            "title": "Strategy"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "duplicate",
+              "guardrail",
+              "dominated",
+              "limit"
+            ],
+            "title": "Reason",
+            "description": "duplicate: same assignments as `detail[0]`. guardrail: broke the guardrails named in `detail` (cost, overtime, coverage, disruption, fairness), measured against the requested plan. dominated: `detail[0]` is no worse on every displayed metric and better on one. limit: valid and distinct, but beyond the three plans shown."
+          },
+          "detail": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "strategy",
+          "reason",
+          "detail"
+        ],
+        "title": "PortfolioDrop"
+      },
+      "PortfolioSummary": {
+        "properties": {
+          "policy_version": {
+            "type": "integer",
+            "title": "Policy Version",
+            "description": "Guardrail policy revision."
+          },
+          "considered": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "balanced",
+                "lowest_cost",
+                "staff_friendly",
+                "max_coverage",
+                "stability",
+                "fairness"
+              ]
+            },
+            "type": "array",
+            "title": "Considered",
+            "description": "Strategies solved, requested first."
+          },
+          "dropped": {
+            "items": {
+              "$ref": "#/components/schemas/PortfolioDrop"
+            },
+            "type": "array",
+            "title": "Dropped"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "policy_version",
+          "considered",
+          "dropped"
+        ],
+        "title": "PortfolioSummary",
+        "description": "How the Candidate Portfolio chose what to show (architecture v4 section 16). The requested\nstrategy's plan is always first; displayed metrics are total cost, preferred-coverage gap, overtime\nminutes, changed shifts (when there is a base) and fairness burden."
       },
       "Proposal": {
         "properties": {
