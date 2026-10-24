@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-24T05:25:37+00:00",
+  "generated_at": "2026-10-24T07:25:19+00:00",
   "git": {
-    "commit": "d1584d8266fa9737a0bbb2c8d98f58a5ac0a4f12",
+    "commit": "8c0835377143062ed5d9c2a360c354c9b9d9cd7a",
     "dirty": false
   },
-  "config_hash": "sha256:fa355e9111e3211da4e334e26c1beac399acf02c31a4a44a618510ff84ab9146",
+  "config_hash": "sha256:018eb429a8b2add3c7efcbafe8f78ebe7c960e8d56217b196a5e92b987455067",
   "config": {
     "strategies": {
       "balanced": {
@@ -69,70 +69,70 @@
     "prompts": "adba7c13c997d7e6",
     "language_model": "scripted",
     "ortools": "9.15.6755",
-    "contract": "3.24.0-p4"
+    "contract": "3.25.0-p4"
   },
   "suites": {
     "normal": {
       "cases": 36,
       "passed": 36,
       "failures": [],
-      "ms": 78256,
+      "ms": 81074,
       "pass_rate": 1.0
     },
     "impossible": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 3148,
+      "ms": 4283,
       "pass_rate": 1.0
     },
     "overtime": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 7848,
+      "ms": 8561,
       "pass_rate": 1.0
     },
     "locks": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 1902,
+      "ms": 1979,
       "pass_rate": 1.0
     },
     "repair": {
       "cases": 10,
       "passed": 10,
       "failures": [],
-      "ms": 2385,
+      "ms": 2457,
       "pass_rate": 1.0
     },
     "rules_enforced": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 4345,
+      "ms": 4158,
       "pass_rate": 1.0
     },
     "multi_outlet": {
       "cases": 3,
       "passed": 3,
       "failures": [],
-      "ms": 3611,
+      "ms": 3670,
       "pass_rate": 1.0
     },
     "commands": {
       "cases": 17,
       "passed": 17,
       "failures": [],
-      "ms": 1,
+      "ms": 4,
       "pass_rate": 1.0
     },
     "ambiguity": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 0,
+      "ms": 3,
       "pass_rate": 1.0
     },
     "rule_language": {
