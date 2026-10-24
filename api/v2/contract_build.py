@@ -523,6 +523,24 @@ def fixtures() -> list[Fixture]:
         roster = [_to_model(sh) for sh in v.shifts]
         reference = None if rank == 1 else [_to_model(sh) for sh in d1.shifts]
         doc, rows, _ = sched_trace.build(next_snap, strategy, [], roster, reference)
+        if rank > 1:
+            # Deltas from the metrics the candidates display, so card and delta always agree (the
+            # worker does the same: both come from one snapshot). Codex 3.18 review follow-up.
+            mine, ref = v.metrics, d1.metrics
+            doc["summary"]["cost_delta_paise"] = (
+                mine.labour_cost.amount_paise
+                + mine.overtime_cost.amount_paise
+                - ref.labour_cost.amount_paise
+                - ref.overtime_cost.amount_paise
+            )
+            doc["summary"]["preferred_gap_delta_minutes"] = (
+                mine.preferred_deficit_minutes - ref.preferred_deficit_minutes
+            )
+            doc["summary"]["fairness_delta"] = (
+                round(mine.fairness_burden_deviation - ref.fairness_burden_deviation, 2)
+                if mine.fairness_burden_deviation is not None and ref.fairness_burden_deviation is not None
+                else None
+            )
         return s.DecisionTrace.model_validate(doc), [s.TraceChange.model_validate(r) for r in rows]
 
     def candidate(

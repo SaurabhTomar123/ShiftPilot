@@ -23,6 +23,13 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## Fixture correction under 3.26.0-p4 (no schema change)
+
+- **What was wrong:** in `run.succeeded`, Lowest cost's `trace.summary` deltas were computed from a different evaluation than the candidates' displayed metrics. Its `fairness_delta` read +0.02 while the burdens were 7.97 (Balanced) and 7.83 (Lowest cost). This was reported in Codex's 3.18 review.
+- **What changed:** the deltas now equal the difference of the displayed metrics. The fairness delta is now -0.14.
+- **Live runs were never affected:** the worker computes both from one snapshot, and integration tests now assert it.
+- **Guard:** a contract test checks the same consistency in every fixture.
+
 ## What changed in 3.26.0-p4 (live): "Who can cover…?" in words (architecture v4 §43)
 
 This change is additive. `POST /v2/commands/parse` understands a fourth intent, `find_replacement`, e.g. "Who can cover Ravi tonight?" or "cover for Neha on Friday".

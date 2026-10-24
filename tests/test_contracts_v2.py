@@ -184,3 +184,34 @@ def test_audit_actions_are_registered_and_follow_v3() -> None:
     assert decisions <= AUDIT_ACTIONS  # built dynamically in absences.update
     assert {"SHIFT_EDITED", "OPTIMIZATION_REQUESTED", "ABSENCE_REPORTED", "PROPOSAL_APPROVED"} <= used
     assert {"SCHEDULE_PUBLISHED", "SCHEDULE_RESTORED"} <= used and "SHIFTS_EDITED" not in AUDIT_ACTIONS
+
+
+def test_trace_deltas_agree_with_the_metrics_they_compare() -> None:
+    """A candidate compared with the requested plan must show deltas that equal the difference of the
+    two plans' displayed metrics (Codex 3.18 review: fairness burden and delta disagreed)."""
+    checked = 0
+    for entry in INDEX["fixtures"]:
+        body = load(entry["name"])["response"]["body"]
+        candidates = body.get("candidates") if isinstance(body, dict) else None
+        if not candidates:
+            continue
+        first = candidates[0]["metrics"]
+        for c in candidates[1:]:
+            trace = c.get("trace")
+            if not trace or trace["summary"]["compared_to"] != "requested_plan":
+                continue
+            m, summary = c["metrics"], trace["summary"]
+
+            def cost(x: dict[str, Any]) -> int:
+                return x["labour_cost"]["amount_paise"] + x["overtime_cost"]["amount_paise"]
+
+            assert summary["cost_delta_paise"] == cost(m) - cost(first), entry["name"]
+            assert summary["preferred_gap_delta_minutes"] == (
+                m["preferred_deficit_minutes"] - first["preferred_deficit_minutes"]
+            ), entry["name"]
+            if m["fairness_burden_deviation"] is not None and first["fairness_burden_deviation"] is not None:
+                assert summary["fairness_delta"] == round(
+                    m["fairness_burden_deviation"] - first["fairness_burden_deviation"], 2
+                ), entry["name"]
+            checked += 1
+    assert checked, "no fixture compares a candidate with the requested plan"

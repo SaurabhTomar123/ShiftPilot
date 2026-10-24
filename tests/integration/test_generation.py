@@ -74,6 +74,18 @@ def test_enqueue_is_idempotent_and_guarded(client: TestClient) -> None:
     first = done["candidates"][0]["trace"]
     assert first["summary"]["compared_to"] is None and first["counts"]["CREATED"] > 0
     assert all(c["trace"]["summary"]["compared_to"] == "requested_plan" for c in done["candidates"][1:])
+    # Live deltas equal the difference of the displayed metrics (the worker uses one snapshot for both).
+    base_m = done["candidates"][0]["metrics"]
+    for c in done["candidates"][1:]:
+        m, summary = c["metrics"], c["trace"]["summary"]
+        assert (
+            summary["preferred_gap_delta_minutes"]
+            == m["preferred_deficit_minutes"] - base_m["preferred_deficit_minutes"]
+        )
+        if m["fairness_burden_deviation"] is not None and base_m["fairness_burden_deviation"] is not None:
+            assert summary["fairness_delta"] == round(
+                m["fairness_burden_deviation"] - base_m["fairness_burden_deviation"], 2
+            )
     # Candidates are lightweight (v3 section 23): no version exists until a manager selects one.
     assert sql("SELECT count(*) FROM schedule_versions WHERE optimization_run_id = :r", r=run.id)[0][0] == 0
     for cand in done["candidates"]:
