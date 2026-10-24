@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.15.0-p4",
+  "contract_version": "3.18.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -120,6 +120,48 @@
       "operation_id": "updateAbsence",
       "status": 200,
       "schema": "AbsenceReport"
+    },
+    {
+      "name": "absence.update.requested.confirm",
+      "operation_id": "updateAbsence",
+      "status": 200,
+      "schema": "AbsenceReport"
+    },
+    {
+      "name": "absence.update.requested.reject",
+      "operation_id": "updateAbsence",
+      "status": 200,
+      "schema": "AbsenceReport"
+    },
+    {
+      "name": "absence.update.requested.cancel",
+      "operation_id": "updateAbsence",
+      "status": 200,
+      "schema": "AbsenceReport"
+    },
+    {
+      "name": "absence.update.withdraw_conflict",
+      "operation_id": "updateAbsence",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "absence.update.already_closed",
+      "operation_id": "updateAbsence",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "candidate.detail.repair",
+      "operation_id": "getOptimizationCandidate",
+      "status": 200,
+      "schema": "CandidateDetail"
+    },
+    {
+      "name": "candidate.select.repair",
+      "operation_id": "selectOptimizationCandidate",
+      "status": 201,
+      "schema": "ScheduleVersion"
     },
     {
       "name": "repair.accepted",

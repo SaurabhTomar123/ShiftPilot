@@ -8,8 +8,10 @@ The successful absence response is shown before repair work. Each returned `repa
 
 An explicit repair reads the latest published version for the selected week and sends its ID. Returned lock conflicts require individual consent; labels use skill/time when the assignment is available. Only owners see cross-outlet consent. Repairs are not disabled by an active generation run.
 
-The UI displays returned stages and reasons, disruption, validation and employee/alternative facts. It does not infer why a person was not selected. Plan Compare shows the returned alternatives and clearly labelled recorded-baseline deltas. Missing fairness burden stays missing. Candidate detail/selection and proposal approval reuse the existing workflow.
+The UI displays returned stages and reasons, disruption, validation and employee/alternative facts. It does not infer why a person was not selected. Plan Compare shows returned alternatives and engine deltas with their declared reference. Historical fairness burden and weekly component points remain separate. Missing legacy metrics stay unreported. Detailed reasoning redacts incremental-cost facts when cost access is absent. Candidate detail/selection and proposal approval reuse the existing workflow.
 
-Synthetic preview is intentionally limited to supplied provider facts: the Ravi sick day on 21 October, leave request on 23 October and the repair-summary example. The supplied confirm fixture refers to a different, already confirmed record; it is not substituted for confirming the listed request. Unsupported status writes, dates, owner widening and detailed repair candidates return 501, with no fabricated success. Real API integration uses the declared endpoints directly.
+Synthetic preview is limited to supplied provider facts: the Ravi sick day on 21 October, leave request on 23 October and the repair example. Contract 3.18 adds matching repair detail/select fixtures, now connected through a repair-origin draft and normal proposal approval. The repair candidate identity and published base are preserved. Requested-record status-transition fixtures also exist in this pin, but are not yet wired into the preview gateway. Unsupported status writes, dates and owner widening return explicit errors without fabricated success. Real API integration uses the declared endpoints directly.
+
+See [decision evidence and verification](DECISION_REVIEW_FLOW.md).
 
 Staff self-service absence UI and durable non-absence repair triggers are separate work. See [v4 alignment and delivery order](ARCHITECTURE_V4_ALIGNMENT.md).

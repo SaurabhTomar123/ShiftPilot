@@ -36,12 +36,13 @@ test('saving a confirmed absence tracks its repair without starting generation o
   await expect(page.getByRole('region', { name: 'Absence repair', exact: true })).toContainText('Include the day either side');
   const comparison = page.getByRole('region', { name: 'Plan comparison', exact: true });
   await expect(comparison).toContainText('Recorded baseline v3');
-  await expect(comparison.getByRole('row', { name: /Fairness burden/ })).toContainText('Not reported');
+  await expect(comparison.getByRole('row', { name: /^Fairness burden/ })).toContainText(String(repair.candidates[0].metrics.fairness_burden_deviation));
   await expect(comparison).toContainText('Assignment changes');
   expect((await new AxeBuilder({ page }).include('main').analyze()).violations).toEqual([]);
   expect(writes).toHaveLength(1); expect(writes[0]).toMatch(/\/absences$/);
   await page.getByRole('button', { name: 'Review repair option', exact: true }).first().click();
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('no matching provider fixture');
+  await expect(page.getByRole('region', { name: 'Candidate review', exact: true })).toContainText('Review this option');
+  await expect(page.getByRole('button', { name: 'Select option and create draft', exact: true })).toBeVisible();
   expect(writes).toHaveLength(1);
 });
 
@@ -84,7 +85,7 @@ test('status changes require a separate decision and unsupported preview writes 
   expect(updates).toBe(0);
   await page.getByRole('button', { name: 'Reject request', exact: true }).click();
   await page.getByRole('button', { name: 'Save as rejected', exact: true }).click();
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('no matching provider fixture');
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('not supported by this preview');
   await expect(page.getByRole('region', { name: 'Saved absences', exact: true })).toContainText('requested');
   expect(updates).toBe(1);
 });

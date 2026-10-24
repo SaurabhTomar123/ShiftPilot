@@ -6,6 +6,10 @@ export function formatMoney(value: Schema['Money']) {
 }
 
 export const percent = (value: number | null) => value === null ? 'Not applicable' : new Intl.NumberFormat('en-IN', { style: 'percent', maximumFractionDigits: 1 }).format(value);
+export const strategyName = (strategy: Schema['Candidate']['strategy']) => ({ balanced: 'Balanced', lowest_cost: 'Lowest cost', staff_friendly: 'Hours preference alignment', max_coverage: 'Maximum coverage', least_disruption: 'Least disruption', best_coverage: 'Best coverage', stability: 'Stability', fairness: 'Employee fairness' })[strategy];
+export const burdenNumber = (value: number | null | undefined) => value == null ? 'Not reported' : new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(value);
+export const signedNumber = (value: number) => `${value > 0 ? '+' : ''}${burdenNumber(value)}`;
+export const moneyDelta = (paise: number) => `${paise > 0 ? '+' : ''}${formatMoney({ amount_paise: paise, currency: 'INR' })}`;
 export const localDate = (instant: string, timezone: string) => new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(instant));
 export const localTime = (instant: string, timezone: string) => new Intl.DateTimeFormat('en-GB', { timeZone: timezone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(instant));
 

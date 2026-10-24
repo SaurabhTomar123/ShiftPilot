@@ -14,6 +14,8 @@ import { Button } from './primitives/button';
 import { DemandScreen, TeamScreen } from './management';
 import { CandidateReview, ProposalReview, strategyName } from './candidate-review';
 import { DraftEditor } from './draft-editor';
+import { FairnessBreakdown } from './decision-evidence';
+import { fairnessComparisonWarning } from '@/lib/decision';
 import { PlanCompare } from './plan-compare';
 import { Absences } from './absences';
 import { ProtectionControls, ProtectionConflict, RunProtection } from './run-protection';
@@ -80,6 +82,7 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
   const [run, setRun] = useState<Schema['OptimizationRun'] | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [busy, setBusy] = useState(false);
+  const [profile, setProfile] = useState<Schema['GenerateRequest']['strategy']>('balanced');
   const [draft, setDraft] = useState<Schema['ScheduleVersion'] | null>(null);
   const [protection, setProtection] = useState(emptyProtection);
   const [protectionConflicts, setProtectionConflicts] = useState<string[]>([]);
@@ -112,7 +115,7 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
     setBusy(true); setError(null); setRun(null); setDraft(null); setEditing(false); setDraftNotice(null); setCandidateId(null); setPublication(null);
     try {
       const requested = hasProtection(protection) && schedule.current_version ? requestedProtection(protection, schedule.current_version, timezone).map(shift => shift.logical_shift_id).sort() : [];
-      const initial = await generateOrAttach(client, outletId, week, { strategy: 'balanced', base_version_id: schedule.current_version?.id ?? null, time_limit_seconds: 10, ...(hasProtection(protection) ? { freeze: protection } : {}) }, crypto.randomUUID(), controller.signal);
+      const initial = await generateOrAttach(client, outletId, week, { strategy: profile, base_version_id: schedule.current_version?.id ?? null, time_limit_seconds: 10, ...(hasProtection(protection) ? { freeze: protection } : {}) }, crypto.randomUUID(), controller.signal);
       if (controller.signal.aborted) return;
       const confirmed = [...(initial.frozen_logical_shift_ids ?? [])].sort();
       setProtectionNotice(JSON.stringify(requested) === JSON.stringify(confirmed) ? 'Review the server-confirmed protections below. The next run starts with no protection selected.' : 'This run has a different protection set from your request. An existing run may have been returned. Review its server-confirmed protections before selecting an option.');
@@ -152,6 +155,8 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
       <div className="week-state-actions">{fixtureMode && week === '2026-10-19' && <Button onClick={onNextWeek}>Plan upcoming week<ArrowRightIcon size={16} /></Button>}{canGenerate && <Button variant="primary" onClick={generate} disabled={busy || (fixtureMode && week !== '2026-10-26' && !hasProtection(protection))}><SparkleIcon size={18} weight="duotone" />{busy ? 'Generating…' : 'Generate draft'}</Button>}</div>
     </section>
     {fixtureMode && week === '2026-10-19' && <p className="contract-note generation-hint">Generation is available in next week’s demo. Choose “Plan upcoming week” to try it. Protected regeneration requires the live 3.15 API.</p>}
+    {canGenerate && <label className="decision-profile">Decision profile<select aria-label="Decision profile" disabled={busy} value={profile} onChange={event => setProfile(event.target.value as typeof profile)}><option value="balanced">Balanced</option><option value="stability" disabled={!schedule.current_version}>Stability</option><option value="lowest_cost">Lowest cost</option><option value="fairness">Employee fairness</option><option value="max_coverage">Maximum coverage</option><option value="staff_friendly">Hours preference alignment</option></select></label>}
+    {fixtureMode && profile !== 'balanced' && <p className="contract-note">This synthetic preview supplies options for Balanced. Other profiles require a connected scheduling API.</p>}
     {canGenerate && schedule.current_version && <ProtectionControls base={schedule.current_version} employees={schedule.employees} skills={session.skills} {...{ timezone }} value={protection} disabled={busy || draftBusy} onChange={value => { setProtection(value); setProtectionConflicts([]); setProtectionNotice(''); setError(null); }} />}
     {protectionNotice && <p className="save-notice">{protectionNotice}</p>}
     {protectionConflicts.length > 0 && schedule.current_version && <ProtectionConflict key={protectionConflicts.join()} base={schedule.current_version} employees={schedule.employees} skills={session.skills} {...{ timezone }} ids={protectionConflicts} disabled={busy} onRelease={ids => { setProtection(releaseProtection(protection, ids, schedule.current_version!, timezone)); setProtectionConflicts([]); setError(null); }} />}
@@ -163,7 +168,7 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
     {run && <RunProtection run={run} base={schedule.current_version} employees={schedule.employees} skills={session.skills} timezone={timezone} />}
     {run && <PlanCompare run={run} baseline={schedule.current_version} showCosts={canSeeCosts} />}
     {run && <RunResult {...{ run, skills: session.skills, canSeeCosts }} review={id => setCandidateId(id)} />}
-    {candidateId && <CandidateReview key={candidateId} {...{ client, timezone }} candidateId={candidateId} employees={schedule.employees} skills={session.skills} canSelect={session.me.capabilities.includes('publish')} showCosts={canSeeCosts} onSelected={value => { setDraft(value); setEditing(false); setDraftNotice(null); setCandidateId(null); }} onClose={() => setCandidateId(null)} />}
+    {candidateId && <CandidateReview key={candidateId} {...{ client, timezone }} candidateId={candidateId} comparisonWarning={run ? fairnessComparisonWarning(run, candidateId) : null} employees={schedule.employees} skills={session.skills} canSelect={session.me.capabilities.includes('publish')} showCosts={canSeeCosts} onSelected={value => { setDraft(value); setEditing(false); setDraftNotice(null); setCandidateId(null); }} onClose={() => setCandidateId(null)} />}
     {!draft && schedule.drafts.length > 0 && <section className="existing-drafts" aria-label="Saved drafts"><h2>Saved drafts</h2>{schedule.drafts.map(value => <Button key={value.id} disabled={draftBusy} onClick={() => openDraft(value.id)}>Open draft {value.version_number} (revision {value.revision})</Button>)}</section>}
     {session.me.capabilities.includes('publish') && <div className="draft-edit-actions">{!draft && schedule.current_version && <Button disabled={draftBusy || busy} onClick={createEditingDraft}>{draftBusy ? 'Creating editing draft…' : 'Create editing draft'}</Button>}{draft && !editing && <Button ref={editTrigger} onClick={() => { setDraftNotice(null); setEditing(true); }}>Edit draft assignments</Button>}</div>}
     {draft && editing && <DraftEditor key={`${draft.id}:${draft.revision}`} {...{ client, draft, timezone, fixtureMode }} employees={schedule.employees} skills={session.skills} showCosts={canSeeCosts} onClose={closeEditor} onUpdated={(value, notice) => { setDraft(value); setDraftNotice(notice); closeEditor(); }} />}
@@ -173,6 +178,7 @@ function RosterResource({ client, session, outletId, week, timezone, fixtureMode
       <div className="skill-filter" aria-label="Filter team by skill"><span>Team skills</span><button type="button" aria-pressed={selectedSkill === 'all'} onClick={() => setSelectedSkill('all')}>All skills</button>{session.skills.map(skill => <button type="button" key={skill.id} className={`role-key ${skillColor(skill.name)}`} aria-pressed={selectedSkill === skill.id} onClick={() => setSelectedSkill(selectedSkill === skill.id ? 'all' : skill.id)}><span aria-hidden="true" />{skill.name}</button>)}</div>
       <ContractRoster version={version} employees={schedule.employees.filter(e => e.name.toLowerCase().includes(query.toLowerCase()) && (selectedSkill === 'all' || e.skill_ids.includes(selectedSkill)))} skills={session.skills} week={week} timezone={timezone} absences={schedule.absences} />
       <div className="contract-validation"><strong className={version.validation.hard_violations ? 'has-violations' : ''}><CheckCircleIcon size={17} />{version.validation.hard_violations} hard violations reported</strong><span>{version.validation.soft_violations} preferences to review</span><span>{version.metrics.open_shifts} open shifts</span></div>
+      <FairnessBreakdown metrics={version.metrics} label={draft ? 'Draft' : 'Published week'} />
       <WeekReview version={version} skills={session.skills} timezone={timezone} />
     </>}
     {!version && <Empty title="A fresh week, ready to plan." description="Generate a draft from this week’s employees, staffing requirements and rules. Your published roster will remain unchanged." />}

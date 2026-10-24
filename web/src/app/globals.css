@@ -978,6 +978,24 @@ input::placeholder, textarea::placeholder { color: #75806e; opacity: 1; }
 .contract-app .protection-shifts { max-height: 320px; overflow-y: auto; padding-right: 12px; }
 .contract-app .run-protection-controls li, .contract-app .confirmed-protection li { margin: 10px 0; line-height: 1.6; overflow-wrap: anywhere; }
 .contract-app .protection-conflict { border-left: 4px solid var(--green); }
+.contract-app .decision-evidence, .contract-app .fairness-breakdown, .contract-app .portfolio-details, .contract-app .comparison-burden { margin: 20px 0; padding: 16px 0; border-top: 1px solid var(--line); }
+.contract-app .decision-evidence > summary, .contract-app .fairness-breakdown > summary, .contract-app .portfolio-details > summary, .contract-app .comparison-burden > summary { padding: 8px 0; cursor: pointer; font-weight: 600; }
+.contract-app .decision-evidence p, .contract-app .fairness-breakdown p, .contract-app .portfolio-details p { max-width: 78ch; line-height: 1.65; }
+.contract-app .decision-facts { display: flex; flex-wrap: wrap; gap: 18px 30px; margin: 20px 0; }
+.contract-app .decision-facts > div { flex: 0 1 220px; }
+.contract-app .decision-facts dt { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+.contract-app .decision-facts dd { font-weight: 600; margin: 0; font-variant-numeric: tabular-nums; }
+.contract-app .decision-evidence li, .contract-app .portfolio-details li { line-height: 1.65; margin: 10px 0; overflow-wrap: anywhere; }
+.contract-app .employee-evidence { margin: 18px 0; padding-top: 12px; border-top: 1px solid var(--line); }
+.contract-app .employee-evidence > summary { cursor: pointer; padding: 10px 0; font-weight: 600; }
+.contract-app .employee-evidence h5 { font-size: 15px; margin: 20px 0 10px; }
+.contract-app .decision-evidence .review-table-scroll { max-height: none; }
+.contract-app .decision-evidence table { min-width: 600px; }
+.contract-app .decision-data-warning { padding: 14px 16px; border-left: 3px solid var(--green); background: var(--mint); border-radius: 4px; line-height: 1.65; }
+.contract-app .plan-compare th small { display: block; font-weight: 400; margin-top: 8px; font-size: 12px; }
+.contract-app .decision-profile { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 20px 0; font-weight: 500; }
+.contract-app .decision-profile select { min-height: 44px; padding: 10px 14px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+@media (max-width: 600px) { .contract-app .decision-facts > div { flex: 1 1 130px; } .contract-app .decision-profile { align-items: stretch; flex-direction: column; } }
 @media (max-width: 600px) { .contract-app .protection-choices { grid-template-columns: minmax(0, 1fr); } .contract-app .run-protection-controls, .contract-app .protection-conflict, .contract-app .confirmed-protection { padding: 16px; } }
 @media (max-width: 1100px) { .contract-app .absence-layout { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 600px) { .contract-app .absence-form, .contract-app .absence-decision, .contract-app .absence-repair { padding: 16px; } .contract-app .absence-records .review-actions { align-items: stretch; } .contract-app .absence-records .review-actions .button { flex: 1 1 100%; } }

@@ -52,7 +52,15 @@
         "preference_match_ratio": 0.4444,
         "open_shifts": 0,
         "assigned_minutes": 25350,
-        "hours_preference_deviation_minutes": 600
+        "hours_preference_deviation_minutes": 600,
+        "fairness_burden_deviation": 3.98,
+        "fairness_components": {
+          "policy_version": 1,
+          "closing": 96,
+          "weekend": 36,
+          "split": 0,
+          "overtime": 0
+        }
       },
       "input_hash": "sha256:6885b21da3b15db1ab2aa5c5b2468e30",
       "shifts": [
@@ -853,7 +861,15 @@
         "preference_match_ratio": 0.4444,
         "open_shifts": 0,
         "assigned_minutes": 25350,
-        "hours_preference_deviation_minutes": 600
+        "hours_preference_deviation_minutes": 600,
+        "fairness_burden_deviation": 3.98,
+        "fairness_components": {
+          "policy_version": 1,
+          "closing": 96,
+          "weekend": 36,
+          "split": 0,
+          "overtime": 0
+        }
       },
       "coverage": [
         {

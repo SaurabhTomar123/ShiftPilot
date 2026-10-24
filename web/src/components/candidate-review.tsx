@@ -5,9 +5,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ApiError, SchedulingClient } from '@/api/client';
-import { formatMoney, localDate, localTime, percent } from '@/api/presentation';
+import { formatMoney, localDate, localTime, percent, strategyName } from '@/api/presentation';
 import type { Schema } from '@/api/types';
 import { formatDate } from '@/lib/types';
+import { DecisionEvidence, FairnessBreakdown } from './decision-evidence';
 import { Button } from './primitives/button';
 
 /** One user action at a time. Aborts stale reads and never retries a write. */
@@ -38,9 +39,10 @@ function ReviewError({ error }: { error: Error }) {
   return <div className="review-error" role="alert"><strong>{details?.code === 'stale_version' ? 'This review is out of date.' : 'This action did not complete.'}</strong><p>{error.message}</p>{Array.isArray(violations) && <ul>{violations.map((v, i) => <li key={i}>{v && typeof v === 'object' && 'message' in v && typeof v.message === 'string' ? v.message : 'A scheduling constraint needs review.'}</li>)}</ul>}{details?.trace_id && <small>Support trace: {details.trace_id}</small>}<p>No automatic retry was sent. Reload current data if the draft or proposal has changed.</p></div>;
 }
 
-export function CandidateReview({ client, candidateId, employees, skills, timezone, canSelect, showCosts, onSelected, onClose }: {
+export function CandidateReview({ client, candidateId, employees, skills, timezone, canSelect, showCosts, comparisonWarning, onSelected, onClose }: {
   client: SchedulingClient; candidateId: string; employees: Schema['RosterEmployee'][]; skills: Schema['Skill'][]; timezone: string;
   canSelect: boolean; showCosts: boolean; onSelected: (draft: Schema['ScheduleVersion']) => void; onClose: () => void;
+  comparisonWarning?: string | null;
 }) {
   const [detail, setDetail] = useState<Schema['CandidateDetail'] | null>(null);
   const [loadError, setLoadError] = useState<Error | null>(null);
@@ -55,18 +57,20 @@ export function CandidateReview({ client, candidateId, employees, skills, timezo
     <div className="review-heading"><div><h2>Review this option</h2><p>Reviewing reads the recommendation. Selecting it creates a draft for approval.</p></div><Button onClick={onClose} disabled={action.busy}>Close option review</Button></div>
     {loadError ? <ReviewError error={loadError} /> : !detail ? <p role="status">Loading option details…</p> : <>
       <h3>{strategyName(detail.strategy)}</h3>
+      {comparisonWarning && <p className="decision-data-warning" role="alert">{comparisonWarning}</p>}
       <p>{detail.base_version_id ? 'Changes against the run’s published base.' : 'This option plans an empty week.'} {detail.proven_optimal ? 'Optimal for its configured objective.' : 'Feasible; optimality has not been proven.'}</p>
       <dl className="option-facts"><div><dt>Added assignments</dt><dd>{detail.diff.added.length}</dd></div><div><dt>Changed assignments</dt><dd>{detail.diff.changed.length}</dd></div><div><dt>Removed assignments</dt><dd>{detail.diff.removed.length}</dd></div><div><dt>Preferred coverage</dt><dd>{percent(detail.metrics.coverage_ratio)}</dd></div>{showCosts && <div><dt>Estimated labour cost</dt><dd>{formatMoney(detail.metrics.labour_cost)}</dd></div>}</dl>
       <p>{detail.validation.hard_violations} hard violations; {detail.validation.soft_violations} preferences to review. Selecting still leaves the week unpublished.</p>
       <details className="option-assignments"><summary>Review assignment changes ({shiftRows.length + detail.diff.removed.length})</summary><div className="review-table-scroll" tabIndex={0} role="region" aria-label="Candidate assignment changes"><table><caption>New assignment values, in {timezone}. Changed rows show the proposed values.</caption><thead><tr><th scope="col">Change</th><th scope="col">Teammate</th><th scope="col">Skill</th><th scope="col">Date and time</th><th scope="col">Break / lock</th></tr></thead><tbody>{shiftRows.map(({ kind, shift }) => <tr key={shift.logical_shift_id}><td>{kind}</td><th scope="row">{shift.employee_id ? employees.find(e => e.id === shift.employee_id)?.name ?? `Employee ${shift.employee_id}` : 'Unfilled assignment'}</th><td>{skills.find(s => s.id === shift.skill_id)?.name ?? 'Required skill'}</td><td>{formatDate(localDate(shift.start_at, timezone))} {localTime(shift.start_at, timezone)} – {formatDate(localDate(shift.end_at, timezone))} {localTime(shift.end_at, timezone)}</td><td>{shift.break_minutes}m break{shift.locked ? ', locked' : ''}</td></tr>)}{detail.diff.removed.map(id => <tr key={id}><td>Removed</td><td colSpan={4}>Logical shift {id}</td></tr>)}</tbody></table></div></details>
       {detail.validation.violations.length > 0 && <details className="option-assignments"><summary>Scheduling constraints and preferences</summary><ul>{detail.validation.violations.map((v, i) => <li key={i}>{v.severity}: {v.message}</li>)}</ul></details>}
+      <FairnessBreakdown metrics={detail.metrics} /><DecisionEvidence trace={detail.trace} traceChanges={detail.trace_changes} explanations={detail.explanations} employees={employees} showCosts={showCosts} assignments={[...detail.diff.added, ...detail.diff.changed]} skills={skills} timezone={timezone} />
       {action.error && <ReviewError error={action.error} />}
       <div className="review-actions">{canSelect ? <Button variant="primary" disabled={action.busy || detail.validation.hard_violations > 0} onClick={() => action.perform(async signal => { const draft = await client.selectCandidate(detail.id, action.keyFor(`select:${detail.id}`), signal); if (!signal.aborted) onSelected(draft); })}>{action.busy ? 'Creating draft…' : 'Select option and create draft'}</Button> : <p>You can review this option. A manager with publication access must select it.</p>}</div>
     </>}
   </section>;
 }
 
-export const strategyName = (strategy: Schema['Candidate']['strategy']) => ({ balanced: 'Balanced', lowest_cost: 'Lowest cost', staff_friendly: 'Hours preference alignment', max_coverage: 'Maximum coverage', least_disruption: 'Least disruption', best_coverage: 'Best coverage' })[strategy];
+export { strategyName } from '@/api/presentation';
 
 export function ProposalReview({ client, draft, timezone, fixtureMode, showCosts, initialProposal, onPublished, onReload }: {
   client: SchedulingClient; draft: Schema['ScheduleVersion']; timezone: string; fixtureMode: boolean; showCosts: boolean;

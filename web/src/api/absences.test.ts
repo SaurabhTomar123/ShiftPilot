@@ -38,7 +38,7 @@ it('does not substitute unrelated preview facts for dates, status decisions or r
   const list = fixture<Schema['AbsenceList']>('absences.list');
   await expect(client.updateAbsence(list.items.find(item => item.status === 'requested')!.id, { status: 'confirmed' })).rejects.toMatchObject({ status: 501 });
   const run = fixture<Schema['OptimizationRun']>('run.repair.widened');
-  await expect(client.candidate(run.candidates[0].id)).rejects.toMatchObject({ status: 501 });
+  expect(await client.candidate(run.candidates[0].id)).toMatchObject(fixture<Schema['CandidateDetail']>('candidate.detail.repair'));
 });
 
 it('scopes absence reads by outlet and overlapping interval', async () => {
@@ -76,4 +76,19 @@ it('sends exact freeze inputs and never returns unprotected success for unsuppor
   await expect(client.repair(me.outlet_id!, '2026-10-19', { ...body, freeze: { employee_ids: [crypto.randomUUID()] } }, 'unknown-freeze')).rejects.toMatchObject({ status: 501 });
   await expect(client.generate(me.outlet_id!, '2026-10-26', { base_version_id: null, strategy: 'balanced', time_limit_seconds: 10, freeze: { days: ['2026-10-26'] } }, 'empty-freeze')).rejects.toMatchObject({ status: 501 });
   expect(requests.filter(request => request.method === 'POST')).toHaveLength(4);
+});
+
+it('selects the supplied repair draft and uses its identity throughout proposal approval', async () => {
+  const { client, requests } = setup(); const me = await client.signIn('manager');
+  const week = await client.schedule(me.outlet_id!, '2026-10-19');
+  const detail = fixture<Schema['CandidateDetail']>('candidate.detail.repair');
+  const draft = await client.selectCandidate(detail.id, 'repair-select');
+  expect(draft).toMatchObject({ source: 'repair', base_version_id: week.current_version!.id });
+  const proposal = await client.createProposal({ draft_version_id: draft.id, expected_revision: draft.revision }, 'repair-proposal');
+  expect(proposal.candidate_id).toBe(detail.id); expect(proposal.draft_version_id).toBe(draft.id);
+  expect((await client.schedule(me.outlet_id!, '2026-10-19')).current_version!.id).toBe(week.current_version!.id);
+  const decision = await client.approveProposal(proposal.id, { acknowledge_changes: false }, 'repair-approve');
+  expect(decision.outcome).toBe('published');
+  expect((await client.schedule(me.outlet_id!, '2026-10-19')).current_version!.id).toBe(draft.id);
+  expect(requests.filter(request => request.method === 'POST' && request.url.endsWith('/approve'))).toHaveLength(1);
 });

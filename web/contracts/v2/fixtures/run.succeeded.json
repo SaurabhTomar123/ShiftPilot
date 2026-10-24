@@ -53,7 +53,15 @@
             "preference_match_ratio": 0.4444,
             "open_shifts": 0,
             "assigned_minutes": 25350,
-            "hours_preference_deviation_minutes": 600
+            "hours_preference_deviation_minutes": 600,
+            "fairness_burden_deviation": 7.97,
+            "fairness_components": {
+              "policy_version": 1,
+              "closing": 96,
+              "weekend": 36,
+              "split": 0,
+              "overtime": 0
+            }
           },
           "changed_shifts": 60,
           "validation": {
@@ -339,7 +347,29 @@
             ]
           },
           "disruption": null,
-          "explanations": []
+          "explanations": [],
+          "trace": {
+            "strategy": "balanced",
+            "summary": {
+              "compared_to": null,
+              "cost_delta_paise": null,
+              "preferred_gap_delta_minutes": null,
+              "fairness_delta": null,
+              "overtime_minutes": 0,
+              "cross_outlet_moves": 0,
+              "changed_commitments": 0
+            },
+            "counts": {
+              "KEPT": 0,
+              "MOVED_TIME": 0,
+              "REASSIGNED": 0,
+              "CREATED": 60,
+              "REMOVED": 0,
+              "UNFILLED": 0
+            },
+            "explained_shifts": 0,
+            "explanations_truncated": false
+          }
         },
         {
           "id": "cf2129a7-c492-5388-a2c8-bbc18065b8a5",
@@ -364,7 +394,15 @@
             "preference_match_ratio": 0.5,
             "open_shifts": 0,
             "assigned_minutes": 24150,
-            "hours_preference_deviation_minutes": 900
+            "hours_preference_deviation_minutes": 900,
+            "fairness_burden_deviation": 7.83,
+            "fairness_components": {
+              "policy_version": 1,
+              "closing": 84,
+              "weekend": 32,
+              "split": 0,
+              "overtime": 0
+            }
           },
           "changed_shifts": 56,
           "validation": {
@@ -650,13 +688,60 @@
             ]
           },
           "disruption": null,
-          "explanations": []
+          "explanations": [],
+          "trace": {
+            "strategy": "lowest_cost",
+            "summary": {
+              "compared_to": "requested_plan",
+              "cost_delta_paise": -357000,
+              "preferred_gap_delta_minutes": 960,
+              "fairness_delta": 0.02,
+              "overtime_minutes": 0,
+              "cross_outlet_moves": 0,
+              "changed_commitments": 0
+            },
+            "counts": {
+              "KEPT": 0,
+              "MOVED_TIME": 0,
+              "REASSIGNED": 0,
+              "CREATED": 56,
+              "REMOVED": 0,
+              "UNFILLED": 0
+            },
+            "explained_shifts": 0,
+            "explanations_truncated": false
+          }
         }
       ],
       "infeasibility": null,
       "error": null,
       "repair_stages": [],
       "frozen_logical_shift_ids": [],
+      "portfolio": {
+        "policy_version": 1,
+        "considered": [
+          "balanced",
+          "lowest_cost",
+          "fairness",
+          "max_coverage"
+        ],
+        "dropped": [
+          {
+            "strategy": "fairness",
+            "reason": "duplicate",
+            "detail": [
+              "balanced"
+            ]
+          },
+          {
+            "strategy": "max_coverage",
+            "reason": "guardrail",
+            "detail": [
+              "cost"
+            ]
+          }
+        ]
+      },
       "candidates_expired": false
     }
   }

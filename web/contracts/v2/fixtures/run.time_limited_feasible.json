@@ -53,7 +53,15 @@
             "preference_match_ratio": 0.4444,
             "open_shifts": 0,
             "assigned_minutes": 25350,
-            "hours_preference_deviation_minutes": 600
+            "hours_preference_deviation_minutes": 600,
+            "fairness_burden_deviation": 7.97,
+            "fairness_components": {
+              "policy_version": 1,
+              "closing": 96,
+              "weekend": 36,
+              "split": 0,
+              "overtime": 0
+            }
           },
           "changed_shifts": 60,
           "validation": {
@@ -339,13 +347,36 @@
             ]
           },
           "disruption": null,
-          "explanations": []
+          "explanations": [],
+          "trace": {
+            "strategy": "balanced",
+            "summary": {
+              "compared_to": null,
+              "cost_delta_paise": null,
+              "preferred_gap_delta_minutes": null,
+              "fairness_delta": null,
+              "overtime_minutes": 0,
+              "cross_outlet_moves": 0,
+              "changed_commitments": 0
+            },
+            "counts": {
+              "KEPT": 0,
+              "MOVED_TIME": 0,
+              "REASSIGNED": 0,
+              "CREATED": 60,
+              "REMOVED": 0,
+              "UNFILLED": 0
+            },
+            "explained_shifts": 0,
+            "explanations_truncated": false
+          }
         }
       ],
       "infeasibility": null,
       "error": null,
       "repair_stages": [],
       "frozen_logical_shift_ids": [],
+      "portfolio": null,
       "candidates_expired": false
     }
   }

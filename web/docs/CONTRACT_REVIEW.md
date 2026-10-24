@@ -1,3 +1,15 @@
+# 24 October: portfolio, fairness and trace consumer review (3.18)
+
+Frontend-only pin: **3.18.0-p4 / 115 fixtures**, provider `5d93779f6a51a823db9b3d376f68e9feaa22fe96`, aggregate SHA-256 `ceca5f12379c3c4d8fea346a3f5c6867edff1dc787bd0e8099f2c57519a9906e`. Per-file hashes remain verified. Backend source/runtime are unchanged; live 3.18 acceptance is pending. Earlier live checks below refer to earlier reviewed runtimes.
+
+Accepted consumer behavior: explicit decision profiles; supplied portfolio exclusion reasons without browser ranking; engine delta reference distinct from recorded baselines; rolling fairness burden separate from weekly components/preferences; six-category trace, bounded explanations and returned provenance. Cost permissions apply inside employee reasons. Matching repair detail/select fixtures now preserve repair candidate/base identity through draft, proposal and explicit approval. Requested-record status fixtures exist but their preview-gateway integration remains separate.
+
+Provider follow-up: `run.succeeded` gives Balanced burden 7.97, Lowest cost 7.83 and Lowest cost requested-plan fairness delta +0.02. Directions disagree. The UI warns and retains supplied values; no client correction or live-solver defect is inferred. The inconsistency also exists in reviewed upstream 3.26 fixture data. See [delivery flow and exact boundaries](DECISION_REVIEW_FLOW.md).
+
+Newer provider replacement/Scenario Lab/P1 contracts are available upstream and await individual consumer reviews. No broad backend merge is part of this delivery.
+
+---
+
 # 21 October: run protection consumer review (3.15)
 
 Frontend-only contract snapshot from provider `03d747cc0cc4b67fccaed8489abbb0d53cd741b4`: **3.15.0-p4 / 108 fixtures**, aggregate SHA-256 `0a9cd663b5817fab0013be229fe39195c9689e41ab8b15f40f445eb99d167775`. `web/contracts/v2/SOURCE.json` records byte hashes; generation verifies them. The root backend contract and runtime remain unchanged. This is not an acceptance of all newer backend features.

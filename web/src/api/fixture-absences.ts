@@ -3,7 +3,7 @@ import type { Fixture, Schema } from './types';
 
 const fixtures = records as unknown as Record<string, Fixture>;
 const reply = (name: string) => { const response = fixtures[name].response; return Response.json(response.body, { status: response.status, headers: { 'Cache-Control': 'no-store', 'X-ShiftPilot-Source': 'contract-fixture' } }); };
-const unsupported = () => Response.json({ error: { code: 'not_implemented', message: 'This absence or repair request has no matching provider fixture. Use the live API to save other dates, change statuses, or review a detailed repair option.', retryable: false, details: {} } }, { status: 501 });
+const unsupported = () => Response.json({ error: { code: 'not_implemented', message: 'This absence or repair request is not supported by this preview. Use the live API for other dates or status changes outside this preview.', retryable: false, details: {} } }, { status: 501 });
 
 /** Replay supplied provider facts only. Never fabricate a successful repair or a saved absence. */
 export async function absenceFixture(url: URL, request: Request): Promise<Response | null> {
@@ -11,8 +11,7 @@ export async function absenceFixture(url: URL, request: Request): Promise<Respon
   const accepted = fixtures['repair.accepted'].response.body as Schema['OptimizationRun'];
   const isAbsence = url.pathname === '/v2/absences' || url.pathname.startsWith('/v2/absences/');
   const isRepair = /^\/v2\/outlets\/[^/]+\/schedules\/[^/]+\/repair$/.test(url.pathname);
-  const repairResult = fixtures['run.repair.widened'].response.body as Schema['OptimizationRun'];
-  const isRepairRead = url.pathname === `/v2/optimization-runs/${accepted.id}` || repairResult.candidates.some(candidate => url.pathname.startsWith(`/v2/optimization-candidates/${candidate.id}`));
+  const isRepairRead = url.pathname === `/v2/optimization-runs/${accepted.id}`;
   if (!isAbsence && !isRepair && !isRepairRead) return null;
   if (request.headers.get('X-ShiftPilot-Scenario') === 'denied') return reply('schedule_week.denied');
   if (request.method === 'GET' && url.pathname === `/v2/optimization-runs/${accepted.id}`) return reply('run.repair.widened');
@@ -44,8 +43,7 @@ export async function absenceFixture(url: URL, request: Request): Promise<Respon
     if (body.unlock_logical_shift_ids?.length) return unsupported();
     return reply('repair.accepted');
   }
-  // There is no supplied fixture for confirming the listed requested absence,
-  // rejecting/cancelling, or materializing a repair candidate. Do not substitute
+  // Status-transition preview support is separate from this decision-review slice. Do not substitute
   // unrelated absence.update.confirm / generation candidate records.
   return unsupported();
 }

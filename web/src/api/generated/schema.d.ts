@@ -1160,7 +1160,7 @@ export interface components {
             /** Rank */
             rank: number;
             /** Strategy */
-            strategy: ("balanced" | "lowest_cost" | "staff_friendly" | "max_coverage") | ("least_disruption" | "lowest_cost" | "best_coverage");
+            strategy: ("balanced" | "lowest_cost" | "staff_friendly" | "max_coverage" | "stability" | "fairness") | ("least_disruption" | "lowest_cost" | "best_coverage");
             /**
              * Solver Status
              * @enum {string}
@@ -1188,9 +1188,11 @@ export interface components {
             disruption?: components["schemas"]["Disruption"] | null;
             /**
              * Explanations
-             * @description Repair runs: one per changed shift.
+             * @description One per reassigned, created or unfilled shift against a base version (repairs, regeneration). Empty on an empty week, where every shift is new.
              */
             explanations?: components["schemas"]["ShiftExplanation"][];
+            /** @description null for candidates stored before 3.18. */
+            trace?: components["schemas"]["DecisionTrace"] | null;
         };
         /** CandidateDetail */
         CandidateDetail: {
@@ -1202,7 +1204,7 @@ export interface components {
             /** Rank */
             rank: number;
             /** Strategy */
-            strategy: ("balanced" | "lowest_cost" | "staff_friendly" | "max_coverage") | ("least_disruption" | "lowest_cost" | "best_coverage");
+            strategy: ("balanced" | "lowest_cost" | "staff_friendly" | "max_coverage" | "stability" | "fairness") | ("least_disruption" | "lowest_cost" | "best_coverage");
             /**
              * Solver Status
              * @enum {string}
@@ -1230,9 +1232,11 @@ export interface components {
             disruption?: components["schemas"]["Disruption"] | null;
             /**
              * Explanations
-             * @description Repair runs: one per changed shift.
+             * @description One per reassigned, created or unfilled shift against a base version (repairs, regeneration). Empty on an empty week, where every shift is new.
              */
             explanations?: components["schemas"]["ShiftExplanation"][];
+            /** @description null for candidates stored before 3.18. */
+            trace?: components["schemas"]["DecisionTrace"] | null;
             /**
              * Run Id
              * Format: uuid
@@ -1244,6 +1248,11 @@ export interface components {
              */
             base_version_id: string | null;
             diff: components["schemas"]["CandidateDiff"];
+            /**
+             * Trace Changes
+             * @description The change class of every non-kept shift, in time order.
+             */
+            trace_changes?: components["schemas"]["TraceChange"][];
         };
         /**
          * CandidateDiff
@@ -1405,6 +1414,32 @@ export interface components {
              * @description The draft revision the manager reviewed.
              */
             expected_revision: number;
+        };
+        /**
+         * DecisionTrace
+         * @description What changed, what stayed, and the trade-off that produced the plan (architecture v4 section 18).
+         */
+        DecisionTrace: {
+            /** Strategy */
+            strategy: ("balanced" | "lowest_cost" | "staff_friendly" | "max_coverage" | "stability" | "fairness") | ("least_disruption" | "lowest_cost" | "best_coverage");
+            summary: components["schemas"]["PlanDelta"];
+            /**
+             * Counts
+             * @description Every class, KEPT included.
+             */
+            counts: {
+                [key: string]: number;
+            };
+            /**
+             * Explained Shifts
+             * @description Changed shifts with why/why-not facts.
+             */
+            explained_shifts: number;
+            /**
+             * Explanations Truncated
+             * @description More changed shifts than were explained (limit 30).
+             */
+            explanations_truncated: boolean;
         };
         /**
          * DemoSession
@@ -1666,9 +1701,10 @@ export interface components {
         ExplanationFact: {
             /**
              * Code
+             * @description incremental_cost, fairness_burden and disruption appear for the chosen person only. Unknown codes may be added; show their message.
              * @enum {string}
              */
-            code: "skill" | "available" | "no_conflict" | "weekly_hours" | "travel";
+            code: "skill" | "available" | "no_conflict" | "weekly_hours" | "travel" | "rules" | "incremental_cost" | "fairness_burden" | "disruption";
             /** Ok */
             ok: boolean;
             /**
@@ -1676,10 +1712,42 @@ export interface components {
              * @description Deterministic text built from facts; safe to show.
              */
             message: string;
-            /** Facts */
+            /**
+             * Facts
+             * @description Blocking reasons carry provenance: rule_ids and/or absence_ids (v4 section 18).
+             */
             facts?: {
                 [key: string]: unknown;
             };
+        };
+        /**
+         * FairnessComponents
+         * @description Burden points by component (architecture v4 section 12). Last-minute and transfer burden are not
+         *     part of policy 1.
+         */
+        FairnessComponents: {
+            /** Policy Version */
+            policy_version: number;
+            /**
+             * Closing
+             * @description 3 per shift ending at 22:00 or later.
+             */
+            closing: number;
+            /**
+             * Weekend
+             * @description 2 per Saturday or Sunday shift.
+             */
+            weekend: number;
+            /**
+             * Split
+             * @description 2 per extra shift on the same day.
+             */
+            split: number;
+            /**
+             * Overtime
+             * @description 1 per full hour beyond the regular week.
+             */
+            overtime: number;
         };
         /**
          * FreezeSpec
@@ -1710,7 +1778,7 @@ export interface components {
              * @default balanced
              * @enum {string}
              */
-            strategy: "balanced" | "lowest_cost" | "staff_friendly" | "max_coverage";
+            strategy: "balanced" | "lowest_cost" | "staff_friendly" | "max_coverage" | "stability" | "fairness";
             /**
              * Base Version Id
              * @description Current published version the draft replaces; null for an empty week. Stale -> 409.
@@ -1919,6 +1987,13 @@ export interface components {
              * @description Hours-preference alignment: sum over employees with a preferred weekly total of |worked - preferred| minutes. Lower is better. Not a fairness measure. null when nobody states a preference, and in metrics stored before contract 3.4.
              */
             hours_preference_deviation_minutes?: number | null;
+            /**
+             * Fairness Burden Deviation
+             * @description Fairness burden (v4 section 12): mean absolute deviation, across the outlet's staff, of burden points per 40 h over the last 8 published weeks plus this one. Points: closing shift 3, weekend 2, second shift in a day 2, overtime hour 1. Lower is fairer; null in metrics stored before 3.16.
+             */
+            fairness_burden_deviation?: number | null;
+            /** @description This roster's burden points this week by component (history excluded), with the policy version. Compare two plans component by component. */
+            fairness_components?: components["schemas"]["FairnessComponents"] | null;
         };
         /** Money */
         Money: {
@@ -2045,7 +2120,7 @@ export interface components {
             /** Base Version Ids */
             base_version_ids: string[];
             /** Strategy */
-            strategy: ("balanced" | "lowest_cost" | "staff_friendly" | "max_coverage") | ("least_disruption" | "lowest_cost" | "best_coverage");
+            strategy: ("balanced" | "lowest_cost" | "staff_friendly" | "max_coverage" | "stability" | "fairness") | ("least_disruption" | "lowest_cost" | "best_coverage");
             /**
              * Absence Id
              * @description Repair runs: the absence being repaired.
@@ -2094,6 +2169,8 @@ export interface components {
              * @description The run's freeze set: shifts held exactly (v4 section 13).
              */
             frozen_logical_shift_ids?: string[];
+            /** @description Generate runs that finished with plans; null for repairs and before. */
+            portfolio?: components["schemas"]["PortfolioSummary"] | null;
             /**
              * Candidates Expired
              * @description Unselected candidates are removed 7 days after the run (retention); only selected ones remain, possibly none. Offer a new run instead of the old options.
@@ -2133,6 +2210,77 @@ export interface components {
             name: string;
             /** Timezone */
             timezone: string;
+        };
+        /** PlanDelta */
+        PlanDelta: {
+            /**
+             * Compared To
+             * @description base_version when regenerating or repairing; on an empty week, other plans compare with the requested plan (rank 1), whose deltas are null.
+             */
+            compared_to: ("base_version" | "requested_plan") | null;
+            /**
+             * Cost Delta Paise
+             * @description Labour plus overtime premium; negative = cheaper.
+             */
+            cost_delta_paise: number | null;
+            /**
+             * Preferred Gap Delta Minutes
+             * @description Negative = better preferred coverage.
+             */
+            preferred_gap_delta_minutes: number | null;
+            /**
+             * Fairness Delta
+             * @description Fairness burden deviation; negative = fairer.
+             */
+            fairness_delta: number | null;
+            /** Overtime Minutes */
+            overtime_minutes: number;
+            /**
+             * Cross Outlet Moves
+             * @description Shifts worked away from the person's home outlet.
+             */
+            cross_outlet_moves: number;
+            /**
+             * Changed Commitments
+             * @description MOVED_TIME + REASSIGNED + REMOVED + UNFILLED.
+             */
+            changed_commitments: number;
+        };
+        /** PortfolioDrop */
+        PortfolioDrop: {
+            /**
+             * Strategy
+             * @enum {string}
+             */
+            strategy: "balanced" | "lowest_cost" | "staff_friendly" | "max_coverage" | "stability" | "fairness";
+            /**
+             * Reason
+             * @description duplicate: same assignments as `detail[0]`. guardrail: broke the guardrails named in `detail` (cost, overtime, coverage, disruption, fairness), measured against the requested plan. dominated: `detail[0]` is no worse on every displayed metric and better on one. limit: valid and distinct, but beyond the three plans shown.
+             * @enum {string}
+             */
+            reason: "duplicate" | "guardrail" | "dominated" | "limit";
+            /** Detail */
+            detail: string[];
+        };
+        /**
+         * PortfolioSummary
+         * @description How the Candidate Portfolio chose what to show (architecture v4 section 16). The requested
+         *     strategy's plan is always first; displayed metrics are total cost, preferred-coverage gap, overtime
+         *     minutes, changed shifts (when there is a base) and fairness burden.
+         */
+        PortfolioSummary: {
+            /**
+             * Policy Version
+             * @description Guardrail policy revision.
+             */
+            policy_version: number;
+            /**
+             * Considered
+             * @description Strategies solved, requested first.
+             */
+            considered: ("balanced" | "lowest_cost" | "staff_friendly" | "max_coverage" | "stability" | "fairness")[];
+            /** Dropped */
+            dropped: components["schemas"]["PortfolioDrop"][];
         };
         /** Proposal */
         Proposal: {
@@ -3158,6 +3306,29 @@ export interface components {
              * @description The CSV text (UTF-8), header row first.
              */
             content: string;
+        };
+        /** TraceChange */
+        TraceChange: {
+            /**
+             * Logical Shift Id
+             * Format: uuid
+             */
+            logical_shift_id: string;
+            /**
+             * Change
+             * @description Never KEPT: kept shifts are only counted.
+             * @enum {string}
+             */
+            change: "KEPT" | "MOVED_TIME" | "REASSIGNED" | "CREATED" | "REMOVED" | "UNFILLED";
+            /**
+             * Kinds
+             * @description Finer diff kinds: added, removed, reassigned, moved, resized, ...
+             */
+            kinds: string[];
+            /** Before Employee Id */
+            before_employee_id: string | null;
+            /** After Employee Id */
+            after_employee_id: string | null;
         };
         /** UpdateAbsenceRequest */
         UpdateAbsenceRequest: {

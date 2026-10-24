@@ -96,9 +96,11 @@ export async function reviewFixture(url: URL, request: Request, persona: Persona
     state.draft = after; return response(after);
   }
   const lowest = fixture<Schema['CandidateDetail']>('candidate.detail.lowest_cost');
-  const detail = candidate?.[1] === lowest.id ? lowest : fixture<Schema['CandidateDetail']>('candidate.detail');
+  const repairDetail = fixture<Schema['CandidateDetail']>('candidate.detail.repair');
+  const detail = candidate?.[1] === repairDetail.id ? repairDetail : candidate?.[1] === lowest.id ? lowest : fixture<Schema['CandidateDetail']>('candidate.detail');
+  const selectionName = detail.id === repairDetail.id ? 'candidate.select.repair' : detail.id === lowest.id ? 'candidate.select.lowest_cost' : 'candidate.select';
   if (candidate && candidate[1] !== detail.id) return error('not_implemented', 'No provider candidate fixture matches this request.', 501);
-  if (candidate && !candidate[2] && request.method === 'GET') return response({ ...detail, materialized_version_id: state.draft?.optimization_run_id === detail.run_id && state.draft.id === fixture<Schema['ScheduleVersion']>(detail.id === lowest.id ? 'candidate.select.lowest_cost' : 'candidate.select').id ? state.draft.id : null });
+  if (candidate && !candidate[2] && request.method === 'GET') return response({ ...detail, materialized_version_id: state.draft?.optimization_run_id === detail.run_id && state.draft.id === fixture<Schema['ScheduleVersion']>(selectionName).id ? state.draft.id : null });
   if (proposalPath?.[1] && proposalPath[1] !== state.proposal?.id) return error('not_found', 'No proposal exists in this synthetic session.', 404);
   if (proposalPath?.[1] && !proposalPath[2] && request.method === 'GET') return response(state.proposal);
   if (request.method !== 'POST') return error('not_implemented', 'This fixture operation is not available.', 501);
@@ -131,15 +133,15 @@ export async function reviewFixture(url: URL, request: Request, persona: Persona
   }
   if (candidate?.[2]) {
     if (state.published) return error('conflict', 'This option has already been published.', 409);
-    if (state.draft && state.draft.id !== fixture<Schema['ScheduleVersion']>(detail.id === lowest.id ? 'candidate.select.lowest_cost' : 'candidate.select').id) return error('not_implemented', 'Start a new demo session to select another option after creating a draft.', 501);
-    state.draft ??= fixture<Schema['ScheduleVersion']>(detail.id === lowest.id ? 'candidate.select.lowest_cost' : 'candidate.select');
+    if (state.draft && state.draft.id !== fixture<Schema['ScheduleVersion']>(selectionName).id) return error('not_implemented', 'Start a new demo session to select another option after creating a draft.', 501);
+    state.draft ??= fixture<Schema['ScheduleVersion']>(selectionName);
     return remember(state.draft, 201);
   }
   if (proposalPath && !proposalPath[1]) {
     if (!state.draft || body?.draft_version_id !== state.draft.id) return error('not_found', 'Create or select a draft before proposing it.', 404);
     if (body.expected_revision !== state.draft.revision) return error('stale_version', 'This draft revision changed.', 409);
     if (state.proposal?.draft_revision === state.draft.revision) return error('conflict', 'A proposal has already been created for this revision in the synthetic session. Start a new demo session to repeat it.', 409);
-    state.proposal = { ...fixture<Schema['Proposal']>('proposal.create'), ...(state.proposal ? { id: crypto.randomUUID() } : {}), schedule_id: state.draft.schedule_id, draft_version_id: state.draft.id, draft_revision: state.draft.revision, base_version_id: state.draft.base_version_id, candidate_id: state.draft.optimization_run_id ? (state.draft.id === fixture<Schema['ScheduleVersion']>('candidate.select.lowest_cost').id ? lowest.id : detail.id) : null, metrics_at_proposal: state.draft.metrics }; return remember(state.proposal, 201);
+    state.proposal = { ...fixture<Schema['Proposal']>('proposal.create'), ...(state.proposal ? { id: crypto.randomUUID() } : {}), schedule_id: state.draft.schedule_id, draft_version_id: state.draft.id, draft_revision: state.draft.revision, base_version_id: state.draft.base_version_id, candidate_id: state.draft.optimization_run_id ? (state.draft.id === fixture<Schema['ScheduleVersion']>('candidate.select.repair').id ? repairDetail.id : state.draft.id === fixture<Schema['ScheduleVersion']>('candidate.select.lowest_cost').id ? lowest.id : detail.id) : null, metrics_at_proposal: state.draft.metrics }; return remember(state.proposal, 201);
   }
   if (state.proposal?.status !== 'pending') return error('conflict', 'This proposal is no longer pending.', 409);
   if (proposalPath?.[2] === '/reject') { const rejected = fixture<Schema['Proposal']>('proposal.reject'); state.proposal = { ...state.proposal, status: 'rejected', decided_at: rejected.decided_at, decided_by_user_id: rejected.decided_by_user_id }; return remember(state.proposal); }
