@@ -1,0 +1,82 @@
+{
+  "name": "me.open_shifts",
+  "operation_id": "getMyOpenShifts",
+  "method": "GET",
+  "path": "/v2/me/open-shifts",
+  "persona": "staff_ravi",
+  "request": {
+    "query": {
+      "week_start": "2026-10-19"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "OpenShiftList",
+    "body": {
+      "week_start": "2026-10-19",
+      "items": [
+        {
+          "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+          "shift": {
+            "id": "7e30601c-847b-510f-b439-6774a4cb8ef7",
+            "logical_shift_id": "ab2367df-788e-5d1a-8349-aa4661e11e04",
+            "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+            "employee_id": null,
+            "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+            "start_at": "2026-10-19T10:00:00+05:30",
+            "end_at": "2026-10-19T18:00:00+05:30",
+            "break_start_at": "2026-10-19T15:30:00+05:30",
+            "break_minutes": 30,
+            "locked": false,
+            "lock_reason": null
+          },
+          "reasons": [
+            {
+              "code": "skill",
+              "ok": true,
+              "message": "Qualified for Grill",
+              "facts": {
+                "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8"
+              }
+            },
+            {
+              "code": "available",
+              "ok": true,
+              "message": "Available for the shift",
+              "facts": {}
+            },
+            {
+              "code": "no_conflict",
+              "ok": true,
+              "message": "No overlapping shift and rest rules met",
+              "facts": {}
+            },
+            {
+              "code": "weekly_hours",
+              "ok": true,
+              "message": "38h this week after the change",
+              "facts": {
+                "weekly_minutes": 2280,
+                "regular_weekly_minutes": 2880
+              }
+            },
+            {
+              "code": "rules",
+              "ok": true,
+              "message": "Within their scheduling rules",
+              "facts": {}
+            },
+            {
+              "code": "travel",
+              "ok": true,
+              "message": "Works at this outlet",
+              "facts": {
+                "travel_minutes": 0
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

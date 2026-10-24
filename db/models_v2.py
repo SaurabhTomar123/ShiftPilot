@@ -353,7 +353,17 @@ class SchedulingRule(Base):
 # ---------------------------------------------------------------- schedules and immutable versions
 
 VERSION_STATUSES = ("draft", "published", "superseded", "discarded")
-VERSION_SOURCES = ("seed", "manual", "generate", "optimize", "repair", "restore", "import", "scenario")
+VERSION_SOURCES = (
+    "seed",
+    "manual",
+    "generate",
+    "optimize",
+    "repair",
+    "restore",
+    "import",
+    "scenario",
+    "request",
+)
 
 
 class Schedule(Base):
@@ -937,3 +947,68 @@ class StaffingRequirementProposal(Base):
     created_at: Mapped[datetime] = created_at()
     decided_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+# ---------------------------------------------------------------- employee shift requests (v4 section 28)
+
+SHIFT_REQUEST_STATUSES = (
+    "open",
+    "pending_manager",
+    "approved",
+    "rejected",
+    "cancelled",
+    "expired",
+    "stale",
+    "invalid",
+)
+
+
+class ShiftRequest(Base):
+    """An open-shift claim, giveaway or swap. A manager's approval publishes through the normal gate."""
+
+    __tablename__ = "shift_requests"
+    __table_args__ = (
+        ref("schedule_id", "schedules"),
+        ref("base_version_id", "schedule_versions"),
+        ref("published_version_id", "schedule_versions"),
+        ref("requester_employee_id", "employees"),
+        ref("target_employee_id", "employees"),
+        ref("decided_by_user_id", "users"),
+        UniqueConstraint("org_id", "id"),
+        one_of("type", ("open_shift_claim", "giveaway", "swap"), "shift_request_type"),
+        one_of("status", SHIFT_REQUEST_STATUSES, "shift_request_status"),
+        CheckConstraint(
+            "(type = 'swap') = (target_logical_shift_id IS NOT NULL)", name="shift_request_swap_target"
+        ),
+        CheckConstraint(
+            "type <> 'swap' OR target_employee_id IS NOT NULL", name="shift_request_swap_employee"
+        ),
+        CheckConstraint(
+            "(status = 'approved') = (published_version_id IS NOT NULL)", name="shift_request_published"
+        ),
+        Index("ix_shift_requests_schedule", "schedule_id", "status"),
+        Index(
+            "ux_shift_requests_active_shift",
+            "org_id",
+            "logical_shift_id",
+            unique=True,
+            postgresql_where=text("status IN ('open', 'pending_manager')"),
+        ),
+    )
+    id: Mapped[uuid.UUID] = pk()
+    org_id: Mapped[uuid.UUID] = org()
+    schedule_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    type: Mapped[str] = mapped_column(String(20))
+    logical_shift_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    base_version_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    requester_employee_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    target_employee_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    target_logical_shift_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    status: Mapped[str] = mapped_column(String(20))
+    note: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    created_at: Mapped[datetime] = created_at()
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    decided_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    published_version_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    outcome: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)

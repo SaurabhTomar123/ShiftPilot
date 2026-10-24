@@ -31,6 +31,7 @@ from api.v2 import (
     rules,
     scenarios,
     service,
+    shift_requests,
     staffing,
 )
 from api.v2 import auth as v2auth
@@ -997,3 +998,96 @@ def accept_staffing_proposal(
 )
 def reject_staffing_proposal(caller: v2auth.CallerDep, proposal_id: UUID) -> s.StaffingProposal:
     return forecasts.reject(caller, proposal_id)
+
+
+# ---------------------------------------------------------------- employee shift requests (v4 section 28)
+
+
+@router.get(
+    "/me/open-shifts",
+    operation_id="getMyOpenShifts",
+    response_model=s.OpenShiftList,
+    responses=_errors(403, 409, 422),
+)
+def my_open_shifts(caller: v2auth.CallerDep, week_start: date) -> s.OpenShiftList:
+    """Open shifts in the published week that you are eligible for, with the checks that passed."""
+    return shift_requests.open_shifts(caller, week_start)
+
+
+@router.get(
+    "/me/shift-requests",
+    operation_id="getMyShiftRequests",
+    response_model=s.ShiftRequestList,
+    responses=_errors(403),
+)
+def my_shift_requests(caller: v2auth.CallerDep) -> s.ShiftRequestList:
+    return shift_requests.mine(caller)
+
+
+@router.post(
+    "/me/shift-requests",
+    operation_id="createShiftRequest",
+    response_model=s.ShiftRequestView,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def create_shift_request(caller: v2auth.CallerDep, body: s.CreateShiftRequest) -> s.ShiftRequestView:
+    """Claim an open shift, offer one of yours, or propose a swap. 422 (with details.violations) when
+    the change would break a rule; nothing is published until a manager approves."""
+    return shift_requests.create(caller, body)
+
+
+@router.post(
+    "/shift-requests/{request_id}/accept",
+    operation_id="acceptShiftRequest",
+    response_model=s.ShiftRequestView,
+    responses=_errors(403, 404, 409, 422),
+)
+def accept_shift_request(caller: v2auth.CallerDep, request_id: UUID) -> s.ShiftRequestView:
+    """Employees: take a giveaway or consent to a swap. Returns status stale when the published week
+    moved under these shifts."""
+    return shift_requests.accept(caller, request_id)
+
+
+@router.post(
+    "/shift-requests/{request_id}/cancel",
+    operation_id="cancelShiftRequest",
+    response_model=s.ShiftRequestView,
+    responses=_errors(403, 404, 409, 422),
+)
+def cancel_shift_request(caller: v2auth.CallerDep, request_id: UUID) -> s.ShiftRequestView:
+    return shift_requests.cancel(caller, request_id)
+
+
+@router.get(
+    "/outlets/{outlet_id}/shift-requests",
+    operation_id="listShiftRequests",
+    response_model=s.ShiftRequestList,
+    responses=_errors(403, 404, 422),
+)
+def list_shift_requests(
+    caller: v2auth.CallerDep, outlet_id: UUID, status: s.ShiftRequestStatus | None = None
+) -> s.ShiftRequestList:
+    return shift_requests.for_outlet(caller, outlet_id, status)
+
+
+@router.post(
+    "/shift-requests/{request_id}/approve",
+    operation_id="approveShiftRequest",
+    response_model=s.ShiftRequestView,
+    responses=_errors(403, 404, 409, 422),
+)
+def approve_shift_request(caller: v2auth.CallerDep, request_id: UUID) -> s.ShiftRequestView:
+    """Managers: re-validate against current facts and publish. The returned status is the outcome:
+    approved (published_version_id), stale, invalid (violations) or expired."""
+    return shift_requests.approve(caller, request_id)
+
+
+@router.post(
+    "/shift-requests/{request_id}/reject",
+    operation_id="rejectShiftRequest",
+    response_model=s.ShiftRequestView,
+    responses=_errors(403, 404, 409, 422),
+)
+def reject_shift_request(caller: v2auth.CallerDep, request_id: UUID) -> s.ShiftRequestView:
+    return shift_requests.reject(caller, request_id)

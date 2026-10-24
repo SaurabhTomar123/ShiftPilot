@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.22.0-p4",
+  "contract_version": "3.23.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -312,6 +312,78 @@
       "operation_id": "rejectStaffingProposal",
       "status": 200,
       "schema": "StaffingProposal"
+    },
+    {
+      "name": "me.open_shifts",
+      "operation_id": "getMyOpenShifts",
+      "status": 200,
+      "schema": "OpenShiftList"
+    },
+    {
+      "name": "shift_request.create.claim",
+      "operation_id": "createShiftRequest",
+      "status": 201,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.create.swap",
+      "operation_id": "createShiftRequest",
+      "status": 201,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.create.invalid",
+      "operation_id": "createShiftRequest",
+      "status": 422,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "me.shift_requests",
+      "operation_id": "getMyShiftRequests",
+      "status": 200,
+      "schema": "ShiftRequestList"
+    },
+    {
+      "name": "shift_request.accept",
+      "operation_id": "acceptShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.cancel",
+      "operation_id": "cancelShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_requests.list",
+      "operation_id": "listShiftRequests",
+      "status": 200,
+      "schema": "ShiftRequestList"
+    },
+    {
+      "name": "shift_request.approve",
+      "operation_id": "approveShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.approve.stale",
+      "operation_id": "approveShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.approve.invalid",
+      "operation_id": "approveShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.reject",
+      "operation_id": "rejectShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
     },
     {
       "name": "proposal.create",

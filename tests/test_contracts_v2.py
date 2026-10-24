@@ -118,6 +118,7 @@ def test_every_operation_rejects_missing_credentials_with_the_envelope() -> None
         "import_id": uuid.uuid4(),
         "notification_id": uuid.uuid4(),
         "scenario_id": uuid.uuid4(),
+        "request_id": uuid.uuid4(),
         "rule_id": uuid.uuid4(),
         "proposal_id": uuid.uuid4(),
         "week_start": "2026-10-19",

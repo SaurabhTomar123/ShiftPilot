@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.22.0-p4"
+CONTRACT_VERSION = "3.23.0-p4"
 
 
 class Model(BaseModel):
@@ -626,7 +626,9 @@ class CoverageCell(Model):
 
 
 VersionStatus = Literal["draft", "published", "superseded", "discarded"]
-VersionSource = Literal["seed", "manual", "generate", "optimize", "repair", "restore", "import", "scenario"]
+VersionSource = Literal[
+    "seed", "manual", "generate", "optimize", "repair", "restore", "import", "scenario", "request"
+]
 
 
 class ScheduleVersionSummary(Model):
@@ -1247,6 +1249,71 @@ class StaffingProposal(Model):
     decided_at: AwareDatetime | None
     changes: ProposalChanges = Field(description="Against the week's current requirements.")
     rows: list[ProposedRequirement]
+
+
+ShiftRequestType = Literal["open_shift_claim", "giveaway", "swap"]
+ShiftRequestStatus = Literal[
+    "open", "pending_manager", "approved", "rejected", "cancelled", "expired", "stale", "invalid"
+]
+
+
+class CreateShiftRequest(Model):
+    """open_shift_claim: take an open shift. giveaway: offer one of your shifts (to target_employee_id,
+    or to every qualified colleague when omitted). swap: trade your shift for target_logical_shift_id;
+    its holder must consent."""
+
+    type: ShiftRequestType
+    logical_shift_id: UUID = Field(description="The open shift (claim) or your own shift (giveaway, swap).")
+    target_employee_id: UUID | None = None
+    target_logical_shift_id: UUID | None = Field(
+        default=None, description="swap only: the colleague's shift."
+    )
+    note: str | None = Field(default=None, max_length=300)
+
+
+class ShiftRequestView(Model):
+    """Lifecycle: open (waiting for a colleague) -> pending_manager -> approved | rejected. A manager's
+    approval re-validates against current facts and publishes a new version through the normal gate;
+    if the published week moved under the shifts it is stale, if current facts break it it is invalid
+    (see violations). Requests expire when the shift starts."""
+
+    id: UUID
+    type: ShiftRequestType
+    status: ShiftRequestStatus
+    schedule_id: UUID
+    outlet_id: UUID
+    week_start: date
+    base_version_id: UUID
+    shift: Shift
+    target_shift: Shift | None
+    requester_employee_id: UUID
+    target_employee_id: UUID | None
+    note: str | None
+    created_at: AwareDatetime
+    expires_at: AwareDatetime
+    decided_by_user_id: UUID | None
+    decided_at: AwareDatetime | None
+    published_version_id: UUID | None = Field(description="approved: the version that was published.")
+    violations: list[Violation] = Field(
+        default_factory=list, description="invalid: what current facts break."
+    )
+
+
+class ShiftRequestList(Model):
+    items: list[ShiftRequestView]
+
+
+class OpenShift(Model):
+    version_id: UUID
+    shift: Shift
+    reasons: list[ExplanationFact] = Field(description="Why you may take it: every check passed.")
+
+
+class OpenShiftList(Model):
+    """Only open shifts you are eligible for (architecture v4 section 28)."""
+
+    week_start: date
+    items: list[OpenShift]
 
 
 class ReplacementRequest(Model):

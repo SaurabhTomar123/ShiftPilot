@@ -1,0 +1,48 @@
+{
+  "name": "shift_request.approve.stale",
+  "operation_id": "approveShiftRequest",
+  "method": "POST",
+  "path": "/v2/shift-requests/{request_id}/approve",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "request_id": "f7e68d92-d3f1-53bc-b9f7-ebb84f77fe40"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "ShiftRequestView",
+    "body": {
+      "id": "f7e68d92-d3f1-53bc-b9f7-ebb84f77fe40",
+      "type": "open_shift_claim",
+      "status": "stale",
+      "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-19",
+      "base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "shift": {
+        "id": "7e30601c-847b-510f-b439-6774a4cb8ef7",
+        "logical_shift_id": "ab2367df-788e-5d1a-8349-aa4661e11e04",
+        "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+        "employee_id": null,
+        "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+        "start_at": "2026-10-19T10:00:00+05:30",
+        "end_at": "2026-10-19T18:00:00+05:30",
+        "break_start_at": "2026-10-19T15:30:00+05:30",
+        "break_minutes": 30,
+        "locked": false,
+        "lock_reason": null
+      },
+      "target_shift": null,
+      "requester_employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+      "target_employee_id": null,
+      "note": null,
+      "created_at": "2026-10-18T10:00:00+05:30",
+      "expires_at": "2026-10-19T10:00:00+05:30",
+      "decided_by_user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+      "decided_at": "2026-10-18T11:00:00+05:30",
+      "published_version_id": null,
+      "violations": []
+    }
+  }
+}

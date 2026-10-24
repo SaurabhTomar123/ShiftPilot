@@ -624,6 +624,7 @@ def fixtures() -> list[Fixture]:
         p3_fixtures(published)
         + p4_fixtures(published)
         + p8_fixtures()
+        + p9_fixtures(published)
         + proposal_fixtures(d1)
         + import_fixtures()
         + rule_fixtures()
@@ -2004,6 +2005,240 @@ def p8_fixtures() -> list[Fixture]:
                 }
             ),
             path,
+        ),
+    ]
+
+
+def p9_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
+    """Shift requests on the published week: a claim, a swap and their manager outcomes."""
+    ravi, arjun = uid("employee", "ravi"), uid("employee", "arjun")
+    mine = next(sh for sh in published.shifts if sh.employee_id == ravi and not sh.locked)
+    theirs = next(
+        sh
+        for sh in published.shifts
+        if sh.employee_id == arjun and sh.start_at.date() != mine.start_at.date()
+    )
+    template = next(sh for sh in published.shifts if sh.skill_id == SKILL["Grill"] and sh.employee_id != ravi)
+    open_shift = template.model_copy(
+        update={
+            "id": uid("version_shift", "open:grill"),
+            "logical_shift_id": uid("logical_shift", "open:grill"),
+            "employee_id": None,
+        }
+    )
+    checks = [
+        s.ExplanationFact(
+            code="skill", ok=True, message="Qualified for Grill", facts={"skill_id": str(SKILL["Grill"])}
+        ),
+        s.ExplanationFact(code="available", ok=True, message="Available for the shift"),
+        s.ExplanationFact(code="no_conflict", ok=True, message="No overlapping shift and rest rules met"),
+        s.ExplanationFact(
+            code="weekly_hours",
+            ok=True,
+            message="38h this week after the change",
+            facts={"weekly_minutes": 2280, "regular_weekly_minutes": 2880},
+        ),
+        s.ExplanationFact(code="rules", ok=True, message="Within their scheduling rules"),
+        s.ExplanationFact(
+            code="travel", ok=True, message="Works at this outlet", facts={"travel_minutes": 0}
+        ),
+    ]
+
+    def request(n: str, kind: str, status: str, shift: s.Shift, **kw: Any) -> s.ShiftRequestView:
+        base: dict[str, Any] = dict(
+            id=uid("shift_request", n),
+            type=kind,
+            status=status,
+            schedule_id=published.schedule_id,
+            outlet_id=HOME,
+            week_start=WEEK,
+            base_version_id=published.id,
+            shift=shift,
+            target_shift=None,
+            requester_employee_id=ravi,
+            target_employee_id=None,
+            note=None,
+            created_at=stamp("2026-10-18T10:00:00"),
+            expires_at=shift.start_at,
+            decided_by_user_id=None,
+            decided_at=None,
+            published_version_id=None,
+        )
+        return s.ShiftRequestView(**{**base, **kw})
+
+    claim = request("claim", "open_shift_claim", "pending_manager", open_shift)
+    swap_open = request(
+        "swap",
+        "swap",
+        "open",
+        mine,
+        target_shift=theirs,
+        target_employee_id=arjun,
+        note="Exam on Thursday",
+        expires_at=min(mine.start_at, theirs.start_at),
+    )
+    swap_pending = swap_open.model_copy(update={"status": "pending_manager"})
+    decided = {
+        "decided_by_user_id": uid("user", "manager_indiranagar"),
+        "decided_at": stamp("2026-10-18T11:00:00"),
+    }
+    approved = claim.model_copy(
+        update={
+            "status": "approved",
+            "published_version_id": uid("version", "indiranagar:request:claim"),
+            **decided,
+        }
+    )
+    rest = s.Violation(
+        code="insufficient_rest",
+        severity="hard",
+        message="Ravi Kumar would have 8h rest between shifts; 10h required.",
+        employee_id=ravi,
+        logical_shift_ids=[mine.logical_shift_id, theirs.logical_shift_id],
+        facts={"rest_minutes": 480, "required_rest_minutes": 600},
+    )
+    manager, staff = "manager_indiranagar", "staff_ravi"
+    by_id = {"path_params": {"request_id": str(claim.id)}}
+    swap_path = {"path_params": {"request_id": str(swap_open.id)}}
+    return [
+        Fixture(
+            "me.open_shifts",
+            "getMyOpenShifts",
+            "GET",
+            "/v2/me/open-shifts",
+            staff,
+            200,
+            s.OpenShiftList(
+                week_start=WEEK,
+                items=[s.OpenShift(version_id=published.id, shift=open_shift, reasons=checks)],
+            ),
+            {"query": {"week_start": WEEK.isoformat()}},
+        ),
+        Fixture(
+            "shift_request.create.claim",
+            "createShiftRequest",
+            "POST",
+            "/v2/me/shift-requests",
+            staff,
+            201,
+            claim,
+            {"body": {"type": "open_shift_claim", "logical_shift_id": str(open_shift.logical_shift_id)}},
+        ),
+        Fixture(
+            "shift_request.create.swap",
+            "createShiftRequest",
+            "POST",
+            "/v2/me/shift-requests",
+            staff,
+            201,
+            swap_open,
+            {
+                "body": {
+                    "type": "swap",
+                    "logical_shift_id": str(mine.logical_shift_id),
+                    "target_logical_shift_id": str(theirs.logical_shift_id),
+                    "note": "Exam on Thursday",
+                }
+            },
+        ),
+        Fixture(
+            "shift_request.create.invalid",
+            "createShiftRequest",
+            "POST",
+            "/v2/me/shift-requests",
+            staff,
+            422,
+            error(
+                "validation_failed",
+                f"This swap breaks a rule: {rest.message}",
+                violations=[rest.model_dump(mode="json")],
+            ),
+            {
+                "body": {
+                    "type": "swap",
+                    "logical_shift_id": str(mine.logical_shift_id),
+                    "target_logical_shift_id": str(theirs.logical_shift_id),
+                }
+            },
+        ),
+        Fixture(
+            "me.shift_requests",
+            "getMyShiftRequests",
+            "GET",
+            "/v2/me/shift-requests",
+            staff,
+            200,
+            s.ShiftRequestList(items=[swap_open, claim]),
+        ),
+        Fixture(
+            "shift_request.accept",
+            "acceptShiftRequest",
+            "POST",
+            "/v2/shift-requests/{request_id}/accept",
+            "staff_ravi",
+            200,
+            swap_pending,
+            swap_path,
+        ),
+        Fixture(
+            "shift_request.cancel",
+            "cancelShiftRequest",
+            "POST",
+            "/v2/shift-requests/{request_id}/cancel",
+            staff,
+            200,
+            swap_open.model_copy(update={"status": "cancelled"}),
+            swap_path,
+        ),
+        Fixture(
+            "shift_requests.list",
+            "listShiftRequests",
+            "GET",
+            "/v2/outlets/{outlet_id}/shift-requests",
+            manager,
+            200,
+            s.ShiftRequestList(items=[swap_pending, claim]),
+            {"path_params": {"outlet_id": str(HOME)}, "query": {"status": "pending_manager"}},
+        ),
+        Fixture(
+            "shift_request.approve",
+            "approveShiftRequest",
+            "POST",
+            "/v2/shift-requests/{request_id}/approve",
+            manager,
+            200,
+            approved,
+            by_id,
+        ),
+        Fixture(
+            "shift_request.approve.stale",
+            "approveShiftRequest",
+            "POST",
+            "/v2/shift-requests/{request_id}/approve",
+            manager,
+            200,
+            claim.model_copy(update={"status": "stale", **decided}),
+            by_id,
+        ),
+        Fixture(
+            "shift_request.approve.invalid",
+            "approveShiftRequest",
+            "POST",
+            "/v2/shift-requests/{request_id}/approve",
+            manager,
+            200,
+            swap_pending.model_copy(update={"status": "invalid", "violations": [rest], **decided}),
+            swap_path,
+        ),
+        Fixture(
+            "shift_request.reject",
+            "rejectShiftRequest",
+            "POST",
+            "/v2/shift-requests/{request_id}/reject",
+            manager,
+            200,
+            claim.model_copy(update={"status": "rejected", **decided}),
+            by_id,
         ),
     ]
 

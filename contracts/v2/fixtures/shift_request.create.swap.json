@@ -1,0 +1,63 @@
+{
+  "name": "shift_request.create.swap",
+  "operation_id": "createShiftRequest",
+  "method": "POST",
+  "path": "/v2/me/shift-requests",
+  "persona": "staff_ravi",
+  "request": {
+    "body": {
+      "type": "swap",
+      "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+      "target_logical_shift_id": "c5d11735-6be2-5b94-8b12-4ae842bbdd74",
+      "note": "Exam on Thursday"
+    }
+  },
+  "response": {
+    "status": 201,
+    "schema": "ShiftRequestView",
+    "body": {
+      "id": "c87c4515-6bf1-5448-850b-7b67ad3d048a",
+      "type": "swap",
+      "status": "open",
+      "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-19",
+      "base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "shift": {
+        "id": "bc3a4357-615c-5a17-a72c-c058500ef67c",
+        "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+        "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+        "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+        "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+        "start_at": "2026-10-21T10:00:00+05:30",
+        "end_at": "2026-10-21T18:00:00+05:30",
+        "break_start_at": "2026-10-21T15:30:00+05:30",
+        "break_minutes": 30,
+        "locked": false,
+        "lock_reason": null
+      },
+      "target_shift": {
+        "id": "9e06b332-b7d4-555a-aed4-316ed9a08832",
+        "logical_shift_id": "c5d11735-6be2-5b94-8b12-4ae842bbdd74",
+        "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+        "employee_id": "88deef49-a989-573d-ad65-603223d0c3fc",
+        "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+        "start_at": "2026-10-19T10:00:00+05:30",
+        "end_at": "2026-10-19T18:00:00+05:30",
+        "break_start_at": "2026-10-19T15:30:00+05:30",
+        "break_minutes": 30,
+        "locked": false,
+        "lock_reason": null
+      },
+      "requester_employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+      "target_employee_id": "88deef49-a989-573d-ad65-603223d0c3fc",
+      "note": "Exam on Thursday",
+      "created_at": "2026-10-18T10:00:00+05:30",
+      "expires_at": "2026-10-19T10:00:00+05:30",
+      "decided_by_user_id": null,
+      "decided_at": null,
+      "published_version_id": null,
+      "violations": []
+    }
+  }
+}

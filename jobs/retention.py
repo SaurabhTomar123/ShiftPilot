@@ -17,6 +17,7 @@ Every derived artifact has an explicit lifetime:
     staged or invalid CSV imports    rows deleted 24 hours after upload; the job row 30 days later
     open what-if scenarios           expired 7 days after creation (v4 section 34); their runs follow
                                      the run rules above
+    open shift requests              expired when the shift starts (v4 section 28)
     delivered outbox events          7 days
     public demo sandboxes            the whole sandbox org when it expires (2 hours, B6.2)
 
@@ -140,6 +141,11 @@ STEPS: list[tuple[str, str]] = [
         "scenarios_expired",
         """UPDATE planning_scenarios SET status = 'expired'
             WHERE status = 'open' AND expires_at <= :now""",
+    ),
+    (
+        "shift_requests_expired",
+        """UPDATE shift_requests SET status = 'expired'
+            WHERE status IN ('open', 'pending_manager') AND expires_at <= :now""",
     ),
     (
         "outbox_deleted",

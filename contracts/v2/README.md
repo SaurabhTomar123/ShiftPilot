@@ -23,6 +23,29 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.23.0-p4 (live): employee shift requests (architecture v4 §28)
+
+This change is additive. Migration `0021` adds `shift_requests`; schedule versions gain `source: "request"`.
+
+- **Employees:**
+  - `GET /v2/me/open-shifts?week_start=` lists only the open shifts in the published week that you are eligible for, with the checks that passed.
+  - `POST /v2/me/shift-requests` takes `{type, logical_shift_id, target_employee_id?, target_logical_shift_id?, note?}`.
+  - `GET /v2/me/shift-requests` lists requests you made or that name you, plus open giveaways anyone may take.
+  - `POST /v2/shift-requests/{id}/accept` takes a giveaway or consents to a swap. `POST /v2/shift-requests/{id}/cancel` withdraws your own request.
+- **Request types:**
+  - `open_shift_claim`: checked at once, then `pending_manager`.
+  - `giveaway`: `open` until a qualified colleague (or the named one) accepts, then `pending_manager`.
+  - `swap`: both reassignments are checked, then it stays `open` until the other holder consents.
+  - A change that would break a rule is a `422` with `details.violations`.
+- **Managers:**
+  - `GET /v2/outlets/{id}/shift-requests?status=`.
+  - `POST /v2/shift-requests/{id}/approve` applies the change to a new draft copied from the current published version, re-validates it against current facts and publishes it through the normal gate.
+  - The returned `status` is the outcome: `approved` (with `published_version_id`), `stale` (the published week changed these shifts), `invalid` (with `violations`) or `expired`.
+  - `POST …/reject`.
+- **Limits:** nothing an employee does publishes by itself. A shift can have only one active request (`409`). Requests expire when the shift starts, and only shifts at your own outlet can be requested.
+
+Fixtures: `me.open_shifts`, `shift_request.create.claim`, `shift_request.create.swap`, `shift_request.create.invalid`, `me.shift_requests`, `shift_request.accept`, `shift_request.cancel`, `shift_requests.list`, `shift_request.approve`, `shift_request.approve.stale`, `shift_request.approve.invalid`, `shift_request.reject`.
+
 ## What changed in 3.22.0-p4 (live): demand forecasts and staffing proposals (architecture v4 §21, §22, §37)
 
 This change is additive. Migration `0020` adds `forecast_runs`, `demand_forecasts` and `staffing_requirement_proposals`. A separate worker processes forecasts (`python -m jobs.forecast_worker`, compose service `forecast-worker`), so a forecast outage never stops scheduling.
