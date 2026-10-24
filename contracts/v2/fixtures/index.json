@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.21.0-p4",
+  "contract_version": "3.22.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -270,6 +270,48 @@
       "operation_id": "repairSchedule",
       "status": 409,
       "schema": "ErrorResponse"
+    },
+    {
+      "name": "forecast.request",
+      "operation_id": "requestForecast",
+      "status": 202,
+      "schema": "ForecastRun"
+    },
+    {
+      "name": "forecast.run.succeeded",
+      "operation_id": "getForecastRun",
+      "status": 200,
+      "schema": "ForecastRun"
+    },
+    {
+      "name": "forecast.run.not_enough_history",
+      "operation_id": "getForecastRun",
+      "status": 200,
+      "schema": "ForecastRun"
+    },
+    {
+      "name": "staffing_proposal.get",
+      "operation_id": "getStaffingProposal",
+      "status": 200,
+      "schema": "StaffingProposal"
+    },
+    {
+      "name": "staffing_proposal.accept",
+      "operation_id": "acceptStaffingProposal",
+      "status": 200,
+      "schema": "StaffingRequirements"
+    },
+    {
+      "name": "staffing_proposal.accept.stale",
+      "operation_id": "acceptStaffingProposal",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "staffing_proposal.reject",
+      "operation_id": "rejectStaffingProposal",
+      "status": 200,
+      "schema": "StaffingProposal"
     },
     {
       "name": "proposal.create",

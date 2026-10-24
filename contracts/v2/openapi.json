@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.21.0-p4"
+    "version": "3.22.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -6010,6 +6010,499 @@
           }
         }
       }
+    },
+    "/v2/outlets/{outlet_id}/forecast-runs": {
+      "post": {
+        "summary": "Request Forecast",
+        "description": "Forecast a week's orders from past weeks, backtest it, and (if it passes) propose staffing.\nAdvisory only: nothing changes until a manager accepts the proposal.",
+        "operationId": "requestForecast",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outlet_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Outlet Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForecastRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForecastRun"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/forecast-runs/{run_id}": {
+      "get": {
+        "summary": "Get Forecast Run",
+        "operationId": "getForecastRun",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForecastRun"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/staffing-requirement-proposals/{proposal_id}": {
+      "get": {
+        "summary": "Get Staffing Proposal",
+        "operationId": "getStaffingProposal",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Proposal Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffingProposal"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/staffing-requirement-proposals/{proposal_id}/accept": {
+      "post": {
+        "summary": "Accept Staffing Proposal",
+        "description": "Set the week's staffing from the proposal. Manual overrides survive. 409 stale_version when\nstaffing changed after the forecast; 409 conflict when the proposal was already decided.",
+        "operationId": "acceptStaffingProposal",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Proposal Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 80,
+              "description": "Unique per logical request; replays return the original result, a different body with the same key is 409.",
+              "title": "Idempotency-Key"
+            },
+            "description": "Unique per logical request; replays return the original result, a different body with the same key is 409."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffingRequirements"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
+    },
+    "/v2/staffing-requirement-proposals/{proposal_id}/reject": {
+      "post": {
+        "summary": "Reject Staffing Proposal",
+        "operationId": "rejectStaffingProposal",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Proposal Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffingProposal"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -8105,6 +8598,258 @@
         "title": "FairnessComponents",
         "description": "Burden points by component (architecture v4 section 12). Last-minute and transfer burden are not\npart of policy 1."
       },
+      "ForecastMetrics": {
+        "properties": {
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "weeks_evaluated": {
+            "items": {
+              "type": "string",
+              "format": "date"
+            },
+            "type": "array",
+            "title": "Weeks Evaluated"
+          },
+          "intervals": {
+            "type": "integer",
+            "title": "Intervals"
+          },
+          "wape": {
+            "type": "number",
+            "title": "Wape",
+            "description": "Weighted absolute percentage error, 0-1."
+          },
+          "mae": {
+            "type": "number",
+            "title": "Mae",
+            "description": "Mean absolute error in orders per interval."
+          },
+          "bias": {
+            "type": "number",
+            "title": "Bias",
+            "description": "Positive = forecasts too high."
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "thresholds": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Thresholds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "model_version",
+          "weeks_evaluated",
+          "intervals",
+          "wape",
+          "mae",
+          "bias",
+          "passed",
+          "thresholds"
+        ],
+        "title": "ForecastMetrics",
+        "description": "Backtest: each of the last weeks forecast from the weeks before it, compared with what happened."
+      },
+      "ForecastPoint": {
+        "properties": {
+          "interval_start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Interval Start"
+          },
+          "predicted": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Predicted",
+            "description": "Orders in this 30-minute interval."
+          },
+          "lower": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Lower"
+          },
+          "upper": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Upper"
+          },
+          "samples": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Samples",
+            "description": "Past weeks behind the prediction."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "interval_start",
+          "predicted",
+          "lower",
+          "upper",
+          "samples"
+        ],
+        "title": "ForecastPoint"
+      },
+      "ForecastRequest": {
+        "properties": {
+          "week_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Week Start",
+            "description": "The Monday to forecast; history before it is used."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "week_start"
+        ],
+        "title": "ForecastRequest"
+      },
+      "ForecastRun": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "outlet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Outlet Id"
+          },
+          "week_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Week Start"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "job_state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "succeeded",
+              "failed"
+            ],
+            "title": "Job State"
+          },
+          "quality": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "passed",
+                  "failed"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality",
+            "description": "failed: the backtest missed the gate; the forecast is shown but no proposal is made."
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ForecastMetrics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/ForecastPoint"
+            },
+            "type": "array",
+            "title": "Points"
+          },
+          "proposal_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposal Id"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "queued_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Queued At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "poll_after_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Poll After Ms"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "outlet_id",
+          "week_start",
+          "model_version",
+          "job_state",
+          "quality",
+          "metrics",
+          "points",
+          "proposal_id",
+          "error",
+          "queued_at",
+          "finished_at",
+          "poll_after_ms"
+        ],
+        "title": "ForecastRun",
+        "description": "Advisory demand forecast (architecture v4 sections 21, 37). It never changes staffing by itself:\nwhen the backtest passes it produces a proposal a manager accepts or rejects."
+      },
       "FreezeSpec": {
         "properties": {
           "shift_ids": {
@@ -8429,6 +9174,43 @@
           "shortages"
         ],
         "title": "Infeasibility"
+      },
+      "LabourExplanation": {
+        "properties": {
+          "forecast_orders": {
+            "type": "integer",
+            "title": "Forecast Orders"
+          },
+          "orders_per_hour": {
+            "type": "integer",
+            "title": "Orders Per Hour"
+          },
+          "band_min_orders": {
+            "type": "integer",
+            "title": "Band Min Orders"
+          },
+          "band_max_orders": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Band Max Orders"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "forecast_orders",
+          "orders_per_hour",
+          "band_min_orders",
+          "band_max_orders"
+        ],
+        "title": "LabourExplanation",
+        "description": "Why the labour model asks for this staffing: forecast orders -> orders per hour -> demand band."
       },
       "Me": {
         "properties": {
@@ -9497,6 +10279,41 @@
         ],
         "title": "Proposal"
       },
+      "ProposalChanges": {
+        "properties": {
+          "added": {
+            "type": "integer",
+            "title": "Added"
+          },
+          "changed": {
+            "type": "integer",
+            "title": "Changed"
+          },
+          "removed": {
+            "type": "integer",
+            "title": "Removed"
+          },
+          "unchanged": {
+            "type": "integer",
+            "title": "Unchanged"
+          },
+          "manual_kept": {
+            "type": "integer",
+            "title": "Manual Kept",
+            "description": "Manual overrides: never replaced by a forecast."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "added",
+          "changed",
+          "removed",
+          "unchanged",
+          "manual_kept"
+        ],
+        "title": "ProposalChanges"
+      },
       "ProposalDecision": {
         "properties": {
           "outcome": {
@@ -9628,6 +10445,65 @@
         ],
         "title": "ProposedCall",
         "description": "The existing API call that carries out the command, made by the UI after the person confirms."
+      },
+      "ProposedRequirement": {
+        "properties": {
+          "skill_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Skill Id"
+          },
+          "interval_start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Interval Start"
+          },
+          "interval_end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Interval End"
+          },
+          "minimum": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Minimum"
+          },
+          "preferred": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Preferred"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "template",
+              "forecast"
+            ],
+            "title": "Source"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LabourExplanation"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "forecast rows only."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "skill_id",
+          "interval_start",
+          "interval_end",
+          "minimum",
+          "preferred",
+          "source"
+        ],
+        "title": "ProposedRequirement"
       },
       "PublishRequest": {
         "properties": {
@@ -11894,6 +12770,100 @@
           "source"
         ],
         "title": "StaffingInterval"
+      },
+      "StaffingProposal": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "outlet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Outlet Id"
+          },
+          "week_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Week Start"
+          },
+          "forecast_run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Forecast Run Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "rejected",
+              "stale"
+            ],
+            "title": "Status"
+          },
+          "base_demand_revision": {
+            "type": "integer",
+            "title": "Base Demand Revision"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "decided_by_user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided By User Id"
+          },
+          "decided_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided At"
+          },
+          "changes": {
+            "$ref": "#/components/schemas/ProposalChanges",
+            "description": "Against the week's current requirements."
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/ProposedRequirement"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "outlet_id",
+          "week_start",
+          "forecast_run_id",
+          "status",
+          "base_demand_revision",
+          "created_at",
+          "decided_by_user_id",
+          "decided_at",
+          "changes",
+          "rows"
+        ],
+        "title": "StaffingProposal"
       },
       "StaffingRequirements": {
         "properties": {

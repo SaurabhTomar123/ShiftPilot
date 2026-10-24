@@ -23,6 +23,25 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.22.0-p4 (live): demand forecasts and staffing proposals (architecture v4 §21, §22, §37)
+
+This change is additive. Migration `0020` adds `forecast_runs`, `demand_forecasts` and `staffing_requirement_proposals`. A separate worker processes forecasts (`python -m jobs.forecast_worker`, compose service `forecast-worker`), so a forecast outage never stops scheduling.
+
+- **`POST /v2/outlets/{outlet_id}/forecast-runs`:** Idempotency-Key, body `{week_start}`. Returns `202 ForecastRun`. Poll `GET /v2/forecast-runs/{run_id}` until `job_state` is `succeeded` or `failed`.
+- **Model `weekday-median-v1`:** each 30-minute interval is the median of the same weekday and time over the last 8 weeks of order history (at least 2 samples). The `[lower, upper]` range is the min and max of those samples.
+- **Backtest gate:** before any proposal, each of the last 2 weeks is forecast from the weeks before it.
+  - `metrics` reports `wape`, `mae` and `bias`.
+  - `quality: "passed"` requires WAPE ≤ 0.35 and |bias| ≤ 0.15. A failed forecast is kept for inspection but produces no proposal.
+  - Too little history fails the run with `error.details.reason = "NOT_ENOUGH_HISTORY"`.
+- **The labour model is the outlet's demand bands.** `GET /v2/staffing-requirement-proposals/{id}` lists the proposed week (`source` `template` or `forecast`). Forecast rows carry an `explanation`, e.g. "6 orders/30 min → 12/h → band 0–15 → 1/1". `changes` compares the proposal with the current requirements.
+- **Advisory only:** a forecast changes nothing by itself.
+  - `POST …/accept` (Idempotency-Key) writes the proposal as the week's requirements and returns `StaffingRequirements` with a new `demand_revision`.
+  - Manual overrides and other producers' rows always survive.
+  - `409 stale_version` when staffing changed after the forecast; `409 conflict` when the proposal was already decided.
+  - `POST …/reject` declines it.
+
+Fixtures: `forecast.request`, `forecast.run.succeeded`, `forecast.run.not_enough_history`, `staffing_proposal.get`, `staffing_proposal.accept`, `staffing_proposal.accept.stale`, `staffing_proposal.reject`. All are computed from the seed's history by the worker's own code.
+
 ## What changed in 3.21.0-p4 (live): conflict-set diagnosis (architecture v4 §17)
 
 This change is additive.

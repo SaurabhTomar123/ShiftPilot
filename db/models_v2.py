@@ -847,3 +847,93 @@ class ScenarioEvent(Base):
     type: Mapped[str] = mapped_column(String(30))
     payload: Mapped[dict[str, Any]] = mapped_column(JSONB)
     created_at: Mapped[datetime] = created_at()
+
+
+# ---------------------------------------------------------------- forecasting (v4 sections 21, 22, 37)
+
+
+class ForecastRun(Base):
+    """A durable forecast job: its own table and worker, the same leases and attempt fencing."""
+
+    __tablename__ = "forecast_runs"
+    __table_args__ = (
+        ref("outlet_id", "outlets"),
+        ref("requested_by_user_id", "users"),
+        UniqueConstraint("org_id", "id"),
+        UniqueConstraint("org_id", "idempotency_key"),
+        one_of("job_state", ("queued", "running", "succeeded", "failed"), "forecast_job_state"),
+        CheckConstraint("quality IS NULL OR quality IN ('passed', 'failed')", name="forecast_quality"),
+        CheckConstraint("attempts >= 0", name="forecast_attempts"),
+        Index("ix_forecast_runs_claim", "queued_at", postgresql_where=text("job_state = 'queued'")),
+        Index(
+            "ux_forecast_runs_active",
+            "org_id",
+            "outlet_id",
+            "week_start",
+            unique=True,
+            postgresql_where=text("job_state IN ('queued', 'running')"),
+        ),
+    )
+    id: Mapped[uuid.UUID] = pk()
+    org_id: Mapped[uuid.UUID] = org()
+    outlet_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    week_start: Mapped[date] = mapped_column(Date)
+    model_version: Mapped[str] = mapped_column(String(40))
+    job_state: Mapped[str] = mapped_column(String(20), default="queued", server_default="queued")
+    attempts: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
+    lease_owner: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    idempotency_key: Mapped[str] = mapped_column(String(80))
+    request_hash: Mapped[str] = mapped_column(String(80))
+    requested_by_user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    input_hash: Mapped[str] = mapped_column(String(80))
+    input: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    metrics: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    quality: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    queued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class DemandForecast(Base):
+    __tablename__ = "demand_forecasts"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["org_id", "run_id"], ["forecast_runs.org_id", "forecast_runs.id"], ondelete="CASCADE"
+        ),
+        CheckConstraint("lower <= predicted AND predicted <= upper AND lower >= 0", name="forecast_interval"),
+    )
+    org_id: Mapped[uuid.UUID] = org()
+    run_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    interval_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), primary_key=True)
+    predicted: Mapped[int] = mapped_column(Integer)
+    lower: Mapped[int] = mapped_column(Integer)
+    upper: Mapped[int] = mapped_column(Integer)
+    samples: Mapped[int] = mapped_column(SmallInteger)
+
+
+class StaffingRequirementProposal(Base):
+    """What the labour model would set from a forecast. Only acceptance writes staffing_requirements."""
+
+    __tablename__ = "staffing_requirement_proposals"
+    __table_args__ = (
+        ref("outlet_id", "outlets"),
+        ref("forecast_run_id", "forecast_runs"),
+        ref("decided_by_user_id", "users"),
+        UniqueConstraint("org_id", "id"),
+        UniqueConstraint("forecast_run_id"),
+        one_of("status", ("pending", "accepted", "rejected", "stale"), "staffing_proposal_status"),
+        CheckConstraint("(status = 'pending') = (decided_at IS NULL)", name="staffing_proposal_decided"),
+    )
+    id: Mapped[uuid.UUID] = pk()
+    org_id: Mapped[uuid.UUID] = org()
+    outlet_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    week_start: Mapped[date] = mapped_column(Date)
+    forecast_run_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    status: Mapped[str] = mapped_column(String(20), default="pending", server_default="pending")
+    base_demand_revision: Mapped[int] = mapped_column(Integer)
+    rows: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = created_at()
+    decided_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

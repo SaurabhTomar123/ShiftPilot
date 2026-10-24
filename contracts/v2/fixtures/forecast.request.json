@@ -1,0 +1,37 @@
+{
+  "name": "forecast.request",
+  "operation_id": "requestForecast",
+  "method": "POST",
+  "path": "/v2/outlets/{outlet_id}/forecast-runs",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5"
+    },
+    "headers": {
+      "Idempotency-Key": "forecast-2b7c"
+    },
+    "body": {
+      "week_start": "2026-10-26"
+    }
+  },
+  "response": {
+    "status": 202,
+    "schema": "ForecastRun",
+    "body": {
+      "id": "b11e6c99-fbf6-581c-85f3-b9177f7bb4ab",
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-26",
+      "model_version": "weekday-median-v1",
+      "job_state": "queued",
+      "quality": null,
+      "metrics": null,
+      "points": [],
+      "proposal_id": null,
+      "error": null,
+      "queued_at": "2026-10-23T09:00:00+05:30",
+      "finished_at": null,
+      "poll_after_ms": 1000
+    }
+  }
+}

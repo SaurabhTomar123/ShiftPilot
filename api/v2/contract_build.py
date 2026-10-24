@@ -27,8 +27,10 @@ from api.v2 import schemas as s
 from api.v2.proposals import STALE_PUBLISHED
 from api.v2.rosters import version_etag
 from api.v2.routes import router
+from jobs import forecast_worker
 from scheduling import diff as sched_diff
 from scheduling import edits as sched_edits
+from scheduling import forecast as sched_forecast
 from scheduling import metrics as sched_metrics
 from scheduling import model
 from scheduling import recommend as sched_recommend
@@ -36,6 +38,7 @@ from scheduling import scenario as sched_scenario
 from scheduling import solver as sched_solver
 from scheduling import trace as sched_trace
 from scheduling import validator as sched_validator
+from seed import v2 as seed_v2
 from seed import world_snapshot
 from seed.world import (
     CLOSE,
@@ -620,6 +623,7 @@ def fixtures() -> list[Fixture]:
     return (
         p3_fixtures(published)
         + p4_fixtures(published)
+        + p8_fixtures()
         + proposal_fixtures(d1)
         + import_fixtures()
         + rule_fixtures()
@@ -1788,6 +1792,220 @@ def p3_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
 
 
 # ---------------------------------------------------------------- P4 (contract 2.4): absences and repair
+
+
+def p8_fixtures() -> list[Fixture]:
+    """Forecast next week from the seeded order history exactly as the worker would (compute is pure)."""
+    rows = seed_v2.org_rows(seed_v2.SPICE).tables
+    home_rows = [r for r in rows["demand_inputs"] if r["outlet_id"] == HOME]
+    templates = [r for r in rows["staffing_templates"] if r["outlet_id"] == HOME]
+    doc: dict[str, Any] = {
+        "tz": "Asia/Kolkata",
+        "week_start": NEXT_WEEK.isoformat(),
+        "history": sorted([r["interval_start"].isoformat(), r["orders"]] for r in home_rows),
+        "blocks": [
+            [
+                t["weekday"],
+                t["start_minute"],
+                t["end_minute"],
+                str(t["skill_id"]),
+                t["minimum_required"],
+                t["preferred_required"],
+            ]
+            for t in templates
+        ],
+        "bands": [
+            [str(b["skill_id"]), b["min_orders"], b["max_orders"], b["staff_minimum"], b["staff_preferred"]]
+            for b in rows["demand_bands"]
+        ],
+        "manual": [],
+        "base_demand_revision": 1,
+    }
+    result = forecast_worker.compute(doc)
+    run_id = uid("forecast_run", f"indiranagar:{NEXT_WEEK}")
+    proposal_id = uid("staffing_proposal", f"indiranagar:{NEXT_WEEK}")
+    common: dict[str, Any] = dict(
+        id=run_id,
+        outlet_id=HOME,
+        week_start=NEXT_WEEK,
+        model_version=sched_forecast.MODEL_VERSION,
+        queued_at=stamp("2026-10-23T09:00:00"),
+    )
+    queued = s.ForecastRun(
+        job_state="queued",
+        quality=None,
+        metrics=None,
+        points=[],
+        proposal_id=None,
+        error=None,
+        finished_at=None,
+        poll_after_ms=1000,
+        **common,
+    )
+    done = s.ForecastRun(
+        job_state="succeeded",
+        quality="passed" if result["metrics"]["passed"] else "failed",
+        metrics=s.ForecastMetrics.model_validate(result["metrics"]),
+        points=[
+            s.ForecastPoint(
+                interval_start=pt.interval_start,
+                predicted=pt.predicted,
+                lower=pt.lower,
+                upper=pt.upper,
+                samples=pt.samples,
+            )
+            for pt in result["points"]
+        ],
+        proposal_id=proposal_id if result["rows"] is not None else None,
+        error=None,
+        finished_at=stamp("2026-10-23T09:00:01.200"),
+        poll_after_ms=None,
+        **common,
+    )
+    early = NEXT_WEEK - timedelta(weeks=6)
+    failed = s.ForecastRun(
+        job_state="failed",
+        quality=None,
+        metrics=None,
+        points=[],
+        proposal_id=None,
+        error=s.ErrorBody(
+            code="validation_failed",
+            message=f"Needs at least {sched_forecast.MIN_WEEKS + 1} weeks of order history before this week "
+            "to forecast and test it.",
+            retryable=False,
+            details={"reason": "NOT_ENOUGH_HISTORY"},
+        ),
+        finished_at=stamp("2026-10-23T09:05:00.300"),
+        poll_after_ms=None,
+        **{**common, "id": uid("forecast_run", f"indiranagar:{early}"), "week_start": early},
+    )
+    proposed = [s.ProposedRequirement.model_validate(r) for r in result["rows"] or []]
+    forecast_rows = [r for r in proposed if r.source == "forecast"]
+    proposal = s.StaffingProposal(
+        id=proposal_id,
+        outlet_id=HOME,
+        week_start=NEXT_WEEK,
+        forecast_run_id=run_id,
+        status="pending",
+        base_demand_revision=1,
+        created_at=stamp("2026-10-23T09:00:01.200"),
+        decided_by_user_id=None,
+        decided_at=None,
+        changes=s.ProposalChanges(
+            added=0,
+            changed=len(forecast_rows),
+            removed=0,
+            unchanged=len(proposed) - len(forecast_rows),
+            manual_kept=0,
+        ),
+        rows=proposed,
+    )
+    accepted = s.StaffingRequirements(
+        outlet_id=HOME,
+        week_start=NEXT_WEEK,
+        interval_minutes=30,
+        demand_revision=2,
+        intervals=[
+            s.StaffingInterval(
+                skill_id=r.skill_id,
+                interval_start=r.interval_start,
+                interval_end=r.interval_end,
+                minimum_required=r.minimum,
+                preferred_required=r.preferred,
+                source=r.source,
+            )
+            for r in proposed
+        ],
+    )
+    manager = "manager_indiranagar"
+    path = {"path_params": {"proposal_id": str(proposal_id)}}
+    return [
+        Fixture(
+            "forecast.request",
+            "requestForecast",
+            "POST",
+            "/v2/outlets/{outlet_id}/forecast-runs",
+            manager,
+            202,
+            queued,
+            {
+                "path_params": {"outlet_id": str(HOME)},
+                "headers": {"Idempotency-Key": "forecast-2b7c"},
+                "body": {"week_start": NEXT_WEEK.isoformat()},
+            },
+        ),
+        Fixture(
+            "forecast.run.succeeded",
+            "getForecastRun",
+            "GET",
+            "/v2/forecast-runs/{run_id}",
+            manager,
+            200,
+            done,
+            {"path_params": {"run_id": str(run_id)}},
+        ),
+        Fixture(
+            "forecast.run.not_enough_history",
+            "getForecastRun",
+            "GET",
+            "/v2/forecast-runs/{run_id}",
+            manager,
+            200,
+            failed,
+            {"path_params": {"run_id": str(failed.id)}},
+        ),
+        Fixture(
+            "staffing_proposal.get",
+            "getStaffingProposal",
+            "GET",
+            "/v2/staffing-requirement-proposals/{proposal_id}",
+            manager,
+            200,
+            proposal,
+            path,
+        ),
+        Fixture(
+            "staffing_proposal.accept",
+            "acceptStaffingProposal",
+            "POST",
+            "/v2/staffing-requirement-proposals/{proposal_id}/accept",
+            manager,
+            200,
+            accepted,
+            {**path, "headers": {"Idempotency-Key": "accept-staffing-5d1e"}},
+        ),
+        Fixture(
+            "staffing_proposal.accept.stale",
+            "acceptStaffingProposal",
+            "POST",
+            "/v2/staffing-requirement-proposals/{proposal_id}/accept",
+            manager,
+            409,
+            error(
+                "stale_version",
+                "Staffing needs changed after this forecast. Run the forecast again.",
+                current_demand_revision=2,
+            ),
+            {**path, "headers": {"Idempotency-Key": "accept-staffing-9f02"}},
+        ),
+        Fixture(
+            "staffing_proposal.reject",
+            "rejectStaffingProposal",
+            "POST",
+            "/v2/staffing-requirement-proposals/{proposal_id}/reject",
+            manager,
+            200,
+            proposal.model_copy(
+                update={
+                    "status": "rejected",
+                    "decided_by_user_id": uid("user", "manager_indiranagar"),
+                    "decided_at": stamp("2026-10-23T09:10:00"),
+                }
+            ),
+            path,
+        ),
+    ]
 
 
 def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:

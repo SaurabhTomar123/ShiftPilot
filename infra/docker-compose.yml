@@ -65,6 +65,16 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped  # an interrupted solve is reclaimed when its lease expires
 
+  forecast-worker:  # separate from the optimizer: a forecast outage never stops scheduling (v4 section 21)
+    profiles: ["app"]
+    build: ..
+    command: ["python", "-m", "jobs.forecast_worker"]
+    environment: *db
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
   relay:
     profiles: ["app"]
     build: ..

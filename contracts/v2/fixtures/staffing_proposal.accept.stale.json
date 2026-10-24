@@ -1,0 +1,30 @@
+{
+  "name": "staffing_proposal.accept.stale",
+  "operation_id": "acceptStaffingProposal",
+  "method": "POST",
+  "path": "/v2/staffing-requirement-proposals/{proposal_id}/accept",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "proposal_id": "de09b411-6a0c-55eb-9d4a-f49495c125d9"
+    },
+    "headers": {
+      "Idempotency-Key": "accept-staffing-9f02"
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "stale_version",
+        "message": "Staffing needs changed after this forecast. Run the forecast again.",
+        "retryable": false,
+        "details": {
+          "current_demand_revision": 2
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

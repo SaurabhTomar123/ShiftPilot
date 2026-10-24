@@ -20,6 +20,7 @@ from api.v2 import (
     absences,
     candidates,
     drafts,
+    forecasts,
     generation,
     imports,
     language,
@@ -934,3 +935,65 @@ def convert_scenario(
 )
 def discard_scenario(caller: v2auth.CallerDep, scenario_id: UUID) -> s.Scenario:
     return scenarios.discard(caller, scenario_id)
+
+
+# ---------------------------------------------------------------- forecasting (v4 sections 21, 22, 37)
+
+
+@router.post(
+    "/outlets/{outlet_id}/forecast-runs",
+    operation_id="requestForecast",
+    response_model=s.ForecastRun,
+    status_code=status.HTTP_202_ACCEPTED,
+    responses=_errors(403, 404, 409, 422),
+)
+def request_forecast(
+    caller: v2auth.CallerDep, outlet_id: UUID, idempotency_key: IdempotencyKey, body: s.ForecastRequest
+) -> s.ForecastRun:
+    """Forecast a week's orders from past weeks, backtest it, and (if it passes) propose staffing.
+    Advisory only: nothing changes until a manager accepts the proposal."""
+    return forecasts.request(caller, outlet_id, idempotency_key, body)
+
+
+@router.get(
+    "/forecast-runs/{run_id}",
+    operation_id="getForecastRun",
+    response_model=s.ForecastRun,
+    responses=_errors(403, 404, 422),
+)
+def get_forecast_run(caller: v2auth.CallerDep, run_id: UUID) -> s.ForecastRun:
+    return forecasts.get_run(caller, run_id)
+
+
+@router.get(
+    "/staffing-requirement-proposals/{proposal_id}",
+    operation_id="getStaffingProposal",
+    response_model=s.StaffingProposal,
+    responses=_errors(403, 404, 422),
+)
+def get_staffing_proposal(caller: v2auth.CallerDep, proposal_id: UUID) -> s.StaffingProposal:
+    return forecasts.get_proposal(caller, proposal_id)
+
+
+@router.post(
+    "/staffing-requirement-proposals/{proposal_id}/accept",
+    operation_id="acceptStaffingProposal",
+    response_model=s.StaffingRequirements,
+    responses=_errors(403, 404, 409, 422),
+)
+def accept_staffing_proposal(
+    caller: v2auth.CallerDep, proposal_id: UUID, idempotency_key: IdempotencyKey
+) -> s.StaffingRequirements:
+    """Set the week's staffing from the proposal. Manual overrides survive. 409 stale_version when
+    staffing changed after the forecast; 409 conflict when the proposal was already decided."""
+    return forecasts.accept(caller, proposal_id, idempotency_key)
+
+
+@router.post(
+    "/staffing-requirement-proposals/{proposal_id}/reject",
+    operation_id="rejectStaffingProposal",
+    response_model=s.StaffingProposal,
+    responses=_errors(403, 404, 409, 422),
+)
+def reject_staffing_proposal(caller: v2auth.CallerDep, proposal_id: UUID) -> s.StaffingProposal:
+    return forecasts.reject(caller, proposal_id)

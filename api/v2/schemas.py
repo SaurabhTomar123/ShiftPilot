@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.21.0-p4"
+CONTRACT_VERSION = "3.22.0-p4"
 
 
 class Model(BaseModel):
@@ -1160,6 +1160,93 @@ class Scenario(Model):
 
 class ScenarioList(Model):
     items: list[Scenario]
+
+
+class ForecastRequest(Model):
+    week_start: date = Field(description="The Monday to forecast; history before it is used.")
+
+
+class ForecastPoint(Model):
+    interval_start: AwareDatetime
+    predicted: int = Field(ge=0, description="Orders in this 30-minute interval.")
+    lower: int = Field(ge=0)
+    upper: int = Field(ge=0)
+    samples: int = Field(ge=1, description="Past weeks behind the prediction.")
+
+
+class ForecastMetrics(Model):
+    """Backtest: each of the last weeks forecast from the weeks before it, compared with what happened."""
+
+    model_version: str
+    weeks_evaluated: list[date]
+    intervals: int
+    wape: float = Field(description="Weighted absolute percentage error, 0-1.")
+    mae: float = Field(description="Mean absolute error in orders per interval.")
+    bias: float = Field(description="Positive = forecasts too high.")
+    passed: bool
+    thresholds: dict[str, float]
+
+
+class ForecastRun(Model):
+    """Advisory demand forecast (architecture v4 sections 21, 37). It never changes staffing by itself:
+    when the backtest passes it produces a proposal a manager accepts or rejects."""
+
+    id: UUID
+    outlet_id: UUID
+    week_start: date
+    model_version: str
+    job_state: Literal["queued", "running", "succeeded", "failed"]
+    quality: Literal["passed", "failed"] | None = Field(
+        description="failed: the backtest missed the gate; the forecast is shown but no proposal is made."
+    )
+    metrics: ForecastMetrics | None
+    points: list[ForecastPoint]
+    proposal_id: UUID | None
+    error: ErrorBody | None
+    queued_at: AwareDatetime
+    finished_at: AwareDatetime | None
+    poll_after_ms: int | None
+
+
+class LabourExplanation(Model):
+    """Why the labour model asks for this staffing: forecast orders -> orders per hour -> demand band."""
+
+    forecast_orders: int
+    orders_per_hour: int
+    band_min_orders: int
+    band_max_orders: int | None
+
+
+class ProposedRequirement(Model):
+    skill_id: UUID
+    interval_start: AwareDatetime
+    interval_end: AwareDatetime
+    minimum: int = Field(ge=0)
+    preferred: int = Field(ge=0)
+    source: Literal["template", "forecast"]
+    explanation: LabourExplanation | None = Field(default=None, description="forecast rows only.")
+
+
+class ProposalChanges(Model):
+    added: int
+    changed: int
+    removed: int
+    unchanged: int
+    manual_kept: int = Field(description="Manual overrides: never replaced by a forecast.")
+
+
+class StaffingProposal(Model):
+    id: UUID
+    outlet_id: UUID
+    week_start: date
+    forecast_run_id: UUID
+    status: Literal["pending", "accepted", "rejected", "stale"]
+    base_demand_revision: int
+    created_at: AwareDatetime
+    decided_by_user_id: UUID | None
+    decided_at: AwareDatetime | None
+    changes: ProposalChanges = Field(description="Against the week's current requirements.")
+    rows: list[ProposedRequirement]
 
 
 class ReplacementRequest(Model):
