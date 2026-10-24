@@ -23,6 +23,23 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.24.0-p4 (live): availability-change requests (architecture v4 §29)
+
+This change is additive. Migration `0022` adds `availability_requests`.
+
+- **Employees:**
+  - `POST /v2/me/availability-requests` takes `{base_revision, windows, note?}`, where `windows` is the whole proposed weekly availability.
+  - `GET /v2/me/availability-requests` lists your requests; `POST /v2/availability-requests/{id}/cancel` withdraws one.
+  - Only one request can be pending per person (`409`). A stale `base_revision` gives `409 stale_version`.
+- **Impact preview:** every request shows `current` (the availability in force) and `affected`, the published shifts in the next 8 weeks the person could no longer work. The check uses the validator's own availability rule. `affected` is recomputed live while pending and frozen at the decision.
+- **Managers:**
+  - `GET /v2/outlets/{id}/availability-requests?status=` and `GET /v2/availability-requests/{id}`.
+  - `POST …/accept` replaces the availability through the same write path and revision check as `PUT /v2/employees/{id}/availability`; `409 stale_version` if it changed after the request.
+  - `POST …/reject`.
+- **No automatic repair:** accepting does not start one, because repairs are triggered by absences. The `affected` shifts are left for the manager. Use `recommendReplacements` per shift ("Find cover").
+
+Fixtures: `availability_request.create`, `me.availability_requests`, `availability_request.get`, `availability_requests.list`, `availability_request.accept`, `availability_request.accept.stale`, `availability_request.reject`, `availability_request.cancel`.
+
 ## What changed in 3.23.0-p4 (live): employee shift requests (architecture v4 §28)
 
 This change is additive. Migration `0021` adds `shift_requests`; schedule versions gain `source: "request"`.

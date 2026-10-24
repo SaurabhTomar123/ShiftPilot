@@ -90,7 +90,9 @@ def test_a_finished_repair_reaches_the_outlets_managers(client: TestClient) -> N
     ).json()
     while worker.run_once() is not None:
         pass
-    outbox_relay.relay_once()
+    for _ in range(10):  # one pass may not reach the run.finished event under load; drain them all
+        if outbox_relay.relay_once()["events"] == 0:
+            break
     titles = [n["title"] for n in client.get("/v2/me/notifications", headers=MANAGER).json()["items"]]
     assert "An absence was confirmed; a repair is being prepared." in titles
     assert any(t.startswith("A repair") for t in titles)

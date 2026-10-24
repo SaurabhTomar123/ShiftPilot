@@ -18,6 +18,7 @@ from pydantic import AwareDatetime
 
 from api.v2 import (
     absences,
+    availability_requests,
     candidates,
     drafts,
     forecasts,
@@ -1091,3 +1092,87 @@ def approve_shift_request(caller: v2auth.CallerDep, request_id: UUID) -> s.Shift
 )
 def reject_shift_request(caller: v2auth.CallerDep, request_id: UUID) -> s.ShiftRequestView:
     return shift_requests.reject(caller, request_id)
+
+
+# ---------------------------------------------------------------- availability requests (v4 section 29)
+
+
+@router.post(
+    "/me/availability-requests",
+    operation_id="createAvailabilityRequest",
+    response_model=s.AvailabilityRequestView,
+    status_code=status.HTTP_201_CREATED,
+    responses=_errors(403, 404, 409, 422),
+)
+def create_availability_request(
+    caller: v2auth.CallerDep, body: s.CreateAvailabilityRequest
+) -> s.AvailabilityRequestView:
+    """Propose a new weekly availability. The response lists the published shifts it would break;
+    nothing changes until a manager accepts."""
+    return availability_requests.create(caller, body)
+
+
+@router.get(
+    "/me/availability-requests",
+    operation_id="getMyAvailabilityRequests",
+    response_model=s.AvailabilityRequestList,
+    responses=_errors(403),
+)
+def my_availability_requests(caller: v2auth.CallerDep) -> s.AvailabilityRequestList:
+    return availability_requests.mine(caller)
+
+
+@router.get(
+    "/availability-requests/{request_id}",
+    operation_id="getAvailabilityRequest",
+    response_model=s.AvailabilityRequestView,
+    responses=_errors(403, 404, 422),
+)
+def get_availability_request(caller: v2auth.CallerDep, request_id: UUID) -> s.AvailabilityRequestView:
+    return availability_requests.get(caller, request_id)
+
+
+@router.post(
+    "/availability-requests/{request_id}/cancel",
+    operation_id="cancelAvailabilityRequest",
+    response_model=s.AvailabilityRequestView,
+    responses=_errors(403, 404, 409, 422),
+)
+def cancel_availability_request(caller: v2auth.CallerDep, request_id: UUID) -> s.AvailabilityRequestView:
+    return availability_requests.cancel(caller, request_id)
+
+
+@router.get(
+    "/outlets/{outlet_id}/availability-requests",
+    operation_id="listAvailabilityRequests",
+    response_model=s.AvailabilityRequestList,
+    responses=_errors(403, 404, 422),
+)
+def list_availability_requests(
+    caller: v2auth.CallerDep,
+    outlet_id: UUID,
+    status: s.AvailabilityRequestStatus | None = None,
+) -> s.AvailabilityRequestList:
+    return availability_requests.for_outlet(caller, outlet_id, status)
+
+
+@router.post(
+    "/availability-requests/{request_id}/accept",
+    operation_id="acceptAvailabilityRequest",
+    response_model=s.AvailabilityRequestView,
+    responses=_errors(403, 404, 409, 422),
+)
+def accept_availability_request(caller: v2auth.CallerDep, request_id: UUID) -> s.AvailabilityRequestView:
+    """Replace the person's availability. 409 stale_version if it changed after the request. `affected`
+    lists the shifts that now need cover."""
+    return availability_requests.accept(caller, request_id)
+
+
+@router.post(
+    "/availability-requests/{request_id}/reject",
+    operation_id="rejectAvailabilityRequest",
+    response_model=s.AvailabilityRequestView,
+    responses=_errors(403, 404, 409, 422),
+)
+def reject_availability_request(caller: v2auth.CallerDep, request_id: UUID) -> s.AvailabilityRequestView:
+    return availability_requests.reject(caller, request_id)

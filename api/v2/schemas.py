@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.23.0-p4"
+CONTRACT_VERSION = "3.24.0-p4"
 
 
 class Model(BaseModel):
@@ -1314,6 +1314,38 @@ class OpenShiftList(Model):
 
     week_start: date
     items: list[OpenShift]
+
+
+AvailabilityRequestStatus = Literal["pending", "accepted", "rejected", "cancelled"]
+
+
+class CreateAvailabilityRequest(Model):
+    base_revision: int = Field(ge=1, description="The availability revision this change starts from.")
+    windows: list[AvailabilityWindow] = Field(description="The whole proposed weekly availability.")
+    note: str | None = Field(default=None, max_length=300)
+
+
+class AvailabilityRequestView(Model):
+    """A proposed recurring availability (architecture v4 section 29). `affected` lists the published
+    shifts (next 8 weeks) the person could no longer work: recomputed live while pending, frozen at the
+    decision. Accepting replaces the real availability; the affected shifts then need cover (use
+    recommendReplacements per shift)."""
+
+    id: UUID
+    employee_id: UUID
+    status: AvailabilityRequestStatus
+    base_revision: int
+    windows: list[AvailabilityWindow]
+    current: list[AvailabilityWindow] = Field(description="The availability in force now.")
+    note: str | None
+    created_at: AwareDatetime
+    decided_by_user_id: UUID | None
+    decided_at: AwareDatetime | None
+    affected: list[AffectedShift]
+
+
+class AvailabilityRequestList(Model):
+    items: list[AvailabilityRequestView]
 
 
 class ReplacementRequest(Model):

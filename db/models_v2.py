@@ -1012,3 +1012,33 @@ class ShiftRequest(Base):
     decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     published_version_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     outcome: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+
+
+class AvailabilityRequest(Base):
+    """A proposed recurring availability (v4 section 29). Only acceptance replaces the real windows."""
+
+    __tablename__ = "availability_requests"
+    __table_args__ = (
+        ref("employee_id", "employees"),
+        ref("decided_by_user_id", "users"),
+        UniqueConstraint("org_id", "id"),
+        one_of("status", ("pending", "accepted", "rejected", "cancelled"), "availability_request_status"),
+        Index(
+            "ux_availability_requests_pending",
+            "org_id",
+            "employee_id",
+            unique=True,
+            postgresql_where=text("status = 'pending'"),
+        ),
+    )
+    id: Mapped[uuid.UUID] = pk()
+    org_id: Mapped[uuid.UUID] = org()
+    employee_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    windows: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
+    base_revision: Mapped[int] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String(20), default="pending", server_default="pending")
+    note: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    created_at: Mapped[datetime] = created_at()
+    decided_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    affected: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB, nullable=True)

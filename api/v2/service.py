@@ -58,6 +58,10 @@ AUDIT_ACTIONS = frozenset(
         "ABSENCE_REJECTED",
         "ABSENCE_CANCELLED",
         "AVAILABILITY_REPLACED",
+        "AVAILABILITY_REQUESTED",
+        "AVAILABILITY_REQUEST_ACCEPTED",
+        "AVAILABILITY_REQUEST_REJECTED",
+        "AVAILABILITY_REQUEST_CANCELLED",
         "CANDIDATE_SELECTED",
         "DRAFT_CREATED",
         "DRAFT_DISCARDED",
@@ -438,29 +442,36 @@ def put_availability(caller: Caller, employee_id: uuid.UUID, body: s.Availabilit
                 current_revision=employee.availability_revision,
             )
         before = _availability_view(session, employee)
-        session.execute(delete(EmployeeAvailability).where(EmployeeAvailability.employee_id == employee.id))
-        today = datetime.now(UTC).date()
-        session.add_all(
-            [
-                EmployeeAvailability(
-                    id=uuid.uuid7(),
-                    org_id=employee.org_id,
-                    employee_id=employee.id,
-                    weekday=w.weekday,
-                    start_minute=w.start_minute,
-                    end_minute=w.end_minute,
-                    kind=w.kind,
-                    valid_from=today,
-                    valid_to=None,
-                )
-                for w in body.windows
-            ]
-        )
-        employee.availability_revision += 1
-        session.flush()
-        after = _availability_view(session, employee)
+        after = replace_availability(session, employee, body.windows)
         _audit(session, caller, "AVAILABILITY_REPLACED", "employee", employee.id, before, after)
         return after
+
+
+def replace_availability(
+    session: Session, employee: Employee, windows: list[s.AvailabilityWindow]
+) -> s.Availability:
+    """The one write path for recurring availability (manager edits and accepted requests)."""
+    session.execute(delete(EmployeeAvailability).where(EmployeeAvailability.employee_id == employee.id))
+    today = datetime.now(UTC).date()
+    session.add_all(
+        [
+            EmployeeAvailability(
+                id=uuid.uuid7(),
+                org_id=employee.org_id,
+                employee_id=employee.id,
+                weekday=w.weekday,
+                start_minute=w.start_minute,
+                end_minute=w.end_minute,
+                kind=w.kind,
+                valid_from=today,
+                valid_to=None,
+            )
+            for w in windows
+        ]
+    )
+    employee.availability_revision += 1
+    session.flush()
+    return _availability_view(session, employee)
 
 
 # ---------------------------------------------------------------- staffing requirements

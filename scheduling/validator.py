@@ -24,7 +24,7 @@ from typing import Any
 from uuid import UUID
 
 from scheduling import rules
-from scheduling.model import Employee, Outlet, Shift, Snapshot
+from scheduling.model import Employee, Outlet, Shift, Snapshot, Window
 
 HARD, SOFT = "hard", "soft"
 
@@ -170,14 +170,20 @@ def _per_shift(snap: Snapshot, shift: Shift) -> Iterable[Violation]:
 
 
 def _available(emp: Employee, weekday: int, s: int, e: int) -> bool:
-    windows = [w for w in emp.windows if w.weekday == weekday]
+    return available_in(emp.windows, weekday, s, e)
+
+
+def available_in(all_windows: Iterable[Window], weekday: int, s: int, e: int) -> bool:
+    """Inside an available or preferred window and touching no unavailable one (outlet-local minutes)."""
+    all_windows = tuple(all_windows)
+    windows = [w for w in all_windows if w.weekday == weekday]
     inside = any(
         w.kind in ("available", "preferred") and w.start_minute <= s and e <= w.end_minute for w in windows
     )
     blocked = any(w.kind == "unavailable" and w.start_minute < e and s < w.end_minute for w in windows)
     # An unavailable window on the next day can be hit by a shift running past midnight.
     if e > 1440:
-        nxt = [w for w in emp.windows if w.weekday == (weekday + 1) % 7 and w.kind == "unavailable"]
+        nxt = [w for w in all_windows if w.weekday == (weekday + 1) % 7 and w.kind == "unavailable"]
         blocked = blocked or any(w.start_minute < e - 1440 for w in nxt)
     return inside and not blocked
 

@@ -1,0 +1,27 @@
+{
+  "name": "availability_request.accept.stale",
+  "operation_id": "acceptAvailabilityRequest",
+  "method": "POST",
+  "path": "/v2/availability-requests/{request_id}/accept",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "request_id": "f7b266f0-b20e-5be2-906d-74f40ef85ce3"
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "stale_version",
+        "message": "This person's availability changed after the request. Ask them to send it again.",
+        "retryable": false,
+        "details": {
+          "current_revision": 2
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

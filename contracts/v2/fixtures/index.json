@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.23.0-p4",
+  "contract_version": "3.24.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -384,6 +384,54 @@
       "operation_id": "rejectShiftRequest",
       "status": 200,
       "schema": "ShiftRequestView"
+    },
+    {
+      "name": "availability_request.create",
+      "operation_id": "createAvailabilityRequest",
+      "status": 201,
+      "schema": "AvailabilityRequestView"
+    },
+    {
+      "name": "me.availability_requests",
+      "operation_id": "getMyAvailabilityRequests",
+      "status": 200,
+      "schema": "AvailabilityRequestList"
+    },
+    {
+      "name": "availability_request.get",
+      "operation_id": "getAvailabilityRequest",
+      "status": 200,
+      "schema": "AvailabilityRequestView"
+    },
+    {
+      "name": "availability_requests.list",
+      "operation_id": "listAvailabilityRequests",
+      "status": 200,
+      "schema": "AvailabilityRequestList"
+    },
+    {
+      "name": "availability_request.accept",
+      "operation_id": "acceptAvailabilityRequest",
+      "status": 200,
+      "schema": "AvailabilityRequestView"
+    },
+    {
+      "name": "availability_request.accept.stale",
+      "operation_id": "acceptAvailabilityRequest",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "availability_request.reject",
+      "operation_id": "rejectAvailabilityRequest",
+      "status": 200,
+      "schema": "AvailabilityRequestView"
+    },
+    {
+      "name": "availability_request.cancel",
+      "operation_id": "cancelAvailabilityRequest",
+      "status": 200,
+      "schema": "AvailabilityRequestView"
     },
     {
       "name": "proposal.create",

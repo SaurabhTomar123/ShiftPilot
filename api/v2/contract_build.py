@@ -28,6 +28,7 @@ from api.v2.proposals import STALE_PUBLISHED
 from api.v2.rosters import version_etag
 from api.v2.routes import router
 from jobs import forecast_worker
+from scheduling import availability as sched_availability
 from scheduling import diff as sched_diff
 from scheduling import edits as sched_edits
 from scheduling import forecast as sched_forecast
@@ -38,6 +39,7 @@ from scheduling import scenario as sched_scenario
 from scheduling import solver as sched_solver
 from scheduling import trace as sched_trace
 from scheduling import validator as sched_validator
+from scheduling.model import Window
 from seed import v2 as seed_v2
 from seed import world_snapshot
 from seed.world import (
@@ -625,6 +627,7 @@ def fixtures() -> list[Fixture]:
         + p4_fixtures(published)
         + p8_fixtures()
         + p9_fixtures(published)
+        + p10_fixtures(published)
         + proposal_fixtures(d1)
         + import_fixtures()
         + rule_fixtures()
@@ -2239,6 +2242,152 @@ def p9_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             200,
             claim.model_copy(update={"status": "rejected", **decided}),
             by_id,
+        ),
+    ]
+
+
+def p10_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
+    """Ravi asks to stop working Wednesdays; the preview names the published Wednesday shift."""
+    ravi = uid("employee", "ravi")
+    emp = world_snapshot.build("indiranagar", WEEK).employees[ravi]
+    current = [
+        s.AvailabilityWindow.model_validate(
+            {"weekday": w.weekday, "start_minute": w.start_minute, "end_minute": w.end_minute, "kind": w.kind}
+        )
+        for w in sorted(emp.windows, key=lambda w: (w.weekday, w.start_minute, w.kind))
+    ]
+    proposed = [w for w in current if w.weekday != 2]
+    broken = {
+        h.logical_id
+        for h in sched_availability.impact(
+            [Window(w.weekday, w.start_minute, w.end_minute, w.kind) for w in proposed],
+            [_to_model(y) for y in published.shifts if y.employee_id == ravi],
+            IST,
+        )
+    }
+    hits = [sh for sh in published.shifts if sh.logical_shift_id in broken]
+    affected = [
+        s.AffectedShift(
+            schedule_id=published.schedule_id,
+            version_id=published.id,
+            logical_shift_id=h.logical_shift_id,
+            outlet_id=h.outlet_id,
+            skill_id=h.skill_id,
+            start_at=h.start_at,
+            end_at=h.end_at,
+            locked=h.locked,
+        )
+        for h in hits
+    ]
+    req = s.AvailabilityRequestView(
+        id=uid("availability_request", "ravi:no-wednesdays"),
+        employee_id=ravi,
+        status="pending",
+        base_revision=1,
+        windows=proposed,
+        current=current,
+        note="Evening classes on Wednesdays",
+        created_at=stamp("2026-10-18T09:30:00"),
+        decided_by_user_id=None,
+        decided_at=None,
+        affected=affected,
+    )
+    decided = {
+        "decided_by_user_id": uid("user", "manager_indiranagar"),
+        "decided_at": stamp("2026-10-18T12:00:00"),
+    }
+    accepted = req.model_copy(update={"status": "accepted", "current": proposed, **decided})
+    path = {"path_params": {"request_id": str(req.id)}}
+    manager, staff = "manager_indiranagar", "staff_ravi"
+    return [
+        Fixture(
+            "availability_request.create",
+            "createAvailabilityRequest",
+            "POST",
+            "/v2/me/availability-requests",
+            staff,
+            201,
+            req,
+            {
+                "body": {
+                    "base_revision": 1,
+                    "windows": [w.model_dump() for w in proposed],
+                    "note": "Evening classes on Wednesdays",
+                }
+            },
+        ),
+        Fixture(
+            "me.availability_requests",
+            "getMyAvailabilityRequests",
+            "GET",
+            "/v2/me/availability-requests",
+            staff,
+            200,
+            s.AvailabilityRequestList(items=[req]),
+        ),
+        Fixture(
+            "availability_request.get",
+            "getAvailabilityRequest",
+            "GET",
+            "/v2/availability-requests/{request_id}",
+            manager,
+            200,
+            req,
+            path,
+        ),
+        Fixture(
+            "availability_requests.list",
+            "listAvailabilityRequests",
+            "GET",
+            "/v2/outlets/{outlet_id}/availability-requests",
+            manager,
+            200,
+            s.AvailabilityRequestList(items=[req]),
+            {"path_params": {"outlet_id": str(HOME)}, "query": {"status": "pending"}},
+        ),
+        Fixture(
+            "availability_request.accept",
+            "acceptAvailabilityRequest",
+            "POST",
+            "/v2/availability-requests/{request_id}/accept",
+            manager,
+            200,
+            accepted,
+            path,
+        ),
+        Fixture(
+            "availability_request.accept.stale",
+            "acceptAvailabilityRequest",
+            "POST",
+            "/v2/availability-requests/{request_id}/accept",
+            manager,
+            409,
+            error(
+                "stale_version",
+                "This person's availability changed after the request. Ask them to send it again.",
+                current_revision=2,
+            ),
+            path,
+        ),
+        Fixture(
+            "availability_request.reject",
+            "rejectAvailabilityRequest",
+            "POST",
+            "/v2/availability-requests/{request_id}/reject",
+            manager,
+            200,
+            req.model_copy(update={"status": "rejected", **decided}),
+            path,
+        ),
+        Fixture(
+            "availability_request.cancel",
+            "cancelAvailabilityRequest",
+            "POST",
+            "/v2/availability-requests/{request_id}/cancel",
+            staff,
+            200,
+            req.model_copy(update={"status": "cancelled"}),
+            path,
         ),
     ]
 
