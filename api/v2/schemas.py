@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.24.0-p4"
+CONTRACT_VERSION = "3.25.0-p4"
 
 
 class Model(BaseModel):
@@ -1346,6 +1346,25 @@ class AvailabilityRequestView(Model):
 
 class AvailabilityRequestList(Model):
     items: list[AvailabilityRequestView]
+
+
+class StreamEvent(Model):
+    event: Literal["run", "forecast", "version", "end"] = Field(
+        description="run/forecast: the full resource as its GET returns it. version: {schedule_id, "
+        "current_version_id}. end: {reason: finished | reconnect}."
+    )
+    id: str | None = Field(default=None, description="Changes whenever the payload changes.")
+    data: dict[str, Any]
+
+
+class EventStream(Model):
+    """A server-sent event stream (architecture v4 section 49), shown decoded: each frame is
+    `event:`/`id:`/`data:` lines; `: keepalive` comments arrive every 15 s while idle. An event is sent
+    only when durable state changes; the stream ends with `end` (finished, or reconnect after 120 s).
+    Authenticate with the Authorization header, so read it with fetch(), not EventSource; the GET
+    endpoint remains the fallback."""
+
+    events: list[StreamEvent]
 
 
 class ReplacementRequest(Model):

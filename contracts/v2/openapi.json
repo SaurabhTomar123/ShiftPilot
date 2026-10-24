@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.24.0-p4"
+    "version": "3.25.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -7850,6 +7850,276 @@
           }
         }
       }
+    },
+    "/v2/optimization-runs/{run_id}/events": {
+      "get": {
+        "summary": "Stream Optimization Run",
+        "description": "Run progress as server-sent events: one `run` event per change, then `end`. GET\n/v2/optimization-runs/{run_id} remains the fallback.",
+        "operationId": "streamOptimizationRun",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "text/event-stream; see EventStream.",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "$ref": "#/components/schemas/EventStream"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/forecast-runs/{run_id}/events": {
+      "get": {
+        "summary": "Stream Forecast Run",
+        "operationId": "streamForecastRun",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "text/event-stream; see EventStream.",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "$ref": "#/components/schemas/EventStream"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/outlets/{outlet_id}/schedules/{week_start}/events": {
+      "get": {
+        "summary": "Stream Schedule Versions",
+        "description": "Schedule-version invalidation: a `version` event whenever the week's published version changes.\nReconnect after `end` (reason reconnect).",
+        "operationId": "streamScheduleVersions",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "outlet_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Outlet Id"
+            }
+          },
+          {
+            "name": "week_start",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Week Start"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "text/event-stream; see EventStream.",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "$ref": "#/components/schemas/EventStream"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Error envelope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -10062,6 +10332,24 @@
           "error"
         ],
         "title": "ErrorResponse"
+      },
+      "EventStream": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/StreamEvent"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "events"
+        ],
+        "title": "EventStream",
+        "description": "A server-sent event stream (architecture v4 section 49), shown decoded: each frame is\n`event:`/`id:`/`data:` lines; `: keepalive` comments arrive every 15 s while idle. An event is sent\nonly when durable state changes; the stream ends with `end` (finished, or reconnect after 120 s).\nAuthenticate with the Authorization header, so read it with fetch(), not EventSource; the GET\nendpoint remains the fallback."
       },
       "ExpandStaffingRequest": {
         "properties": {
@@ -14874,6 +15162,45 @@
           "content"
         ],
         "title": "StageImportRequest"
+      },
+      "StreamEvent": {
+        "properties": {
+          "event": {
+            "type": "string",
+            "enum": [
+              "run",
+              "forecast",
+              "version",
+              "end"
+            ],
+            "title": "Event",
+            "description": "run/forecast: the full resource as its GET returns it. version: {schedule_id, current_version_id}. end: {reason: finished | reconnect}."
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id",
+            "description": "Changes whenever the payload changes."
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "event",
+          "data"
+        ],
+        "title": "StreamEvent"
       },
       "TraceChange": {
         "properties": {

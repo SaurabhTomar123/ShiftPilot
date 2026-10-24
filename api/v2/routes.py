@@ -21,6 +21,7 @@ from api.v2 import (
     availability_requests,
     candidates,
     drafts,
+    events,
     forecasts,
     generation,
     imports,
@@ -1176,3 +1177,55 @@ def accept_availability_request(caller: v2auth.CallerDep, request_id: UUID) -> s
 )
 def reject_availability_request(caller: v2auth.CallerDep, request_id: UUID) -> s.AvailabilityRequestView:
     return availability_requests.reject(caller, request_id)
+
+
+# ---------------------------------------------------------------- live progress (v4 section 49)
+
+def _json_errors(*codes: int) -> dict[int | str, dict[str, Any]]:
+    """Errors stay JSON envelopes even on routes whose success body is an event stream."""
+    ref = {"schema": {"$ref": "#/components/schemas/ErrorResponse"}}
+    return {
+        code: {"description": "Error envelope.", "content": {"application/json": ref}}
+        for code in (401, 501, *codes)
+    }
+
+
+_STREAM: dict[int | str, dict[str, Any]] = {
+    200: {"model": s.EventStream, "description": "text/event-stream; see EventStream."}
+}
+
+
+@router.get(
+    "/optimization-runs/{run_id}/events",
+    operation_id="streamOptimizationRun",
+    response_class=events.EventStreamResponse,
+    responses={**_STREAM, **_json_errors(403, 404, 422)},
+)
+def stream_optimization_run(caller: v2auth.CallerDep, run_id: UUID) -> events.EventStreamResponse:
+    """Run progress as server-sent events: one `run` event per change, then `end`. GET
+    /v2/optimization-runs/{run_id} remains the fallback."""
+    return events.run_events(caller, run_id)
+
+
+@router.get(
+    "/forecast-runs/{run_id}/events",
+    operation_id="streamForecastRun",
+    response_class=events.EventStreamResponse,
+    responses={**_STREAM, **_json_errors(403, 404, 422)},
+)
+def stream_forecast_run(caller: v2auth.CallerDep, run_id: UUID) -> events.EventStreamResponse:
+    return events.forecast_events(caller, run_id)
+
+
+@router.get(
+    "/outlets/{outlet_id}/schedules/{week_start}/events",
+    operation_id="streamScheduleVersions",
+    response_class=events.EventStreamResponse,
+    responses={**_STREAM, **_json_errors(403, 404, 422)},
+)
+def stream_schedule_versions(
+    caller: v2auth.CallerDep, outlet_id: UUID, week_start: date
+) -> events.EventStreamResponse:
+    """Schedule-version invalidation: a `version` event whenever the week's published version changes.
+    Reconnect after `end` (reason reconnect)."""
+    return events.version_events(caller, outlet_id, week_start)

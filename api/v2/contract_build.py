@@ -628,6 +628,7 @@ def fixtures() -> list[Fixture]:
         + p8_fixtures()
         + p9_fixtures(published)
         + p10_fixtures(published)
+        + p11_fixtures(published)
         + proposal_fixtures(d1)
         + import_fixtures()
         + rule_fixtures()
@@ -2388,6 +2389,104 @@ def p10_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             200,
             req.model_copy(update={"status": "cancelled"}),
             path,
+        ),
+    ]
+
+
+def p11_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
+    """Live progress streams, decoded: one event per change of durable state, then end."""
+    queued = run("queued")
+    running = run("running", started_at=stamp("2026-10-18T19:40:00.400"))
+    done = run(  # the same terminal shape as run.no_solution_in_time
+        "succeeded",
+        solver_status="UNKNOWN",
+        started_at=stamp("2026-10-18T19:40:00.400"),
+        finished_at=stamp("2026-10-18T19:40:10.400"),
+        solver_wall_ms=10000,
+        poll_after_ms=None,
+    )
+
+    def ev(kind: str, data: dict[str, Any], n: int | None = None) -> s.StreamEvent:
+        return s.StreamEvent(event=kind, id=f"{kind}-{n}" if n is not None else None, data=data)  # type: ignore[arg-type]
+
+    forecast_run = uid("forecast_run", f"indiranagar:{NEXT_WEEK}")
+    forecast_common: dict[str, Any] = dict(
+        id=forecast_run,
+        outlet_id=HOME,
+        week_start=NEXT_WEEK,
+        model_version=sched_forecast.MODEL_VERSION,
+        quality=None,
+        metrics=None,
+        points=[],
+        proposal_id=None,
+        error=None,
+        queued_at=stamp("2026-10-23T09:00:00"),
+    )
+    f_queued = s.ForecastRun(job_state="queued", finished_at=None, poll_after_ms=1000, **forecast_common)
+    f_failed = s.ForecastRun(
+        job_state="failed",
+        finished_at=stamp("2026-10-23T09:00:00.900"),
+        poll_after_ms=None,
+        **{
+            **forecast_common,
+            "error": s.ErrorBody(
+                code="validation_failed",
+                retryable=False,
+                message="Needs at least 3 weeks of order history before this week to forecast and test it.",
+                details={"reason": "NOT_ENOUGH_HISTORY"},
+            ),
+        },
+    )
+    version = {
+        "outlet_id": str(HOME),
+        "week_start": WEEK.isoformat(),
+        "schedule_id": str(published.schedule_id),
+        "current_version_id": str(published.id),
+    }
+    manager = "manager_indiranagar"
+    return [
+        Fixture(
+            "run.events",
+            "streamOptimizationRun",
+            "GET",
+            "/v2/optimization-runs/{run_id}/events",
+            manager,
+            200,
+            s.EventStream(
+                events=[
+                    ev("run", queued.model_dump(mode="json"), 1),
+                    ev("run", running.model_dump(mode="json"), 2),
+                    ev("run", done.model_dump(mode="json"), 3),
+                    ev("end", {"reason": "finished"}),
+                ]
+            ),
+            {"path_params": {"run_id": str(queued.id)}},
+        ),
+        Fixture(
+            "forecast.events",
+            "streamForecastRun",
+            "GET",
+            "/v2/forecast-runs/{run_id}/events",
+            manager,
+            200,
+            s.EventStream(
+                events=[
+                    ev("forecast", f_queued.model_dump(mode="json"), 1),
+                    ev("forecast", f_failed.model_dump(mode="json"), 2),
+                    ev("end", {"reason": "finished"}),
+                ]
+            ),
+            {"path_params": {"run_id": str(forecast_run)}},
+        ),
+        Fixture(
+            "schedule.events",
+            "streamScheduleVersions",
+            "GET",
+            "/v2/outlets/{outlet_id}/schedules/{week_start}/events",
+            manager,
+            200,
+            s.EventStream(events=[ev("version", version, 1), ev("end", {"reason": "reconnect"})]),
+            {"path_params": {"outlet_id": str(HOME), "week_start": WEEK.isoformat()}},
         ),
     ]
 

@@ -56,7 +56,8 @@ def test_fixture_matches_openapi_operation(entry: dict[str, Any]) -> None:
     if fx["response"]["schema"] is None:
         assert "content" not in response
     else:
-        ref = response["content"]["application/json"]["schema"]["$ref"]
+        content = response["content"]
+        ref = (content.get("application/json") or content["text/event-stream"])["schema"]["$ref"]
         assert ref.endswith("/" + fx["response"]["schema"])
     for header in fx["response"].get("headers", {}):
         assert header in response.get("headers", {}), f"{header} not declared for {fx['name']}"

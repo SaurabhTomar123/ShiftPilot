@@ -23,6 +23,23 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.25.0-p4 (live): live progress over server-sent events (architecture v4 §49)
+
+This change is additive. Polling keeps working unchanged.
+
+- **The streams:**
+  - `GET /v2/optimization-runs/{run_id}/events`: `run` events, each carrying the full OptimizationRun as `GET /v2/optimization-runs/{id}` returns it.
+  - `GET /v2/forecast-runs/{run_id}/events`: `forecast` events.
+  - `GET /v2/outlets/{id}/schedules/{week_start}/events`: `version` events `{schedule_id, current_version_id}` whenever the week's published version changes (schedule invalidation).
+- **Behaviour:**
+  - An event is sent only when durable state changes. The server re-reads PostgreSQL every 0.5 s; SSE is a delivery convenience, not a source of truth.
+  - `: keepalive` comments arrive every 15 s while idle, and `retry: 3000` comes first.
+  - Every stream ends with `end`: `{reason: "finished"}` when a run reaches a terminal state, or `{reason: "reconnect"}` after 120 s. Reconnect, or fall back to the GET.
+- **Auth stays in the Authorization header,** so read streams with `fetch()` and a `ReadableStream` (or a fetch-based SSE helper), not `EventSource`. Errors (403/404/422) are normal JSON envelopes returned before any stream starts.
+- **In the contract:** the OpenAPI declares the success body as `text/event-stream` with schema `EventStream`, which lists the decoded events.
+
+Fixtures: `run.events`, `forecast.events`, `schedule.events`.
+
 ## What changed in 3.24.0-p4 (live): availability-change requests (architecture v4 §29)
 
 This change is additive. Migration `0022` adds `availability_requests`.

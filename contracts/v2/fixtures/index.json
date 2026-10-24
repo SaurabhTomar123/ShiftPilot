@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.24.0-p4",
+  "contract_version": "3.25.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -432,6 +432,24 @@
       "operation_id": "cancelAvailabilityRequest",
       "status": 200,
       "schema": "AvailabilityRequestView"
+    },
+    {
+      "name": "run.events",
+      "operation_id": "streamOptimizationRun",
+      "status": 200,
+      "schema": "EventStream"
+    },
+    {
+      "name": "forecast.events",
+      "operation_id": "streamForecastRun",
+      "status": 200,
+      "schema": "EventStream"
+    },
+    {
+      "name": "schedule.events",
+      "operation_id": "streamScheduleVersions",
+      "status": 200,
+      "schema": "EventStream"
     },
     {
       "name": "proposal.create",

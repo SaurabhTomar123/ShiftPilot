@@ -1,0 +1,117 @@
+{
+  "name": "run.events",
+  "operation_id": "streamOptimizationRun",
+  "method": "GET",
+  "path": "/v2/optimization-runs/{run_id}/events",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "run_id": "1bc0f4df-a456-5c62-8fdf-c099d4b5a68b"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "EventStream",
+    "body": {
+      "events": [
+        {
+          "event": "run",
+          "id": "run-1",
+          "data": {
+            "id": "1bc0f4df-a456-5c62-8fdf-c099d4b5a68b",
+            "kind": "generate",
+            "outlet_ids": [
+              "69e0477e-4a09-55c5-b467-8c673e7245b5"
+            ],
+            "base_version_ids": [],
+            "strategy": "balanced",
+            "absence_id": null,
+            "scenario_id": null,
+            "job_state": "queued",
+            "solver_status": null,
+            "input_hash": "sha256:a9aefe1885535e62920a74d53098d5af",
+            "queued_at": "2026-10-18T19:40:00+05:30",
+            "started_at": null,
+            "finished_at": null,
+            "solver_wall_ms": null,
+            "poll_after_ms": 500,
+            "candidates": [],
+            "infeasibility": null,
+            "error": null,
+            "repair_stages": [],
+            "frozen_logical_shift_ids": [],
+            "portfolio": null,
+            "candidates_expired": false
+          }
+        },
+        {
+          "event": "run",
+          "id": "run-2",
+          "data": {
+            "id": "1bc0f4df-a456-5c62-8fdf-c099d4b5a68b",
+            "kind": "generate",
+            "outlet_ids": [
+              "69e0477e-4a09-55c5-b467-8c673e7245b5"
+            ],
+            "base_version_ids": [],
+            "strategy": "balanced",
+            "absence_id": null,
+            "scenario_id": null,
+            "job_state": "running",
+            "solver_status": null,
+            "input_hash": "sha256:a9aefe1885535e62920a74d53098d5af",
+            "queued_at": "2026-10-18T19:40:00+05:30",
+            "started_at": "2026-10-18T19:40:00.400000+05:30",
+            "finished_at": null,
+            "solver_wall_ms": null,
+            "poll_after_ms": 500,
+            "candidates": [],
+            "infeasibility": null,
+            "error": null,
+            "repair_stages": [],
+            "frozen_logical_shift_ids": [],
+            "portfolio": null,
+            "candidates_expired": false
+          }
+        },
+        {
+          "event": "run",
+          "id": "run-3",
+          "data": {
+            "id": "1bc0f4df-a456-5c62-8fdf-c099d4b5a68b",
+            "kind": "generate",
+            "outlet_ids": [
+              "69e0477e-4a09-55c5-b467-8c673e7245b5"
+            ],
+            "base_version_ids": [],
+            "strategy": "balanced",
+            "absence_id": null,
+            "scenario_id": null,
+            "job_state": "succeeded",
+            "solver_status": "UNKNOWN",
+            "input_hash": "sha256:a9aefe1885535e62920a74d53098d5af",
+            "queued_at": "2026-10-18T19:40:00+05:30",
+            "started_at": "2026-10-18T19:40:00.400000+05:30",
+            "finished_at": "2026-10-18T19:40:10.400000+05:30",
+            "solver_wall_ms": 10000,
+            "poll_after_ms": null,
+            "candidates": [],
+            "infeasibility": null,
+            "error": null,
+            "repair_stages": [],
+            "frozen_logical_shift_ids": [],
+            "portfolio": null,
+            "candidates_expired": false
+          }
+        },
+        {
+          "event": "end",
+          "id": null,
+          "data": {
+            "reason": "finished"
+          }
+        }
+      ]
+    }
+  }
+}
