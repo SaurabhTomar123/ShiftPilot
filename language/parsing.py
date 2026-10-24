@@ -24,7 +24,7 @@ class _Strict(BaseModel):
 
 
 class CommandIntent(_Strict):
-    intent: Literal["give_time_off", "report_sick", "generate_week", "unsupported"]
+    intent: Literal["give_time_off", "report_sick", "generate_week", "find_replacement", "unsupported"]
     employee_query: str | None = None
     day: date | None = None
     week_start: date | None = None
@@ -56,6 +56,8 @@ You translate a restaurant manager's request into JSON. Supported intents:
 - report_sick: an employee is sick on one day. Fields: employee_query, day.
 - generate_week: create schedule options for a week. Fields: week_start (the Monday, YYYY-MM-DD),
   outlet_query (outlet name, or null for the manager's own outlet).
+- find_replacement: find cover for an employee's shift on one day ("Who can cover Ravi tonight?").
+  Fields: employee_query (whose shift), day.
 - unsupported: anything else.
 Use only names that appear in the request; never invent one. Resolve relative days from TODAY.
 TODAY: {today} ({weekday})

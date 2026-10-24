@@ -23,6 +23,15 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.26.0-p4 (live): "Who can cover…?" in words (architecture v4 §43)
+
+This change is additive. `POST /v2/commands/parse` understands a fourth intent, `find_replacement`, e.g. "Who can cover Ravi tonight?" or "cover for Neha on Friday".
+
+- **Same rules as the other intents:** it resolves the person (asking "Which Ravi?" rather than guessing) and the day. It finds that person's published shift at the outlet and returns `status: "ready"` with `action` = `recommendReplacements` `{version_id, logical_shift_id, profile}`.
+- **The call is read-only,** so the UI can make it straight away. No Idempotency-Key is needed.
+- **No shift that day:** `needs_clarification` ("… has no published shift on …").
+- **Changed wording:** the `unsupported` summary now mentions finding cover.
+
 ## What changed in 3.25.0-p4 (live): live progress over server-sent events (architecture v4 §49)
 
 This change is additive. Polling keeps working unchanged.

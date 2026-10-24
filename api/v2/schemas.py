@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.25.0-p4"
+CONTRACT_VERSION = "3.26.0-p4"
 
 
 class Model(BaseModel):
@@ -331,7 +331,7 @@ class CommandPreview(Model):
     ask question, offering options. unsupported or unavailable: point to the form."""
 
     status: LanguageStatus
-    intent: Literal["give_time_off", "report_sick", "generate_week"] | None = None
+    intent: Literal["give_time_off", "report_sick", "generate_week", "find_replacement"] | None = None
     summary: str
     question: str | None = None
     options: list[CommandOption] = Field(default_factory=list)

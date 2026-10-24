@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-24T07:25:19+00:00",
+  "generated_at": "2026-10-24T08:44:14+00:00",
   "git": {
-    "commit": "8c0835377143062ed5d9c2a360c354c9b9d9cd7a",
-    "dirty": false
+    "commit": "8cfc6a3340fe1bf3b470c59ef19fbcc517264424",
+    "dirty": true
   },
-  "config_hash": "sha256:018eb429a8b2add3c7efcbafe8f78ebe7c960e8d56217b196a5e92b987455067",
+  "config_hash": "sha256:bba21463394a1b3af8b25db3739393b71c13fdfa5320b3227ba3e23ec6ae556c",
   "config": {
     "strategies": {
       "balanced": {
@@ -66,73 +66,73 @@
       "lowest_cost": 2,
       "best_coverage": 2
     },
-    "prompts": "adba7c13c997d7e6",
+    "prompts": "666fcba21d0ed229",
     "language_model": "scripted",
     "ortools": "9.15.6755",
-    "contract": "3.25.0-p4"
+    "contract": "3.26.0-p4"
   },
   "suites": {
     "normal": {
       "cases": 36,
       "passed": 36,
       "failures": [],
-      "ms": 81074,
+      "ms": 81171,
       "pass_rate": 1.0
     },
     "impossible": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 4283,
+      "ms": 4792,
       "pass_rate": 1.0
     },
     "overtime": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 8561,
+      "ms": 10984,
       "pass_rate": 1.0
     },
     "locks": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 1979,
+      "ms": 2773,
       "pass_rate": 1.0
     },
     "repair": {
       "cases": 10,
       "passed": 10,
       "failures": [],
-      "ms": 2457,
+      "ms": 3070,
       "pass_rate": 1.0
     },
     "rules_enforced": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 4158,
+      "ms": 6313,
       "pass_rate": 1.0
     },
     "multi_outlet": {
       "cases": 3,
       "passed": 3,
       "failures": [],
-      "ms": 3670,
+      "ms": 5404,
       "pass_rate": 1.0
     },
     "commands": {
       "cases": 17,
       "passed": 17,
       "failures": [],
-      "ms": 4,
+      "ms": 3,
       "pass_rate": 1.0
     },
     "ambiguity": {
       "cases": 5,
       "passed": 5,
       "failures": [],
-      "ms": 3,
+      "ms": 0,
       "pass_rate": 1.0
     },
     "rule_language": {
@@ -146,7 +146,7 @@
       "cases": 7,
       "passed": 7,
       "failures": [],
-      "ms": 1,
+      "ms": 0,
       "pass_rate": 1.0
     }
   },

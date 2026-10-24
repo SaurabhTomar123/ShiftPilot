@@ -129,3 +129,28 @@ def test_a_rule_in_words_runs_through_the_validation_service(client: TestClient)
     assert refused["status"] == "unsupported" and refused["preview"] is None
     tag_rule = client.post("/v2/rules/parse", headers=MANAGER, json={"text": words})
     assert tag_rule.status_code == 403 and error_code(tag_rule) == "permission_denied"
+
+
+def test_who_can_cover_previews_the_recommendation_call(client: TestClient) -> None:
+    """v4 section 43 FIND_REPLACEMENT: a preview of the read-only recommendation endpoint."""
+    week = client.get(f"/v2/outlets/{IND}/schedules/2026-10-19", headers=MANAGER).json()["current_version"]
+    shift = next(sh for sh in week["shifts"] if sh["employee_id"] == str(uid("employee", "ravi")))
+    day = datetime.fromisoformat(shift["start_at"]).astimezone(IST).date()
+    text = f"Who can cover Ravi on {day.isoformat()}?"
+    preview = parse(client, {"text": text}).json()
+    if preview["status"] == "needs_clarification":  # another Ravi exists in this module: answer the question
+        assert preview["question"] == "Which Ravi?"
+        preview = parse(client, {"text": text, "employee_id": str(uid("employee", "ravi"))}).json()
+    assert preview["status"] == "ready" and preview["intent"] == "find_replacement", preview
+    assert preview["summary"].startswith("Find cover for Ravi Kumar's")
+    action = preview["action"]
+    assert action["operation_id"] == "recommendReplacements" and action["body"]["version_id"] == week["id"]
+    assert action["body"]["logical_shift_id"] in {
+        sh["logical_shift_id"] for sh in week["shifts"] if sh["employee_id"] == str(uid("employee", "ravi"))
+    }
+    cover = client.post(action["path"], headers=MANAGER, json=action["body"])
+    assert cover.status_code == 200 and cover.json()["vacating_employee_id"] == str(uid("employee", "ravi"))
+    nothing = parse(
+        client, {"text": "Who can cover Ravi on 2030-01-01?", "employee_id": str(uid("employee", "ravi"))}
+    ).json()
+    assert nothing["status"] == "needs_clarification" and "no published shift" in nothing["summary"]

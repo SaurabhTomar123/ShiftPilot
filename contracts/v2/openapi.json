@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.25.0-p4"
+    "version": "3.26.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -9125,7 +9125,8 @@
                 "enum": [
                   "give_time_off",
                   "report_sick",
-                  "generate_week"
+                  "generate_week",
+                  "find_replacement"
                 ]
               },
               {

@@ -70,6 +70,19 @@ class ScriptedModel:
         if m:
             when = _day(m["when"] or "today", today)
             return {"intent": "report_sick", "employee_query": m["who"].strip().title(), "day": str(when)}
+        m = re.match(
+            r"(?:who can |find (?:someone|cover) to )?cover (?:for )?(?P<who>[a-z .]+?)(?:'s shift)?(?: on)? "
+            r"(?P<when>tonight|today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday|"
+            r"\d{4}-\d{2}-\d{2})\??$",
+            text,
+        )
+        if m:
+            when = _day("today" if m["when"] == "tonight" else m["when"], today)
+            return {
+                "intent": "find_replacement",
+                "employee_query": m["who"].strip().title(),
+                "day": str(when),
+            }
         if text.startswith(("generate", "make", "build")):
             monday = today - timedelta(days=today.weekday())
             week = monday + timedelta(days=7) if "next week" in text else monday

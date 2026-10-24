@@ -52,7 +52,7 @@ def _staff(session: Session, caller: Caller) -> dict[uuid.UUID, list[str]]:
     return {e.id: [e.name, *(e.aliases or [])] for e in rows if can_view_outlet(caller, str(e.outlet_id))}
 
 
-Intent = Literal["give_time_off", "report_sick", "generate_week"]
+Intent = Literal["give_time_off", "report_sick", "generate_week", "find_replacement"]
 
 
 def _name(intent: parsing.CommandIntent) -> Intent:
@@ -94,31 +94,100 @@ def parse_command(caller: Caller, body: s.CommandRequest) -> s.CommandPreview:
         if not isinstance(intent, parsing.CommandIntent) or intent.intent == "unsupported":
             return s.CommandPreview(
                 status="unsupported",
-                summary="I can give someone a day off, record a sick day or generate a week. Try the form.",
+                summary="I can give someone a day off, record a sick day, find cover for a shift or generate "
+                "a week. Try the form.",
             )
         if intent.intent == "generate_week":
             return _generate(session, caller, home, intent, today)
+        if intent.intent == "find_replacement":
+            return _cover(session, caller, home, intent, body, tz)
         return _absence(session, caller, intent, body, tz)
+
+
+def _who(
+    session: Session, caller: Caller, intent: parsing.CommandIntent, body: s.CommandRequest
+) -> uuid.UUID | s.CommandPreview:
+    """The employee the command is about, or the clarifying question to ask."""
+    staff = _staff(session, caller)
+    if body.employee_id is not None:  # the answer to "Which Ravi?"
+        if body.employee_id not in staff:
+            raise ApiError("not_found", "Employee not found.")
+        return body.employee_id
+    query = intent.employee_query or ""
+    found = parsing.resolve(query, staff) if query else parsing.Resolution("none", ())
+    if found.kind == "many":
+        return _ask(_name(intent), f"Which {query.split()[0]}?", found)
+    if found.kind == "none":
+        return _ask(_name(intent), f"Who did you mean by '{query}'?" if query else "Who is this for?", found)
+    return found.matches[0].id
+
+
+def _cover(
+    session: Session,
+    caller: Caller,
+    home: Outlet,
+    intent: parsing.CommandIntent,
+    body: s.CommandRequest,
+    tz: ZoneInfo,
+) -> s.CommandPreview:
+    """FIND_REPLACEMENT (v4 section 43): a preview of the read-only recommendation call."""
+    who = _who(session, caller, intent, body)
+    if isinstance(who, s.CommandPreview):
+        return who
+    if intent.day is None:
+        return s.CommandPreview(
+            status="needs_clarification",
+            intent="find_replacement",
+            summary="Which day?",
+            question="Which day?",
+        )
+    employee = session.get(Employee, who)
+    assert employee is not None
+    start = datetime(intent.day.year, intent.day.month, intent.day.day, tzinfo=tz)
+    shifts = sorted(
+        (
+            r
+            for r in snapshot_db.live_shifts(session, start, start + timedelta(days=1), employee_ids=[who])
+            if r.outlet_id == home.id and r.start_at >= start
+        ),
+        key=lambda r: r.start_at,
+    )
+    day = f"{WEEKDAYS[intent.day.weekday()]} {intent.day:%d %b}"
+    if not shifts:
+        return s.CommandPreview(
+            status="needs_clarification",
+            intent="find_replacement",
+            summary=f"{employee.name} has no published shift at {home.name} on {day}.",
+            question="Which day?",
+        )
+    shift = shifts[0]
+    hours = f"{shift.start_at.astimezone(tz):%H:%M}-{shift.end_at.astimezone(tz):%H:%M}"
+    more = f" ({len(shifts)} shifts that day; showing the first)" if len(shifts) > 1 else ""
+    return s.CommandPreview(
+        status="ready",
+        intent="find_replacement",
+        summary=f"Find cover for {employee.name}'s {day} {hours} shift{more}.",
+        action=s.ProposedCall(
+            operation_id="recommendReplacements",
+            method="POST",
+            path="/v2/recommendations/replacements",
+            body={
+                "version_id": str(shift.version_id),
+                "logical_shift_id": str(shift.logical_shift_id),
+                "profile": "balanced",
+            },
+        ),
+        affected_shift_count=len(shifts),
+    )
 
 
 def _absence(
     session: Session, caller: Caller, intent: parsing.CommandIntent, body: s.CommandRequest, tz: ZoneInfo
 ) -> s.CommandPreview:
-    staff = _staff(session, caller)
-    if body.employee_id is not None:  # the answer to "Which Ravi?"
-        if body.employee_id not in staff:
-            raise ApiError("not_found", "Employee not found.")
-        employee_id = body.employee_id
-    else:
-        query = intent.employee_query or ""
-        found = parsing.resolve(query, staff) if query else parsing.Resolution("none", ())
-        if found.kind == "many":
-            return _ask(_name(intent), f"Which {query.split()[0]}?", found)
-        if found.kind == "none":
-            return _ask(
-                _name(intent), f"Who did you mean by '{query}'?" if query else "Who is this for?", found
-            )
-        employee_id = found.matches[0].id
+    who = _who(session, caller, intent, body)
+    if isinstance(who, s.CommandPreview):
+        return who
+    employee_id = who
     if intent.day is None:
         return s.CommandPreview(
             status="needs_clarification", intent=_name(intent), summary="Which day?", question="Which day?"
