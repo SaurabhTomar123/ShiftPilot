@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "ShiftPilot scheduling v2 API",
-    "version": "3.26.0-p4"
+    "version": "3.27.0-p4"
   },
   "paths": {
     "/v2/session/demo": {
@@ -15378,7 +15378,7 @@
           "logical_shift_id"
         ],
         "title": "UpdateShift",
-        "description": "Move, resize, reassign or change role. Omitted fields keep their value; employee_id may be\nnull to unassign."
+        "description": "Move, resize, reassign or change role. Omitted or null fields keep their value, except\nemployee_id, where null unassigns. Remove a break with break_minutes 0."
       },
       "ValidationResult": {
         "properties": {

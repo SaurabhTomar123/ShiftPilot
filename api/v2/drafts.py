@@ -269,7 +269,14 @@ def _to_edits(body: s.EditRequest) -> list[sched_edits.Edit]:
         if isinstance(e, s.AddShift):
             out.append(sched_edits.Edit("add", None, e.model_dump(exclude={"op"})))
         elif isinstance(e, s.UpdateShift):
-            fields = {k: getattr(e, k) for k in e.model_fields_set - {"op", "logical_shift_id"}}
+            # null keeps a value, except employee_id where it unassigns: an edit echoed back with every
+            # field present (e.g. a recommendation's) must not erase times. Remove a break with
+            # break_minutes 0.
+            fields = {
+                k: getattr(e, k)
+                for k in e.model_fields_set - {"op", "logical_shift_id"}
+                if getattr(e, k) is not None or k == "employee_id"
+            }
             out.append(sched_edits.Edit("update", e.logical_shift_id, fields))
         elif isinstance(e, s.RemoveShift):
             out.append(sched_edits.Edit("remove", e.logical_shift_id))

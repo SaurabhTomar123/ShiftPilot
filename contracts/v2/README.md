@@ -23,6 +23,21 @@ IDs are stable UUIDv5 values, so the same entity has the same ID in every fixtur
 
 The roster in the fixtures is built by a simple rule-respecting script, not the real solver. Its metrics (coverage, cost, preferred deficits) are computed from its shifts, so they agree with each other within a fixture. Real values will differ.
 
+## What changed in 3.27.0-p4 (live): find cover through a draft (Codex 3.19 review follow-up)
+
+- **Fixed: an echoed edit no longer crashes.** `recommendReplacements` returns an `edit` with every `UpdateShift` field present, unchanged ones as `null`. Sending it back unchanged to `previewEdits`/`applyEdits` used to treat `start_at: null` as a value and fail with a 500.
+- **New `UpdateShift` rule:** omitted or `null` fields keep their value, except `employee_id`, where `null` unassigns. Remove a break with `break_minutes: 0`.
+- **New fixtures (the same Wednesday shift as `recommendations.replacements`):**
+  - `draft.create.cover`: a copy of the published week.
+  - `draft.create.cover.stale_base`: 409, the base is no longer published.
+  - `edits.preview.cover`: the recommended edit; 0 hard violations, one `reassigned` change.
+  - `edits.preview.cover.conflict`: the same shift given to Kavya, whom the recommender rejected. It fails with the same `overlap` rule.
+  - `edits.apply.cover`: revision 2.
+  - `edits.apply.cover.stale`: 409, `current_revision` 2.
+  - From there the draft enters the normal proposal flow (`proposal.*`).
+- **Locks:** editing a draft never refuses on them. A locked shift's lock is kept, and generation and repair honour it.
+- **Live check:** `tests/integration/test_fixture_parity.py` runs this flow against the live API.
+
 ## Fixture correction under 3.26.0-p4 (no schema change)
 
 - **What was wrong:** in `run.succeeded`, Lowest cost's `trace.summary` deltas were computed from a different evaluation than the candidates' displayed metrics. Its `fairness_delta` read +0.02 while the burdens were 7.97 (Balanced) and 7.83 (Lowest cost). This was reported in Codex's 3.18 review.

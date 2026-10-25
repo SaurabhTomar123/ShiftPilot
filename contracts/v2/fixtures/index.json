@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.26.0-p4",
+  "contract_version": "3.27.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -216,6 +216,42 @@
       "operation_id": "getOptimizationCandidate",
       "status": 200,
       "schema": "CandidateDetail"
+    },
+    {
+      "name": "draft.create.cover",
+      "operation_id": "createDraft",
+      "status": 201,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "draft.create.cover.stale_base",
+      "operation_id": "createDraft",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "edits.preview.cover",
+      "operation_id": "previewEdits",
+      "status": 200,
+      "schema": "EditPreview"
+    },
+    {
+      "name": "edits.preview.cover.conflict",
+      "operation_id": "previewEdits",
+      "status": 200,
+      "schema": "EditPreview"
+    },
+    {
+      "name": "edits.apply.cover",
+      "operation_id": "applyEdits",
+      "status": 200,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "edits.apply.cover.stale",
+      "operation_id": "applyEdits",
+      "status": 409,
+      "schema": "ErrorResponse"
     },
     {
       "name": "recommendations.replacements",

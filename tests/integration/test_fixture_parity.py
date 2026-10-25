@@ -33,7 +33,8 @@ def same_shape(live: Any, fixed: Any, path: str = "$") -> None:
     if isinstance(fixed, dict):
         assert isinstance(live, dict) and set(live) == set(fixed), f"{path}: {sorted(set(live) ^ set(fixed))}"
         for k in fixed:
-            same_shape(live[k], fixed[k], f"{path}.{k}")
+            if k != "facts":  # free-form evidence whose keys depend on the violation or reason code
+                same_shape(live[k], fixed[k], f"{path}.{k}")
     elif isinstance(fixed, list) and fixed and live:
         same_shape(live[0], fixed[0], f"{path}[0]")
 
@@ -125,3 +126,47 @@ def test_reject_cancel_and_closed_match_their_fixtures(client: TestClient) -> No
     )
     same_shape(cancelled.json(), fixture("absence.update.requested.cancel")["body"])
     assert cancelled.json()["absence"]["status"] == "cancelled"
+
+
+def test_find_cover_through_a_draft_matches_its_fixtures(client: TestClient) -> None:
+    week = client.get(f"/v2/outlets/{IND}/schedules/{WEEK}", headers=MANAGER).json()["current_version"]
+    shift = next(sh for sh in week["shifts"] if sh["employee_id"] and not sh["locked"])
+    rec = client.post(
+        "/v2/recommendations/replacements",
+        headers=MANAGER,
+        json={"version_id": week["id"], "logical_shift_id": shift["logical_shift_id"]},
+    )
+    assert rec.status_code == 200 and rec.json()["recommendations"], rec.text
+    edit = rec.json()["recommendations"][0]["edit"]
+
+    stale = client.post(
+        f"/v2/outlets/{IND}/schedules/{WEEK}/drafts",
+        headers=MANAGER | key(),
+        json={"base_version_id": str(uuid.uuid4()), "copy_from_version_id": None},
+    )
+    expected = fixture("draft.create.cover.stale_base")
+    assert stale.status_code == expected["status"]
+    assert stale.json()["error"]["message"] == expected["body"]["error"]["message"]
+
+    draft = client.post(
+        f"/v2/outlets/{IND}/schedules/{WEEK}/drafts",
+        headers=MANAGER | key(),
+        json={"base_version_id": week["id"], "copy_from_version_id": None},
+    )
+    assert draft.status_code == 201, draft.text
+    same_shape(draft.json(), fixture("draft.create.cover")["body"])
+    url = f"/v2/schedule-versions/{draft.json()['id']}/edits"
+    preview = client.post(f"{url}/preview", headers=MANAGER, json={"expected_revision": 1, "edits": [edit]})
+    assert preview.status_code == 200, preview.text
+    same_shape(preview.json(), fixture("edits.preview.cover")["body"])
+    # The cover adds no hard violation (the week may already carry one from an earlier test's absence).
+    assert preview.json()["validation"]["hard_violations"] <= draft.json()["validation"]["hard_violations"]
+    assert [c["kinds"] for c in preview.json()["changes"]] == [["reassigned"]]
+    applied = client.post(url, headers=MANAGER | key(), json={"expected_revision": 1, "edits": [edit]})
+    assert applied.status_code == 200 and applied.json()["revision"] == 2, applied.text
+    same_shape(applied.json(), fixture("edits.apply.cover")["body"])
+    again = client.post(url, headers=MANAGER | key(), json={"expected_revision": 1, "edits": [edit]})
+    expected = fixture("edits.apply.cover.stale")
+    assert (
+        again.status_code == expected["status"] and again.json()["error"]["details"]["current_revision"] == 2
+    )

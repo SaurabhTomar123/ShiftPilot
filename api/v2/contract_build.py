@@ -2685,6 +2685,63 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             "limit": 5,
         }
     }
+    # Find cover -> draft (Codex 3.19 follow-up): the recommendation's edit on a copy of the published week.
+    cover_key = f"indiranagar:{WEEK}:cover:{hit.logical_shift_id}"
+    cover_draft_id = uid("version", cover_key)
+    copied_eval = _evaluated(base)
+    cover_copy = s.ScheduleVersion(
+        id=cover_draft_id,
+        schedule_id=published.schedule_id,
+        version_number=published.version_number + 2,
+        status="draft",
+        source="manual",
+        reason="Find cover",
+        base_version_id=published.id,
+        optimization_run_id=None,
+        created_by_user_id=uid("user", "manager_indiranagar"),
+        approved_by_user_id=None,
+        created_at=stamp("2026-10-21T16:30:00"),
+        published_at=None,
+        revision=1,
+        input_hash="draft",
+        shifts=[_to_contract(sh, cover_key) for sh in base],
+        **copied_eval,
+        recorded_metrics=copied_eval["metrics"],
+    )
+    cover_edit = {"op": "update", "logical_shift_id": str(hit.logical_shift_id), "employee_id": str(cover)}
+    covered = sched_edits.apply(
+        base, [sched_edits.Edit("update", hit.logical_shift_id, {"employee_id": cover})], HOME
+    )
+    covered_eval = _evaluated(covered)
+    cover_preview = s.EditPreview(
+        version_id=cover_draft_id,
+        expected_revision=1,
+        shifts=[_to_contract(sh, cover_key) for sh in covered],
+        changes=_changes(base, covered, cover_key, cover_key),
+        **{k: v for k, v in covered_eval.items() if k != "coverage"},
+    )
+    cover_applied = cover_copy.model_copy(
+        update={
+            "revision": 2,
+            "shifts": [_to_contract(sh, cover_key) for sh in covered],
+            "recorded_metrics": covered_eval["metrics"],
+            **covered_eval,
+        }
+    )
+    # The recommender rejected Kavya for this shift (overlap); previewing her instead shows the same rule.
+    kavya = uid("employee", "kavya")
+    clash = sched_edits.apply(
+        base, [sched_edits.Edit("update", hit.logical_shift_id, {"employee_id": kavya})], HOME
+    )
+    clash_eval = _evaluated(clash)
+    clash_preview = s.EditPreview(
+        version_id=cover_draft_id,
+        expected_revision=1,
+        shifts=[_to_contract(sh, cover_key) for sh in clash],
+        changes=_changes(base, clash, cover_key, cover_key),
+        **{k: v for k, v in clash_eval.items() if k != "coverage"},
+    )
+    assert covered_eval["validation"].hard_violations == 0 and clash_eval["validation"].hard_violations > 0
     repair_draft = s.ScheduleVersion(
         id=uid("version", repair_key),
         schedule_id=published.schedule_id,
@@ -3132,6 +3189,99 @@ def p4_fixtures(published: s.ScheduleVersion) -> list[Fixture]:
             200,
             repair_detail,
             {"path_params": {"candidate_id": str(repair_candidate.id)}},
+        ),
+        Fixture(
+            "draft.create.cover",
+            "createDraft",
+            "POST",
+            "/v2/outlets/{outlet_id}/schedules/{week_start}/drafts",
+            "manager_indiranagar",
+            201,
+            cover_copy,
+            {
+                "path_params": {"outlet_id": str(HOME), "week_start": WEEK.isoformat()},
+                "headers": {"Idempotency-Key": "draft-cover-3a19"},
+                "body": {"base_version_id": str(published.id), "copy_from_version_id": None},
+            },
+        ),
+        Fixture(
+            "draft.create.cover.stale_base",
+            "createDraft",
+            "POST",
+            "/v2/outlets/{outlet_id}/schedules/{week_start}/drafts",
+            "manager_indiranagar",
+            409,
+            error(
+                "stale_version",
+                "Someone published a newer version. Review the changes and try again.",
+                current_version_id=str(published.id),
+            ),
+            {
+                "path_params": {"outlet_id": str(HOME), "week_start": WEEK.isoformat()},
+                "headers": {"Idempotency-Key": "draft-cover-5d02"},
+                "body": {
+                    "base_version_id": str(uid("version", f"indiranagar:{WEEK}:v2")),
+                    "copy_from_version_id": None,
+                },
+            },
+        ),
+        Fixture(
+            "edits.preview.cover",
+            "previewEdits",
+            "POST",
+            "/v2/schedule-versions/{version_id}/edits/preview",
+            "manager_indiranagar",
+            200,
+            cover_preview,
+            {
+                "path_params": {"version_id": str(cover_draft_id)},
+                "body": {"expected_revision": 1, "edits": [cover_edit]},
+            },
+        ),
+        Fixture(
+            "edits.preview.cover.conflict",
+            "previewEdits",
+            "POST",
+            "/v2/schedule-versions/{version_id}/edits/preview",
+            "manager_indiranagar",
+            200,
+            clash_preview,
+            {
+                "path_params": {"version_id": str(cover_draft_id)},
+                "body": {"expected_revision": 1, "edits": [{**cover_edit, "employee_id": str(kavya)}]},
+            },
+        ),
+        Fixture(
+            "edits.apply.cover",
+            "applyEdits",
+            "POST",
+            "/v2/schedule-versions/{version_id}/edits",
+            "manager_indiranagar",
+            200,
+            cover_applied,
+            {
+                "path_params": {"version_id": str(cover_draft_id)},
+                "headers": {"Idempotency-Key": "edits-cover-7b2e"},
+                "body": {"expected_revision": 1, "edits": [cover_edit]},
+            },
+        ),
+        Fixture(
+            "edits.apply.cover.stale",
+            "applyEdits",
+            "POST",
+            "/v2/schedule-versions/{version_id}/edits",
+            "manager_indiranagar",
+            409,
+            error(
+                "stale_version",
+                "This draft was changed by someone else. Reload and try again.",
+                current_revision=2,
+            ),
+            {
+                "path_params": {"version_id": str(cover_draft_id)},
+                "headers": {"Idempotency-Key": "edits-cover-9c40"},
+                "body": {"expected_revision": 1, "edits": [cover_edit]},
+            },
         ),
         Fixture(
             "recommendations.replacements",

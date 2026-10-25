@@ -16,7 +16,7 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-CONTRACT_VERSION = "3.26.0-p4"
+CONTRACT_VERSION = "3.27.0-p4"
 
 
 class Model(BaseModel):
@@ -743,8 +743,8 @@ class AddShift(Model):
 
 
 class UpdateShift(Model):
-    """Move, resize, reassign or change role. Omitted fields keep their value; employee_id may be
-    null to unassign."""
+    """Move, resize, reassign or change role. Omitted or null fields keep their value, except
+    employee_id, where null unassigns. Remove a break with break_minutes 0."""
 
     op: Literal["update"]
     logical_shift_id: UUID

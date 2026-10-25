@@ -1,0 +1,1154 @@
+{
+  "name": "edits.preview.cover",
+  "operation_id": "previewEdits",
+  "method": "POST",
+  "path": "/v2/schedule-versions/{version_id}/edits/preview",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "version_id": "41edbb6f-703d-5f28-8dcb-447e10c875c2"
+    },
+    "body": {
+      "expected_revision": 1,
+      "edits": [
+        {
+          "op": "update",
+          "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+          "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "EditPreview",
+    "body": {
+      "version_id": "41edbb6f-703d-5f28-8dcb-447e10c875c2",
+      "expected_revision": 1,
+      "shifts": [
+        {
+          "id": "dbdd2524-b293-5732-882d-2bcadacf14f5",
+          "logical_shift_id": "4f9a1dcf-6819-53ee-bfb7-640c607ef375",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "310c8d9d-2f10-5082-bb7a-a5abfcebdaf6",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-19T10:00:00+05:30",
+          "end_at": "2026-10-19T18:00:00+05:30",
+          "break_start_at": "2026-10-19T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "77f5d9c7-e802-5a7f-8536-311461a08292",
+          "logical_shift_id": "52cd42df-27cc-5215-a1fb-20508746b485",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "523b1ffa-4e39-59f7-9cf7-d82801e97d4f",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-19T10:00:00+05:30",
+          "end_at": "2026-10-19T18:00:00+05:30",
+          "break_start_at": "2026-10-19T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "e771aea2-3d87-5b41-afbf-75ede8fd802d",
+          "logical_shift_id": "c5d11735-6be2-5b94-8b12-4ae842bbdd74",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "88deef49-a989-573d-ad65-603223d0c3fc",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-19T10:00:00+05:30",
+          "end_at": "2026-10-19T18:00:00+05:30",
+          "break_start_at": "2026-10-19T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "0558d292-6cf6-50c1-b714-e2ca19fe57a4",
+          "logical_shift_id": "fd21c750-62d7-5106-a688-48d01098e9ac",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "start_at": "2026-10-19T10:00:00+05:30",
+          "end_at": "2026-10-19T18:00:00+05:30",
+          "break_start_at": "2026-10-19T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "80971b2a-25f6-581a-92fb-2c321900abf7",
+          "logical_shift_id": "2b696e99-8123-5a05-a0a7-2434bff3cd44",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "5aebaf91-c927-5c4c-ae19-dfdeb80e5444",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-19T15:00:00+05:30",
+          "end_at": "2026-10-19T23:00:00+05:30",
+          "break_start_at": "2026-10-19T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "81e320ce-2a25-504f-b777-9625eaef40c8",
+          "logical_shift_id": "dd345cd7-b702-5429-8457-11378dad987e",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "e573980d-9c59-56be-b8f6-baae8f7fd341",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-19T15:00:00+05:30",
+          "end_at": "2026-10-19T23:00:00+05:30",
+          "break_start_at": "2026-10-19T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "1dfbfa77-859d-512c-9433-fb2209a65c33",
+          "logical_shift_id": "def0c1c9-c0ae-505f-a538-f44d61ac7e79",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "7df5532e-f630-5999-90fe-0b04f004bf92",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-19T15:00:00+05:30",
+          "end_at": "2026-10-19T23:00:00+05:30",
+          "break_start_at": "2026-10-19T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "dd2b8389-642c-59fc-827f-3c48b59442e6",
+          "logical_shift_id": "1a112ab3-e731-5bb6-a7dd-d1b27f291097",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "bc9a2f5a-6538-5782-80e2-77071f255661",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-19T18:00:00+05:30",
+          "end_at": "2026-10-19T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "2aaf66f5-907c-503f-88cd-d71ecaa9fdd4",
+          "logical_shift_id": "262ce18d-2989-574a-8d2e-ee2cdb9fca72",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "88deef49-a989-573d-ad65-603223d0c3fc",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-20T10:00:00+05:30",
+          "end_at": "2026-10-20T18:00:00+05:30",
+          "break_start_at": "2026-10-20T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "8efc50fb-0d2b-5df4-943f-88d6eeb86542",
+          "logical_shift_id": "6c1cd828-8f71-5693-a7b2-ca97c0c86ff9",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "9aee8acb-8a87-50ea-bef7-bddd4ac69029",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-20T10:00:00+05:30",
+          "end_at": "2026-10-20T18:00:00+05:30",
+          "break_start_at": "2026-10-20T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "ae655cd7-8ff7-57be-a0f4-ec2cd2ee103d",
+          "logical_shift_id": "7ce796bc-1b20-5170-bda2-3bd65e599cd5",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "39ecd01e-c984-50d7-a64c-9a350c67e8f6",
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "start_at": "2026-10-20T10:00:00+05:30",
+          "end_at": "2026-10-20T18:00:00+05:30",
+          "break_start_at": "2026-10-20T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "bfa37880-5a9f-5a7c-a27a-16115a600d93",
+          "logical_shift_id": "f65e6363-bfe1-51d3-a238-a3fa434d26d6",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-20T10:00:00+05:30",
+          "end_at": "2026-10-20T18:00:00+05:30",
+          "break_start_at": "2026-10-20T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "0066a5d2-399b-5d5c-a4c3-ea1be2d74183",
+          "logical_shift_id": "4a2b8694-7edd-5bd9-8cc3-f586ec2f50a1",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "523b1ffa-4e39-59f7-9cf7-d82801e97d4f",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-20T15:00:00+05:30",
+          "end_at": "2026-10-20T23:00:00+05:30",
+          "break_start_at": "2026-10-20T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "869f9cad-b86a-5ac8-b9f6-86674e125b62",
+          "logical_shift_id": "86ae1055-312f-5fa9-9674-52e27e35b398",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-20T15:00:00+05:30",
+          "end_at": "2026-10-20T23:00:00+05:30",
+          "break_start_at": "2026-10-20T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "16e16a42-6f91-5527-882a-0991039f42e2",
+          "logical_shift_id": "8fac8c3f-c167-52c5-8620-943a3ceb6aba",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "4284aaec-0470-5d65-b4ae-770a789ed16f",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-20T15:00:00+05:30",
+          "end_at": "2026-10-20T23:00:00+05:30",
+          "break_start_at": "2026-10-20T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "488327cf-826f-53f3-9955-087960acfd82",
+          "logical_shift_id": "263911db-8c52-5171-a4da-429548091dcb",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "310c8d9d-2f10-5082-bb7a-a5abfcebdaf6",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-20T18:00:00+05:30",
+          "end_at": "2026-10-20T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "f84a5549-d2d3-552d-af9f-18ac537b9744",
+          "logical_shift_id": "0ec71fe1-f760-562d-98d9-8edec1dd516a",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "e573980d-9c59-56be-b8f6-baae8f7fd341",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-21T10:00:00+05:30",
+          "end_at": "2026-10-21T18:00:00+05:30",
+          "break_start_at": "2026-10-21T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "117059bc-6fad-597f-84bc-a8b1888332b6",
+          "logical_shift_id": "15cff327-9648-588d-a99c-f0c92c1362f4",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "7df5532e-f630-5999-90fe-0b04f004bf92",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-21T10:00:00+05:30",
+          "end_at": "2026-10-21T18:00:00+05:30",
+          "break_start_at": "2026-10-21T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "e43e0c5d-0918-588e-a6fa-8d0e9a37f886",
+          "logical_shift_id": "5618d1ce-c099-580e-bb0e-442dbccdccd6",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "5aebaf91-c927-5c4c-ae19-dfdeb80e5444",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-21T10:00:00+05:30",
+          "end_at": "2026-10-21T18:00:00+05:30",
+          "break_start_at": "2026-10-21T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "337b7ec4-d3f5-5b2d-bb92-9de677ca44b5",
+          "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "start_at": "2026-10-21T10:00:00+05:30",
+          "end_at": "2026-10-21T18:00:00+05:30",
+          "break_start_at": "2026-10-21T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "aa263585-ced5-5e00-85dc-f39cc034eae3",
+          "logical_shift_id": "7901dcd4-5390-5914-817b-7495fd1e7816",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "bc9a2f5a-6538-5782-80e2-77071f255661",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-21T15:00:00+05:30",
+          "end_at": "2026-10-21T23:00:00+05:30",
+          "break_start_at": "2026-10-21T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "748f0dc7-cafc-57b7-a35d-65bad4b633f9",
+          "logical_shift_id": "7d5b2210-47a2-5588-b45d-5c72ef283926",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "9aee8acb-8a87-50ea-bef7-bddd4ac69029",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-21T15:00:00+05:30",
+          "end_at": "2026-10-21T23:00:00+05:30",
+          "break_start_at": "2026-10-21T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "aced527f-ed36-59ad-9716-5353a491e775",
+          "logical_shift_id": "91409e03-faf4-5de7-b1a9-8abff46861b5",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "88deef49-a989-573d-ad65-603223d0c3fc",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-21T15:00:00+05:30",
+          "end_at": "2026-10-21T23:00:00+05:30",
+          "break_start_at": "2026-10-21T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "9658cbc0-37d8-5685-a219-65ea027f6c9b",
+          "logical_shift_id": "f1d96acf-3a9d-52f5-b099-1f84973c2cfd",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "4284aaec-0470-5d65-b4ae-770a789ed16f",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-21T18:00:00+05:30",
+          "end_at": "2026-10-21T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "539fd005-dc46-505e-8c91-edf3bf09e2bb",
+          "logical_shift_id": "236dd68c-fccb-5a80-ae16-1a69460a5cd5",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-22T10:00:00+05:30",
+          "end_at": "2026-10-22T18:00:00+05:30",
+          "break_start_at": "2026-10-22T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "7fc6ee59-c5c0-5ba9-a6d8-7d74174356f6",
+          "logical_shift_id": "3d772ad4-45bd-5b6d-b144-5237f8705c50",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-22T10:00:00+05:30",
+          "end_at": "2026-10-22T18:00:00+05:30",
+          "break_start_at": "2026-10-22T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "cd1bb996-45bd-50d1-bda0-dfb932021ba3",
+          "logical_shift_id": "944b5827-4a90-52ba-81c5-d911fa119211",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "523b1ffa-4e39-59f7-9cf7-d82801e97d4f",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-22T10:00:00+05:30",
+          "end_at": "2026-10-22T18:00:00+05:30",
+          "break_start_at": "2026-10-22T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "51d24138-4295-5f6b-918e-ea9add47fb04",
+          "logical_shift_id": "bda13fa6-3f62-5f73-bd7b-88a0701a359e",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "39ecd01e-c984-50d7-a64c-9a350c67e8f6",
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "start_at": "2026-10-22T10:00:00+05:30",
+          "end_at": "2026-10-22T18:00:00+05:30",
+          "break_start_at": "2026-10-22T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "9c864e67-fde8-5928-8afe-c89bcbf02c91",
+          "logical_shift_id": "77210628-9706-5332-8538-c9d67412ab09",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-22T15:00:00+05:30",
+          "end_at": "2026-10-22T23:00:00+05:30",
+          "break_start_at": "2026-10-22T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "87d18593-647e-5d83-8016-990df7d85c35",
+          "logical_shift_id": "a2c41fe0-1754-54a4-b030-a9d0fe383638",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "310c8d9d-2f10-5082-bb7a-a5abfcebdaf6",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-22T15:00:00+05:30",
+          "end_at": "2026-10-22T23:00:00+05:30",
+          "break_start_at": "2026-10-22T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "00731c7d-12bd-5153-868f-63c152e2d5f8",
+          "logical_shift_id": "be692a3a-97f9-5b79-869b-82bf963bb35d",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "e573980d-9c59-56be-b8f6-baae8f7fd341",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-22T15:00:00+05:30",
+          "end_at": "2026-10-22T23:00:00+05:30",
+          "break_start_at": "2026-10-22T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "973d0ac1-4712-5491-a178-eeb6a3077b68",
+          "logical_shift_id": "c04309aa-ae84-5a55-bb9b-4513556a15cc",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "5aebaf91-c927-5c4c-ae19-dfdeb80e5444",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-22T18:00:00+05:30",
+          "end_at": "2026-10-22T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "19fb2211-8639-5b2c-b50a-39d1c7a587fb",
+          "logical_shift_id": "7a4557e0-1ad3-5bb8-a68e-2f5958f2ef2e",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-23T10:00:00+05:30",
+          "end_at": "2026-10-23T18:00:00+05:30",
+          "break_start_at": "2026-10-23T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "bc877c64-0621-5cfe-8a1d-9e645a557e35",
+          "logical_shift_id": "c107526f-5230-5429-bca7-4cbb7d4d48ca",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "7df5532e-f630-5999-90fe-0b04f004bf92",
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "start_at": "2026-10-23T10:00:00+05:30",
+          "end_at": "2026-10-23T18:00:00+05:30",
+          "break_start_at": "2026-10-23T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "14daf2dd-3e12-521b-9389-205bbc230607",
+          "logical_shift_id": "c591466f-d6b7-5794-8afb-11a2bed3f6b1",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "bc9a2f5a-6538-5782-80e2-77071f255661",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-23T10:00:00+05:30",
+          "end_at": "2026-10-23T18:00:00+05:30",
+          "break_start_at": "2026-10-23T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "6e2a04bc-8af7-5960-b33f-db9aeaf58ab0",
+          "logical_shift_id": "d2c319a8-2f49-5614-92be-43359d8fa583",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "39ecd01e-c984-50d7-a64c-9a350c67e8f6",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-23T10:00:00+05:30",
+          "end_at": "2026-10-23T18:00:00+05:30",
+          "break_start_at": "2026-10-23T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "5f4cf3b9-30ee-56cc-b8cb-a3729a756c23",
+          "logical_shift_id": "6757241f-b8fb-5868-9b91-9f0eb9f10c46",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "9aee8acb-8a87-50ea-bef7-bddd4ac69029",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-23T15:00:00+05:30",
+          "end_at": "2026-10-23T23:00:00+05:30",
+          "break_start_at": "2026-10-23T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "673ec71f-4d86-56d1-b358-be295f5f2bc3",
+          "logical_shift_id": "7612a74c-2616-5698-8a8e-975d1464f1ae",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "4284aaec-0470-5d65-b4ae-770a789ed16f",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-23T15:00:00+05:30",
+          "end_at": "2026-10-23T23:00:00+05:30",
+          "break_start_at": "2026-10-23T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "702a201c-dcf5-55ed-965e-aac475d1efc9",
+          "logical_shift_id": "7f4fe921-15d7-53bf-bf68-15643474bf25",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-23T15:00:00+05:30",
+          "end_at": "2026-10-23T23:00:00+05:30",
+          "break_start_at": "2026-10-23T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "1f303df3-c2c0-5d95-96a5-202f7f03caf7",
+          "logical_shift_id": "144eea33-3835-583b-9ce0-236ade983e6c",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "5aebaf91-c927-5c4c-ae19-dfdeb80e5444",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-23T18:00:00+05:30",
+          "end_at": "2026-10-23T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "194accf3-1495-5361-9c51-78b40062c56a",
+          "logical_shift_id": "734deac4-c651-5179-8e01-4c432fc291ab",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "310c8d9d-2f10-5082-bb7a-a5abfcebdaf6",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-23T18:00:00+05:30",
+          "end_at": "2026-10-23T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "00bbe227-e77a-5bbe-ac15-632fddaa9af1",
+          "logical_shift_id": "b4f7812b-74dd-54b9-9a43-ac790a031db9",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "88deef49-a989-573d-ad65-603223d0c3fc",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-23T18:00:00+05:30",
+          "end_at": "2026-10-23T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "bf18d993-7cdb-5e35-bb2e-8d8a0ad5a0f3",
+          "logical_shift_id": "6e0e68c2-6645-5d7b-b5e1-8209e140961c",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "7df5532e-f630-5999-90fe-0b04f004bf92",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-24T10:00:00+05:30",
+          "end_at": "2026-10-24T18:00:00+05:30",
+          "break_start_at": "2026-10-24T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "498fad1a-b524-5cb3-a192-deb1be45dbba",
+          "logical_shift_id": "8247df70-7709-5f38-a1da-ce82d1f7c98d",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "start_at": "2026-10-24T10:00:00+05:30",
+          "end_at": "2026-10-24T18:00:00+05:30",
+          "break_start_at": "2026-10-24T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "21097b53-c24a-522e-837c-55521efbc92e",
+          "logical_shift_id": "a4425a78-19ac-542f-bcfb-78329ddad180",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-24T10:00:00+05:30",
+          "end_at": "2026-10-24T18:00:00+05:30",
+          "break_start_at": "2026-10-24T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "2be62f46-eedd-531e-8540-93f070278a77",
+          "logical_shift_id": "c6fad219-c96b-5de3-ab3f-78aeacd43470",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "523b1ffa-4e39-59f7-9cf7-d82801e97d4f",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-24T10:00:00+05:30",
+          "end_at": "2026-10-24T18:00:00+05:30",
+          "break_start_at": "2026-10-24T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "202a44e2-6e05-520e-aa17-c846496b7dd9",
+          "logical_shift_id": "29bd6759-c1c2-546b-9292-02d76487595b",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "bc9a2f5a-6538-5782-80e2-77071f255661",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-24T15:00:00+05:30",
+          "end_at": "2026-10-24T23:00:00+05:30",
+          "break_start_at": "2026-10-24T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "b81aebd6-93e9-56ea-ab90-6f6372170749",
+          "logical_shift_id": "4614409f-229f-5240-afb8-a4d9b94a4d59",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "e573980d-9c59-56be-b8f6-baae8f7fd341",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-24T15:00:00+05:30",
+          "end_at": "2026-10-24T23:00:00+05:30",
+          "break_start_at": "2026-10-24T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "833e32fa-39cd-56cf-ab33-987e37b89189",
+          "logical_shift_id": "6120fd3a-dbb2-5c8b-a1a0-c3fb33d66dc2",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "39ecd01e-c984-50d7-a64c-9a350c67e8f6",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-24T15:00:00+05:30",
+          "end_at": "2026-10-24T23:00:00+05:30",
+          "break_start_at": "2026-10-24T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "eb6baa7b-2037-5e30-8d3c-e77a38a70809",
+          "logical_shift_id": "0448e7ce-8557-5e27-9e07-9d5d1735a98e",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "9aee8acb-8a87-50ea-bef7-bddd4ac69029",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-24T18:00:00+05:30",
+          "end_at": "2026-10-24T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "482a7067-53b2-56b6-b735-172f55f5d73d",
+          "logical_shift_id": "6218db44-df2d-5778-80a3-10355fb9d2f6",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "4284aaec-0470-5d65-b4ae-770a789ed16f",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-24T18:00:00+05:30",
+          "end_at": "2026-10-24T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "5492d253-a0ae-5e15-9b5c-9bd0570f4a72",
+          "logical_shift_id": "634f150a-7d49-58fb-93df-51a6c3fc51b2",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-24T18:00:00+05:30",
+          "end_at": "2026-10-24T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": true,
+          "lock_reason": "Locked by manager"
+        },
+        {
+          "id": "8e59b68e-dca7-5621-9f16-cbc5b9b33a9d",
+          "logical_shift_id": "798327d6-7fcd-5aca-bfc7-f5243284cd39",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "88deef49-a989-573d-ad65-603223d0c3fc",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-25T10:00:00+05:30",
+          "end_at": "2026-10-25T18:00:00+05:30",
+          "break_start_at": "2026-10-25T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "ad369f6f-4f1a-5feb-a986-3ce33f4250d7",
+          "logical_shift_id": "91dbc60b-56fe-5580-b7a0-253703874f63",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "start_at": "2026-10-25T10:00:00+05:30",
+          "end_at": "2026-10-25T18:00:00+05:30",
+          "break_start_at": "2026-10-25T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "b4cf0afe-ed4e-536a-baec-4fc6bf8033af",
+          "logical_shift_id": "c2730093-b070-59be-88a9-abd6b2e994ef",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "310c8d9d-2f10-5082-bb7a-a5abfcebdaf6",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-25T10:00:00+05:30",
+          "end_at": "2026-10-25T18:00:00+05:30",
+          "break_start_at": "2026-10-25T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "a6d43153-76da-5080-b350-506f5d89d5c5",
+          "logical_shift_id": "cd5d2fb8-ac23-5ea8-a5e9-bfeb3b1e3a12",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "523b1ffa-4e39-59f7-9cf7-d82801e97d4f",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-25T10:00:00+05:30",
+          "end_at": "2026-10-25T18:00:00+05:30",
+          "break_start_at": "2026-10-25T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "4dee53a6-7011-517b-bd38-a867ab2169c5",
+          "logical_shift_id": "3988e825-6508-56d4-8c60-b4443ef5f689",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "7df5532e-f630-5999-90fe-0b04f004bf92",
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "start_at": "2026-10-25T15:00:00+05:30",
+          "end_at": "2026-10-25T23:00:00+05:30",
+          "break_start_at": "2026-10-25T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "1f3591b7-35bf-5804-9d48-6f1e53a916f7",
+          "logical_shift_id": "bcf102f6-a6c9-5b9b-bf39-9c9bb45cfc28",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "5aebaf91-c927-5c4c-ae19-dfdeb80e5444",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-25T15:00:00+05:30",
+          "end_at": "2026-10-25T23:00:00+05:30",
+          "break_start_at": "2026-10-25T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "8002bf58-07f1-5a54-b90b-16f52eb541a7",
+          "logical_shift_id": "e5e0f808-4091-5bea-9600-ddae845ae3f6",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "e573980d-9c59-56be-b8f6-baae8f7fd341",
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "start_at": "2026-10-25T15:00:00+05:30",
+          "end_at": "2026-10-25T23:00:00+05:30",
+          "break_start_at": "2026-10-25T17:00:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        {
+          "id": "34b5e062-b6fa-55cf-97d7-5f03c1d6fb3d",
+          "logical_shift_id": "22836e1c-e7a3-5c70-af35-93c19cbaa1f1",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710",
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "start_at": "2026-10-25T18:00:00+05:30",
+          "end_at": "2026-10-25T23:00:00+05:30",
+          "break_start_at": null,
+          "break_minutes": 0,
+          "locked": false,
+          "lock_reason": null
+        }
+      ],
+      "changes": [
+        {
+          "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+          "kinds": [
+            "reassigned"
+          ],
+          "before": {
+            "id": "337b7ec4-d3f5-5b2d-bb92-9de677ca44b5",
+            "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+            "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+            "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+            "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+            "start_at": "2026-10-21T10:00:00+05:30",
+            "end_at": "2026-10-21T18:00:00+05:30",
+            "break_start_at": "2026-10-21T15:30:00+05:30",
+            "break_minutes": 30,
+            "locked": false,
+            "lock_reason": null
+          },
+          "after": {
+            "id": "337b7ec4-d3f5-5b2d-bb92-9de677ca44b5",
+            "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+            "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+            "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
+            "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+            "start_at": "2026-10-21T10:00:00+05:30",
+            "end_at": "2026-10-21T18:00:00+05:30",
+            "break_start_at": "2026-10-21T15:30:00+05:30",
+            "break_minutes": 30,
+            "locked": false,
+            "lock_reason": null
+          }
+        }
+      ],
+      "metrics": {
+        "coverage_ratio": 0.7714,
+        "minimum_deficit_minutes": 0,
+        "preferred_deficit_minutes": 6570,
+        "labour_cost": {
+          "amount_paise": 7431750,
+          "currency": "INR"
+        },
+        "overtime_cost": {
+          "amount_paise": 0,
+          "currency": "INR"
+        },
+        "overtime_minutes": 0,
+        "preference_match_ratio": 0.4444,
+        "open_shifts": 0,
+        "assigned_minutes": 25350,
+        "hours_preference_deviation_minutes": 600,
+        "fairness_burden_deviation": 3.98,
+        "fairness_components": {
+          "policy_version": 1,
+          "closing": 96,
+          "weekend": 36,
+          "split": 0,
+          "overtime": 0
+        }
+      },
+      "validation": {
+        "hard_violations": 0,
+        "soft_violations": 23,
+        "violations": [
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Prep is below preferred staffing for 30 staff-minutes on Mon 19 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-19",
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "deficit_minutes": 30
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Grill is below preferred staffing for 420 staff-minutes on Mon 19 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-19",
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Server is below preferred staffing for 420 staff-minutes on Mon 19 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-19",
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Prep is below preferred staffing for 30 staff-minutes on Tue 20 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-20",
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "deficit_minutes": 30
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Grill is below preferred staffing for 420 staff-minutes on Tue 20 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-20",
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Server is below preferred staffing for 420 staff-minutes on Tue 20 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-20",
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Prep is below preferred staffing for 30 staff-minutes on Wed 21 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-21",
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "deficit_minutes": 30
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Grill is below preferred staffing for 420 staff-minutes on Wed 21 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-21",
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Server is below preferred staffing for 420 staff-minutes on Wed 21 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-21",
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Prep is below preferred staffing for 30 staff-minutes on Thu 22 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-22",
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "deficit_minutes": 30
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Grill is below preferred staffing for 420 staff-minutes on Thu 22 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-22",
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Server is below preferred staffing for 420 staff-minutes on Thu 22 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-22",
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Cashier is below preferred staffing for 240 staff-minutes on Fri 23 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-23",
+              "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+              "deficit_minutes": 240
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Prep is below preferred staffing for 30 staff-minutes on Fri 23 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-23",
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "deficit_minutes": 30
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Grill is below preferred staffing for 420 staff-minutes on Fri 23 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-23",
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Server is below preferred staffing for 420 staff-minutes on Fri 23 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-23",
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Cashier is below preferred staffing for 240 staff-minutes on Sat 24 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-24",
+              "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+              "deficit_minutes": 240
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Prep is below preferred staffing for 30 staff-minutes on Sat 24 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-24",
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "deficit_minutes": 30
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Grill is below preferred staffing for 420 staff-minutes on Sat 24 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-24",
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Server is below preferred staffing for 420 staff-minutes on Sat 24 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-24",
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Prep is below preferred staffing for 30 staff-minutes on Sun 25 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-25",
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "deficit_minutes": 30
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Grill is below preferred staffing for 420 staff-minutes on Sun 25 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-25",
+              "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+              "deficit_minutes": 420
+            }
+          },
+          {
+            "code": "preferred_coverage",
+            "severity": "soft",
+            "message": "Server is below preferred staffing for 420 staff-minutes on Sun 25 Oct.",
+            "employee_id": null,
+            "logical_shift_ids": [],
+            "facts": {
+              "date": "2026-10-25",
+              "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+              "deficit_minutes": 420
+            }
+          }
+        ]
+      }
+    }
+  }
+}
