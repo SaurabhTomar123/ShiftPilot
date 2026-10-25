@@ -19493,7 +19493,7 @@
           "minimum_deficit_minutes": 0,
           "preferred_deficit_minutes": 6570,
           "labour_cost": {
-            "amount_paise": 7447500,
+            "amount_paise": 7431750,
             "currency": "INR"
           },
           "overtime_cost": {
@@ -19806,7 +19806,362 @@
         "explanations": [
           {
             "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
-            "chosen_employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+            "chosen_employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
+            "reasons": [
+              {
+                "code": "skill",
+                "ok": true,
+                "message": "Qualified for Prep",
+                "facts": {
+                  "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21"
+                }
+              },
+              {
+                "code": "available",
+                "ok": true,
+                "message": "Available for the shift",
+                "facts": {}
+              },
+              {
+                "code": "no_conflict",
+                "ok": true,
+                "message": "No overlapping shift and rest rules met",
+                "facts": {}
+              },
+              {
+                "code": "weekly_hours",
+                "ok": true,
+                "message": "7.5h this week after the change",
+                "facts": {
+                  "weekly_minutes": 450,
+                  "regular_weekly_minutes": 2880
+                }
+              },
+              {
+                "code": "rules",
+                "ok": true,
+                "message": "Within their scheduling rules",
+                "facts": {}
+              },
+              {
+                "code": "travel",
+                "ok": true,
+                "message": "Works at this outlet",
+                "facts": {
+                  "travel_minutes": 0
+                }
+              },
+              {
+                "code": "incremental_cost",
+                "ok": true,
+                "message": "INR 1,192 for this shift",
+                "facts": {
+                  "paise": 119250
+                }
+              },
+              {
+                "code": "fairness_burden",
+                "ok": true,
+                "message": "No closing or weekend burden",
+                "facts": {
+                  "points": 0,
+                  "policy_version": 1
+                }
+              },
+              {
+                "code": "disruption",
+                "ok": true,
+                "message": "Replaces the person published for this shift",
+                "facts": {
+                  "class": "reassigned"
+                }
+              }
+            ],
+            "alternatives": [
+              {
+                "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+                "name": "Aman Shah",
+                "status": "eligible_not_selected",
+                "reasons": [
+                  {
+                    "code": "skill",
+                    "ok": true,
+                    "message": "Qualified for Prep",
+                    "facts": {
+                      "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21"
+                    }
+                  },
+                  {
+                    "code": "available",
+                    "ok": true,
+                    "message": "Available for the shift",
+                    "facts": {}
+                  },
+                  {
+                    "code": "no_conflict",
+                    "ok": true,
+                    "message": "No overlapping shift and rest rules met",
+                    "facts": {}
+                  },
+                  {
+                    "code": "weekly_hours",
+                    "ok": true,
+                    "message": "45h this week after the change",
+                    "facts": {
+                      "weekly_minutes": 2700,
+                      "regular_weekly_minutes": 2880
+                    }
+                  },
+                  {
+                    "code": "rules",
+                    "ok": true,
+                    "message": "Within their scheduling rules",
+                    "facts": {}
+                  },
+                  {
+                    "code": "travel",
+                    "ok": true,
+                    "message": "Works at this outlet",
+                    "facts": {
+                      "travel_minutes": 0
+                    }
+                  }
+                ]
+              },
+              {
+                "employee_id": "7df5532e-f630-5999-90fe-0b04f004bf92",
+                "name": "Kavya Reddy",
+                "status": "rejected",
+                "reasons": [
+                  {
+                    "code": "no_conflict",
+                    "ok": false,
+                    "message": "Would break overlap, rest or travel rules",
+                    "facts": {}
+                  }
+                ]
+              },
+              {
+                "employee_id": "39ecd01e-c984-50d7-a64c-9a350c67e8f6",
+                "name": "Neha Iyer",
+                "status": "rejected",
+                "reasons": [
+                  {
+                    "code": "available",
+                    "ok": false,
+                    "message": "Not available for the shift",
+                    "facts": {}
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "trace": {
+          "strategy": "least_disruption",
+          "summary": {
+            "compared_to": "base_version",
+            "cost_delta_paise": -38250,
+            "preferred_gap_delta_minutes": 0,
+            "fairness_delta": 0,
+            "overtime_minutes": 0,
+            "cross_outlet_moves": 0,
+            "changed_commitments": 1
+          },
+          "counts": {
+            "KEPT": 59,
+            "MOVED_TIME": 0,
+            "REASSIGNED": 1,
+            "CREATED": 0,
+            "REMOVED": 0,
+            "UNFILLED": 0
+          },
+          "explained_shifts": 1,
+          "explanations_truncated": false
+        },
+        "run_id": "f81791b4-7109-5853-8a74-970ff95c17b6",
+        "base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+        "diff": {
+          "added": [],
+          "changed": [
+            {
+              "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+              "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+              "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
+              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+              "start_at": "2026-10-21T10:00:00+05:30",
+              "end_at": "2026-10-21T18:00:00+05:30",
+              "break_start_at": "2026-10-21T15:30:00+05:30",
+              "break_minutes": 30,
+              "locked": false
+            }
+          ],
+          "removed": []
+        },
+        "trace_changes": [
+          {
+            "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+            "change": "REASSIGNED",
+            "kinds": [
+              "reassigned"
+            ],
+            "before_employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+            "after_employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68"
+          }
+        ]
+      }
+    }
+  },
+  "recommendations.replacements": {
+    "name": "recommendations.replacements",
+    "operation_id": "recommendReplacements",
+    "method": "POST",
+    "path": "/v2/recommendations/replacements",
+    "persona": "manager_indiranagar",
+    "request": {
+      "body": {
+        "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+        "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+        "profile": "balanced",
+        "include_other_outlets": false,
+        "limit": 5
+      }
+    },
+    "response": {
+      "status": 200,
+      "schema": "ReplacementRecommendations",
+      "body": {
+        "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+        "version_status": "published",
+        "shift": {
+          "id": "bc3a4357-615c-5a17-a72c-c058500ef67c",
+          "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "start_at": "2026-10-21T10:00:00+05:30",
+          "end_at": "2026-10-21T18:00:00+05:30",
+          "break_start_at": "2026-10-21T15:30:00+05:30",
+          "break_minutes": 30,
+          "locked": false,
+          "lock_reason": null
+        },
+        "vacating_employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+        "profile": "balanced",
+        "basis": "direct_assignment",
+        "policy_version": 1,
+        "considered": 4,
+        "eligible": 2,
+        "recommendations": [
+          {
+            "rank": 1,
+            "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
+            "name": "Chitra Indiranagar",
+            "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+            "disruption_class": "direct",
+            "incremental_cost": {
+              "amount_paise": 119250,
+              "currency": "INR"
+            },
+            "overtime_minutes_added": 0,
+            "fairness_delta": 0,
+            "weekly_minutes_after": 450,
+            "within_preferred_window": null,
+            "reasons": [
+              {
+                "code": "skill",
+                "ok": true,
+                "message": "Qualified for Prep",
+                "facts": {
+                  "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21"
+                }
+              },
+              {
+                "code": "available",
+                "ok": true,
+                "message": "Available for the shift",
+                "facts": {}
+              },
+              {
+                "code": "no_conflict",
+                "ok": true,
+                "message": "No overlapping shift and rest rules met",
+                "facts": {}
+              },
+              {
+                "code": "weekly_hours",
+                "ok": true,
+                "message": "7.5h this week after the change",
+                "facts": {
+                  "weekly_minutes": 450,
+                  "regular_weekly_minutes": 2880
+                }
+              },
+              {
+                "code": "rules",
+                "ok": true,
+                "message": "Within their scheduling rules",
+                "facts": {}
+              },
+              {
+                "code": "travel",
+                "ok": true,
+                "message": "Works at this outlet",
+                "facts": {
+                  "travel_minutes": 0
+                }
+              },
+              {
+                "code": "incremental_cost",
+                "ok": true,
+                "message": "INR 1,192 for this shift",
+                "facts": {
+                  "paise": 119250
+                }
+              },
+              {
+                "code": "fairness_burden",
+                "ok": true,
+                "message": "No closing or weekend burden",
+                "facts": {
+                  "points": 0,
+                  "policy_version": 1
+                }
+              },
+              {
+                "code": "disruption",
+                "ok": true,
+                "message": "Replaces the person published for this shift",
+                "facts": {
+                  "class": "reassigned"
+                }
+              }
+            ],
+            "edit": {
+              "op": "update",
+              "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+              "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
+              "skill_id": null,
+              "start_at": null,
+              "end_at": null,
+              "break_start_at": null,
+              "break_minutes": null
+            }
+          },
+          {
+            "rank": 2,
+            "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+            "name": "Aman Shah",
+            "home_outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+            "disruption_class": "direct",
+            "incremental_cost": {
+              "amount_paise": 135000,
+              "currency": "INR"
+            },
+            "overtime_minutes_added": 0,
+            "fairness_delta": 0,
+            "weekly_minutes_after": 2700,
+            "within_preferred_window": null,
             "reasons": [
               {
                 "code": "skill",
@@ -19877,138 +20232,113 @@
                 }
               }
             ],
-            "alternatives": [
+            "edit": {
+              "op": "update",
+              "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+              "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+              "skill_id": null,
+              "start_at": null,
+              "end_at": null,
+              "break_start_at": null,
+              "break_minutes": null
+            }
+          }
+        ],
+        "rejected": [
+          {
+            "employee_id": "7df5532e-f630-5999-90fe-0b04f004bf92",
+            "name": "Kavya Reddy",
+            "status": "rejected",
+            "reasons": [
               {
-                "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
-                "name": "Chitra Indiranagar",
-                "status": "eligible_not_selected",
-                "reasons": [
-                  {
-                    "code": "skill",
-                    "ok": true,
-                    "message": "Qualified for Prep",
-                    "facts": {
-                      "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21"
-                    }
-                  },
-                  {
-                    "code": "available",
-                    "ok": true,
-                    "message": "Available for the shift",
-                    "facts": {}
-                  },
-                  {
-                    "code": "no_conflict",
-                    "ok": true,
-                    "message": "No overlapping shift and rest rules met",
-                    "facts": {}
-                  },
-                  {
-                    "code": "weekly_hours",
-                    "ok": true,
-                    "message": "7.5h this week after the change",
-                    "facts": {
-                      "weekly_minutes": 450,
-                      "regular_weekly_minutes": 2880
-                    }
-                  },
-                  {
-                    "code": "rules",
-                    "ok": true,
-                    "message": "Within their scheduling rules",
-                    "facts": {}
-                  },
-                  {
-                    "code": "travel",
-                    "ok": true,
-                    "message": "Works at this outlet",
-                    "facts": {
-                      "travel_minutes": 0
-                    }
-                  }
-                ]
-              },
+                "code": "no_conflict",
+                "ok": false,
+                "message": "Would break overlap, rest or travel rules",
+                "facts": {}
+              }
+            ]
+          },
+          {
+            "employee_id": "39ecd01e-c984-50d7-a64c-9a350c67e8f6",
+            "name": "Neha Iyer",
+            "status": "rejected",
+            "reasons": [
               {
-                "employee_id": "7df5532e-f630-5999-90fe-0b04f004bf92",
-                "name": "Kavya Reddy",
-                "status": "rejected",
-                "reasons": [
-                  {
-                    "code": "no_conflict",
-                    "ok": false,
-                    "message": "Would break overlap, rest or travel rules",
-                    "facts": {}
-                  }
-                ]
-              },
-              {
-                "employee_id": "39ecd01e-c984-50d7-a64c-9a350c67e8f6",
-                "name": "Neha Iyer",
-                "status": "rejected",
-                "reasons": [
-                  {
-                    "code": "available",
-                    "ok": false,
-                    "message": "Not available for the shift",
-                    "facts": {}
-                  }
-                ]
+                "code": "available",
+                "ok": false,
+                "message": "Not available for the shift",
+                "facts": {}
               }
             ]
           }
-        ],
-        "trace": {
-          "strategy": "least_disruption",
-          "summary": {
-            "compared_to": "base_version",
-            "cost_delta_paise": -22500,
-            "preferred_gap_delta_minutes": 0,
-            "fairness_delta": 0,
-            "overtime_minutes": 0,
-            "cross_outlet_moves": 0,
-            "changed_commitments": 1
-          },
-          "counts": {
-            "KEPT": 59,
-            "MOVED_TIME": 0,
-            "REASSIGNED": 1,
-            "CREATED": 0,
-            "REMOVED": 0,
-            "UNFILLED": 0
-          },
-          "explained_shifts": 1,
-          "explanations_truncated": false
-        },
-        "run_id": "f81791b4-7109-5853-8a74-970ff95c17b6",
-        "base_version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
-        "diff": {
-          "added": [],
-          "changed": [
-            {
-              "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
-              "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
-              "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
-              "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
-              "start_at": "2026-10-21T10:00:00+05:30",
-              "end_at": "2026-10-21T18:00:00+05:30",
-              "break_start_at": "2026-10-21T15:30:00+05:30",
-              "break_minutes": 30,
-              "locked": false
-            }
-          ],
-          "removed": []
-        },
-        "trace_changes": [
-          {
-            "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
-            "change": "REASSIGNED",
-            "kinds": [
-              "reassigned"
-            ],
-            "before_employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
-            "after_employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98"
-          }
         ]
+      }
+    }
+  },
+  "recommendations.replacements.other_outlets.manager": {
+    "name": "recommendations.replacements.other_outlets.manager",
+    "operation_id": "recommendReplacements",
+    "method": "POST",
+    "path": "/v2/recommendations/replacements",
+    "persona": "manager_indiranagar",
+    "request": {
+      "body": {
+        "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+        "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+        "profile": "balanced",
+        "include_other_outlets": true,
+        "limit": 5
+      }
+    },
+    "response": {
+      "status": 403,
+      "schema": "ErrorResponse",
+      "body": {
+        "error": {
+          "code": "permission_denied",
+          "message": "Only an owner can borrow staff from other outlets.",
+          "retryable": false,
+          "details": {},
+          "trace_id": null
+        }
+      }
+    }
+  },
+  "recommendations.replacements.unknown_shift": {
+    "name": "recommendations.replacements.unknown_shift",
+    "operation_id": "recommendReplacements",
+    "method": "POST",
+    "path": "/v2/recommendations/replacements",
+    "persona": "manager_indiranagar",
+    "request": {
+      "body": {
+        "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+        "logical_shift_id": "d020b4f4-fa5a-5c4a-aa85-467c46a70043",
+        "profile": "balanced",
+        "include_other_outlets": false,
+        "limit": 5
+      }
+    },
+    "response": {
+      "status": 422,
+      "schema": "ErrorResponse",
+      "body": {
+        "error": {
+          "code": "validation_failed",
+          "message": "Some fields need attention.",
+          "retryable": false,
+          "details": {
+            "fields": [
+              {
+                "path": [
+                  "logical_shift_id"
+                ],
+                "message": "That shift is not in this version."
+              }
+            ]
+          },
+          "trace_id": null
+        }
       }
     }
   },
@@ -20048,7 +20378,7 @@
           "minimum_deficit_minutes": 0,
           "preferred_deficit_minutes": 6570,
           "labour_cost": {
-            "amount_paise": 7447500,
+            "amount_paise": 7431750,
             "currency": "INR"
           },
           "overtime_cost": {
@@ -20283,7 +20613,7 @@
             "id": "22df66da-3618-5bd9-8bc0-33104228a1f9",
             "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
             "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
-            "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+            "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
             "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
             "start_at": "2026-10-21T10:00:00+05:30",
             "end_at": "2026-10-21T18:00:00+05:30",
@@ -20857,7 +21187,7 @@
           "minimum_deficit_minutes": 0,
           "preferred_deficit_minutes": 6570,
           "labour_cost": {
-            "amount_paise": 7447500,
+            "amount_paise": 7431750,
             "currency": "INR"
           },
           "overtime_cost": {
@@ -25870,7 +26200,7 @@
               "minimum_deficit_minutes": 0,
               "preferred_deficit_minutes": 6570,
               "labour_cost": {
-                "amount_paise": 7447500,
+                "amount_paise": 7431750,
                 "currency": "INR"
               },
               "overtime_cost": {
@@ -26183,7 +26513,7 @@
             "explanations": [
               {
                 "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
-                "chosen_employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+                "chosen_employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
                 "reasons": [
                   {
                     "code": "skill",
@@ -26208,9 +26538,9 @@
                   {
                     "code": "weekly_hours",
                     "ok": true,
-                    "message": "45h this week after the change",
+                    "message": "7.5h this week after the change",
                     "facts": {
-                      "weekly_minutes": 2700,
+                      "weekly_minutes": 450,
                       "regular_weekly_minutes": 2880
                     }
                   },
@@ -26231,9 +26561,9 @@
                   {
                     "code": "incremental_cost",
                     "ok": true,
-                    "message": "INR 1,350 for this shift",
+                    "message": "INR 1,192 for this shift",
                     "facts": {
-                      "paise": 135000
+                      "paise": 119250
                     }
                   },
                   {
@@ -26256,8 +26586,8 @@
                 ],
                 "alternatives": [
                   {
-                    "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
-                    "name": "Chitra Indiranagar",
+                    "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+                    "name": "Aman Shah",
                     "status": "eligible_not_selected",
                     "reasons": [
                       {
@@ -26283,9 +26613,9 @@
                       {
                         "code": "weekly_hours",
                         "ok": true,
-                        "message": "7.5h this week after the change",
+                        "message": "45h this week after the change",
                         "facts": {
-                          "weekly_minutes": 450,
+                          "weekly_minutes": 2700,
                           "regular_weekly_minutes": 2880
                         }
                       },
@@ -26338,7 +26668,7 @@
               "strategy": "least_disruption",
               "summary": {
                 "compared_to": "base_version",
-                "cost_delta_paise": -22500,
+                "cost_delta_paise": -38250,
                 "preferred_gap_delta_minutes": 0,
                 "fairness_delta": 0,
                 "overtime_minutes": 0,

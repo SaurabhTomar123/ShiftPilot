@@ -14,4 +14,4 @@ Synthetic preview is limited to supplied provider facts: the Ravi sick day on 21
 
 See [decision evidence and verification](DECISION_REVIEW_FLOW.md).
 
-Staff self-service absence UI and durable non-absence repair triggers are separate work. See [v4 alignment and delivery order](ARCHITECTURE_V4_ALIGNMENT.md).
+Find cover is also available here for a direct replacement without moving other shifts; see [replacement review](REPLACEMENT_FLOW.md). Staff self-service absence UI and durable non-absence repair triggers are separate work. See [v4 alignment and delivery order](ARCHITECTURE_V4_ALIGNMENT.md).

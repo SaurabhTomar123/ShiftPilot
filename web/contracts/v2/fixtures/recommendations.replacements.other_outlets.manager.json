@@ -1,0 +1,29 @@
+{
+  "name": "recommendations.replacements.other_outlets.manager",
+  "operation_id": "recommendReplacements",
+  "method": "POST",
+  "path": "/v2/recommendations/replacements",
+  "persona": "manager_indiranagar",
+  "request": {
+    "body": {
+      "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+      "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+      "profile": "balanced",
+      "include_other_outlets": true,
+      "limit": 5
+    }
+  },
+  "response": {
+    "status": 403,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "permission_denied",
+        "message": "Only an owner can borrow staff from other outlets.",
+        "retryable": false,
+        "details": {},
+        "trace_id": null
+      }
+    }
+  }
+}

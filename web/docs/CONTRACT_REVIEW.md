@@ -1,3 +1,15 @@
+# 25 October: direct replacement consumer review (3.19)
+
+Frontend-only pin: **3.19.0-p4 / 118 fixtures**, provider `6c3f731a4ab50f7d924e4cf0a6d5fd213e0dc37f`, aggregate SHA-256 `71b06d910c4e214ec62720d800076abae17fa88e5dccd6365457210cfbb86bab`. Hash checks and AJV validate the snapshot; backend source/runtime remain unchanged.
+
+Accepted: synchronous read-only recommendation POST, exact request identity, provider-ranked direct/overtime/other-outlet options, burden/cost/preference facts, rule-backed exclusions, owner-only borrowing and explicit draft preparation. The returned edit goes through revision-fenced preview and separate save before the existing proposal workflow. No inferred eligibility, automatic unlock or direct publication. Lost saves require a current draft read.
+
+The pin has recommendation success/denial/unknown-shift fixtures but no matching replacement-edit preview/apply example. Synthetic validation rejects unsupported edits; browser mocks test the consumer save path without claiming live acceptance. Repair records now consistently choose Chitra and update their cost/trace. See [flow, validation boundaries and follow-ups](REPLACEMENT_FLOW.md).
+
+The prior fairness fixture issue is corrected upstream at `063cf56`; this bounded 3.19 pin predates that fix and retains the warning. Scenario Lab is the next consumer slice. Historical reviews below describe their original snapshots.
+
+---
+
 # 24 October: portfolio, fairness and trace consumer review (3.18)
 
 Frontend-only pin: **3.18.0-p4 / 115 fixtures**, provider `5d93779f6a51a823db9b3d376f68e9feaa22fe96`, aggregate SHA-256 `ceca5f12379c3c4d8fea346a3f5c6867edff1dc787bd0e8099f2c57519a9906e`. Per-file hashes remain verified. Backend source/runtime are unchanged; live 3.18 acceptance is pending. Earlier live checks below refer to earlier reviewed runtimes.

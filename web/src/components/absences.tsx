@@ -8,6 +8,7 @@ import { outletInstant } from '@/lib/management';
 import { addDays } from '@/lib/types';
 import { Button } from './primitives/button';
 import { DecisionEvidence } from './decision-evidence';
+import { ReplacementReview } from './replacement-review';
 import { PlanCompare } from './plan-compare';
 import { ProtectionControls, ProtectionConflict, RunProtection } from './run-protection';
 import { emptyProtection, hasProtection, releaseProtection, requestedProtection } from '@/lib/protection';
@@ -44,6 +45,8 @@ export function Absences({ client, outlet, week, me, skills, fixtureMode }: {
   const [candidateId, setCandidateId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Schema['ScheduleVersion'] | null>(null);
   const [notice, setNotice] = useState('');
+  const [findingCover, setFindingCover] = useState(false);
+  const coverTrigger = useRef<HTMLButtonElement>(null);
   const savedNotice = useRef<HTMLParagraphElement>(null);
   const life = useRef<AbortController | null>(null);
   const active = useRef(false);
@@ -129,6 +132,8 @@ export function Absences({ client, outlet, week, me, skills, fixtureMode }: {
       {Object.entries(runErrors).map(([id, message]) => <div key={id} role="alert"><p>Absence is saved. Repair status could not be confirmed: {message}</p><p>Run {id}</p><Button disabled={busy} onClick={() => action(signal => track(id, signal))}>Check repair status</Button></div>)}
       {runs.map(run => <section className="repair-run" key={run.id} aria-label="Repair result"><h3>{runMessage(run).title}</h3><p>{runMessage(run).body}</p><p>Run {run.id} · {run.job_state}{run.solver_status ? ` · ${run.solver_status}` : ''}</p>{run.error && <p role="alert">{run.error.message}</p>}{run.infeasibility && <p role="alert">Minimum staffing could not be met. Review staffing and availability before trying another repair.</p>}<RunProtection run={run} base={data.schedule.current_version} employees={data.schedule.employees} skills={skills} timezone={outlet.timezone} /><PlanCompare run={run} baseline={data.schedule.current_version} showCosts={showCosts} /><ol className="repair-stages">{run.repair_stages?.map(stage => <li key={stage.stage}><strong>{stageNames[stage.stage]}</strong><span>{stage.result.replaceAll('_', ' ')}{stage.reason ? `: ${stage.reason.replaceAll('_', ' ')}` : ''}</span><p>{stage.released}</p>{stage.widened_because && <p>Why scope widened: {stage.widened_because}</p>}<p>{stage.free_shifts} changeable shifts; {stage.pool} eligible people.{stage.minimum_shortfall_minutes != null ? ` Minimum shortfall: ${stage.minimum_shortfall_minutes} staff-minutes.` : ''}</p></li>)}</ol>{run.candidates.map(candidate => <article className="repair-option" key={candidate.id}><h4>{strategyName(candidate.strategy)}</h4><p>{candidate.changed_shifts} changed shifts; {candidate.validation.hard_violations} hard violations.{showCosts ? ` Estimated cost ${formatMoney(candidate.metrics.labour_cost)}.` : ''}</p>{candidate.disruption && <p>{candidate.disruption.added_shifts} added shifts · {candidate.disruption.cross_outlet_moves} cross-outlet moves · {candidate.disruption.open_shifts} open shifts</p>}<DecisionEvidence trace={candidate.trace} explanations={candidate.explanations} employees={data.schedule.employees} showCosts={showCosts} assignments={report.affected} skills={skills} timezone={outlet.timezone} />{run.outlet_ids.includes(outlet.id) ? <Button disabled={busy} onClick={() => { setCandidateId(candidate.id); setDraft(null); }}>Review repair option</Button> : <p>Open the affected outlet’s schedule to review this option.</p>}</article>)}</section>)}
     </section>}
+    {canPublish && data.schedule.current_version && !draft && !candidateId && !findingCover && <Button ref={coverTrigger} disabled={busy} onClick={() => setFindingCover(true)}>Find cover for a shift</Button>}
+    {findingCover && data.schedule.current_version && <ReplacementReview key={data.schedule.current_version.id} {...{ client, week, employees: data.schedule.employees, skills, showCosts, fixtureMode }} version={data.schedule.current_version} outletId={outlet.id} timezone={outlet.timezone} owner={me.role === 'owner'} initialShiftId={report?.affected[0]?.logical_shift_id} onClose={() => { setFindingCover(false); requestAnimationFrame(() => coverTrigger.current?.focus()); }} onReady={value => { setFindingCover(false); setDraft(value); setCandidateId(null); }} />}
     {candidateId && <CandidateReview key={candidateId} {...{ client, skills, showCosts }} candidateId={candidateId} employees={data.schedule.employees} timezone={outlet.timezone} canSelect={canPublish} onSelected={value => { setDraft(value); setCandidateId(null); }} onClose={() => setCandidateId(null)} />}
     {draft && <section aria-label="Repair draft review"><h2>Repair draft {draft.version_number} has not been published</h2><ProposalReview {...{ client, draft, fixtureMode, showCosts }} timezone={outlet.timezone} onReload={() => action(load)} onPublished={() => { setNotice('Repair publication confirmed by the server.'); setDraft(null); action(load); }} /></section>}
   </section>;

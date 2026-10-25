@@ -22,7 +22,7 @@ function profileLabel(value: string) {
   return ({ balanced: 'Balanced', lowest_cost: 'Lowest cost', staff_friendly: 'Hours preference alignment', max_coverage: 'Maximum coverage', stability: 'Stability', fairness: 'Employee fairness' } as Record<string, string>)[value] ?? value.replaceAll('_', ' ');
 }
 
-function Facts({ items, showCosts }: { items: Schema['ExplanationFact'][]; showCosts: boolean }) {
+export function Facts({ items, showCosts }: { items: Schema['ExplanationFact'][]; showCosts: boolean }) {
   const shown = items.filter(fact => showCosts || fact.code !== 'incremental_cost');
   return <><ul>{shown.map((fact, index) => <li key={`${fact.code}:${index}`}><span className="neutral-badge">{fact.ok ? ['incremental_cost', 'fairness_burden', 'disruption'].includes(fact.code) ? 'Recorded' : 'Met' : 'Blocked'}</span> {fact.message}{sourceIds(fact).length > 0 && <details><summary>Constraint sources</summary><ul>{sourceIds(fact).map(source => <li key={source}>{source}</li>)}</ul></details>}</li>)}</ul>{shown.length !== items.length && <p>Cost evidence requires cost access.</p>}</>;
 }

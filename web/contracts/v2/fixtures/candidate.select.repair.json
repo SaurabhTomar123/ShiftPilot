@@ -34,7 +34,7 @@
         "minimum_deficit_minutes": 0,
         "preferred_deficit_minutes": 6570,
         "labour_cost": {
-          "amount_paise": 7447500,
+          "amount_paise": 7431750,
           "currency": "INR"
         },
         "overtime_cost": {
@@ -269,7 +269,7 @@
           "id": "22df66da-3618-5bd9-8bc0-33104228a1f9",
           "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
           "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
-          "employee_id": "24efcd94-4cb1-5861-8781-3df9b40a8e98",
+          "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68",
           "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
           "start_at": "2026-10-21T10:00:00+05:30",
           "end_at": "2026-10-21T18:00:00+05:30",
@@ -843,7 +843,7 @@
         "minimum_deficit_minutes": 0,
         "preferred_deficit_minutes": 6570,
         "labour_cost": {
-          "amount_paise": 7447500,
+          "amount_paise": 7431750,
           "currency": "INR"
         },
         "overtime_cost": {

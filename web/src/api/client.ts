@@ -87,6 +87,7 @@ export class SchedulingClient {
     return session.me;
   }
   me(signal?: AbortSignal) { return this.request<Schema['Me']>('/v2/me', { signal }); }
+  recommendReplacements(input: Schema['ReplacementRequest'], signal?: AbortSignal) { return this.request<Schema['ReplacementRecommendations']>('/v2/recommendations/replacements', { method: 'POST', body: JSON.stringify(input), signal }); }
   absences(outletId: string, from: string, to: string, signal?: AbortSignal) { return this.request<Schema['AbsenceList']>(`/v2/absences?${new URLSearchParams({ outlet_id: outletId, from, to })}`, { signal }); }
   reportAbsence(input: Schema['ReportAbsenceRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['AbsenceReport']>('/v2/absences', { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
   updateAbsence(id: string, input: Schema['UpdateAbsenceRequest'], signal?: AbortSignal) { return this.request<Schema['AbsenceReport']>(`/v2/absences/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(input), signal }); }

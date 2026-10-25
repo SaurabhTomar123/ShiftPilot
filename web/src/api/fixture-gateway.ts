@@ -44,6 +44,16 @@ export async function fixtureResponse(path: string, request: Request): Promise<R
     return url.searchParams.get('week_start') === '2026-10-19' ? reply('my_week.staff') : missing();
   }
   if (persona === 'staff') return denied();
+  if (url.pathname === '/v2/recommendations/replacements' && method === 'POST') {
+    if (scenario === 'denied') return denied();
+    const body = await request.json().catch(() => null);
+    const sample = records['recommendations.replacements'].request?.body as Schema['ReplacementRequest'];
+    if (body?.include_other_outlets && persona !== 'owner') return reply('recommendations.replacements.other_outlets.manager');
+    if (body?.version_id !== sample.version_id || (body.profile ?? 'balanced') !== 'balanced' || (body.limit ?? 5) !== 5 || body.include_other_outlets) return missing();
+    if (body.logical_shift_id === sample.logical_shift_id) return reply('recommendations.replacements');
+    const unknown = records['recommendations.replacements.unknown_shift'].request?.body as Schema['ReplacementRequest'];
+    return body.logical_shift_id === unknown.logical_shift_id ? reply('recommendations.replacements.unknown_shift') : missing();
+  }
   const absence = await absenceFixture(url, request);
   if (absence) return absence;
   const review = await reviewFixture(url, request, persona, fixture);

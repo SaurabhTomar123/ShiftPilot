@@ -1023,3 +1023,20 @@ input::placeholder, textarea::placeholder { color: #75806e; opacity: 1; }
   .contract-app .history-list .review-actions .button { flex: 1 1 100%; }
   .contract-app .history-restored .proposal-review { padding: 14px; margin-left: -2px; margin-right: -2px; }
 }
+.replacement-review { border: 1px solid var(--line); border-inline-start: 4px solid var(--green); border-radius: 10px; padding: 24px; margin-block: 24px; background: var(--surface); }
+.replacement-review p { max-width: 78ch; line-height: 1.65; margin-block: 12px; }
+.replacement-review li { line-height: 1.65; overflow-wrap: anywhere; }
+.replacement-inputs { border: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: end; gap: 16px; margin-block: 20px; min-width: 0; }
+.replacement-inputs legend { font-weight: 600; margin-block-end: 12px; }
+.replacement-inputs label { display: grid; gap: 8px; min-width: 0; flex: 1 1 220px; }
+.replacement-inputs label:first-of-type { flex-basis: 100%; }
+.replacement-inputs select { width: 100%; min-width: 0; min-height: 44px; padding: 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: inherit; }
+.replacement-inputs .replacement-consent { display: flex; align-items: center; min-height: 44px; }
+.replacement-consent input { width: 20px; height: 20px; }
+.replacement-options { list-style: none; padding: 0; margin: 0; }
+.replacement-options > li { border-block-start: 1px solid var(--line); padding-block: 24px; }
+.replacement-option-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.replacement-option-heading h4 { font-size: 21px; margin: 0; }
+.replacement-options details, .replacement-blocked { margin-block: 16px; }
+.replacement-review summary { cursor: pointer; min-height: 44px; padding-block: 10px; font-weight: 600; }
+@media (max-width: 600px) { .replacement-review { padding: 16px; } .replacement-inputs { display: grid; } .replacement-inputs label { width: 100%; } }

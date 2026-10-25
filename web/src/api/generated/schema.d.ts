@@ -899,6 +899,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/recommendations/replacements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Recommend Replacements
+         * @description Who can cover this shift, ranked by disruption then the chosen profile (architecture v4 section 46).
+         *     Read-only and synchronous; choose someone by applying the returned edit to a draft.
+         */
+        post: operations["recommendReplacements"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2420,6 +2441,52 @@ export interface components {
             /** Superseded Version Id */
             superseded_version_id: string | null;
         };
+        /** Recommendation */
+        Recommendation: {
+            /** Rank */
+            rank: number;
+            /**
+             * Employee Id
+             * Format: uuid
+             */
+            employee_id: string;
+            /** Name */
+            name: string;
+            /**
+             * Home Outlet Id
+             * Format: uuid
+             */
+            home_outlet_id: string;
+            /**
+             * Disruption Class
+             * @description Ranked in this order first: direct, then pushing into overtime, then another outlet.
+             * @enum {string}
+             */
+            disruption_class: "direct" | "overtime" | "cross_outlet";
+            /** @description Labour plus overtime premium, against leaving the shift open. */
+            incremental_cost: components["schemas"]["Money"];
+            /** Overtime Minutes Added */
+            overtime_minutes_added: number;
+            /**
+             * Fairness Delta
+             * @description Change in fairness burden deviation; negative = fairer.
+             */
+            fairness_delta: number | null;
+            /** Weekly Minutes After */
+            weekly_minutes_after: number;
+            /**
+             * Within Preferred Window
+             * @description null: the person states no preferred windows.
+             */
+            within_preferred_window: boolean | null;
+            /**
+             * Reasons
+             * @description Every eligibility check passed, plus cost, burden and disruption.
+             */
+            reasons: components["schemas"]["ExplanationFact"][];
+            /** @description Apply to a draft with applyEdits to choose this person. */
+            edit: components["schemas"]["UpdateShift"];
+        };
         /** RelaxationEmployee */
         RelaxationEmployee: {
             /**
@@ -2557,6 +2624,94 @@ export interface components {
              * @description Why the previous stage was not enough.
              */
             widened_because?: string | null;
+        };
+        /**
+         * ReplacementRecommendations
+         * @description Who can cover this shift (architecture v4 sections 11, 46). Read-only; nothing is written.
+         *
+         *     basis is a direct assignment: each person is checked as if they took the shift and nothing else
+         *     changed. Someone blocked only by another of their shifts could become free if that shift moved; that
+         *     is a repair run, never presented as a recommendation.
+         */
+        ReplacementRecommendations: {
+            /**
+             * Version Id
+             * Format: uuid
+             */
+            version_id: string;
+            /**
+             * Version Status
+             * @enum {string}
+             */
+            version_status: "draft" | "published" | "superseded" | "discarded";
+            shift: components["schemas"]["Shift"];
+            /**
+             * Vacating Employee Id
+             * @description Who holds the shift now; null = open.
+             */
+            vacating_employee_id: string | null;
+            /**
+             * Profile
+             * @enum {string}
+             */
+            profile: "balanced" | "lowest_cost" | "staff_friendly" | "max_coverage" | "stability" | "fairness";
+            /**
+             * Basis
+             * @default direct_assignment
+             * @constant
+             */
+            basis: "direct_assignment";
+            /** Policy Version */
+            policy_version: number;
+            /**
+             * Considered
+             * @description Qualified people checked.
+             */
+            considered: number;
+            /**
+             * Eligible
+             * @description Of those, people no rule blocks (recommendations is the top `limit`).
+             */
+            eligible: number;
+            /** Recommendations */
+            recommendations: components["schemas"]["Recommendation"][];
+            /**
+             * Rejected
+             * @description Blocked people with the concrete rule (at most 10).
+             */
+            rejected: components["schemas"]["AlternativeFact"][];
+        };
+        /** ReplacementRequest */
+        ReplacementRequest: {
+            /**
+             * Version Id
+             * Format: uuid
+             * @description The version the shift is in: published or a draft.
+             */
+            version_id: string;
+            /**
+             * Logical Shift Id
+             * Format: uuid
+             */
+            logical_shift_id: string;
+            /**
+             * Profile
+             * @description Ranks eligible people the way the profile weighs cost, fairness and preferences.
+             * @default balanced
+             * @enum {string}
+             */
+            profile: "balanced" | "lowest_cost" | "staff_friendly" | "max_coverage" | "stability" | "fairness";
+            /**
+             * Include Other Outlets
+             * @description Owner only; managers get 403.
+             * @default false
+             */
+            include_other_outlets: boolean;
+            /**
+             * Limit
+             * @default 5
+             */
+            limit: number;
         };
         /** ReportAbsenceRequest */
         ReportAbsenceRequest: {
@@ -7157,6 +7312,75 @@ export interface operations {
                 headers: {
                     /** @description Seconds to wait. */
                     "Retry-After"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    recommendReplacements: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplacementRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplacementRecommendations"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
                     [name: string]: unknown;
                 };
                 content: {
