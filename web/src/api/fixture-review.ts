@@ -1,4 +1,5 @@
 import type { Persona, Schema } from './types';
+import { recordScenarioConversion, scenarioPreview, scenarioCandidateId } from './fixture-scenarios';
 import examples from './generated/edit-examples.json';
 
 type ReadFixture = <T>(name: string) => T;
@@ -23,7 +24,8 @@ export async function reviewFixture(url: URL, request: Request, persona: Persona
   const historyPath = /^\/v2\/schedules\/([^/]+)\/versions$/.exec(url.pathname);
   const comparePath = /^\/v2\/schedule-versions\/([^/]+)\/compare$/.exec(url.pathname);
   const restorePath = /^\/v2\/schedule-versions\/([^/]+)\/restore$/.exec(url.pathname);
-  if (!candidate && !proposalPath && !versionPath && !weekPath && !createPath && !editPath && !historyPath && !comparePath && !restorePath) return null;
+  const convertPath = /^\/v2\/scenarios\/([^/]+)\/convert$/.exec(url.pathname);
+  if (!convertPath && !candidate && !proposalPath && !versionPath && !weekPath && !createPath && !editPath && !historyPath && !comparePath && !restorePath) return null;
   const now = Date.now();
   for (const [key, value] of previews) if (now - value.touched > 1800000) previews.delete(key);
   const key = `${persona}:${nonce}`;
@@ -99,6 +101,7 @@ export async function reviewFixture(url: URL, request: Request, persona: Persona
   const repairDetail = fixture<Schema['CandidateDetail']>('candidate.detail.repair');
   const detail = candidate?.[1] === repairDetail.id ? repairDetail : candidate?.[1] === lowest.id ? lowest : fixture<Schema['CandidateDetail']>('candidate.detail');
   const selectionName = detail.id === repairDetail.id ? 'candidate.select.repair' : detail.id === lowest.id ? 'candidate.select.lowest_cost' : 'candidate.select';
+  if (candidate?.[1] === scenarioCandidateId) return response(fixture('candidate.select.scenario'), 409);
   if (candidate && candidate[1] !== detail.id) return error('not_implemented', 'No provider candidate fixture matches this request.', 501);
   if (candidate && !candidate[2] && request.method === 'GET') return response({ ...detail, materialized_version_id: state.draft?.optimization_run_id === detail.run_id && state.draft.id === fixture<Schema['ScheduleVersion']>(selectionName).id ? state.draft.id : null });
   if (proposalPath?.[1] && proposalPath[1] !== state.proposal?.id) return error('not_found', 'No proposal exists in this synthetic session.', 404);
@@ -114,6 +117,14 @@ export async function reviewFixture(url: URL, request: Request, persona: Persona
     if (state.replay.size >= 64) state.replay.delete(state.replay.keys().next().value!);
     state.replay.set(idempotencyKey, { fingerprint, body: structuredClone(value), status }); return response(value, status);
   };
+  if (convertPath) {
+    const current = scenarioPreview(request, persona).value;
+    if (convertPath[1] !== current.id || body?.candidate_id !== scenarioCandidateId) return error('not_implemented', 'No provider scenario conversion matches this request.', 501);
+    if (request.headers.get('X-ShiftPilot-Scenario') === 'infeasible') return response(fixture('scenario.convert.assumptions'), 409);
+    if (current.status !== 'open') return error('conflict', `This scenario is ${current.status}.`, 409);
+    if (state.draft) return error('conflict', 'A draft already exists. Review it before converting another plan.', 409);
+    state.draft = fixture<Schema['ScheduleVersion']>('scenario.convert'); recordScenarioConversion(request, persona, state.draft); return remember(state.draft, 201);
+  }
   if (restorePath) {
     const history = fixture<Schema['VersionHistory']>('versions.list');
     if (request.headers.get('X-ShiftPilot-Scenario') === 'stale' || body?.expected_base_version_id !== (state.published?.id ?? history.current_version_id)) return error('stale_version', 'The published version changed. Reload history before restoring.', 409);
@@ -141,7 +152,7 @@ export async function reviewFixture(url: URL, request: Request, persona: Persona
     if (!state.draft || body?.draft_version_id !== state.draft.id) return error('not_found', 'Create or select a draft before proposing it.', 404);
     if (body.expected_revision !== state.draft.revision) return error('stale_version', 'This draft revision changed.', 409);
     if (state.proposal?.draft_revision === state.draft.revision) return error('conflict', 'A proposal has already been created for this revision in the synthetic session. Start a new demo session to repeat it.', 409);
-    state.proposal = { ...fixture<Schema['Proposal']>('proposal.create'), ...(state.proposal ? { id: crypto.randomUUID() } : {}), schedule_id: state.draft.schedule_id, draft_version_id: state.draft.id, draft_revision: state.draft.revision, base_version_id: state.draft.base_version_id, candidate_id: state.draft.optimization_run_id ? (state.draft.id === fixture<Schema['ScheduleVersion']>('candidate.select.repair').id ? repairDetail.id : state.draft.id === fixture<Schema['ScheduleVersion']>('candidate.select.lowest_cost').id ? lowest.id : detail.id) : null, metrics_at_proposal: state.draft.metrics }; return remember(state.proposal, 201);
+    state.proposal = { ...fixture<Schema['Proposal']>('proposal.create'), ...(state.proposal ? { id: crypto.randomUUID() } : {}), schedule_id: state.draft.schedule_id, draft_version_id: state.draft.id, draft_revision: state.draft.revision, base_version_id: state.draft.base_version_id, candidate_id: state.draft.source === 'scenario' ? scenarioCandidateId : state.draft.optimization_run_id ? (state.draft.id === fixture<Schema['ScheduleVersion']>('candidate.select.repair').id ? repairDetail.id : state.draft.id === fixture<Schema['ScheduleVersion']>('candidate.select.lowest_cost').id ? lowest.id : detail.id) : null, metrics_at_proposal: state.draft.metrics }; return remember(state.proposal, 201);
   }
   if (state.proposal?.status !== 'pending') return error('conflict', 'This proposal is no longer pending.', 409);
   if (proposalPath?.[2] === '/reject') { const rejected = fixture<Schema['Proposal']>('proposal.reject'); state.proposal = { ...state.proposal, status: 'rejected', decided_at: rejected.decided_at, decided_by_user_id: rejected.decided_by_user_id }; return remember(state.proposal); }

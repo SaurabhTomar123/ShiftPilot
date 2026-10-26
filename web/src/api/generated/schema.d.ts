@@ -920,6 +920,139 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v2/outlets/{outlet_id}/schedules/{week_start}/scenarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Scenario
+         * @description A what-if on this week, starting from its current published version. Nothing real changes.
+         */
+        post: operations["createScenario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/outlets/{outlet_id}/scenarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Scenarios */
+        get: operations["listScenarios"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/scenarios/{scenario_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Scenario */
+        get: operations["getScenario"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/scenarios/{scenario_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Scenario Event
+         * @description 409 once the scenario is converted, discarded or expired.
+         */
+        post: operations["addScenarioEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/scenarios/{scenario_id}/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run Scenario
+         * @description Queue a solve with the events applied. 409 stale_version when the real week moved since the
+         *     scenario was created; 409 run_in_progress while this scenario already has an active run.
+         */
+        post: operations["runScenario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/scenarios/{scenario_id}/convert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Convert Scenario
+         * @description Turn this into a plan: the candidate is re-checked against current facts and becomes a normal
+         *     draft. 409 stale_version if the real week moved; 409 conflict if current facts break the plan.
+         */
+        post: operations["convertScenario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/scenarios/{scenario_id}/discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Discard Scenario */
+        post: operations["discardScenario"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1388,6 +1521,15 @@ export interface components {
              */
             employee_id?: string | null;
         };
+        /** ConvertScenarioRequest */
+        ConvertScenarioRequest: {
+            /**
+             * Candidate Id
+             * Format: uuid
+             * @description A candidate of this scenario's latest successful run.
+             */
+            candidate_id: string;
+        };
         /** CoverageCell */
         CoverageCell: {
             /**
@@ -1435,6 +1577,13 @@ export interface components {
              * @description The draft revision the manager reviewed.
              */
             expected_revision: number;
+        };
+        /** CreateScenarioRequest */
+        CreateScenarioRequest: {
+            /** Title */
+            title: string;
+            /** Events */
+            events?: components["schemas"]["ScenarioEventIn"][];
         };
         /**
          * DecisionTrace
@@ -2135,7 +2284,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "generate" | "optimize" | "repair";
+            kind: "generate" | "optimize" | "repair" | "scenario";
             /** Outlet Ids */
             outlet_ids: string[];
             /** Base Version Ids */
@@ -2147,6 +2296,11 @@ export interface components {
              * @description Repair runs: the absence being repaired.
              */
             absence_id?: string | null;
+            /**
+             * Scenario Id
+             * @description Scenario runs: hypothetical; their candidates cannot be selected.
+             */
+            scenario_id?: string | null;
             /**
              * Job State
              * @enum {string}
@@ -2945,6 +3099,152 @@ export interface components {
              */
             impact: components["schemas"]["RuleImpact"][];
         };
+        /**
+         * Scenario
+         * @description A what-if that never changes real facts. Run it, compare each candidate's trace (deltas against
+         *     the base version, measured under the scenario) with `baseline`, then convert one candidate: it is
+         *     re-checked against current facts and becomes a normal draft.
+         */
+        Scenario: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Outlet Id
+             * Format: uuid
+             */
+            outlet_id: string;
+            /**
+             * Week Start
+             * Format: date
+             */
+            week_start: string;
+            /**
+             * Schedule Id
+             * Format: uuid
+             */
+            schedule_id: string;
+            /** Title */
+            title: string;
+            /**
+             * Base Version Id
+             * @description The published version the scenario starts from.
+             */
+            base_version_id: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "converted" | "discarded" | "expired";
+            /**
+             * Created By User Id
+             * Format: uuid
+             */
+            created_by_user_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Converted Version Id */
+            converted_version_id: string | null;
+            /** Events */
+            events: components["schemas"]["ScenarioEvent"][];
+            /** Latest Run Id */
+            latest_run_id: string | null;
+            /** @description From the latest run; null before the first. */
+            baseline: components["schemas"]["ScenarioBaseline"] | null;
+        };
+        /**
+         * ScenarioBaseline
+         * @description The current plan as it would stand if the events happened: the "before" of the comparison.
+         */
+        ScenarioBaseline: {
+            /**
+             * Run Id
+             * Format: uuid
+             */
+            run_id: string;
+            metrics: components["schemas"]["Metrics"];
+            /**
+             * Hard Violations
+             * @description Shifts the events would break (e.g. an absence).
+             */
+            hard_violations: number;
+            /** Violation Codes */
+            violation_codes: string[];
+        };
+        /** ScenarioEvent */
+        ScenarioEvent: {
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "demand_change" | "absence" | "outlet_closure" | "labour_cap" | "rule";
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Sequence
+             * @description Events apply in this order.
+             */
+            sequence: number;
+        };
+        /**
+         * ScenarioEventIn
+         * @description One hypothetical event (architecture v4 section 23). Payloads by type:
+         *
+         *     - demand_change: {percent: -100..300, skill_id?, weekdays?: [0..6], start_minute?, end_minute?}
+         *     - absence: {employee_id, start_at, end_at}
+         *     - outlet_closure: {day: YYYY-MM-DD}
+         *     - labour_cap: {max_cost_paise}
+         *     - rule: {rule_type, parameters, employee_ids: [...]} (same rule types as createRule)
+         *
+         *     Other types are refused (422), never turned into free-form solver input.
+         */
+        ScenarioEventIn: {
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "demand_change" | "absence" | "outlet_closure" | "labour_cap" | "rule";
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+        };
+        /** ScenarioList */
+        ScenarioList: {
+            /** Items */
+            items: components["schemas"]["Scenario"][];
+        };
+        /** ScenarioRunRequest */
+        ScenarioRunRequest: {
+            /**
+             * Strategy
+             * @default balanced
+             * @enum {string}
+             */
+            strategy: "balanced" | "lowest_cost" | "staff_friendly" | "max_coverage" | "stability" | "fairness";
+            /**
+             * Time Limit Seconds
+             * @default 10
+             */
+            time_limit_seconds: number;
+        };
         /** ScheduleVersion */
         ScheduleVersion: {
             /**
@@ -2968,7 +3268,7 @@ export interface components {
              * Source
              * @enum {string}
              */
-            source: "seed" | "manual" | "generate" | "optimize" | "repair" | "restore" | "import";
+            source: "seed" | "manual" | "generate" | "optimize" | "repair" | "restore" | "import" | "scenario";
             /** Reason */
             reason: string;
             /** Base Version Id */
@@ -3028,7 +3328,7 @@ export interface components {
              * Source
              * @enum {string}
              */
-            source: "seed" | "manual" | "generate" | "optimize" | "repair" | "restore" | "import";
+            source: "seed" | "manual" | "generate" | "optimize" | "repair" | "restore" | "import" | "scenario";
             /** Reason */
             reason: string;
             /** Base Version Id */
@@ -7371,6 +7671,547 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createScenario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                outlet_id: string;
+                week_start: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateScenarioRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Scenario"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listScenarios: {
+        parameters: {
+            query?: {
+                week_start?: string | null;
+            };
+            header?: never;
+            path: {
+                outlet_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioList"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getScenario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Scenario"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    addScenarioEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioEventIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Scenario"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    runScenario: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                scenario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioRunRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OptimizationRun"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    /** @description Seconds to wait. */
+                    "Retry-After"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    convertScenario: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Unique per logical request; replays return the original result, a different body with the same key is 409. */
+                "Idempotency-Key": string;
+            };
+            path: {
+                scenario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConvertScenarioRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScheduleVersion"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Implemented */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    discardScenario: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scenario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Scenario"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

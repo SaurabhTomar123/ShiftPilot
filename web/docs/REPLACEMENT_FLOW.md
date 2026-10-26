@@ -1,6 +1,6 @@
 # Find cover: direct replacement review
 
-25 October 2026. Architecture v4 governs; Codex owns the UI and Claude owns API, database and scheduling implementation.
+25 October 2026. Historical replacement slice: the consumer has since moved to 3.20 for Scenario Lab. Provider 3.27 now supplies the requested replacement-edit records; consuming that newer slice remains a follow-up. Architecture v4 governs; Codex owns the UI and Claude owns API, database and scheduling implementation.
 
 ## Accepted contract slice
 

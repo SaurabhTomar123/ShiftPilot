@@ -1040,3 +1040,27 @@ input::placeholder, textarea::placeholder { color: #75806e; opacity: 1; }
 .replacement-options details, .replacement-blocked { margin-block: 16px; }
 .replacement-review summary { cursor: pointer; min-height: 44px; padding-block: 10px; font-weight: 600; }
 @media (max-width: 600px) { .replacement-review { padding: 16px; } .replacement-inputs { display: grid; } .replacement-inputs label { width: 100%; } }
+.scenario-boundary { padding: 20px 24px; border-inline-start: 4px solid var(--green); background: var(--mint); border-radius: 7px; }
+.scenario-lab p { max-width: 78ch; line-height: 1.65; margin-block: 12px; }
+.scenario-boundary > strong { font-size: 20px; }
+.scenario-saved-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-block: 24px 16px; }
+.scenario-saved { list-style: none; padding: 0; }
+.scenario-saved li { display: flex; justify-content: space-between; align-items: center; gap: 20px; border-bottom: 1px solid var(--line); padding-block: 16px; }
+.scenario-saved li span { display: block; color: var(--muted); margin-top: 6px; }
+.scenario-create, .scenario-detail { padding: 24px; margin-block: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.scenario-lab input:not([type=radio]):not([type=checkbox]), .scenario-lab select { width: 100%; min-height: 44px; min-width: 0; padding: 10px; background: var(--surface); color: inherit; border: 1px solid var(--line); border-radius: 7px; }
+.scenario-lab label:not(.scenario-weekdays label):not(.scenario-options label) { display: grid; gap: 8px; }
+.scenario-create > label { max-width: 620px; }
+.scenario-lab fieldset { border: 0; padding: 0; margin: 20px 0; min-width: 0; }
+.scenario-lab legend { font-weight: 600; padding: 0; margin-bottom: 12px; }
+.scenario-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.scenario-lab .scenario-weekdays { display: flex; flex-wrap: wrap; gap: 12px; }
+.scenario-weekdays label, .scenario-options label { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.scenario-weekdays input, .scenario-options input { width: 20px; height: 20px; flex-shrink: 0; }
+.scenario-event-list { padding-inline-start: 24px; }
+.scenario-event-list li { padding: 12px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.scenario-run-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; margin-block: 24px; }
+.scenario-run-status, .scenario-baseline, .scenario-option-review, .scenario-discard { margin-block: 24px; padding-block: 20px; border-top: 1px solid var(--line); }
+.scenario-lab .review-table-scroll table { min-width: 680px; }
+.scenario-create > button { margin: 8px 12px 8px 0; }
+@media (max-width: 650px) { .scenario-fields { grid-template-columns: 1fr; } .scenario-create, .scenario-detail { padding: 16px; } .scenario-saved li, .scenario-saved-heading { align-items: start; flex-direction: column; } .scenario-saved button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; } }

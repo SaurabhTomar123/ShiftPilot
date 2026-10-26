@@ -21,6 +21,7 @@
       "base_version_ids": [],
       "strategy": "balanced",
       "absence_id": null,
+      "scenario_id": null,
       "job_state": "running",
       "solver_status": null,
       "input_hash": "sha256:a9aefe1885535e62920a74d53098d5af",

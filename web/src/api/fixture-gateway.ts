@@ -3,6 +3,7 @@ import type { Fixture, Persona, Scenario, Schema } from './types';
 import { managementFixture } from './fixture-management';
 import { reviewFixture } from './fixture-review';
 import { absenceFixture } from './fixture-absences';
+import { scenarioFixture } from './fixture-scenarios';
 
 const records = fixtures as unknown as Record<string, Fixture>;
 export const fixture = <T>(name: string) => structuredClone(records[name].response.body) as T;
@@ -44,6 +45,8 @@ export async function fixtureResponse(path: string, request: Request): Promise<R
     return url.searchParams.get('week_start') === '2026-10-19' ? reply('my_week.staff') : missing();
   }
   if (persona === 'staff') return denied();
+  const scenarioResponse = await scenarioFixture(url, request, persona);
+  if (scenarioResponse) return scenarioResponse;
   if (url.pathname === '/v2/recommendations/replacements' && method === 'POST') {
     if (scenario === 'denied') return denied();
     const body = await request.json().catch(() => null);

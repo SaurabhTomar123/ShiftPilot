@@ -87,6 +87,13 @@ export class SchedulingClient {
     return session.me;
   }
   me(signal?: AbortSignal) { return this.request<Schema['Me']>('/v2/me', { signal }); }
+  scenarios(outletId: string, week: string, signal?: AbortSignal) { return this.request<Schema['ScenarioList']>(`/v2/outlets/${encodeURIComponent(outletId)}/scenarios?week_start=${encodeURIComponent(week)}`, { signal }); }
+  scenario(id: string, signal?: AbortSignal) { return this.request<Schema['Scenario']>(`/v2/scenarios/${encodeURIComponent(id)}`, { signal }); }
+  createScenario(outletId: string, week: string, input: Schema['CreateScenarioRequest'], signal?: AbortSignal) { return this.request<Schema['Scenario']>(`/v2/outlets/${encodeURIComponent(outletId)}/schedules/${encodeURIComponent(week)}/scenarios`, { method: 'POST', body: JSON.stringify(input), signal }); }
+  addScenarioEvent(id: string, input: Schema['ScenarioEventIn'], signal?: AbortSignal) { return this.request<Schema['Scenario']>(`/v2/scenarios/${encodeURIComponent(id)}/events`, { method: 'POST', body: JSON.stringify(input), signal }); }
+  runScenario(id: string, input: Schema['ScenarioRunRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['OptimizationRun']>(`/v2/scenarios/${encodeURIComponent(id)}/run`, { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
+  convertScenario(id: string, input: Schema['ConvertScenarioRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['ScheduleVersion']>(`/v2/scenarios/${encodeURIComponent(id)}/convert`, { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
+  discardScenario(id: string, signal?: AbortSignal) { return this.request<Schema['Scenario']>(`/v2/scenarios/${encodeURIComponent(id)}/discard`, { method: 'POST', signal }); }
   recommendReplacements(input: Schema['ReplacementRequest'], signal?: AbortSignal) { return this.request<Schema['ReplacementRecommendations']>('/v2/recommendations/replacements', { method: 'POST', body: JSON.stringify(input), signal }); }
   absences(outletId: string, from: string, to: string, signal?: AbortSignal) { return this.request<Schema['AbsenceList']>(`/v2/absences?${new URLSearchParams({ outlet_id: outletId, from, to })}`, { signal }); }
   reportAbsence(input: Schema['ReportAbsenceRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['AbsenceReport']>('/v2/absences', { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }

@@ -1,6 +1,6 @@
 {
-  "version": "3.19.0-p4",
-  "providerCommit": "6c3f731a4ab50f7d924e4cf0a6d5fd213e0dc37f",
-  "sha256": "71b06d910c4e214ec62720d800076abae17fa88e5dccd6365457210cfbb86bab",
-  "fixtureCount": 118
+  "version": "3.20.0-p4",
+  "providerCommit": "b6e8ef68c57381d510c93b91fe77e5e9bcbce65f",
+  "sha256": "83b59dc653bf623c7f5f760ddcfb936e791f1183b5ac61ac6072ccc6a7174b31",
+  "fixtureCount": 128
 }

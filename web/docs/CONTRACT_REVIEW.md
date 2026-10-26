@@ -1,3 +1,15 @@
+# 25 October: Scenario Lab consumer review (3.20)
+
+Frontend-only pin **3.20.0-p4 / 128 fixtures**, provider `b6e8ef68c57381d510c93b91fe77e5e9bcbce65f`, aggregate SHA-256 `83b59dc653bf623c7f5f760ddcfb936e791f1183b5ac61ac6072ccc6a7174b31`. Backend implementation/runtime remain unchanged.
+
+Accepted consumer flow: typed hypothetical events; explicit admission and bounded status reads; run-matched simulated baseline; scenario conversion instead of normal selection; stable conversion-key recovery; normal draft/proposal/approval; explicit discard; cost/session/scope boundaries. Operational event writes are absent from the UI flow. Missing completed-run/detail fixtures remain explicit errors, with local browser mocks used only to verify consumer behavior.
+
+Provider follow-up: public run evidence lacks the captured event IDs/revision, so resumed/attached results cannot be tied to the current event list. The UI requires a fresh admitted run before comparing/converting and invalidates changed events. The reviewed conversion source also needs a latest-run/current-event fence and matching acceptance examples; current-fact validation alone does not establish event provenance. See [full flow, evidence and boundaries](SCENARIO_LAB_FLOW.md).
+
+Newer 3.27 replacement-edit records and the fairness correction are available upstream for the next bounded consumer review. Live engine, tenant and isolation acceptance remain pending.
+
+---
+
 # 25 October: direct replacement consumer review (3.19)
 
 Frontend-only pin: **3.19.0-p4 / 118 fixtures**, provider `6c3f731a4ab50f7d924e4cf0a6d5fd213e0dc37f`, aggregate SHA-256 `71b06d910c4e214ec62720d800076abae17fa88e5dccd6365457210cfbb86bab`. Hash checks and AJV validate the snapshot; backend source/runtime remain unchanged.
