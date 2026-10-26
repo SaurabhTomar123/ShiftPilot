@@ -12,7 +12,7 @@ The product is a **Workforce Decision & Recovery Engine**. Schedule stays the ma
 | Repair Inbox | Weekly saved absences, explicit status decisions, automatic repair tracking, lock authorization, widening and returned reasons | Direct replacement ranking delivered; durable trigger inbox and more trigger types remain |
 | Plan Compare | Side-by-side returned plans: coverage, minimum shortfall, cost, changed commitments, overtime, transfers, open shifts and validation | Portfolio policy, exclusion reasons, burden components and trace/taxonomy delivered; live engine acceptance pending |
 | Scenario Lab | Isolated event forms, simulation status/comparison and current-fact conversion delivered | Completed-run/detail fixtures, event-revision provenance and live isolation/engine acceptance |
-| Employees / Demand / History | Existing employee/availability, manual staffing, history and restore workflows remain usable | Burden summary, forecast acceptance and employee request loop |
+| Employees / Demand / History | Employee/availability, dated staffing, recurring templates with explicit expansion, history and restore remain usable | Burden summary, forecast acceptance and employee request loop |
 | Approval | Selection creates draft; explicit proposal approval revalidates current facts | New origins must enter this same flow; no parallel publication path |
 
 Plan Compare includes recorded metrics only when the displayed baseline ID belongs to the run. Engine deltas use their own declared reference (`base_version` or `requested_plan`); the browser never subtracts historical recorded metrics to manufacture engine deltas. Historical fairness burden and this-week component points have distinct labels. Preference match remains separate. No browser-side Pareto filtering or invented recommendation is applied.
@@ -27,7 +27,7 @@ The frontend consumes OpenAPI **3.27.0-p4 / 164 fixtures**, from a byte-preserve
 4. **Replacement recommendations: delivered in the consumer.** Find cover in Schedule and Repair Inbox shows provider-ranked direct replacements, incremental impact and rule-backed exclusions. Choosing prepares a draft and previews the returned edit; explicit save enters the existing proposal flow. The supplied Chitra validation/save/proposal story works in preview; other synthetic edits and live acceptance remain pending; see REPLACEMENT_FLOW.md. No frontend eligibility inference or direct reassignment.
 5. **Scenario Lab: delivered in the consumer.** Title/baseline, typed event forms, isolated run status, simulated-baseline comparison and Turn this into a plan are integrated against the published slice. Missing completed-run/detail fixtures remain explicit preview errors. See SCENARIO_LAB_FLOW.md. Explicit server conversion rebuilds against current real facts, followed by normal draft review/approval. Switching scope cancels obsolete reads; uncertain conversion uses its stable key.
 
-Remaining P0 UI work does not depend on forecasting. Each contract slice needs its own fixture, consumer and live acceptance checks.
+Recurring staffing templates and reviewed dated expansion are also integrated; see STAFFING_TEMPLATE_FLOW.md for fixture boundaries and revision semantics. Remaining P0 acceptance work does not depend on forecasting. Each contract slice needs its own fixture, consumer and live acceptance checks.
 
 ## Provider acceptance checklist for v4
 

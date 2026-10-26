@@ -1,3 +1,13 @@
+# 26 October: weekly staffing template consumer review
+
+Consumer pin stays **3.27.0-p4 / 164 fixtures**. SDK/UI now consume list/save templates and explicit keyed expansion. No backend source/runtime or provider fixture bytes changed. Template saves replace the full set using its revision; expansion separately writes dated requirements and reuses its original key after an uncertain result. Neither action generates or publishes a schedule.
+
+Validation includes half-hour same-day bounds, known skills, integer minimum/preferred counts and same-weekday/skill overlap. Unsaved dated or template changes block expansion; uncertain expansion locks further writes. Current template revision is checked before POST, with no claim of an atomic template-revision fence absent from the public body.
+
+The supplied save record changes Saturday Grill to 2/4, while the expansion record still returns the original 1/3. The gateway refuses that mismatched combination and does not invent manual/band expansion results. Add matching changed-template/manual/band/stale examples for complete synthetic coverage. See [flow, verification and acceptance boundaries](STAFFING_TEMPLATE_FLOW.md).
+
+---
+
 # 26 October: replacement-save and fairness correction (3.27)
 
 Frontend-only pin **3.27.0-p4 / 164 fixtures**, provider `9d176a31cd7a3786e1f9f1cfc6a3d401fa4558ea`, aggregate SHA-256 `9a08294a7af94c7614832002be2087018bc2b768dc41493b4e36cc6f7cd68a4e`. No backend implementation, migration, dependency or runtime upgrade accompanies this snapshot.

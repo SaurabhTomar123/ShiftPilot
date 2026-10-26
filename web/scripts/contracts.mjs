@@ -27,6 +27,7 @@ const files = {
   'fixtures.json': JSON.stringify(fixtures, null, 2) + '\n',
   'edit-examples.json': JSON.stringify({ invalidReassignment: fixtures['edits.preview'].request.body, openingLock: fixtures['edits.apply'].request.body, cover: fixtures['edits.preview.cover'].request.body, coverConflict: fixtures['edits.preview.cover.conflict'].request.body }, null, 2) + '\n',
   'scenario-examples.json': JSON.stringify({ create: fixtures['scenario.create'].request.body, event: fixtures['scenario.event.add'].request.body }, null, 2) + '\n',
+  'staffing-template-examples.json': JSON.stringify(fixtures['staffing_templates.put'].request.body, null, 2) + '\n',
   'manifest.json': JSON.stringify({ version: index.contract_version, providerCommit: provenance.commit, sha256: hash.digest('hex'), fixtureCount: index.fixtures.length }, null, 2) + '\n',
 };
 await mkdir(target, { recursive: true });

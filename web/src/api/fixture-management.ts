@@ -1,6 +1,6 @@
 import type { Persona, Scenario, Schema } from './types';
 
-type Preview = { touched: number; employees: Schema['Employee'][]; availability: Map<string, Schema['Availability']>; demand: Map<string, Schema['StaffingRequirements']>; creates: Map<string, { body: string; employee: Schema['Employee'] }> };
+type Preview = { touched: number; employees: Schema['Employee'][]; availability: Map<string, Schema['Availability']>; demand: Map<string, Schema['StaffingRequirements']>; creates: Map<string, { body: string; employee: Schema['Employee'] }>; templates?: Schema['StaffingTemplateSet']; expansions: Map<string, { fingerprint: string; value: Schema['StaffingRequirements'] }> };
 const sessions = new Map<string, Preview>();
 const respond = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store', 'X-ShiftPilot-Source': 'synthetic-session-edit' } });
 const failure = (code: Schema['ErrorBody']['code'], message: string, status: number, details: Record<string, unknown> = {}) => respond({ error: { code, message, retryable: false, details } }, status);
@@ -10,7 +10,9 @@ export async function managementFixture(url: URL, request: Request, persona: Per
   const previewId = request.headers.get('X-ShiftPilot-Preview-Session');
   const employeePath = /^\/v2\/employees(?:\/([^/]+)(\/availability)?)?$/.exec(url.pathname);
   const demandPath = /^\/v2\/outlets\/([^/]+)\/staffing-requirements$/.exec(url.pathname);
-  if (!previewId || !employeePath && !demandPath) return null;
+  const templatePath = /^\/v2\/outlets\/([^/]+)\/staffing-templates$/.exec(url.pathname);
+  const expandPath = /^\/v2\/outlets\/([^/]+)\/staffing-requirements\/expand$/.exec(url.pathname);
+  if (!previewId || !employeePath && !demandPath && !templatePath && !expandPath) return null;
   if (!/^[\w-]{1,80}$/.test(previewId)) return failure('validation_failed', 'Invalid preview session.', 422);
   if (persona === 'staff' || scenario === 'denied') return failure('permission_denied', 'This resource is outside your access.', 403);
   const now = Date.now();
@@ -19,7 +21,7 @@ export async function managementFixture(url: URL, request: Request, persona: Per
   let state = sessions.get(key);
   if (!state) {
     if (sessions.size >= 64) sessions.delete(sessions.keys().next().value!);
-    state = { touched: now, employees: ['employees.list', 'employees.list.owner.koramangala', 'employees.list.owner.hsr'].flatMap(name => fixture<Schema['EmployeeList']>(name).items), availability: new Map(['availability.get', 'availability.get.student'].map(name => { const value = fixture<Schema['Availability']>(name); return [value.employee_id, value]; })), demand: new Map(), creates: new Map() };
+    state = { touched: now, employees: ['employees.list', 'employees.list.owner.koramangala', 'employees.list.owner.hsr'].flatMap(name => fixture<Schema['EmployeeList']>(name).items), availability: new Map(['availability.get', 'availability.get.student'].map(name => { const value = fixture<Schema['Availability']>(name); return [value.employee_id, value]; })), demand: new Map(), creates: new Map(), expansions: new Map() };
     sessions.set(key, state);
   }
   state.touched = now;
@@ -28,6 +30,14 @@ export async function managementFixture(url: URL, request: Request, persona: Per
   const allowedOutlet = (id: string) => outlets.some(outlet => outlet.id === id) && (persona === 'owner' || id === managerOutlet);
   const employee = employeePath?.[1] ? state.employees.find(item => item.id === employeePath[1]) : null;
   if (employeePath?.[1] && (!employee || !allowedOutlet(employee.home_outlet_id))) return failure('permission_denied', 'This employee is outside your access.', 403);
+  if (templatePath || expandPath) {
+    const outletId = templatePath?.[1] ?? expandPath![1];
+    if (!allowedOutlet(outletId)) return failure('permission_denied', 'This outlet is outside your access.', 403);
+    const initial = fixture<Schema['StaffingTemplateSet']>('staffing_templates.list');
+    if (outletId !== initial.outlet_id) return failure('not_implemented', 'No weekly template fixture is supplied for this outlet.', 501);
+    state.templates ??= initial;
+    if (templatePath && request.method === 'GET') return respond(state.templates);
+  }
   if (request.method === 'GET') {
     if (employeePath && !employeePath[1]) {
       const outletId = url.searchParams.get('outlet_id') ?? '';
@@ -51,6 +61,28 @@ export async function managementFixture(url: URL, request: Request, persona: Per
   if (Number(request.headers.get('Content-Length')) > 2000000) return failure('validation_failed', 'Preview request is too large.', 422);
   const input = await request.json().catch(() => null);
   if (!input || typeof input !== 'object' || Array.isArray(input)) return failure('validation_failed', 'Send a valid form.', 422);
+  if (templatePath && request.method === 'PUT') {
+    if (input.base_revision !== state.templates!.revision) return failure('stale_version', 'The weekly template changed. Reload before saving.', 409);
+    const supplied = fixture<Schema['StaffingTemplateSet']>('staffing_templates.put');
+    if (state.templates!.revision !== 1 || JSON.stringify(input.items) !== JSON.stringify(supplied.items)) return failure('not_implemented', 'The supplied template-save example increases Saturday Grill staffing. Other changes need a connected API.', 501);
+    state.templates = supplied; return respond(supplied);
+  }
+  if (expandPath && request.method === 'POST') {
+    const idempotencyKey = request.headers.get('Idempotency-Key');
+    if (!idempotencyKey) return failure('validation_failed', 'An expansion key is required.', 422);
+    const week = url.searchParams.get('week_start') ?? '';
+    const fingerprint = JSON.stringify([expandPath[1], week, input]);
+    const replay = state.expansions.get(idempotencyKey);
+    if (replay) return replay.fingerprint === fingerprint ? respond(replay.value) : failure('idempotency_conflict', 'This expansion key belongs to another request.', 409);
+    const initial = fixture<Schema['StaffingRequirements']>('staffing.get');
+    const current = state.demand.get(`${expandPath[1]}:${week}`) ?? initial;
+    if (input.base_demand_revision !== current.demand_revision) return failure('stale_version', 'Dated staffing changed. Reload it before expanding.', 409);
+    if (week !== initial.week_start || state.templates!.revision !== 1 || input.use_demand_bands !== false || input.base_demand_revision !== initial.demand_revision || JSON.stringify(current.intervals) !== JSON.stringify(initial.intervals)) return failure('not_implemented', 'Expansion fixtures cover the original weekly template without bands or manual changes. A changed template or dated week needs a connected API.', 501);
+    const value = fixture<Schema['StaffingRequirements']>('staffing.expand');
+    state.demand.set(`${expandPath[1]}:${week}`, value);
+    if (state.expansions.size >= 64) state.expansions.delete(state.expansions.keys().next().value!);
+    state.expansions.set(idempotencyKey, { fingerprint, value }); return respond(value);
+  }
   if (employeePath && !employeePath[1] && request.method === 'POST') {
     const idempotencyKey = request.headers.get('Idempotency-Key');
     if (!idempotencyKey) return failure('validation_failed', 'An idempotency key is required.', 422);

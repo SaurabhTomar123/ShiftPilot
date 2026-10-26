@@ -1064,3 +1064,18 @@ input::placeholder, textarea::placeholder { color: #75806e; opacity: 1; }
 .scenario-lab .review-table-scroll table { min-width: 680px; }
 .scenario-create > button { margin: 8px 12px 8px 0; }
 @media (max-width: 650px) { .scenario-fields { grid-template-columns: 1fr; } .scenario-create, .scenario-detail { padding: 16px; } .scenario-saved li, .scenario-saved-heading { align-items: start; flex-direction: column; } .scenario-saved button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; } }
+.staffing-templates { margin-block: 24px; border: 1px solid var(--line); border-inline-start: 4px solid var(--green); border-radius: 10px; background: var(--surface); padding: 20px 24px; }
+.staffing-templates > summary { cursor: pointer; font-weight: 600; font-size: 20px; min-height: 44px; padding-block: 8px; }
+.staffing-templates h3 { font-size: 21px; margin-block: 16px 8px; }
+.staffing-templates p { margin-block: 12px; max-width: 78ch; line-height: 1.65; }
+.staffing-templates fieldset { border: 0; padding: 0; min-width: 0; }
+.template-filters { display: flex; flex-wrap: wrap; gap: 16px; margin-block: 20px; }
+.template-filters label, .template-block > label:not(.template-midnight) { display: grid; gap: 8px; min-width: 0; }
+.staffing-templates input:not([type=checkbox]), .staffing-templates select { min-width: 0; width: 100%; min-height: 44px; padding: 10px; border: 1px solid var(--line); border-radius: 7px; color: inherit; background: var(--surface); }
+.template-block { display: grid; grid-template-columns: repeat(2, minmax(100px, 1fr)) minmax(130px, 1fr) repeat(2, minmax(90px, 1fr)) auto; align-items: end; gap: 12px; padding-block: 16px; border-bottom: 1px solid var(--line); }
+.template-midnight, .template-bands { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.template-midnight input, .template-bands input { width: 20px; height: 20px; flex-shrink: 0; }
+.template-expansion { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 16px; }
+.staffing-templates fieldset > button { margin: 12px 12px 12px 0; }
+@media (max-width: 1150px) { .template-block { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 650px) { .staffing-templates { padding: 16px; } .template-block { grid-template-columns: repeat(2, minmax(0, 1fr)); } .template-midnight { grid-column: 1 / -1; } .template-filters label { flex: 1 1 140px; } }
