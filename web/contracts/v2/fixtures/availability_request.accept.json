@@ -1,0 +1,114 @@
+{
+  "name": "availability_request.accept",
+  "operation_id": "acceptAvailabilityRequest",
+  "method": "POST",
+  "path": "/v2/availability-requests/{request_id}/accept",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "request_id": "f7b266f0-b20e-5be2-906d-74f40ef85ce3"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "AvailabilityRequestView",
+    "body": {
+      "id": "f7b266f0-b20e-5be2-906d-74f40ef85ce3",
+      "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+      "status": "accepted",
+      "base_revision": 1,
+      "windows": [
+        {
+          "weekday": 0,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "kind": "available"
+        },
+        {
+          "weekday": 1,
+          "start_minute": 0,
+          "end_minute": 1440,
+          "kind": "unavailable"
+        },
+        {
+          "weekday": 3,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "kind": "available"
+        },
+        {
+          "weekday": 4,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "kind": "available"
+        },
+        {
+          "weekday": 5,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "kind": "available"
+        },
+        {
+          "weekday": 6,
+          "start_minute": 0,
+          "end_minute": 1440,
+          "kind": "unavailable"
+        }
+      ],
+      "current": [
+        {
+          "weekday": 0,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "kind": "available"
+        },
+        {
+          "weekday": 1,
+          "start_minute": 0,
+          "end_minute": 1440,
+          "kind": "unavailable"
+        },
+        {
+          "weekday": 3,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "kind": "available"
+        },
+        {
+          "weekday": 4,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "kind": "available"
+        },
+        {
+          "weekday": 5,
+          "start_minute": 600,
+          "end_minute": 1380,
+          "kind": "available"
+        },
+        {
+          "weekday": 6,
+          "start_minute": 0,
+          "end_minute": 1440,
+          "kind": "unavailable"
+        }
+      ],
+      "note": "Evening classes on Wednesdays",
+      "created_at": "2026-10-18T09:30:00+05:30",
+      "decided_by_user_id": "b9d4106e-bc9c-563c-806c-74835789584c",
+      "decided_at": "2026-10-18T12:00:00+05:30",
+      "affected": [
+        {
+          "schedule_id": "8a17e094-0ff4-5a75-9049-86607b0181e3",
+          "version_id": "59ddec56-dd6f-5ac4-871a-01119338a0ef",
+          "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+          "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "start_at": "2026-10-21T10:00:00+05:30",
+          "end_at": "2026-10-21T18:00:00+05:30",
+          "locked": false
+        }
+      ]
+    }
+  }
+}

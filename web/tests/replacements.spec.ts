@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 const fixtures = JSON.parse(readFileSync(new URL('../src/api/generated/fixtures.json', import.meta.url), 'utf8'));
 const sample = fixtures['recommendations.replacements'];
 const recommendations = sample.response.body;
-const draft = fixtures['draft.create'].response.body;
+const draft = fixtures['draft.create.cover'].response.body;
 const option = recommendations.recommendations[0];
 const after = structuredClone(draft); after.revision += 1;
 after.shifts.find((shift: { logical_shift_id: string }) => shift.logical_shift_id === option.edit.logical_shift_id).employee_id = option.employee_id;
@@ -57,14 +57,19 @@ test('cost-restricted sessions redact detailed reasons and exact money', async (
   await expect(panel).not.toContainText('₹'); await expect(panel).not.toContainText('INR');
 });
 
-test('default preview preserves its prepared draft when replacement validation is unsupported', async ({ page }) => {
+test('provider cover fixtures validate and save only after review, preserving breaks through approval', async ({ page }) => {
   const requests: string[] = []; page.on('request', r => { if (r.method() === 'POST') requests.push(new URL(r.url()).pathname); });
   const panel = await find(page); await panel.getByRole('button', { name: 'Review Chitra Indiranagar in draft' }).click();
-  await expect(panel.getByText('No replacement save has been confirmed.', { exact: false })).toBeVisible();
-  await expect(panel.getByRole('button', { name: 'Save replacement to draft' })).toHaveCount(0);
+  await expect(panel.getByRole('region', { name: 'Replacement validation' })).toBeVisible();
   expect(requests.filter(path => path.endsWith('/edits'))).toEqual([]);
-  await panel.getByRole('button', { name: 'Open current draft for review' }).click();
+  await panel.getByRole('button', { name: 'Save replacement to draft', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Proposed roster', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Create proposal', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Approve and publish', exact: true })).toBeVisible();
+  expect(requests.filter(path => path.endsWith('/approve'))).toEqual([]);
+  await page.getByRole('button', { name: 'Approve and publish', exact: true }).click();
+  await expect(page.getByText(`Published version ${draft.version_number}.`, { exact: false }).first()).toBeVisible();
+  expect(requests.filter(path => path.endsWith('/edits'))).toHaveLength(1);
 });
 
 test('review and save use the exact returned edit and revision then require a separate proposal', async ({ page }) => {
@@ -77,6 +82,16 @@ test('review and save use the exact returned edit and revision then require a se
   expect(saves).toBe(1); expect(sent).toEqual({ expected_revision: draft.revision, edits: [option.edit] });
   await expect(page.getByRole('button', { name: 'Create proposal', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Approve and publish', exact: true })).toHaveCount(0);
+});
+
+test('unsupported alternative edits retain the prepared draft and never substitute the supplied cover save', async ({ page }) => {
+  const saves: string[] = []; page.on('request', request => { if (request.method() === 'POST' && request.url().endsWith('/edits')) saves.push(request.url()); });
+  const panel = await find(page);
+  await panel.getByRole('button', { name: 'Review Aman Shah in draft', exact: true }).click();
+  await expect(panel.getByText('No supplied cover validation example matches this edit.', { exact: true })).toBeVisible();
+  await expect(panel.getByRole('button', { name: 'Save replacement to draft', exact: true })).toHaveCount(0);
+  await expect(panel.getByRole('button', { name: 'Open current draft for review', exact: true })).toBeVisible();
+  expect(saves).toEqual([]);
 });
 
 test('current validation can block an otherwise recommended person', async ({ page }) => {

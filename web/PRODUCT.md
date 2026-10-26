@@ -16,7 +16,7 @@ Restaurant managers create and repair weekly rosters. Owners coordinate outlets.
 
 ## Product Purpose
 
-A Workforce Decision & Recovery Engine: generate valid schedules, recover commitments with minimal disruption, compare trade-offs and simulate isolated what-if scenarios, with deterministic validation and human approval. Historical fairness burden, portfolio metadata and decision traces now have consumer UI. Direct replacement recommendations now have consumer UI with draft validation and separate save/approval. Scenario Lab now has isolated event forms, bounded simulation tracking, comparisons under matching assumptions and explicit current-fact conversion into normal draft/proposal review. Completed-run fixture coverage and live isolation acceptance remain open. Run-scoped protection remains supported. Live 3.20 engine acceptance is pending.
+A Workforce Decision & Recovery Engine: generate valid schedules, recover commitments with minimal disruption, compare trade-offs and simulate isolated what-if scenarios, with deterministic validation and human approval. Historical fairness burden, portfolio metadata and decision traces now have consumer UI. Direct replacement recommendations now have consumer UI with draft validation and separate save/approval. Scenario Lab now has isolated event forms, bounded simulation tracking, comparisons under matching assumptions and explicit current-fact conversion into normal draft/proposal review. Completed-run fixture coverage and live isolation acceptance remain open. Run-scoped protection remains supported. Live 3.27 engine acceptance is pending.
 
 ## Capabilities and Constraints
 
@@ -24,7 +24,7 @@ Schedule-first interaction. No core action requires a prompt. Authoritative vali
 
 ## Evidence on Hand
 
-Frontend contract 3.20 is consumed from a commit-pinned schema/fixture snapshot, without a backend source/runtime upgrade. The UI supports candidate diffs, explicit selection, keyboard/form-based assignment previews and saves, proposal approval with four publication outcomes, and history/comparison/restoration with recorded metrics. A previous isolated real API/worker check on the reviewed 3.3 runtime generated candidates without drafts, then selected, proposed and published a 71-shift week with zero reported hard violations. Default mode remains a labelled synthetic preview. An isolated real edit check also passed lock/unlock saves and reload after a lost success response, leaving the published version unchanged. Absence management now saves facts before repair, tracks automatic runs, requires explicit lock authorization, and connects repair options to draft/proposal review. Template-based additions, drag interactions, staffing templates, staff self-service absence requests and release/tenant acceptance gates remain separate work.
+Frontend contract 3.27 is consumed from a commit-pinned schema/fixture snapshot, without a backend source/runtime upgrade. The UI supports candidate diffs, explicit selection, keyboard/form-based assignment previews and saves, proposal approval with four publication outcomes, and history/comparison/restoration with recorded metrics. A previous isolated real API/worker check on the reviewed 3.3 runtime generated candidates without drafts, then selected, proposed and published a 71-shift week with zero reported hard violations. Default mode remains a labelled synthetic preview. An isolated real edit check also passed lock/unlock saves and reload after a lost success response, leaving the published version unchanged. Absence management now saves facts before repair, tracks automatic runs, requires explicit lock authorization, and connects repair options to draft/proposal review. Template-based additions, drag interactions, staffing templates, staff self-service absence requests and release/tenant acceptance gates remain separate work.
 
 ## Product Principles
 
@@ -37,4 +37,6 @@ Frontend contract 3.20 is consumed from a commit-pinned schema/fixture snapshot,
 
 Keyboard alternatives to dragging, visible focus, semantic forms, reduced motion and usable narrow-screen layouts are required by the implementation roadmap.
 
-A real history/compare/restore check created a new validated draft and reopened its pending proposal while leaving the published pointer unchanged during restore. Run protection, impact-stage rendering and decision evidence now consume the 3.20 contract; provider runtime integration and unconsumed APIs remain separate work.
+A real history/compare/restore check created a new validated draft and reopened its pending proposal while leaving the published pointer unchanged during restore. Run protection, impact-stage rendering and decision evidence now consume the 3.27 contract; provider runtime integration and unconsumed APIs remain separate work.
+
+The fixed Chitra replacement story now completes validation/save and explicit proposal approval in synthetic mode. The supplied generation fairness delta is corrected. Newer P1 and SSE schema data in the snapshot do not imply corresponding UI/runtime integrations.

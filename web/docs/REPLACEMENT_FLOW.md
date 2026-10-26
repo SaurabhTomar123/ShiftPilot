@@ -1,36 +1,42 @@
 # Find cover: direct replacement review
 
-25 October 2026. Historical replacement slice: the consumer has since moved to 3.20 for Scenario Lab. Provider 3.27 now supplies the requested replacement-edit records; consuming that newer slice remains a follow-up. Architecture v4 governs; Codex owns the UI and Claude owns API, database and scheduling implementation.
+Updated 26 October 2026. Architecture v4 governs. Codex owns the UI; Claude owns the API, database and scheduling implementation.
 
-## Accepted contract slice
+## Current contract and runtime boundary
 
-Frontend-only snapshot **3.19.0-p4 / 118 fixtures** from provider `6c3f731a4ab50f7d924e4cf0a6d5fd213e0dc37f`. Aggregate SHA-256: `71b06d910c4e214ec62720d800076abae17fa88e5dccd6365457210cfbb86bab`. Source bytes/hashes remain in `web/contracts/v2/SOURCE.json`. No backend source, dependency, migration, worker or database change is included.
+Frontend-only snapshot **3.27.0-p4 / 164 fixtures**, provider `9d176a31cd7a3786e1f9f1cfc6a3d401fa4558ea`, aggregate SHA-256 `9a08294a7af94c7614832002be2087018bc2b768dc41493b4e36cc6f7cd68a4e`. Per-file hashes remain in `web/contracts/v2/SOURCE.json`. No provider source, migration, worker, dependency or database change is included. Earlier 3.19 delivery records are historical; this pin consumes the requested cover-edit fixtures and fairness correction.
 
-This slice adds `POST /v2/recommendations/replacements`: a synchronous read-only recommendation call despite its HTTP method. No idempotency key, automatic retry, assignment save, absence write or publication accompanies the lookup. The provider requires publication permission; only owners can include other outlets. The browser preserves provider ranking and eligibility, rather than deriving either from roster data.
+## User flow
 
-## User flow and safety
+1. Open Find cover from Schedule or Repair Inbox. Select a published/draft shift and priorities. Only owners can request people from other outlets. The recommendation POST is synchronous and read-only; it has no mutation key or automatic retry.
+2. Inspect provider rank, direct/overtime/other-outlet disruption, exact-paise cost against leaving unfilled, added overtime, weekly hours, fairness change and preferred-window status. Missing values stay unreported. Recorded blocked people are separate from eligible options. Cost access applies inside reasons as well as headline metrics.
+3. Review a person in draft checks the published base or draft revision, prepares a copy when needed and validates the returned edit. Preparing a draft does not apply the replacement. Locks require separate explicit editor review.
+4. Save replacement to draft sends the exact reviewed edit/revision once. The chosen draft enters normal proposal review. Only explicit proposal approval publishes. Hard-invalid previews block saving; stale/uncertain saves require reading the current draft before another edit.
 
-1. In Schedule or Repair Inbox, open Find cover for a shift. Select the published/draft assignment and priorities. An affected shift is preselected when a saved absence provides one. No lookup runs on entry.
-2. Find cover shows qualified/eligible counts, the returned top options, policy and recorded rule-backed exclusions. Direct cover means the rest of the roster stays fixed. People blocked by another shift may need a repair run; the UI does not treat them as direct alternatives.
-3. Inspect engine rank, direct/overtime/other-outlet disruption, exact-paise cost against leaving the shift open, overtime minutes, historical fairness change, weekly hours and preferred-window status. Missing fairness is unreported; a null preferred window means not specified. Cost permissions apply inside detailed reasons as well as metrics. Rule/absence IDs appear only when supplied.
-4. Review a person in draft checks the latest published base or the current draft revision. For a published version, it explicitly creates a copy with a stable creation key, then submits the provider's returned update edit to validation. The logical shift, assignee, times, skill, draft identity and lock state must still match. Locks require separate draft-editor review; no automatic unlocking occurs.
-5. Validation errors preserve the prepared draft. A hard violation blocks saving. Save replacement to draft sends the exact reviewed edit and revision once. It opens the existing draft/proposal review; no recommendation action publishes. Uncertain saves clear the actionable preview and require a current draft read before further work, matching the conservative existing editor behavior.
+## Supplied cover story
 
-Changing lookup inputs clears old results. Version, outlet, week, persona or screen changes cancel obsolete waits. Recommendation identity must match the requested version, shift and profile. Closing retains any already created draft and returns focus to the trigger. The panel is usable on phones and with a keyboard.
+The default preview now supports the complete provider story: Ravi Kumar's Prep assignment on 21 October at Indiranagar, Balanced, Chitra Indiranagar selected. It consumes `draft.create.cover`, `edits.preview.cover`, `edits.apply.cover` and the existing proposal/approval flow. The cover draft has its own provider ID; the opening-lock example keeps its original manual draft ID. Base, logical shift, selected person and revision are preserved through publication.
 
-## Preview and verification boundaries
+Both draft examples use the same declared create body. A call-scoped `X-ShiftPilot-Draft-Example: cover` header selects the supplied cover story only at `/api/fixture`; it is never sent to a configured real API and adds no backend request field. Persona/session state remains bounded and expiring. This is synthetic story selection, not a new provider capability or authorization mechanism.
 
-The supplied success fixture is Ravi Kumar's Prep assignment on 21 October at Indiranagar, Balanced with limit 5. Chitra Indiranagar and Aman Shah are returned in that order. The provider also supplies manager borrowing denial and unknown-shift validation. Unsupported dates, profiles, limits, draft versions and owner widening remain explicit errors; the gateway does not rename the fixed Balanced result.
+The provider's UpdateShift contract now explicitly states: omitted or null fields keep existing values, except `employee_id: null`, which unassigns. Removing a break uses `break_minutes: 0`. The preview matcher accepts omitted/null non-assignee fields equivalently only for the exact supplied cover edit. It preserves start/end, role, break time and duration. Other people, times, roles or unknown fields do not receive fabricated validation/save results.
 
-The provider has not supplied matching replacement-specific edit-preview/apply fixtures in this pin. The preview can prepare a manual draft, but validation of the returned replacement edit fails explicitly. No fabricated replacement save or solver validation is displayed. The retained draft can be opened for review. Existing generic edit fixtures cover other edits and are not substituted for this replacement.
+Aman is still a returned recommendation, but no matching save record is supplied for him; preparing that option retains its draft and reports the preview limitation. Rule-conflict, stale-revision and unsupported-edit checks remain explicit. No frontend eligibility, ranking or solver validation is inferred.
 
-Browser tests use clearly local mocked validation/apply responses to verify exact request/revision, separate save/proposal, hard-invalid behavior and lost-response recovery. Those checks are consumer behavior evidence, not live API/solver acceptance. Other checks use the unchanged provider recommendation fixtures, including cost redaction, empty/locked/mismatched results, late responses, accessibility and phone overflow. Earlier real API acceptance remains evidence for the reviewed 3.3 runtime only. Live 3.19 replacement, cross-tenant, worker and release acceptance remain open.
+The preview retains conservative revision-fenced edit recovery. Full provider apply-edits replay semantics are not implemented in this gateway; the UI does not automatically repeat an uncertain save.
 
-Verified for this slice: 179 unit/contract tests, all 24 replacement desktop/phone checks, contract hashes, lint and production build. The full shared browser regression is checked before the feature push.
+## Fairness correction and streaming fixtures
 
-## Provider follow-ups and next UI work
+The supplied Balanced burden is 7.97 and Lowest cost is 7.83. The corrected requested-plan fairness delta is **-0.14**, now consumed without a warning. The consistency guard remains active and is tested using an injected disagreement, without changing provider bytes or client-side rescoring.
 
-- Add matching replacement-edit preview/apply records for the published recommendation and a direct-cover story through draft/proposal validation. Include stale base/revision and lock/conflict examples. Existing provider endpoints are already consumed; this request concerns synthetic coverage and live acceptance.
-- Provider `063cf56` has corrected the previous fairness trace inconsistency upstream. This focused 3.19 snapshot predates that correction, so its old generation fixture still triggers the consistency warning. Accept the fix with a later reviewed snapshot; do not modify provider fixture bytes locally.
-- The 3.19 repair fixtures also change their chosen replacement from Aman to Chitra and adjust cost/trace consistently. Consumer tests use the returned identities rather than hard-coded names.
-- Next P0 consumer work is Scenario Lab: isolated events, run/compare and current-fact conversion through the normal approval workflow. Those contracts are published in newer revisions and need a separate bounded review.
+The snapshot also includes P1 and SSE schemas. All 164 response records are schema-checked, including decoded EventStream frames against their declared `text/event-stream` contract. This validates fixture data, not wire framing, reconnection, authorization or a live streaming client. Runtime progress still uses bounded polling; P1 UI integration remains separate.
+
+## Verification and remaining acceptance
+
+Unit/contract coverage verifies exact cover request/revision, preserved breaks/times/role, read-only preview, stale revision, blocked/unsupported edits, unchanged published pointer before approval, proposal identity and fixture-header confinement. Browser coverage exercises the provider-backed preview/save/proposal/approval path on desktop and phone, plus the existing lost-response/current-fact/privacy checks. Artificial response tests are labelled local consumer checks; the main Chitra success story now uses the provider records throughout.
+
+Verified: 235 unit/contract tests, all 164 provider response records and source hashes, TypeScript/production build and lint. The shared browser regression is checked before the feature push.
+
+Live 3.27 API/solver/tenant/deployment acceptance remains pending. Earlier real API checks refer to the reviewed 3.3 runtime. Scenario Lab's completed-run/detail fixture and public event-revision gaps remain open; see SCENARIO_LAB_FLOW.md.
+
+Next consumer work: remaining template/import/rule and P1 demand/employee workflows against their published contracts. SSE runtime consumption and broader live backend integration are separately reviewed milestones.

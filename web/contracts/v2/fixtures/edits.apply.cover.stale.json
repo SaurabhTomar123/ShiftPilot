@@ -1,0 +1,40 @@
+{
+  "name": "edits.apply.cover.stale",
+  "operation_id": "applyEdits",
+  "method": "POST",
+  "path": "/v2/schedule-versions/{version_id}/edits",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "version_id": "41edbb6f-703d-5f28-8dcb-447e10c875c2"
+    },
+    "headers": {
+      "Idempotency-Key": "edits-cover-9c40"
+    },
+    "body": {
+      "expected_revision": 1,
+      "edits": [
+        {
+          "op": "update",
+          "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+          "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68"
+        }
+      ]
+    }
+  },
+  "response": {
+    "status": 409,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "stale_version",
+        "message": "This draft was changed by someone else. Reload and try again.",
+        "retryable": false,
+        "details": {
+          "current_revision": 2
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

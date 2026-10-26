@@ -1,3 +1,15 @@
+# 26 October: replacement-save and fairness correction (3.27)
+
+Frontend-only pin **3.27.0-p4 / 164 fixtures**, provider `9d176a31cd7a3786e1f9f1cfc6a3d401fa4558ea`, aggregate SHA-256 `9a08294a7af94c7614832002be2087018bc2b768dc41493b4e36cc6f7cd68a4e`. No backend implementation, migration, dependency or runtime upgrade accompanies this snapshot.
+
+The supplied Chitra cover story now uses matching draft-create, edit-preview and edit-save records before the normal proposal/approval flow. A preview-only, call-scoped story header distinguishes its provider draft ID from the opening-lock example; live API calls never receive it. Null non-assignee update fields preserve existing time, role and break values; employee null remains unassignment. Unsupported alternatives retain the prepared draft and return an error, without reusing Chitra's validation.
+
+The corrected requested-plan fairness delta (-0.14) agrees with the supplied 7.97/7.83 scores. The guard remains tested against injected inconsistencies. New SSE records are checked as decoded EventStream data under the declared media type, without claiming a live SSE implementation. Other newly available P1 schemas do not imply their UI is integrated.
+
+See [current replacement flow and acceptance boundaries](REPLACEMENT_FLOW.md). Live 3.27 acceptance, full apply-edits replay consumption and Scenario Lab terminal-run/event-provenance gaps remain open. Historical reviews below describe their original pins.
+
+---
+
 # 25 October: Scenario Lab consumer review (3.20)
 
 Frontend-only pin **3.20.0-p4 / 128 fixtures**, provider `b6e8ef68c57381d510c93b91fe77e5e9bcbce65f`, aggregate SHA-256 `83b59dc653bf623c7f5f760ddcfb936e791f1183b5ac61ac6072ccc6a7174b31`. Backend implementation/runtime remain unchanged.

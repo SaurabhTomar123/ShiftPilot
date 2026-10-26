@@ -18,5 +18,25 @@
         "reason": "Opening cook confirmed"
       }
     ]
+  },
+  "cover": {
+    "expected_revision": 1,
+    "edits": [
+      {
+        "op": "update",
+        "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+        "employee_id": "3e9cce15-6cb5-56f9-8a26-1f6715624a68"
+      }
+    ]
+  },
+  "coverConflict": {
+    "expected_revision": 1,
+    "edits": [
+      {
+        "op": "update",
+        "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+        "employee_id": "7df5532e-f630-5999-90fe-0b04f004bf92"
+      }
+    ]
   }
 }

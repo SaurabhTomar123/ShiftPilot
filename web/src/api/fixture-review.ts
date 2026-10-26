@@ -86,6 +86,15 @@ export async function reviewFixture(url: URL, request: Request, persona: Persona
     const input = await request.json().catch(() => null);
     if (input?.expected_revision !== state.draft.revision) return error('stale_version', 'This draft was changed by someone else. Reload the latest draft before saving.', 409);
     if (state.draft.source !== 'manual' || state.draft.revision !== 1) return error('not_implemented', 'The provider edit examples cover revision 1 of the manual draft. Start a new demo session to repeat them.', 501);
+    const coverDraft = fixture<Schema['ScheduleVersion']>('draft.create.cover');
+    if (state.draft.id === coverDraft.id) {
+      const canonicalCover = (edits: unknown) => canonical(Array.isArray(edits) ? edits.map(edit => edit && typeof edit === 'object' && edit.op === 'update' ? Object.fromEntries(Object.entries(edit).filter(([key, value]) => value != null || !['skill_id', 'start_at', 'end_at', 'break_start_at', 'break_minutes'].includes(key))) : edit) : edits);
+      if (editPath[2] && canonicalCover(input.edits) === canonicalCover(examples.coverConflict.edits)) return response(fixture('edits.preview.cover.conflict'));
+      if (canonicalCover(input.edits) !== canonicalCover(examples.cover.edits)) return error('not_implemented', 'No supplied cover validation example matches this edit.', 501);
+      if (editPath[2]) return response(fixture('edits.preview.cover'));
+      if (!request.headers.get('Idempotency-Key')) return error('validation_failed', 'An idempotency key is required.', 422);
+      state.draft = fixture<Schema['ScheduleVersion']>('edits.apply.cover'); return response(state.draft);
+    }
     if (editPath[2] && canonical(input.edits) === canonical(examples.invalidReassignment.edits)) return response(fixture('edits.preview'));
     if (canonical(input.edits) !== canonical(examples.openingLock.edits)) return error('not_implemented', 'No provider validation fixture matches this edit. Try an example below, or use a connected scheduling API.', 501);
     const after = fixture<Schema['ScheduleVersion']>('edits.apply');
@@ -94,7 +103,7 @@ export async function reviewFixture(url: URL, request: Request, persona: Persona
       const preview: Schema['EditPreview'] = { version_id: state.draft.id, expected_revision: 1, shifts: after.shifts, metrics: after.metrics, validation: after.validation, changes: [{ logical_shift_id: id, kinds: ['lock_changed'], before: state.draft.shifts.find(s => s.logical_shift_id === id)!, after: after.shifts.find(s => s.logical_shift_id === id)! }] };
       return response(preview);
     }
-    // Match the provider: apply is revision-fenced; an old request gets stale, not a replay.
+    // Keep the conservative preview revision-fenced; uncertain saves require a fresh read.
     state.draft = after; return response(after);
   }
   const lowest = fixture<Schema['CandidateDetail']>('candidate.detail.lowest_cost');
@@ -140,7 +149,7 @@ export async function reviewFixture(url: URL, request: Request, persona: Persona
     if (createPath[1] !== base.outlet_id) return error(persona === 'manager' ? 'permission_denied' : 'not_implemented', 'This preview only has an editing draft for Indiranagar.', persona === 'manager' ? 403 : 501);
     if (body?.base_version_id !== base.current_version!.id) return error('stale_version', 'Reload the published week before creating an editing draft.', 409);
     if (state.draft) return error('conflict', 'A draft already exists in this synthetic session. Reopen it or start another session.', 409);
-    state.draft = fixture<Schema['ScheduleVersion']>('draft.create'); return remember(state.draft, 201);
+    state.draft = fixture<Schema['ScheduleVersion']>(request.headers.get('X-ShiftPilot-Draft-Example') === 'cover' ? 'draft.create.cover' : 'draft.create'); return remember(state.draft, 201);
   }
   if (candidate?.[2]) {
     if (state.published) return error('conflict', 'This option has already been published.', 409);

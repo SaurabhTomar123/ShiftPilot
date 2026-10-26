@@ -1,0 +1,44 @@
+{
+  "name": "shift_request.create.invalid",
+  "operation_id": "createShiftRequest",
+  "method": "POST",
+  "path": "/v2/me/shift-requests",
+  "persona": "staff_ravi",
+  "request": {
+    "body": {
+      "type": "swap",
+      "logical_shift_id": "f08831e3-520d-540b-89ee-b81ed30e9254",
+      "target_logical_shift_id": "c5d11735-6be2-5b94-8b12-4ae842bbdd74"
+    }
+  },
+  "response": {
+    "status": 422,
+    "schema": "ErrorResponse",
+    "body": {
+      "error": {
+        "code": "validation_failed",
+        "message": "This swap breaks a rule: Ravi Kumar would have 8h rest between shifts; 10h required.",
+        "retryable": false,
+        "details": {
+          "violations": [
+            {
+              "code": "insufficient_rest",
+              "severity": "hard",
+              "message": "Ravi Kumar would have 8h rest between shifts; 10h required.",
+              "employee_id": "da2c2786-7c09-5403-8a7a-27ad73f04fdd",
+              "logical_shift_ids": [
+                "f08831e3-520d-540b-89ee-b81ed30e9254",
+                "c5d11735-6be2-5b94-8b12-4ae842bbdd74"
+              ],
+              "facts": {
+                "rest_minutes": 480,
+                "required_rest_minutes": 600
+              }
+            }
+          ]
+        },
+        "trace_id": null
+      }
+    }
+  }
+}

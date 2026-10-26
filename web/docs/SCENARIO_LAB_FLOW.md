@@ -1,6 +1,6 @@
 # Scenario Lab consumer delivery
 
-25 October 2026. Architecture v4 governs. Codex owns the UI; Claude owns API, worker, engine and database implementation.
+25 October 2026 delivery record. Current consumer pin is 3.27; the Scenario Lab behavior and remaining fixture/event-provenance boundaries below are unchanged. Architecture v4 governs. Codex owns the UI; Claude owns API, worker, engine and database implementation.
 
 ## Contract and runtime boundary
 
@@ -43,6 +43,6 @@ Live 3.20 API/worker/tenant/isolation acceptance remains open. Earlier real API 
 
 ## Next consumer work
 
-- Accept a later bounded snapshot containing the upstream fairness correction (`063cf56`) and replacement-edit fixtures (`9d176a3`, contract 3.27). These are published provider work, not missing implementation.
+- Completed 26 October: accepted the fairness correction and replacement-edit fixtures in the frontend-only 3.27 snapshot. The supplied cover story now completes validation and save. SSE/P1 schema availability does not close their UI/runtime acceptance.
 - Add completed scenario run/detail/expiry/stale-base and event-revision fixtures for coherent preview and acceptance coverage.
 - Continue the remaining template/import/rule and P1 demand/employee request UI against their published contracts. SSE consumption is separate; durable reads and bounded polling remain the current behavior.

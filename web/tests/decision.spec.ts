@@ -32,7 +32,8 @@ test('portfolio comparison shows engine policy and its declared delta reference 
   await expect(page.locator('.portfolio-details')).toContainText('Maximum coverage: Outside the reported safeguards: cost');
   const table = page.getByRole('region', { name: 'Plan comparison', exact: true });
   await expect(table).toContainText('Engine delta vs requested plan'); await expect(table).toContainText('7.83');
-  await expect(page.getByRole('main').getByRole('alert')).toContainText('disagree on direction');
+  await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
+  await expect(table).toContainText('-0.14');
   expect(writes).toHaveLength(before);
 });
 

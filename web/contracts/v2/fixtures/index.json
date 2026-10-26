@@ -1,5 +1,5 @@
 {
-  "contract_version": "3.20.0-p4",
+  "contract_version": "3.27.0-p4",
   "fixtures": [
     {
       "name": "shift_templates.list",
@@ -218,6 +218,42 @@
       "schema": "CandidateDetail"
     },
     {
+      "name": "draft.create.cover",
+      "operation_id": "createDraft",
+      "status": 201,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "draft.create.cover.stale_base",
+      "operation_id": "createDraft",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "edits.preview.cover",
+      "operation_id": "previewEdits",
+      "status": 200,
+      "schema": "EditPreview"
+    },
+    {
+      "name": "edits.preview.cover.conflict",
+      "operation_id": "previewEdits",
+      "status": 200,
+      "schema": "EditPreview"
+    },
+    {
+      "name": "edits.apply.cover",
+      "operation_id": "applyEdits",
+      "status": 200,
+      "schema": "ScheduleVersion"
+    },
+    {
+      "name": "edits.apply.cover.stale",
+      "operation_id": "applyEdits",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
       "name": "recommendations.replacements",
       "operation_id": "recommendReplacements",
       "status": 200,
@@ -270,6 +306,186 @@
       "operation_id": "repairSchedule",
       "status": 409,
       "schema": "ErrorResponse"
+    },
+    {
+      "name": "forecast.request",
+      "operation_id": "requestForecast",
+      "status": 202,
+      "schema": "ForecastRun"
+    },
+    {
+      "name": "forecast.run.succeeded",
+      "operation_id": "getForecastRun",
+      "status": 200,
+      "schema": "ForecastRun"
+    },
+    {
+      "name": "forecast.run.not_enough_history",
+      "operation_id": "getForecastRun",
+      "status": 200,
+      "schema": "ForecastRun"
+    },
+    {
+      "name": "staffing_proposal.get",
+      "operation_id": "getStaffingProposal",
+      "status": 200,
+      "schema": "StaffingProposal"
+    },
+    {
+      "name": "staffing_proposal.accept",
+      "operation_id": "acceptStaffingProposal",
+      "status": 200,
+      "schema": "StaffingRequirements"
+    },
+    {
+      "name": "staffing_proposal.accept.stale",
+      "operation_id": "acceptStaffingProposal",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "staffing_proposal.reject",
+      "operation_id": "rejectStaffingProposal",
+      "status": 200,
+      "schema": "StaffingProposal"
+    },
+    {
+      "name": "me.open_shifts",
+      "operation_id": "getMyOpenShifts",
+      "status": 200,
+      "schema": "OpenShiftList"
+    },
+    {
+      "name": "shift_request.create.claim",
+      "operation_id": "createShiftRequest",
+      "status": 201,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.create.swap",
+      "operation_id": "createShiftRequest",
+      "status": 201,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.create.invalid",
+      "operation_id": "createShiftRequest",
+      "status": 422,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "me.shift_requests",
+      "operation_id": "getMyShiftRequests",
+      "status": 200,
+      "schema": "ShiftRequestList"
+    },
+    {
+      "name": "shift_request.accept",
+      "operation_id": "acceptShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.cancel",
+      "operation_id": "cancelShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_requests.list",
+      "operation_id": "listShiftRequests",
+      "status": 200,
+      "schema": "ShiftRequestList"
+    },
+    {
+      "name": "shift_request.approve",
+      "operation_id": "approveShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.approve.stale",
+      "operation_id": "approveShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.approve.invalid",
+      "operation_id": "approveShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "shift_request.reject",
+      "operation_id": "rejectShiftRequest",
+      "status": 200,
+      "schema": "ShiftRequestView"
+    },
+    {
+      "name": "availability_request.create",
+      "operation_id": "createAvailabilityRequest",
+      "status": 201,
+      "schema": "AvailabilityRequestView"
+    },
+    {
+      "name": "me.availability_requests",
+      "operation_id": "getMyAvailabilityRequests",
+      "status": 200,
+      "schema": "AvailabilityRequestList"
+    },
+    {
+      "name": "availability_request.get",
+      "operation_id": "getAvailabilityRequest",
+      "status": 200,
+      "schema": "AvailabilityRequestView"
+    },
+    {
+      "name": "availability_requests.list",
+      "operation_id": "listAvailabilityRequests",
+      "status": 200,
+      "schema": "AvailabilityRequestList"
+    },
+    {
+      "name": "availability_request.accept",
+      "operation_id": "acceptAvailabilityRequest",
+      "status": 200,
+      "schema": "AvailabilityRequestView"
+    },
+    {
+      "name": "availability_request.accept.stale",
+      "operation_id": "acceptAvailabilityRequest",
+      "status": 409,
+      "schema": "ErrorResponse"
+    },
+    {
+      "name": "availability_request.reject",
+      "operation_id": "rejectAvailabilityRequest",
+      "status": 200,
+      "schema": "AvailabilityRequestView"
+    },
+    {
+      "name": "availability_request.cancel",
+      "operation_id": "cancelAvailabilityRequest",
+      "status": 200,
+      "schema": "AvailabilityRequestView"
+    },
+    {
+      "name": "run.events",
+      "operation_id": "streamOptimizationRun",
+      "status": 200,
+      "schema": "EventStream"
+    },
+    {
+      "name": "forecast.events",
+      "operation_id": "streamForecastRun",
+      "status": 200,
+      "schema": "EventStream"
+    },
+    {
+      "name": "schedule.events",
+      "operation_id": "streamScheduleVersions",
+      "status": 200,
+      "schema": "EventStream"
     },
     {
       "name": "proposal.create",

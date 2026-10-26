@@ -1,0 +1,39 @@
+{
+  "name": "forecast.run.not_enough_history",
+  "operation_id": "getForecastRun",
+  "method": "GET",
+  "path": "/v2/forecast-runs/{run_id}",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "run_id": "fab4f1c6-2e49-54d2-bd88-323087ef98da"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "ForecastRun",
+    "body": {
+      "id": "fab4f1c6-2e49-54d2-bd88-323087ef98da",
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-09-14",
+      "model_version": "weekday-median-v1",
+      "job_state": "failed",
+      "quality": null,
+      "metrics": null,
+      "points": [],
+      "proposal_id": null,
+      "error": {
+        "code": "validation_failed",
+        "message": "Needs at least 3 weeks of order history before this week to forecast and test it.",
+        "retryable": false,
+        "details": {
+          "reason": "NOT_ENOUGH_HISTORY"
+        },
+        "trace_id": null
+      },
+      "queued_at": "2026-10-23T09:00:00+05:30",
+      "finished_at": "2026-10-23T09:05:00.300000+05:30",
+      "poll_after_ms": null
+    }
+  }
+}

@@ -136,9 +136,9 @@ export class SchedulingClient {
   compareVersions(toId: string, fromId: string, signal?: AbortSignal) { return this.request<Schema['VersionDiff']>(`/v2/schedule-versions/${encodeURIComponent(toId)}/compare?with=${encodeURIComponent(fromId)}`, { signal }); }
   restoreVersion(id: string, input: Schema['RestoreRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['ScheduleVersion']>(`/v2/schedule-versions/${encodeURIComponent(id)}/restore`, { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
   proposals(scheduleId: string, signal?: AbortSignal) { return this.request<Schema['ProposalList']>(`/v2/proposals?schedule_id=${encodeURIComponent(scheduleId)}&status=pending`, { signal }); }
-  createDraft(outletId: string, week: string, input: Schema['CreateDraftRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['ScheduleVersion']>(`/v2/outlets/${encodeURIComponent(outletId)}/schedules/${encodeURIComponent(week)}/drafts`, { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
+  createDraft(outletId: string, week: string, input: Schema['CreateDraftRequest'], key: string, signal?: AbortSignal, previewExample?: 'cover') { return this.request<Schema['ScheduleVersion']>(`/v2/outlets/${encodeURIComponent(outletId)}/schedules/${encodeURIComponent(week)}/drafts`, { method: 'POST', body: JSON.stringify(input), signal, ...(this.options.baseUrl === '/api/fixture' && previewExample === 'cover' ? { headers: { 'X-ShiftPilot-Draft-Example': 'cover' } } : {}) }, requiredKey(key)); }
   previewEdits(id: string, input: Schema['EditRequest'], signal?: AbortSignal) { return this.request<Schema['EditPreview']>(`/v2/schedule-versions/${encodeURIComponent(id)}/edits/preview`, { method: 'POST', body: JSON.stringify(input), signal }); }
-  // Provider apply is revision-fenced, not idempotently replayable. Never retry automatically.
+  // Client recovery remains conservative: reload after an uncertain save; never retry automatically.
   applyEdits(id: string, input: Schema['EditRequest'], key: string, signal?: AbortSignal) { return this.request<Schema['ScheduleVersion']>(`/v2/schedule-versions/${encodeURIComponent(id)}/edits`, { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
 }
 

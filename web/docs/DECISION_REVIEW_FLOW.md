@@ -1,6 +1,6 @@
 # Portfolio, fairness and decision review
 
-Delivered 24 October 2026 against architecture v4. The current consumer has since moved to 3.19 for replacements; see REPLACEMENT_FLOW.md. This document records the 3.18 delivery evidence. Codex owns this consumer UI; database, engine and API implementation remain Claude's scope.
+Delivered 24 October 2026 against architecture v4. The current consumer has since moved to 3.27 for replacement-save and fairness corrections; see REPLACEMENT_FLOW.md. This document records the 3.18 delivery evidence. Codex owns this consumer UI; database, engine and API implementation remain Claude's scope.
 
 ## Contract and runtime boundary
 
@@ -23,7 +23,7 @@ Requested-absence confirm/reject/cancel fixtures are present in this pin but are
 
 ## Provider follow-up: inconsistent supplied fairness delta
 
-In `run.succeeded.json`, Balanced has fairness burden **7.97** and Lowest cost has **7.83**, while the Lowest cost trace reports `compared_to: requested_plan` and `fairness_delta: +0.02`. The displayed scores imply a decrease; the returned delta implies an increase. The same inconsistency was observed in upstream 3.26 during that review. Provider commit `063cf56` subsequently corrected it. The current bounded 3.19 consumer pin predates the fix, so the warning remains until a later snapshot is accepted.
+In `run.succeeded.json`, Balanced has fairness burden **7.97** and Lowest cost has **7.83**, while the Lowest cost trace reports `compared_to: requested_plan` and `fairness_delta: +0.02`. The displayed scores imply a decrease; the returned delta implies an increase. The same inconsistency was observed in upstream 3.26 during that review. Provider commit `063cf56` subsequently corrected it. The correction is now consumed in 3.27: the supplied delta is -0.14. The consistency guard remains for future mismatches; the historical issue below explains why it exists.
 
 The UI preserves all supplied values and warns that their directions disagree. It does not replace the delta with -0.14, recompute fairness or manufacture a correction. The consistency check is limited to a declared requested-plan reference with known scores and material, opposing directions; recorded published baselines are excluded. Claude should verify the fixture's reference/scores/delta and publish matching values. This is fixture evidence, not a claim that a live solver reproduced the defect.
 

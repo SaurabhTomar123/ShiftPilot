@@ -59,7 +59,7 @@ export function ReplacementReview({ client, version, outletId, week, employees, 
       if (!target && version.status === 'published') {
         const current = await client.schedule(outletId, week, signal);
         if (current.current_version?.id !== version.id) throw new Error('The published week changed. Close Find cover and reload the latest week before choosing someone.');
-        target = await client.createDraft(outletId, week, { base_version_id: version.id, copy_from_version_id: null }, createKey.current, signal);
+        target = await client.createDraft(outletId, week, { base_version_id: version.id, copy_from_version_id: null }, createKey.current, signal, fixtureMode ? 'cover' : undefined);
       } else if (!target) {
         target = await client.version(version.id, signal);
         if (target.revision !== version.revision) throw new Error('The draft revision changed. Close Find cover and reload it before choosing someone.');
@@ -78,7 +78,7 @@ export function ReplacementReview({ client, version, outletId, week, employees, 
   return <section className="replacement-review" aria-label="Find shift cover">
     <div className="review-heading"><div><h2 ref={heading} tabIndex={-1}>Find cover for one shift</h2><p>Check a direct replacement while every other assignment stays in place. Rearranging several shifts needs a repair run.</p></div><Button disabled={!!busy} onClick={onClose}>Close Find cover</Button></div>
     <p>Times in {timezone}. Finding cover reads current facts; it does not save an absence, reassign anyone or publish.</p>
-    {fixtureMode && <p className="contract-note">The supplied example is Ravi Kumar’s Prep shift on 21 October, using Balanced at Indiranagar. Recommendations are available; validating and saving their replacement edits needs a connected API.</p>}
+    {fixtureMode && <p className="contract-note">The supplied example is Ravi Kumar’s Prep shift on 21 October, using Balanced at Indiranagar. Chitra?s direct replacement has supplied validation and save examples. Other edits need a connected API.</p>}
     <form onSubmit={find}><fieldset disabled={!!busy || !!prepared || uncertain} className="replacement-inputs"><legend>Choose the assignment and priorities</legend>
       <label>Shift needing cover<select aria-label="Shift needing cover" value={shiftId} onChange={event => { setShiftId(event.target.value); reset(); }}>{version.shifts.map(shift => <option key={shift.logical_shift_id} value={shift.logical_shift_id}>{person(shift.employee_id)}: {describe(shift)}{shift.locked ? ' (Locked)' : ''}</option>)}</select></label>
       <label>Cover priorities<select value={profile} onChange={event => { setProfile(event.target.value as typeof profile); reset(); }}>{(['balanced', 'stability', 'lowest_cost', 'fairness', 'max_coverage', 'staff_friendly'] as const).map(value => <option key={value} value={value}>{strategyName(value)}</option>)}</select></label>

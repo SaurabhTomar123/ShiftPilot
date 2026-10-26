@@ -43,6 +43,32 @@
             "max_assignable": 3
           }
         ],
+        "conflict_set": [
+          {
+            "kind": "minimum_coverage",
+            "message": "Minimum Grill staffing on Friday 30 Oct",
+            "relaxation": "Operate below this minimum, if policy permits.",
+            "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+            "day": "2026-10-30",
+            "employee_id": null,
+            "rule_id": null,
+            "rule_type": null,
+            "minutes": null,
+            "max_cost_paise": null
+          },
+          {
+            "kind": "no_overtime",
+            "message": "Arjun Rao cannot work beyond 48 h (no overtime)",
+            "relaxation": "Allow overtime for this person.",
+            "skill_id": null,
+            "day": null,
+            "employee_id": "88deef49-a989-573d-ad65-603223d0c3fc",
+            "rule_id": null,
+            "rule_type": null,
+            "minutes": 2880,
+            "max_cost_paise": null
+          }
+        ],
         "options": [
           {
             "kind": "overtime",

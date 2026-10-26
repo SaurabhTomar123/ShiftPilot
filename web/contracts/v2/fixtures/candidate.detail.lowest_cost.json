@@ -336,7 +336,7 @@
           "compared_to": "requested_plan",
           "cost_delta_paise": -357000,
           "preferred_gap_delta_minutes": 960,
-          "fairness_delta": 0.02,
+          "fairness_delta": -0.14,
           "overtime_minutes": 0,
           "cross_outlet_moves": 0,
           "changed_commitments": 0

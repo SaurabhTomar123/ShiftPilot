@@ -1,0 +1,73 @@
+{
+  "name": "forecast.events",
+  "operation_id": "streamForecastRun",
+  "method": "GET",
+  "path": "/v2/forecast-runs/{run_id}/events",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "run_id": "b11e6c99-fbf6-581c-85f3-b9177f7bb4ab"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "EventStream",
+    "body": {
+      "events": [
+        {
+          "event": "forecast",
+          "id": "forecast-1",
+          "data": {
+            "id": "b11e6c99-fbf6-581c-85f3-b9177f7bb4ab",
+            "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+            "week_start": "2026-10-26",
+            "model_version": "weekday-median-v1",
+            "job_state": "queued",
+            "quality": null,
+            "metrics": null,
+            "points": [],
+            "proposal_id": null,
+            "error": null,
+            "queued_at": "2026-10-23T09:00:00+05:30",
+            "finished_at": null,
+            "poll_after_ms": 1000
+          }
+        },
+        {
+          "event": "forecast",
+          "id": "forecast-2",
+          "data": {
+            "id": "b11e6c99-fbf6-581c-85f3-b9177f7bb4ab",
+            "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+            "week_start": "2026-10-26",
+            "model_version": "weekday-median-v1",
+            "job_state": "failed",
+            "quality": null,
+            "metrics": null,
+            "points": [],
+            "proposal_id": null,
+            "error": {
+              "code": "validation_failed",
+              "message": "Needs at least 3 weeks of order history before this week to forecast and test it.",
+              "retryable": false,
+              "details": {
+                "reason": "NOT_ENOUGH_HISTORY"
+              },
+              "trace_id": null
+            },
+            "queued_at": "2026-10-23T09:00:00+05:30",
+            "finished_at": "2026-10-23T09:00:00.900000+05:30",
+            "poll_after_ms": null
+          }
+        },
+        {
+          "event": "end",
+          "id": null,
+          "data": {
+            "reason": "finished"
+          }
+        }
+      ]
+    }
+  }
+}

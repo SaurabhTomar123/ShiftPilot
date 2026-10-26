@@ -1,0 +1,5291 @@
+{
+  "name": "staffing_proposal.accept",
+  "operation_id": "acceptStaffingProposal",
+  "method": "POST",
+  "path": "/v2/staffing-requirement-proposals/{proposal_id}/accept",
+  "persona": "manager_indiranagar",
+  "request": {
+    "path_params": {
+      "proposal_id": "de09b411-6a0c-55eb-9d4a-f49495c125d9"
+    },
+    "headers": {
+      "Idempotency-Key": "accept-staffing-5d1e"
+    }
+  },
+  "response": {
+    "status": 200,
+    "schema": "StaffingRequirements",
+    "body": {
+      "outlet_id": "69e0477e-4a09-55c5-b467-8c673e7245b5",
+      "week_start": "2026-10-26",
+      "interval_minutes": 30,
+      "demand_revision": 2,
+      "intervals": [
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T10:00:00+05:30",
+          "interval_end": "2026-10-26T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T10:00:00+05:30",
+          "interval_end": "2026-10-26T10:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T10:00:00+05:30",
+          "interval_end": "2026-10-26T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T10:00:00+05:30",
+          "interval_end": "2026-10-26T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T10:30:00+05:30",
+          "interval_end": "2026-10-26T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T10:30:00+05:30",
+          "interval_end": "2026-10-26T11:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T10:30:00+05:30",
+          "interval_end": "2026-10-26T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T10:30:00+05:30",
+          "interval_end": "2026-10-26T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T11:00:00+05:30",
+          "interval_end": "2026-10-26T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T11:00:00+05:30",
+          "interval_end": "2026-10-26T11:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T11:00:00+05:30",
+          "interval_end": "2026-10-26T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T11:00:00+05:30",
+          "interval_end": "2026-10-26T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T11:30:00+05:30",
+          "interval_end": "2026-10-26T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T11:30:00+05:30",
+          "interval_end": "2026-10-26T12:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T11:30:00+05:30",
+          "interval_end": "2026-10-26T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T11:30:00+05:30",
+          "interval_end": "2026-10-26T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T12:00:00+05:30",
+          "interval_end": "2026-10-26T12:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T12:00:00+05:30",
+          "interval_end": "2026-10-26T12:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T12:00:00+05:30",
+          "interval_end": "2026-10-26T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T12:00:00+05:30",
+          "interval_end": "2026-10-26T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T12:30:00+05:30",
+          "interval_end": "2026-10-26T13:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T12:30:00+05:30",
+          "interval_end": "2026-10-26T13:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T12:30:00+05:30",
+          "interval_end": "2026-10-26T13:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T12:30:00+05:30",
+          "interval_end": "2026-10-26T13:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T13:00:00+05:30",
+          "interval_end": "2026-10-26T13:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T13:00:00+05:30",
+          "interval_end": "2026-10-26T13:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T13:00:00+05:30",
+          "interval_end": "2026-10-26T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T13:00:00+05:30",
+          "interval_end": "2026-10-26T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T13:30:00+05:30",
+          "interval_end": "2026-10-26T14:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T13:30:00+05:30",
+          "interval_end": "2026-10-26T14:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T13:30:00+05:30",
+          "interval_end": "2026-10-26T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T13:30:00+05:30",
+          "interval_end": "2026-10-26T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T14:00:00+05:30",
+          "interval_end": "2026-10-26T14:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T14:00:00+05:30",
+          "interval_end": "2026-10-26T14:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T14:00:00+05:30",
+          "interval_end": "2026-10-26T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T14:00:00+05:30",
+          "interval_end": "2026-10-26T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T14:30:00+05:30",
+          "interval_end": "2026-10-26T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T14:30:00+05:30",
+          "interval_end": "2026-10-26T15:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T14:30:00+05:30",
+          "interval_end": "2026-10-26T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T14:30:00+05:30",
+          "interval_end": "2026-10-26T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T15:00:00+05:30",
+          "interval_end": "2026-10-26T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T15:00:00+05:30",
+          "interval_end": "2026-10-26T15:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T15:00:00+05:30",
+          "interval_end": "2026-10-26T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T15:00:00+05:30",
+          "interval_end": "2026-10-26T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T15:30:00+05:30",
+          "interval_end": "2026-10-26T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T15:30:00+05:30",
+          "interval_end": "2026-10-26T16:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T15:30:00+05:30",
+          "interval_end": "2026-10-26T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T15:30:00+05:30",
+          "interval_end": "2026-10-26T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T16:00:00+05:30",
+          "interval_end": "2026-10-26T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T16:00:00+05:30",
+          "interval_end": "2026-10-26T16:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T16:00:00+05:30",
+          "interval_end": "2026-10-26T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T16:00:00+05:30",
+          "interval_end": "2026-10-26T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T16:30:00+05:30",
+          "interval_end": "2026-10-26T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T16:30:00+05:30",
+          "interval_end": "2026-10-26T17:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T16:30:00+05:30",
+          "interval_end": "2026-10-26T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T16:30:00+05:30",
+          "interval_end": "2026-10-26T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T17:00:00+05:30",
+          "interval_end": "2026-10-26T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T17:00:00+05:30",
+          "interval_end": "2026-10-26T17:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T17:00:00+05:30",
+          "interval_end": "2026-10-26T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T17:00:00+05:30",
+          "interval_end": "2026-10-26T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T17:30:00+05:30",
+          "interval_end": "2026-10-26T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-26T17:30:00+05:30",
+          "interval_end": "2026-10-26T18:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T17:30:00+05:30",
+          "interval_end": "2026-10-26T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T17:30:00+05:30",
+          "interval_end": "2026-10-26T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T18:00:00+05:30",
+          "interval_end": "2026-10-26T18:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T18:00:00+05:30",
+          "interval_end": "2026-10-26T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T18:00:00+05:30",
+          "interval_end": "2026-10-26T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T18:30:00+05:30",
+          "interval_end": "2026-10-26T19:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T18:30:00+05:30",
+          "interval_end": "2026-10-26T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T18:30:00+05:30",
+          "interval_end": "2026-10-26T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T19:00:00+05:30",
+          "interval_end": "2026-10-26T19:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T19:00:00+05:30",
+          "interval_end": "2026-10-26T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T19:00:00+05:30",
+          "interval_end": "2026-10-26T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T19:30:00+05:30",
+          "interval_end": "2026-10-26T20:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T19:30:00+05:30",
+          "interval_end": "2026-10-26T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T19:30:00+05:30",
+          "interval_end": "2026-10-26T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T20:00:00+05:30",
+          "interval_end": "2026-10-26T20:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T20:00:00+05:30",
+          "interval_end": "2026-10-26T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T20:00:00+05:30",
+          "interval_end": "2026-10-26T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T20:30:00+05:30",
+          "interval_end": "2026-10-26T21:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T20:30:00+05:30",
+          "interval_end": "2026-10-26T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T20:30:00+05:30",
+          "interval_end": "2026-10-26T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T21:00:00+05:30",
+          "interval_end": "2026-10-26T21:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T21:00:00+05:30",
+          "interval_end": "2026-10-26T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T21:00:00+05:30",
+          "interval_end": "2026-10-26T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T21:30:00+05:30",
+          "interval_end": "2026-10-26T22:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T21:30:00+05:30",
+          "interval_end": "2026-10-26T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T21:30:00+05:30",
+          "interval_end": "2026-10-26T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T22:00:00+05:30",
+          "interval_end": "2026-10-26T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T22:00:00+05:30",
+          "interval_end": "2026-10-26T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T22:00:00+05:30",
+          "interval_end": "2026-10-26T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-26T22:30:00+05:30",
+          "interval_end": "2026-10-26T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-26T22:30:00+05:30",
+          "interval_end": "2026-10-26T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-26T22:30:00+05:30",
+          "interval_end": "2026-10-26T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T10:00:00+05:30",
+          "interval_end": "2026-10-27T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T10:00:00+05:30",
+          "interval_end": "2026-10-27T10:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T10:00:00+05:30",
+          "interval_end": "2026-10-27T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T10:00:00+05:30",
+          "interval_end": "2026-10-27T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T10:30:00+05:30",
+          "interval_end": "2026-10-27T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T10:30:00+05:30",
+          "interval_end": "2026-10-27T11:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T10:30:00+05:30",
+          "interval_end": "2026-10-27T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T10:30:00+05:30",
+          "interval_end": "2026-10-27T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T11:00:00+05:30",
+          "interval_end": "2026-10-27T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T11:00:00+05:30",
+          "interval_end": "2026-10-27T11:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T11:00:00+05:30",
+          "interval_end": "2026-10-27T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T11:00:00+05:30",
+          "interval_end": "2026-10-27T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T11:30:00+05:30",
+          "interval_end": "2026-10-27T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T11:30:00+05:30",
+          "interval_end": "2026-10-27T12:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T11:30:00+05:30",
+          "interval_end": "2026-10-27T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T11:30:00+05:30",
+          "interval_end": "2026-10-27T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T12:00:00+05:30",
+          "interval_end": "2026-10-27T12:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T12:00:00+05:30",
+          "interval_end": "2026-10-27T12:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T12:00:00+05:30",
+          "interval_end": "2026-10-27T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T12:00:00+05:30",
+          "interval_end": "2026-10-27T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T12:30:00+05:30",
+          "interval_end": "2026-10-27T13:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T12:30:00+05:30",
+          "interval_end": "2026-10-27T13:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T12:30:00+05:30",
+          "interval_end": "2026-10-27T13:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T12:30:00+05:30",
+          "interval_end": "2026-10-27T13:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T13:00:00+05:30",
+          "interval_end": "2026-10-27T13:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T13:00:00+05:30",
+          "interval_end": "2026-10-27T13:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T13:00:00+05:30",
+          "interval_end": "2026-10-27T13:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T13:00:00+05:30",
+          "interval_end": "2026-10-27T13:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T13:30:00+05:30",
+          "interval_end": "2026-10-27T14:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T13:30:00+05:30",
+          "interval_end": "2026-10-27T14:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T13:30:00+05:30",
+          "interval_end": "2026-10-27T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T13:30:00+05:30",
+          "interval_end": "2026-10-27T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T14:00:00+05:30",
+          "interval_end": "2026-10-27T14:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T14:00:00+05:30",
+          "interval_end": "2026-10-27T14:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T14:00:00+05:30",
+          "interval_end": "2026-10-27T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T14:00:00+05:30",
+          "interval_end": "2026-10-27T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T14:30:00+05:30",
+          "interval_end": "2026-10-27T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T14:30:00+05:30",
+          "interval_end": "2026-10-27T15:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T14:30:00+05:30",
+          "interval_end": "2026-10-27T15:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T14:30:00+05:30",
+          "interval_end": "2026-10-27T15:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T15:00:00+05:30",
+          "interval_end": "2026-10-27T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T15:00:00+05:30",
+          "interval_end": "2026-10-27T15:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T15:00:00+05:30",
+          "interval_end": "2026-10-27T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T15:00:00+05:30",
+          "interval_end": "2026-10-27T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T15:30:00+05:30",
+          "interval_end": "2026-10-27T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T15:30:00+05:30",
+          "interval_end": "2026-10-27T16:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T15:30:00+05:30",
+          "interval_end": "2026-10-27T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T15:30:00+05:30",
+          "interval_end": "2026-10-27T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T16:00:00+05:30",
+          "interval_end": "2026-10-27T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T16:00:00+05:30",
+          "interval_end": "2026-10-27T16:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T16:00:00+05:30",
+          "interval_end": "2026-10-27T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T16:00:00+05:30",
+          "interval_end": "2026-10-27T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T16:30:00+05:30",
+          "interval_end": "2026-10-27T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T16:30:00+05:30",
+          "interval_end": "2026-10-27T17:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T16:30:00+05:30",
+          "interval_end": "2026-10-27T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T16:30:00+05:30",
+          "interval_end": "2026-10-27T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T17:00:00+05:30",
+          "interval_end": "2026-10-27T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T17:00:00+05:30",
+          "interval_end": "2026-10-27T17:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T17:00:00+05:30",
+          "interval_end": "2026-10-27T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T17:00:00+05:30",
+          "interval_end": "2026-10-27T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T17:30:00+05:30",
+          "interval_end": "2026-10-27T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-27T17:30:00+05:30",
+          "interval_end": "2026-10-27T18:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T17:30:00+05:30",
+          "interval_end": "2026-10-27T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T17:30:00+05:30",
+          "interval_end": "2026-10-27T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T18:00:00+05:30",
+          "interval_end": "2026-10-27T18:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T18:00:00+05:30",
+          "interval_end": "2026-10-27T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T18:00:00+05:30",
+          "interval_end": "2026-10-27T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T18:30:00+05:30",
+          "interval_end": "2026-10-27T19:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T18:30:00+05:30",
+          "interval_end": "2026-10-27T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T18:30:00+05:30",
+          "interval_end": "2026-10-27T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T19:00:00+05:30",
+          "interval_end": "2026-10-27T19:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T19:00:00+05:30",
+          "interval_end": "2026-10-27T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T19:00:00+05:30",
+          "interval_end": "2026-10-27T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T19:30:00+05:30",
+          "interval_end": "2026-10-27T20:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T19:30:00+05:30",
+          "interval_end": "2026-10-27T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T19:30:00+05:30",
+          "interval_end": "2026-10-27T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T20:00:00+05:30",
+          "interval_end": "2026-10-27T20:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T20:00:00+05:30",
+          "interval_end": "2026-10-27T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T20:00:00+05:30",
+          "interval_end": "2026-10-27T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T20:30:00+05:30",
+          "interval_end": "2026-10-27T21:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T20:30:00+05:30",
+          "interval_end": "2026-10-27T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T20:30:00+05:30",
+          "interval_end": "2026-10-27T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T21:00:00+05:30",
+          "interval_end": "2026-10-27T21:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T21:00:00+05:30",
+          "interval_end": "2026-10-27T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T21:00:00+05:30",
+          "interval_end": "2026-10-27T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T21:30:00+05:30",
+          "interval_end": "2026-10-27T22:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T21:30:00+05:30",
+          "interval_end": "2026-10-27T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T21:30:00+05:30",
+          "interval_end": "2026-10-27T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T22:00:00+05:30",
+          "interval_end": "2026-10-27T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T22:00:00+05:30",
+          "interval_end": "2026-10-27T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T22:00:00+05:30",
+          "interval_end": "2026-10-27T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-27T22:30:00+05:30",
+          "interval_end": "2026-10-27T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-27T22:30:00+05:30",
+          "interval_end": "2026-10-27T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-27T22:30:00+05:30",
+          "interval_end": "2026-10-27T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T10:00:00+05:30",
+          "interval_end": "2026-10-28T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T10:00:00+05:30",
+          "interval_end": "2026-10-28T10:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T10:00:00+05:30",
+          "interval_end": "2026-10-28T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T10:00:00+05:30",
+          "interval_end": "2026-10-28T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T10:30:00+05:30",
+          "interval_end": "2026-10-28T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T10:30:00+05:30",
+          "interval_end": "2026-10-28T11:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T10:30:00+05:30",
+          "interval_end": "2026-10-28T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T10:30:00+05:30",
+          "interval_end": "2026-10-28T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T11:00:00+05:30",
+          "interval_end": "2026-10-28T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T11:00:00+05:30",
+          "interval_end": "2026-10-28T11:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T11:00:00+05:30",
+          "interval_end": "2026-10-28T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T11:00:00+05:30",
+          "interval_end": "2026-10-28T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T11:30:00+05:30",
+          "interval_end": "2026-10-28T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T11:30:00+05:30",
+          "interval_end": "2026-10-28T12:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T11:30:00+05:30",
+          "interval_end": "2026-10-28T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T11:30:00+05:30",
+          "interval_end": "2026-10-28T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T12:00:00+05:30",
+          "interval_end": "2026-10-28T12:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T12:00:00+05:30",
+          "interval_end": "2026-10-28T12:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T12:00:00+05:30",
+          "interval_end": "2026-10-28T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T12:00:00+05:30",
+          "interval_end": "2026-10-28T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T12:30:00+05:30",
+          "interval_end": "2026-10-28T13:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T12:30:00+05:30",
+          "interval_end": "2026-10-28T13:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T12:30:00+05:30",
+          "interval_end": "2026-10-28T13:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T12:30:00+05:30",
+          "interval_end": "2026-10-28T13:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T13:00:00+05:30",
+          "interval_end": "2026-10-28T13:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T13:00:00+05:30",
+          "interval_end": "2026-10-28T13:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T13:00:00+05:30",
+          "interval_end": "2026-10-28T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T13:00:00+05:30",
+          "interval_end": "2026-10-28T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T13:30:00+05:30",
+          "interval_end": "2026-10-28T14:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T13:30:00+05:30",
+          "interval_end": "2026-10-28T14:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T13:30:00+05:30",
+          "interval_end": "2026-10-28T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T13:30:00+05:30",
+          "interval_end": "2026-10-28T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T14:00:00+05:30",
+          "interval_end": "2026-10-28T14:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T14:00:00+05:30",
+          "interval_end": "2026-10-28T14:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T14:00:00+05:30",
+          "interval_end": "2026-10-28T14:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T14:00:00+05:30",
+          "interval_end": "2026-10-28T14:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T14:30:00+05:30",
+          "interval_end": "2026-10-28T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T14:30:00+05:30",
+          "interval_end": "2026-10-28T15:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T14:30:00+05:30",
+          "interval_end": "2026-10-28T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T14:30:00+05:30",
+          "interval_end": "2026-10-28T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T15:00:00+05:30",
+          "interval_end": "2026-10-28T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T15:00:00+05:30",
+          "interval_end": "2026-10-28T15:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T15:00:00+05:30",
+          "interval_end": "2026-10-28T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T15:00:00+05:30",
+          "interval_end": "2026-10-28T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T15:30:00+05:30",
+          "interval_end": "2026-10-28T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T15:30:00+05:30",
+          "interval_end": "2026-10-28T16:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T15:30:00+05:30",
+          "interval_end": "2026-10-28T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T15:30:00+05:30",
+          "interval_end": "2026-10-28T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T16:00:00+05:30",
+          "interval_end": "2026-10-28T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T16:00:00+05:30",
+          "interval_end": "2026-10-28T16:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T16:00:00+05:30",
+          "interval_end": "2026-10-28T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T16:00:00+05:30",
+          "interval_end": "2026-10-28T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T16:30:00+05:30",
+          "interval_end": "2026-10-28T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T16:30:00+05:30",
+          "interval_end": "2026-10-28T17:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T16:30:00+05:30",
+          "interval_end": "2026-10-28T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T16:30:00+05:30",
+          "interval_end": "2026-10-28T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T17:00:00+05:30",
+          "interval_end": "2026-10-28T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T17:00:00+05:30",
+          "interval_end": "2026-10-28T17:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T17:00:00+05:30",
+          "interval_end": "2026-10-28T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T17:00:00+05:30",
+          "interval_end": "2026-10-28T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T17:30:00+05:30",
+          "interval_end": "2026-10-28T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-28T17:30:00+05:30",
+          "interval_end": "2026-10-28T18:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T17:30:00+05:30",
+          "interval_end": "2026-10-28T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T17:30:00+05:30",
+          "interval_end": "2026-10-28T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T18:00:00+05:30",
+          "interval_end": "2026-10-28T18:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T18:00:00+05:30",
+          "interval_end": "2026-10-28T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T18:00:00+05:30",
+          "interval_end": "2026-10-28T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T18:30:00+05:30",
+          "interval_end": "2026-10-28T19:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T18:30:00+05:30",
+          "interval_end": "2026-10-28T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T18:30:00+05:30",
+          "interval_end": "2026-10-28T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T19:00:00+05:30",
+          "interval_end": "2026-10-28T19:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T19:00:00+05:30",
+          "interval_end": "2026-10-28T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T19:00:00+05:30",
+          "interval_end": "2026-10-28T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T19:30:00+05:30",
+          "interval_end": "2026-10-28T20:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T19:30:00+05:30",
+          "interval_end": "2026-10-28T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T19:30:00+05:30",
+          "interval_end": "2026-10-28T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T20:00:00+05:30",
+          "interval_end": "2026-10-28T20:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T20:00:00+05:30",
+          "interval_end": "2026-10-28T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T20:00:00+05:30",
+          "interval_end": "2026-10-28T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T20:30:00+05:30",
+          "interval_end": "2026-10-28T21:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T20:30:00+05:30",
+          "interval_end": "2026-10-28T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T20:30:00+05:30",
+          "interval_end": "2026-10-28T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T21:00:00+05:30",
+          "interval_end": "2026-10-28T21:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T21:00:00+05:30",
+          "interval_end": "2026-10-28T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T21:00:00+05:30",
+          "interval_end": "2026-10-28T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T21:30:00+05:30",
+          "interval_end": "2026-10-28T22:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T21:30:00+05:30",
+          "interval_end": "2026-10-28T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T21:30:00+05:30",
+          "interval_end": "2026-10-28T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T22:00:00+05:30",
+          "interval_end": "2026-10-28T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T22:00:00+05:30",
+          "interval_end": "2026-10-28T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T22:00:00+05:30",
+          "interval_end": "2026-10-28T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-28T22:30:00+05:30",
+          "interval_end": "2026-10-28T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-28T22:30:00+05:30",
+          "interval_end": "2026-10-28T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-28T22:30:00+05:30",
+          "interval_end": "2026-10-28T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T10:00:00+05:30",
+          "interval_end": "2026-10-29T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T10:00:00+05:30",
+          "interval_end": "2026-10-29T10:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T10:00:00+05:30",
+          "interval_end": "2026-10-29T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T10:00:00+05:30",
+          "interval_end": "2026-10-29T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T10:30:00+05:30",
+          "interval_end": "2026-10-29T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T10:30:00+05:30",
+          "interval_end": "2026-10-29T11:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T10:30:00+05:30",
+          "interval_end": "2026-10-29T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T10:30:00+05:30",
+          "interval_end": "2026-10-29T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T11:00:00+05:30",
+          "interval_end": "2026-10-29T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T11:00:00+05:30",
+          "interval_end": "2026-10-29T11:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T11:00:00+05:30",
+          "interval_end": "2026-10-29T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T11:00:00+05:30",
+          "interval_end": "2026-10-29T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T11:30:00+05:30",
+          "interval_end": "2026-10-29T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T11:30:00+05:30",
+          "interval_end": "2026-10-29T12:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T11:30:00+05:30",
+          "interval_end": "2026-10-29T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T11:30:00+05:30",
+          "interval_end": "2026-10-29T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T12:00:00+05:30",
+          "interval_end": "2026-10-29T12:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T12:00:00+05:30",
+          "interval_end": "2026-10-29T12:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T12:00:00+05:30",
+          "interval_end": "2026-10-29T12:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T12:00:00+05:30",
+          "interval_end": "2026-10-29T12:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T12:30:00+05:30",
+          "interval_end": "2026-10-29T13:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T12:30:00+05:30",
+          "interval_end": "2026-10-29T13:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T12:30:00+05:30",
+          "interval_end": "2026-10-29T13:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T12:30:00+05:30",
+          "interval_end": "2026-10-29T13:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T13:00:00+05:30",
+          "interval_end": "2026-10-29T13:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T13:00:00+05:30",
+          "interval_end": "2026-10-29T13:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T13:00:00+05:30",
+          "interval_end": "2026-10-29T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T13:00:00+05:30",
+          "interval_end": "2026-10-29T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T13:30:00+05:30",
+          "interval_end": "2026-10-29T14:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T13:30:00+05:30",
+          "interval_end": "2026-10-29T14:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T13:30:00+05:30",
+          "interval_end": "2026-10-29T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T13:30:00+05:30",
+          "interval_end": "2026-10-29T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T14:00:00+05:30",
+          "interval_end": "2026-10-29T14:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T14:00:00+05:30",
+          "interval_end": "2026-10-29T14:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T14:00:00+05:30",
+          "interval_end": "2026-10-29T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T14:00:00+05:30",
+          "interval_end": "2026-10-29T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T14:30:00+05:30",
+          "interval_end": "2026-10-29T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T14:30:00+05:30",
+          "interval_end": "2026-10-29T15:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T14:30:00+05:30",
+          "interval_end": "2026-10-29T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T14:30:00+05:30",
+          "interval_end": "2026-10-29T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T15:00:00+05:30",
+          "interval_end": "2026-10-29T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T15:00:00+05:30",
+          "interval_end": "2026-10-29T15:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T15:00:00+05:30",
+          "interval_end": "2026-10-29T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T15:00:00+05:30",
+          "interval_end": "2026-10-29T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T15:30:00+05:30",
+          "interval_end": "2026-10-29T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T15:30:00+05:30",
+          "interval_end": "2026-10-29T16:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T15:30:00+05:30",
+          "interval_end": "2026-10-29T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T15:30:00+05:30",
+          "interval_end": "2026-10-29T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T16:00:00+05:30",
+          "interval_end": "2026-10-29T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T16:00:00+05:30",
+          "interval_end": "2026-10-29T16:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T16:00:00+05:30",
+          "interval_end": "2026-10-29T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T16:00:00+05:30",
+          "interval_end": "2026-10-29T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T16:30:00+05:30",
+          "interval_end": "2026-10-29T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T16:30:00+05:30",
+          "interval_end": "2026-10-29T17:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T16:30:00+05:30",
+          "interval_end": "2026-10-29T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T16:30:00+05:30",
+          "interval_end": "2026-10-29T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T17:00:00+05:30",
+          "interval_end": "2026-10-29T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T17:00:00+05:30",
+          "interval_end": "2026-10-29T17:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T17:00:00+05:30",
+          "interval_end": "2026-10-29T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T17:00:00+05:30",
+          "interval_end": "2026-10-29T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T17:30:00+05:30",
+          "interval_end": "2026-10-29T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-29T17:30:00+05:30",
+          "interval_end": "2026-10-29T18:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T17:30:00+05:30",
+          "interval_end": "2026-10-29T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T17:30:00+05:30",
+          "interval_end": "2026-10-29T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T18:00:00+05:30",
+          "interval_end": "2026-10-29T18:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T18:00:00+05:30",
+          "interval_end": "2026-10-29T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T18:00:00+05:30",
+          "interval_end": "2026-10-29T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T18:30:00+05:30",
+          "interval_end": "2026-10-29T19:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T18:30:00+05:30",
+          "interval_end": "2026-10-29T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T18:30:00+05:30",
+          "interval_end": "2026-10-29T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T19:00:00+05:30",
+          "interval_end": "2026-10-29T19:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T19:00:00+05:30",
+          "interval_end": "2026-10-29T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T19:00:00+05:30",
+          "interval_end": "2026-10-29T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T19:30:00+05:30",
+          "interval_end": "2026-10-29T20:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T19:30:00+05:30",
+          "interval_end": "2026-10-29T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T19:30:00+05:30",
+          "interval_end": "2026-10-29T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T20:00:00+05:30",
+          "interval_end": "2026-10-29T20:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T20:00:00+05:30",
+          "interval_end": "2026-10-29T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T20:00:00+05:30",
+          "interval_end": "2026-10-29T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T20:30:00+05:30",
+          "interval_end": "2026-10-29T21:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T20:30:00+05:30",
+          "interval_end": "2026-10-29T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T20:30:00+05:30",
+          "interval_end": "2026-10-29T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T21:00:00+05:30",
+          "interval_end": "2026-10-29T21:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T21:00:00+05:30",
+          "interval_end": "2026-10-29T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T21:00:00+05:30",
+          "interval_end": "2026-10-29T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T21:30:00+05:30",
+          "interval_end": "2026-10-29T22:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T21:30:00+05:30",
+          "interval_end": "2026-10-29T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T21:30:00+05:30",
+          "interval_end": "2026-10-29T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T22:00:00+05:30",
+          "interval_end": "2026-10-29T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T22:00:00+05:30",
+          "interval_end": "2026-10-29T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T22:00:00+05:30",
+          "interval_end": "2026-10-29T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-29T22:30:00+05:30",
+          "interval_end": "2026-10-29T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-29T22:30:00+05:30",
+          "interval_end": "2026-10-29T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-29T22:30:00+05:30",
+          "interval_end": "2026-10-29T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T10:00:00+05:30",
+          "interval_end": "2026-10-30T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T10:00:00+05:30",
+          "interval_end": "2026-10-30T10:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T10:00:00+05:30",
+          "interval_end": "2026-10-30T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T10:00:00+05:30",
+          "interval_end": "2026-10-30T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T10:30:00+05:30",
+          "interval_end": "2026-10-30T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T10:30:00+05:30",
+          "interval_end": "2026-10-30T11:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T10:30:00+05:30",
+          "interval_end": "2026-10-30T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T10:30:00+05:30",
+          "interval_end": "2026-10-30T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T11:00:00+05:30",
+          "interval_end": "2026-10-30T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T11:00:00+05:30",
+          "interval_end": "2026-10-30T11:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T11:00:00+05:30",
+          "interval_end": "2026-10-30T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T11:00:00+05:30",
+          "interval_end": "2026-10-30T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T11:30:00+05:30",
+          "interval_end": "2026-10-30T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T11:30:00+05:30",
+          "interval_end": "2026-10-30T12:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T11:30:00+05:30",
+          "interval_end": "2026-10-30T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T11:30:00+05:30",
+          "interval_end": "2026-10-30T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T12:00:00+05:30",
+          "interval_end": "2026-10-30T12:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T12:00:00+05:30",
+          "interval_end": "2026-10-30T12:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T12:00:00+05:30",
+          "interval_end": "2026-10-30T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T12:00:00+05:30",
+          "interval_end": "2026-10-30T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T12:30:00+05:30",
+          "interval_end": "2026-10-30T13:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T12:30:00+05:30",
+          "interval_end": "2026-10-30T13:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T12:30:00+05:30",
+          "interval_end": "2026-10-30T13:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T12:30:00+05:30",
+          "interval_end": "2026-10-30T13:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T13:00:00+05:30",
+          "interval_end": "2026-10-30T13:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T13:00:00+05:30",
+          "interval_end": "2026-10-30T13:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T13:00:00+05:30",
+          "interval_end": "2026-10-30T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T13:00:00+05:30",
+          "interval_end": "2026-10-30T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T13:30:00+05:30",
+          "interval_end": "2026-10-30T14:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T13:30:00+05:30",
+          "interval_end": "2026-10-30T14:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T13:30:00+05:30",
+          "interval_end": "2026-10-30T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T13:30:00+05:30",
+          "interval_end": "2026-10-30T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T14:00:00+05:30",
+          "interval_end": "2026-10-30T14:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T14:00:00+05:30",
+          "interval_end": "2026-10-30T14:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T14:00:00+05:30",
+          "interval_end": "2026-10-30T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T14:00:00+05:30",
+          "interval_end": "2026-10-30T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T14:30:00+05:30",
+          "interval_end": "2026-10-30T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T14:30:00+05:30",
+          "interval_end": "2026-10-30T15:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T14:30:00+05:30",
+          "interval_end": "2026-10-30T15:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T14:30:00+05:30",
+          "interval_end": "2026-10-30T15:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T15:00:00+05:30",
+          "interval_end": "2026-10-30T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T15:00:00+05:30",
+          "interval_end": "2026-10-30T15:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T15:00:00+05:30",
+          "interval_end": "2026-10-30T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T15:00:00+05:30",
+          "interval_end": "2026-10-30T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T15:30:00+05:30",
+          "interval_end": "2026-10-30T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T15:30:00+05:30",
+          "interval_end": "2026-10-30T16:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T15:30:00+05:30",
+          "interval_end": "2026-10-30T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T15:30:00+05:30",
+          "interval_end": "2026-10-30T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T16:00:00+05:30",
+          "interval_end": "2026-10-30T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T16:00:00+05:30",
+          "interval_end": "2026-10-30T16:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T16:00:00+05:30",
+          "interval_end": "2026-10-30T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T16:00:00+05:30",
+          "interval_end": "2026-10-30T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T16:30:00+05:30",
+          "interval_end": "2026-10-30T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T16:30:00+05:30",
+          "interval_end": "2026-10-30T17:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T16:30:00+05:30",
+          "interval_end": "2026-10-30T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T16:30:00+05:30",
+          "interval_end": "2026-10-30T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T17:00:00+05:30",
+          "interval_end": "2026-10-30T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T17:00:00+05:30",
+          "interval_end": "2026-10-30T17:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T17:00:00+05:30",
+          "interval_end": "2026-10-30T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T17:00:00+05:30",
+          "interval_end": "2026-10-30T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T17:30:00+05:30",
+          "interval_end": "2026-10-30T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-30T17:30:00+05:30",
+          "interval_end": "2026-10-30T18:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T17:30:00+05:30",
+          "interval_end": "2026-10-30T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T17:30:00+05:30",
+          "interval_end": "2026-10-30T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T18:00:00+05:30",
+          "interval_end": "2026-10-30T18:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T18:00:00+05:30",
+          "interval_end": "2026-10-30T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T18:00:00+05:30",
+          "interval_end": "2026-10-30T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T18:30:00+05:30",
+          "interval_end": "2026-10-30T19:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T18:30:00+05:30",
+          "interval_end": "2026-10-30T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T18:30:00+05:30",
+          "interval_end": "2026-10-30T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T19:00:00+05:30",
+          "interval_end": "2026-10-30T19:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T19:00:00+05:30",
+          "interval_end": "2026-10-30T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T19:00:00+05:30",
+          "interval_end": "2026-10-30T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T19:30:00+05:30",
+          "interval_end": "2026-10-30T20:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T19:30:00+05:30",
+          "interval_end": "2026-10-30T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T19:30:00+05:30",
+          "interval_end": "2026-10-30T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T20:00:00+05:30",
+          "interval_end": "2026-10-30T20:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T20:00:00+05:30",
+          "interval_end": "2026-10-30T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T20:00:00+05:30",
+          "interval_end": "2026-10-30T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T20:30:00+05:30",
+          "interval_end": "2026-10-30T21:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T20:30:00+05:30",
+          "interval_end": "2026-10-30T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T20:30:00+05:30",
+          "interval_end": "2026-10-30T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T21:00:00+05:30",
+          "interval_end": "2026-10-30T21:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T21:00:00+05:30",
+          "interval_end": "2026-10-30T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T21:00:00+05:30",
+          "interval_end": "2026-10-30T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T21:30:00+05:30",
+          "interval_end": "2026-10-30T22:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T21:30:00+05:30",
+          "interval_end": "2026-10-30T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T21:30:00+05:30",
+          "interval_end": "2026-10-30T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T22:00:00+05:30",
+          "interval_end": "2026-10-30T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T22:00:00+05:30",
+          "interval_end": "2026-10-30T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T22:00:00+05:30",
+          "interval_end": "2026-10-30T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-30T22:30:00+05:30",
+          "interval_end": "2026-10-30T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-30T22:30:00+05:30",
+          "interval_end": "2026-10-30T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-30T22:30:00+05:30",
+          "interval_end": "2026-10-30T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T10:00:00+05:30",
+          "interval_end": "2026-10-31T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T10:00:00+05:30",
+          "interval_end": "2026-10-31T10:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T10:00:00+05:30",
+          "interval_end": "2026-10-31T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T10:00:00+05:30",
+          "interval_end": "2026-10-31T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T10:30:00+05:30",
+          "interval_end": "2026-10-31T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T10:30:00+05:30",
+          "interval_end": "2026-10-31T11:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T10:30:00+05:30",
+          "interval_end": "2026-10-31T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T10:30:00+05:30",
+          "interval_end": "2026-10-31T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T11:00:00+05:30",
+          "interval_end": "2026-10-31T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T11:00:00+05:30",
+          "interval_end": "2026-10-31T11:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T11:00:00+05:30",
+          "interval_end": "2026-10-31T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T11:00:00+05:30",
+          "interval_end": "2026-10-31T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T11:30:00+05:30",
+          "interval_end": "2026-10-31T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T11:30:00+05:30",
+          "interval_end": "2026-10-31T12:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T11:30:00+05:30",
+          "interval_end": "2026-10-31T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T11:30:00+05:30",
+          "interval_end": "2026-10-31T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T12:00:00+05:30",
+          "interval_end": "2026-10-31T12:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T12:00:00+05:30",
+          "interval_end": "2026-10-31T12:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T12:00:00+05:30",
+          "interval_end": "2026-10-31T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T12:00:00+05:30",
+          "interval_end": "2026-10-31T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T12:30:00+05:30",
+          "interval_end": "2026-10-31T13:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T12:30:00+05:30",
+          "interval_end": "2026-10-31T13:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T12:30:00+05:30",
+          "interval_end": "2026-10-31T13:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T12:30:00+05:30",
+          "interval_end": "2026-10-31T13:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T13:00:00+05:30",
+          "interval_end": "2026-10-31T13:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T13:00:00+05:30",
+          "interval_end": "2026-10-31T13:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T13:00:00+05:30",
+          "interval_end": "2026-10-31T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T13:00:00+05:30",
+          "interval_end": "2026-10-31T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T13:30:00+05:30",
+          "interval_end": "2026-10-31T14:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T13:30:00+05:30",
+          "interval_end": "2026-10-31T14:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T13:30:00+05:30",
+          "interval_end": "2026-10-31T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T13:30:00+05:30",
+          "interval_end": "2026-10-31T14:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T14:00:00+05:30",
+          "interval_end": "2026-10-31T14:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T14:00:00+05:30",
+          "interval_end": "2026-10-31T14:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T14:00:00+05:30",
+          "interval_end": "2026-10-31T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T14:00:00+05:30",
+          "interval_end": "2026-10-31T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T14:30:00+05:30",
+          "interval_end": "2026-10-31T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T14:30:00+05:30",
+          "interval_end": "2026-10-31T15:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T14:30:00+05:30",
+          "interval_end": "2026-10-31T15:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T14:30:00+05:30",
+          "interval_end": "2026-10-31T15:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T15:00:00+05:30",
+          "interval_end": "2026-10-31T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T15:00:00+05:30",
+          "interval_end": "2026-10-31T15:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T15:00:00+05:30",
+          "interval_end": "2026-10-31T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T15:00:00+05:30",
+          "interval_end": "2026-10-31T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T15:30:00+05:30",
+          "interval_end": "2026-10-31T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T15:30:00+05:30",
+          "interval_end": "2026-10-31T16:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T15:30:00+05:30",
+          "interval_end": "2026-10-31T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T15:30:00+05:30",
+          "interval_end": "2026-10-31T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T16:00:00+05:30",
+          "interval_end": "2026-10-31T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T16:00:00+05:30",
+          "interval_end": "2026-10-31T16:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T16:00:00+05:30",
+          "interval_end": "2026-10-31T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T16:00:00+05:30",
+          "interval_end": "2026-10-31T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T16:30:00+05:30",
+          "interval_end": "2026-10-31T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T16:30:00+05:30",
+          "interval_end": "2026-10-31T17:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T16:30:00+05:30",
+          "interval_end": "2026-10-31T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T16:30:00+05:30",
+          "interval_end": "2026-10-31T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T17:00:00+05:30",
+          "interval_end": "2026-10-31T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T17:00:00+05:30",
+          "interval_end": "2026-10-31T17:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T17:00:00+05:30",
+          "interval_end": "2026-10-31T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T17:00:00+05:30",
+          "interval_end": "2026-10-31T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T17:30:00+05:30",
+          "interval_end": "2026-10-31T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-10-31T17:30:00+05:30",
+          "interval_end": "2026-10-31T18:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T17:30:00+05:30",
+          "interval_end": "2026-10-31T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T17:30:00+05:30",
+          "interval_end": "2026-10-31T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T18:00:00+05:30",
+          "interval_end": "2026-10-31T18:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T18:00:00+05:30",
+          "interval_end": "2026-10-31T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T18:00:00+05:30",
+          "interval_end": "2026-10-31T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T18:30:00+05:30",
+          "interval_end": "2026-10-31T19:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T18:30:00+05:30",
+          "interval_end": "2026-10-31T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T18:30:00+05:30",
+          "interval_end": "2026-10-31T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T19:00:00+05:30",
+          "interval_end": "2026-10-31T19:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T19:00:00+05:30",
+          "interval_end": "2026-10-31T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T19:00:00+05:30",
+          "interval_end": "2026-10-31T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T19:30:00+05:30",
+          "interval_end": "2026-10-31T20:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T19:30:00+05:30",
+          "interval_end": "2026-10-31T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T19:30:00+05:30",
+          "interval_end": "2026-10-31T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T20:00:00+05:30",
+          "interval_end": "2026-10-31T20:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T20:00:00+05:30",
+          "interval_end": "2026-10-31T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T20:00:00+05:30",
+          "interval_end": "2026-10-31T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T20:30:00+05:30",
+          "interval_end": "2026-10-31T21:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T20:30:00+05:30",
+          "interval_end": "2026-10-31T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T20:30:00+05:30",
+          "interval_end": "2026-10-31T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T21:00:00+05:30",
+          "interval_end": "2026-10-31T21:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T21:00:00+05:30",
+          "interval_end": "2026-10-31T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T21:00:00+05:30",
+          "interval_end": "2026-10-31T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 4,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T21:30:00+05:30",
+          "interval_end": "2026-10-31T22:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T21:30:00+05:30",
+          "interval_end": "2026-10-31T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T21:30:00+05:30",
+          "interval_end": "2026-10-31T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T22:00:00+05:30",
+          "interval_end": "2026-10-31T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T22:00:00+05:30",
+          "interval_end": "2026-10-31T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T22:00:00+05:30",
+          "interval_end": "2026-10-31T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-10-31T22:30:00+05:30",
+          "interval_end": "2026-10-31T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-10-31T22:30:00+05:30",
+          "interval_end": "2026-10-31T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-10-31T22:30:00+05:30",
+          "interval_end": "2026-10-31T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T10:00:00+05:30",
+          "interval_end": "2026-11-01T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T10:00:00+05:30",
+          "interval_end": "2026-11-01T10:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T10:00:00+05:30",
+          "interval_end": "2026-11-01T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T10:00:00+05:30",
+          "interval_end": "2026-11-01T10:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T10:30:00+05:30",
+          "interval_end": "2026-11-01T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T10:30:00+05:30",
+          "interval_end": "2026-11-01T11:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T10:30:00+05:30",
+          "interval_end": "2026-11-01T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T10:30:00+05:30",
+          "interval_end": "2026-11-01T11:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T11:00:00+05:30",
+          "interval_end": "2026-11-01T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T11:00:00+05:30",
+          "interval_end": "2026-11-01T11:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T11:00:00+05:30",
+          "interval_end": "2026-11-01T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T11:00:00+05:30",
+          "interval_end": "2026-11-01T11:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T11:30:00+05:30",
+          "interval_end": "2026-11-01T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T11:30:00+05:30",
+          "interval_end": "2026-11-01T12:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T11:30:00+05:30",
+          "interval_end": "2026-11-01T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T11:30:00+05:30",
+          "interval_end": "2026-11-01T12:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T12:00:00+05:30",
+          "interval_end": "2026-11-01T12:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T12:00:00+05:30",
+          "interval_end": "2026-11-01T12:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T12:00:00+05:30",
+          "interval_end": "2026-11-01T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T12:00:00+05:30",
+          "interval_end": "2026-11-01T12:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T12:30:00+05:30",
+          "interval_end": "2026-11-01T13:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T12:30:00+05:30",
+          "interval_end": "2026-11-01T13:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T12:30:00+05:30",
+          "interval_end": "2026-11-01T13:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T12:30:00+05:30",
+          "interval_end": "2026-11-01T13:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T13:00:00+05:30",
+          "interval_end": "2026-11-01T13:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T13:00:00+05:30",
+          "interval_end": "2026-11-01T13:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T13:00:00+05:30",
+          "interval_end": "2026-11-01T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T13:00:00+05:30",
+          "interval_end": "2026-11-01T13:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T13:30:00+05:30",
+          "interval_end": "2026-11-01T14:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T13:30:00+05:30",
+          "interval_end": "2026-11-01T14:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T13:30:00+05:30",
+          "interval_end": "2026-11-01T14:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T13:30:00+05:30",
+          "interval_end": "2026-11-01T14:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T14:00:00+05:30",
+          "interval_end": "2026-11-01T14:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T14:00:00+05:30",
+          "interval_end": "2026-11-01T14:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T14:00:00+05:30",
+          "interval_end": "2026-11-01T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T14:00:00+05:30",
+          "interval_end": "2026-11-01T14:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T14:30:00+05:30",
+          "interval_end": "2026-11-01T15:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T14:30:00+05:30",
+          "interval_end": "2026-11-01T15:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T14:30:00+05:30",
+          "interval_end": "2026-11-01T15:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T14:30:00+05:30",
+          "interval_end": "2026-11-01T15:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T15:00:00+05:30",
+          "interval_end": "2026-11-01T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T15:00:00+05:30",
+          "interval_end": "2026-11-01T15:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T15:00:00+05:30",
+          "interval_end": "2026-11-01T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T15:00:00+05:30",
+          "interval_end": "2026-11-01T15:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T15:30:00+05:30",
+          "interval_end": "2026-11-01T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T15:30:00+05:30",
+          "interval_end": "2026-11-01T16:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T15:30:00+05:30",
+          "interval_end": "2026-11-01T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T15:30:00+05:30",
+          "interval_end": "2026-11-01T16:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T16:00:00+05:30",
+          "interval_end": "2026-11-01T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T16:00:00+05:30",
+          "interval_end": "2026-11-01T16:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T16:00:00+05:30",
+          "interval_end": "2026-11-01T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T16:00:00+05:30",
+          "interval_end": "2026-11-01T16:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T16:30:00+05:30",
+          "interval_end": "2026-11-01T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T16:30:00+05:30",
+          "interval_end": "2026-11-01T17:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T16:30:00+05:30",
+          "interval_end": "2026-11-01T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T16:30:00+05:30",
+          "interval_end": "2026-11-01T17:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 2,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T17:00:00+05:30",
+          "interval_end": "2026-11-01T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T17:00:00+05:30",
+          "interval_end": "2026-11-01T17:30:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T17:00:00+05:30",
+          "interval_end": "2026-11-01T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T17:00:00+05:30",
+          "interval_end": "2026-11-01T17:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T17:30:00+05:30",
+          "interval_end": "2026-11-01T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "78cf829b-deb0-5ce0-863c-fef7722f4b21",
+          "interval_start": "2026-11-01T17:30:00+05:30",
+          "interval_end": "2026-11-01T18:00:00+05:30",
+          "minimum_required": 0,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T17:30:00+05:30",
+          "interval_end": "2026-11-01T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T17:30:00+05:30",
+          "interval_end": "2026-11-01T18:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T18:00:00+05:30",
+          "interval_end": "2026-11-01T18:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T18:00:00+05:30",
+          "interval_end": "2026-11-01T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T18:00:00+05:30",
+          "interval_end": "2026-11-01T18:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T18:30:00+05:30",
+          "interval_end": "2026-11-01T19:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T18:30:00+05:30",
+          "interval_end": "2026-11-01T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T18:30:00+05:30",
+          "interval_end": "2026-11-01T19:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T19:00:00+05:30",
+          "interval_end": "2026-11-01T19:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T19:00:00+05:30",
+          "interval_end": "2026-11-01T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T19:00:00+05:30",
+          "interval_end": "2026-11-01T19:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T19:30:00+05:30",
+          "interval_end": "2026-11-01T20:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T19:30:00+05:30",
+          "interval_end": "2026-11-01T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T19:30:00+05:30",
+          "interval_end": "2026-11-01T20:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T20:00:00+05:30",
+          "interval_end": "2026-11-01T20:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T20:00:00+05:30",
+          "interval_end": "2026-11-01T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T20:00:00+05:30",
+          "interval_end": "2026-11-01T20:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T20:30:00+05:30",
+          "interval_end": "2026-11-01T21:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T20:30:00+05:30",
+          "interval_end": "2026-11-01T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T20:30:00+05:30",
+          "interval_end": "2026-11-01T21:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T21:00:00+05:30",
+          "interval_end": "2026-11-01T21:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T21:00:00+05:30",
+          "interval_end": "2026-11-01T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T21:00:00+05:30",
+          "interval_end": "2026-11-01T21:30:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T21:30:00+05:30",
+          "interval_end": "2026-11-01T22:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T21:30:00+05:30",
+          "interval_end": "2026-11-01T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T21:30:00+05:30",
+          "interval_end": "2026-11-01T22:00:00+05:30",
+          "minimum_required": 2,
+          "preferred_required": 3,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T22:00:00+05:30",
+          "interval_end": "2026-11-01T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T22:00:00+05:30",
+          "interval_end": "2026-11-01T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T22:00:00+05:30",
+          "interval_end": "2026-11-01T22:30:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "0aa5c0ea-62bf-5c38-993b-a02803969f34",
+          "interval_start": "2026-11-01T22:30:00+05:30",
+          "interval_end": "2026-11-01T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "template"
+        },
+        {
+          "skill_id": "a7a79981-4178-5259-9793-dca3c3fc2ea8",
+          "interval_start": "2026-11-01T22:30:00+05:30",
+          "interval_end": "2026-11-01T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        },
+        {
+          "skill_id": "d6ccb7a6-69ef-5be0-9556-6f559444c0c8",
+          "interval_start": "2026-11-01T22:30:00+05:30",
+          "interval_end": "2026-11-01T23:00:00+05:30",
+          "minimum_required": 1,
+          "preferred_required": 1,
+          "source": "forecast"
+        }
+      ]
+    }
+  }
+}

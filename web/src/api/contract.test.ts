@@ -25,7 +25,11 @@ describe(`consumer fixtures ${manifest.version}`, () => {
         return;
       }
       for (const header of Object.keys(value.response.headers ?? {})) expect(operation?.responses[String(value.response.status)]?.headers?.[header]).toBeDefined();
-      expect(operation?.responses[String(value.response.status)]?.content?.['application/json']?.schema?.$ref).toBe(`#/components/schemas/${value.response.schema}`);
+      const content = operation?.responses[String(value.response.status)]?.content;
+      const media = value.response.schema === 'EventStream' ? 'text/event-stream' : 'application/json';
+      expect(content?.[media]?.schema?.$ref).toBe(`#/components/schemas/${value.response.schema}`);
+      // SSE fixtures contain decoded frames, not a JSON response served by the endpoint.
+      if (media === 'text/event-stream') expect(Array.isArray((value.response.body as { events: unknown[] }).events)).toBe(true);
       const validate = ajv.compile({ $ref: `#/components/schemas/${value.response.schema}`, components: openapi.components });
       expect(validate(value.response.body), JSON.stringify(validate.errors)).toBe(true);
     });
