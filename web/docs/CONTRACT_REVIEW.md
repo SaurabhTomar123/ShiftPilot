@@ -1,3 +1,13 @@
+# 26 October: scheduling rules consumer review
+
+Consumer pin stays **3.27.0-p4 / 164 fixtures**. UI now consumes list, typed preview, keyed create and explicit archive. No provider snapshot bytes or backend runtime changed. The rule returned by preview must match the submitted fields; edits invalidate review. Narrower scope never implies precedence: only a returned explicit exception reference is loaded, then separately previewed before saving. Published assignments remain unchanged.
+
+Managers see outlet/person scopes; organization/tag changes require an owner. Catalog scope is not confused with the selected outlet. Cross-outlet impacts retain returned offsets. Uncertain create uses read plus explicit same-key retry; uncertain archive requires a read without automatic retry.
+
+The fixed student create record upserts the supplied ID. Rohit's conflict is supported, but successful exception previews/saves, other scopes/types and shift-impact examples are not supplied. Unsupported requests remain explicit; consumer-only browser variants do not close provider/live acceptance. See [rules flow and follow-up](RULES_FLOW.md).
+
+---
+
 # 26 October: weekly staffing template consumer review
 
 Consumer pin stays **3.27.0-p4 / 164 fixtures**. SDK/UI now consume list/save templates and explicit keyed expansion. No backend source/runtime or provider fixture bytes changed. Template saves replace the full set using its revision; expansion separately writes dated requirements and reuses its original key after an uncertain result. Neither action generates or publishes a schedule.

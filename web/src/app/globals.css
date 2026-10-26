@@ -1079,3 +1079,25 @@ input::placeholder, textarea::placeholder { color: #75806e; opacity: 1; }
 .staffing-templates fieldset > button { margin: 12px 12px 12px 0; }
 @media (max-width: 1150px) { .template-block { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 650px) { .staffing-templates { padding: 16px; } .template-block { grid-template-columns: repeat(2, minmax(0, 1fr)); } .template-midnight { grid-column: 1 / -1; } .template-filters label { flex: 1 1 140px; } }
+.rules-boundary { padding: 20px 24px; border-inline-start: 4px solid var(--green); background: var(--mint); border-radius: 7px; }
+.scheduling-rules p { margin-block: 12px; line-height: 1.65; max-width: 78ch; }
+.rules-list-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-block: 24px 16px; }
+.rules-archived-filter, .rule-midnight { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.saved-rules { list-style: none; padding: 0; margin: 0; }
+.saved-rules > li { border-bottom: 1px solid var(--line); padding-block: 20px; }
+.scheduling-rules h3 { font-size: 21px; margin-block: 16px 8px; }
+.scheduling-rules summary { cursor: pointer; padding-block: 10px; min-height: 44px; font-weight: 600; }
+.rule-editor, .rule-preview, .rules-archive-confirm { margin-block: 24px; padding: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.rule-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-block: 20px; }
+.rule-fields > label:not(.rule-midnight), .rule-notes { display: grid; gap: 8px; }
+.rule-editor input:not([type=checkbox]), .rule-editor select, .rule-editor textarea { width: 100%; min-width: 0; min-height: 44px; padding: 10px; border: 1px solid var(--line); background: var(--surface); color: inherit; border-radius: 7px; }
+.rule-editor fieldset { border: 0; padding: 0; min-width: 0; }
+.rule-weekdays { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 20px; }
+.rule-weekdays label { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.rule-weekdays legend { font-weight: 600; margin-bottom: 12px; }
+.scheduling-rules input[type=checkbox] { width: 20px; height: 20px; flex-shrink: 0; }
+.rule-editor textarea { min-height: 90px; }
+.rule-examples { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.rule-conflicts { border-inline-start: 3px solid var(--green); padding-inline-start: 16px; margin-block: 20px; }
+.scheduling-rules .review-table-scroll table { min-width: 740px; }
+@media (max-width: 650px) { .rule-fields { grid-template-columns: 1fr; } .rule-editor, .rule-preview, .rules-archive-confirm { padding: 16px; } .rules-list-heading { align-items: start; flex-direction: column; } .scheduling-rules .surface-note { overflow-wrap: anywhere; } }

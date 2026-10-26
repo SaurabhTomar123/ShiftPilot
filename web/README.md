@@ -1,6 +1,6 @@
 # ShiftPilot web
 
-Codex owns `web/`; Claude owns backend/database contracts. **Architecture v4 is governing.** See [v4 alignment and delivery order](docs/ARCHITECTURE_V4_ALIGNMENT.md). This branch currently consumes provider contract **3.27.0-p4**, pinned as a frontend-only contract snapshot. Candidate review/selection, manual draft edits, history/restore and proposal approval now use the v3 contract; absence reporting and repair review are connected as well. Weekly staffing templates and explicit dated expansion are now integrated; see [staffing template flow](docs/STAFFING_TEMPLATE_FLOW.md).
+Codex owns `web/`; Claude owns backend/database contracts. **Architecture v4 is governing.** See [v4 alignment and delivery order](docs/ARCHITECTURE_V4_ALIGNMENT.md). This branch currently consumes provider contract **3.27.0-p4**, pinned as a frontend-only contract snapshot. Candidate review/selection, manual draft edits, history/restore and proposal approval now use the v3 contract; absence reporting and repair review are connected as well. Weekly staffing templates and explicit dated expansion are now integrated; see [staffing template flow](docs/STAFFING_TEMPLATE_FLOW.md). Typed scheduling rules now have preview, explicit exceptions, keyed save and archive decisions; see [rules flow](docs/RULES_FLOW.md).
 
 ## Run
 
@@ -14,8 +14,9 @@ Open http://127.0.0.1:3001. The UI uses Next.js 16, React 19, TypeScript, TanSta
 
 ## Current surfaces
 
-- `/`: provider fixture preview, with separate owner/manager/employee sessions. Use Schedule, Employees, Staffing, Repair Inbox and History navigation. Employee/skill/availability and date-specific staffing forms have validation, explicit save results and stale-edit recovery. Synthetic edits exist only in a bounded, expiring preview session. Persona changes/server restarts reset them; fixed roster/solver fixtures do not change with input edits.
+- `/`: provider fixture preview, with separate owner/manager/employee sessions. Use Schedule, Employees, Staffing, Repair Inbox, Scenario Lab, Rules and History navigation. Employee/skill/availability and date-specific staffing forms have validation, explicit save results and stale-edit recovery. Synthetic edits exist only in a bounded, expiring preview session. Persona changes/server restarts reset them; fixed roster/solver fixtures do not change with input edits.
 - Staffing templates: edit recurring weekday/skill blocks with grid, count and overlap validation; save the whole template, then separately review and expand into a dated week. Unsaved dated edits block expansion. Uncertain expansion locks dated writes until explicitly recovered using the same key. The synthetic save and expansion records cover separate provider examples.
+- Scheduling rules: define required working-day or finish-time limits, preview affected people/conflicts/shift impacts, then explicitly save. Server-suggested exceptions require their own fresh preview. Organization/tag changes require an owner; archive has a separate confirmation. Published assignments stay in place.
 - Manual drafts: copy the published week, choose an assignment, change its teammate/role/time or lock state, preview server validation, then apply the reviewed request. Removing an assignment also requires preview. Input changes invalidate the preview. Stale or uncertain saves require explicit reload; they never retry automatically. The synthetic preview supports the opening-cook lock and conflicting-reassignment examples only.
 - History: inspect recorded version metrics, compare assignments in either direction, restore an older version into a newly validated draft, and discover pending proposals. Restored drafts enter proposal approval; no restore publishes directly.
 - Repair Inbox: list records by outlet/week, save a confirmed absence or request, explicitly confirm/reject/cancel records, track automatic repair runs, authorize individual locked assignments, and review widening stages and replacement options. Selection creates a draft that uses proposal approval. Synthetic mode supports the supplied reporting, repair detail, selection and proposal examples. Status-transition fixtures are published but not yet wired into the preview gateway; unsupported writes remain explicit errors. See [absence flow](docs/ABSENCE_FLOW.md).
@@ -52,6 +53,7 @@ Fixture scenario/session headers are never sent to a configured real API. There 
 
 ## Architecture and handoffs
 
+- [Scheduling rules and explicit exceptions](docs/RULES_FLOW.md)
 - [Staffing templates and dated expansion](docs/STAFFING_TEMPLATE_FLOW.md)
 - [Scenario Lab](docs/SCENARIO_LAB_FLOW.md)
 - [Replacement recommendations](docs/REPLACEMENT_FLOW.md)
@@ -67,7 +69,7 @@ Fixture scenario/session headers are never sent to a configured real API. There 
 - [Design system](DESIGN.md)
 - [Contract reviews](docs/CONTRACT_REVIEW.md)
 
-Run protection, portfolio metadata, historical fairness burden and decision traces are integrated. Replacement recommendations now have consumer UI. Scenario Lab and current-fact conversion now have consumer UI. Remaining P0 work is provider fixture coverage and live engine/isolation acceptance, followed by remaining import/rule and P1 consumer workflows. Many corresponding provider contracts are included in the snapshot, but their UI and live acceptance remain separate work. Existing template/import/rules integrations and P1 demand/employee workflows follow the contract handoff. The old sandbox is not evidence that those server workflows are delivered.
+Run protection, portfolio metadata, historical fairness burden and decision traces are integrated. Replacement recommendations now have consumer UI. Scenario Lab and current-fact conversion now have consumer UI. Remaining P0 work is provider fixture coverage and live engine/isolation acceptance, followed by CSV import, optional natural-language rule parsing and P1 consumer workflows. Many corresponding provider contracts are included in the snapshot, but their UI and live acceptance remain separate work. Typed rules and recurring templates are integrated; remaining import/parsing and P1 demand/employee workflows follow the contract handoff. The old sandbox is not evidence that those server workflows are delivered.
 
 Design skills are local development tools, not runtime dependencies. Current work uses the requested [taste redesign guidance](https://github.com/Leonxlnx/taste-skill/tree/main/skills/redesign-skill), [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design), and [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill). [improve-animations](https://github.com/emilkowalski/skills/tree/main/skills/improve-animations) supplies read-only audit/planning criteria; implementation remains the authorized repository task.
 

@@ -87,6 +87,10 @@ export class SchedulingClient {
     return session.me;
   }
   me(signal?: AbortSignal) { return this.request<Schema['Me']>('/v2/me', { signal }); }
+  rules(includeArchived: boolean, signal?: AbortSignal) { return this.request<Schema['RuleList']>(`/v2/rules?include_archived=${includeArchived}`, { signal }); }
+  previewRule(input: Schema['RuleDefinition'], signal?: AbortSignal) { return this.request<Schema['RulePreview']>('/v2/rules/preview', { method: 'POST', body: JSON.stringify(input), signal }); }
+  createRule(input: Schema['RuleDefinition'], key: string, signal?: AbortSignal) { return this.request<Schema['SchedulingRule']>('/v2/rules', { method: 'POST', body: JSON.stringify(input), signal }, requiredKey(key)); }
+  archiveRule(id: string, signal?: AbortSignal) { return this.request<Schema['SchedulingRule']>(`/v2/rules/${encodeURIComponent(id)}/archive`, { method: 'POST', signal }); }
   scenarios(outletId: string, week: string, signal?: AbortSignal) { return this.request<Schema['ScenarioList']>(`/v2/outlets/${encodeURIComponent(outletId)}/scenarios?week_start=${encodeURIComponent(week)}`, { signal }); }
   scenario(id: string, signal?: AbortSignal) { return this.request<Schema['Scenario']>(`/v2/scenarios/${encodeURIComponent(id)}`, { signal }); }
   createScenario(outletId: string, week: string, input: Schema['CreateScenarioRequest'], signal?: AbortSignal) { return this.request<Schema['Scenario']>(`/v2/outlets/${encodeURIComponent(outletId)}/schedules/${encodeURIComponent(week)}/scenarios`, { method: 'POST', body: JSON.stringify(input), signal }); }

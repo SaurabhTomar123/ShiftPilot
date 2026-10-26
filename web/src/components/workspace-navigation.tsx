@@ -6,7 +6,7 @@ import { ArrowRightIcon, CalendarBlankIcon, ClockCounterClockwiseIcon, ListCheck
 import type { Schema } from '@/api/types';
 import { Avatar } from './ui';
 
-export type WorkspaceSection = 'schedule' | 'team' | 'demand' | 'history' | 'absences' | 'scenarios';
+export type WorkspaceSection = 'schedule' | 'team' | 'demand' | 'history' | 'absences' | 'scenarios' | 'rules';
 export type SidebarMotion = 'slide' | 'dissolve' | 'fold';
 const subscribe = (notify: () => void) => { const media = matchMedia('(max-width: 900px)'); media.addEventListener('change', notify); return () => media.removeEventListener('change', notify); };
 
@@ -33,7 +33,7 @@ export function WorkspaceNavigation({ me, section, setSection, collapsed, setCol
     document.addEventListener('keydown', keydown);
     return () => { document.body.style.overflow = previousOverflow; document.removeEventListener('keydown', keydown); (previous ?? opener)?.focus(); };
   }, [mobile, open]);
-  const items = me.role === 'staff' ? [{ id: 'schedule' as const, name: 'Your schedule', icon: CalendarBlankIcon }] : [{ id: 'schedule' as const, name: 'Schedule', icon: CalendarBlankIcon }, { id: 'team' as const, name: 'Employees', icon: UsersThreeIcon }, { id: 'demand' as const, name: 'Staffing', icon: ListChecksIcon }, { id: 'absences' as const, name: 'Repair Inbox', icon: ListChecksIcon }, { id: 'scenarios' as const, name: 'Scenario Lab', icon: ListChecksIcon }, { id: 'history' as const, name: 'History', icon: ClockCounterClockwiseIcon }];
+  const items = me.role === 'staff' ? [{ id: 'schedule' as const, name: 'Your schedule', icon: CalendarBlankIcon }] : [{ id: 'schedule' as const, name: 'Schedule', icon: CalendarBlankIcon }, { id: 'team' as const, name: 'Employees', icon: UsersThreeIcon }, { id: 'demand' as const, name: 'Staffing', icon: ListChecksIcon }, { id: 'absences' as const, name: 'Repair Inbox', icon: ListChecksIcon }, { id: 'scenarios' as const, name: 'Scenario Lab', icon: ListChecksIcon }, ...(me.capabilities.includes('manage_employees') ? [{ id: 'rules' as const, name: 'Rules', icon: ListChecksIcon }] : []), { id: 'history' as const, name: 'History', icon: ClockCounterClockwiseIcon }];
   return <>
     <button ref={trigger} type="button" className="mobile-menu-toggle" aria-label="Open navigation" aria-expanded={open} aria-controls="workspace-navigation" onClick={() => setOpen(true)}><ListIcon size={23} /></button>
     {mobile && open && <button className="navigation-backdrop" aria-label="Close navigation overlay" onClick={() => setOpen(false)} tabIndex={-1} />}

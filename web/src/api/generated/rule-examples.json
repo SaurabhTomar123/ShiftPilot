@@ -1,0 +1,38 @@
+{
+  "student": {
+    "rule_type": "max_shift_end_time",
+    "scope_level": "tag",
+    "scope": {
+      "tag": "student"
+    },
+    "parameters": {
+      "latest_end_minute": 1260,
+      "weekdays": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "hard": true,
+    "overrides_rule_id": null,
+    "source_text": "Students must finish by 9 PM on weekdays"
+  },
+  "conflict": {
+    "rule_type": "max_shift_end_time",
+    "scope_level": "employee",
+    "scope": {
+      "employee_id": "47502e23-7b33-5895-a60b-b405cfa9b710"
+    },
+    "parameters": {
+      "latest_end_minute": 1380,
+      "weekdays": [
+        4
+      ]
+    },
+    "hard": true,
+    "overrides_rule_id": null,
+    "source_text": "Rohit can work until 11 PM on Fridays"
+  }
+}
